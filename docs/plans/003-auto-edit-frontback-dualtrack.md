@@ -1,6 +1,6 @@
 ---
 plan_id: PLAN-003
-status: execution_done
+status: reviewed
 feature_name: auto-edit-frontback-dualtrack（auto-edit front/back 架构拆分：src/back + api.at 边界 + back 用 Auto 写 + 双轨化 vm/vue）
 author: [zhaopuming]
 created_at: 2026-09-20
@@ -317,6 +317,35 @@ auto-lang / auto-down / jade-edit。
   非回归——旧二进制同匹配但静默 null；一并归上游）。
   | next: review（re-review：AC-01..06 全套，重点 AC-03 新证据与 F-V1
   归属裁量）
+
+- 2026-09-21 stage: review（re-review）| PLAN-003 | r1 | **pass** |
+  reviewed_commit: 7a4ed53（较 r1 复审基线 b244d56 仅 README 一文件变更；
+  worktree 零脏改）| base_commit: 10881b9 | dependency_revisions:
+  auto-lang@51e4a98a4 master（**工具链已换**：auto.exe v0.4.2-1588 含
+  PLAN-669，r1 复审时的 1498-g34ee15a47 基线证据按各自时点有效）；组兄
+  弟树 e535e74372（bps 静态依赖，不受影响）| spec_inputs:
+  specs/auto-edit/README.md@7a4ed53（SD-01/02 + split 注记勘误版）|
+  acceptance_results: **AC-01 pass**（契约 6 pub fn；front grep 零代码
+  命中——四幸存全注释，本 review 重核）；**AC-02 pass**（完成态跑次
+  44/41 ≥39；非确定性见 F-RV6 裁量——对照实验证明非本计划确定性回归）；
+  **AC-03 pass**（新鲜抽检 exists→1/env_str 真值 + 今日复验六端点全真值
+  + split 功能环 11/11 + 013 按名铁证——r1 原口径达成）；**AC-04 pass**
+  （regen --build 今日复绿 7.38s，7a4ed53 未触代码，证据复用理由=仅
+  README 变更）；**AC-05 pass**（README 勘误落地核验）；**AC-06 pass**
+  （登记分支：E0432 生成物在场核验）| findings: **F-RV6**（info→上游，
+  非阻塞）：新工具链下矩阵非确定性——四跑对照表：拆分前 50/0 ↔早崩
+  （7 PASS 后 9247 拒连）；拆分后 44/2（T10×2）↔41/2（T2 菜单+T9 加号，
+  异集）。失败集逐跑漂移 + 对照组同样崩 ⇒ 工具链层面竞态（auto-lang
+  668 并流快照漂移领域），非本计划拆分所致的确定性回归；**处置**：归
+  上游跟踪（668 后续），本仓待工具链稳定后重定基线（现有 39/6 基线
+  绑定旧工具链时点）。F-RV7（015 :id 遮蔽 /search 既存路由债被 669
+  显性化）维持上游登记。F-RV1（r1 needs_replan 动因）已由 669 消解 ✓；
+  F-RV2/3/4/5 维持原判。| evidence: 对照实验（主检 @a61df19 拆分前代码
+  × 新工具链两跑 vs worktree 两跑，四跑表在档）+ 独立复现 T10 fresh
+  实例健康（ActSave 在场/关 tab 循环归零/edits=0——T10 失败不独立复现，
+  印证时序性）+ 六端点新鲜抽检 + grep 重核 + 生成物源级核验 |
+  next: merge（规范增量 SD-01/02 + split 注记勘误随 worktree 交付；
+  frontmatter 三字段 002 惯例空+书面说明维持）
 
 ## 10. 待澄清事项
 
