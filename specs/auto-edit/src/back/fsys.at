@@ -1,11 +1,11 @@
-// back/fs.at — fs 后端实现本体（PLAN-003 T-01）。
+// back/fsys.at — fs 后端实现本体（PLAN-003 T-01；T-03 改名 fs→fsys：
+// 模块名与内建 fs 对象同名有遮蔽风险，且 split 扁平化只吃整模块导入）。
 //
 // 全部文件系统 IO 收口于此（front 零 fs.*/File.* 内建——AC-01；vue 轨
 // ts_adapter 将二者拦为 __vmOnly 抛错桩，T-00 P-5 实证，此即拆 back 的
 // 动机）。AutoVM 解释服役（merged 进程内 / split 为 HTTP 服务侧模块）。
-//
 // 函数名与 api.at 契约名刻意错开（root_dir↔ws_root 等）——013-todo 形态：
-// 契约 fn 与实现 fn 同名会在 use 导入处遮蔽冲突。
+// 契约 fn 与实现 fn 同名会在导入处遮蔽冲突。
 
 /// 工作区根：AUTO_PROJECT_DIR（auto-man 注入），缺席兜底 "."
 pub fn root_dir() str {
