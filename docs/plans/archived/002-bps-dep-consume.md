@@ -165,4 +165,4 @@ merge 投影 reviews 段；001 的 P001-1 收据不回改。）
   - **landed** ✓：worktree rebase（range-diff `=` 补丁等价 3b9c8a6→a5728b7）→ `--ff-only` 直进，master tip = 7449adc = delivery commit。known-good：主检 boot = Running project ✓ / Undefined symbol 零 / 24 handler OK（grep error 命中系 MCP 端口 10048 retry 行——矩阵实例 TIME_WAIT 竞态，自恢复非 dep 面）。
   - **ledger_refreshed** ✓：主检回读 reviews = [P001-1, P002-1]。
   - **archived** ✓：untracked 计划平移入册 docs/plans/archived/002-bps-dep-consume.md（status archived + completion_kind delivered + 本收据）。
-  - **cleaned**：待补记（含组兄弟 auto-lang 依赖树）。
+  - **cleaned** ✓：双树 wt-guard clean + worktree 移除（auto-edit --force 清 .am 残渣 + 组兄弟 auto-lang）+ plan-002-dev 删除（was 7449adc 全落）+ 组目录 edit-002 移除 + 双仓 prune 零残留——**PLAN-002:r1 五 checkpoint 全闭环 delivered**。
