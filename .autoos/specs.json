@@ -75,6 +75,16 @@
      ],
      "superseded_by": null,
      "content": "- 验收：dep bps ../blueprints→../../../auto-lang/blueprints（cwd 相对解析——主检出 3 级=autostack/auto-lang；worktree 深 2 级落组兄弟位，按 jade 组惯例补组内 auto-lang 兄弟树）+ specs/blueprints 整库 fork 退役（92c8013a 期拷贝，池已演进至 657）+ bootstrap 脚本 COPIES 收敛（重跑不重建 fork）+ README 兄弟仓依赖注记+ PROVENANCE 退役注（SD-01）。\n- 复审 r1 pass：三组独立复跑（fork/dep 状态、boot 零 ERROR、矩阵第六次 39/6 同类 menubar 上游面）；F-R1 quit 项在 39/5↔39/6 逐次波动=上游回归面不稳（上游修单证据）；F-R2 cwd 相对 dep 解析组兄弟惯例。\n- 语义变更：PLAN-001 bootstrap 期约束\"不触碰 auto-lang 仓内路径\"由方向一显式取代（2026-09-20 用户裁定）。池版本锁定协议归上游独立计划治理（方向一裁定附款）。"
+    },
+    {
+     "id": "P003-1",
+     "section": "reviews",
+     "status": "stable",
+     "title": "PLAN-003 — front/back 拆分 + 双轨化收据（reviewed pass @ r1 7a4ed53：src/back api.at 契约六 fn + fsys.at 收口全部 FS 面 + pac render [vm,vue] + vue regen 链构建绿）",
+     "file": "docs/plans/archived/003-auto-edit-frontback-dualtrack.md",
+     "related": ["PLAN-002", "PLAN-003"],
+     "superseded_by": null,
+     "content": "- 验收：front 经 use back.api 裸直调（013/015 形态）零 fs.*/File.*/Env.get 内建（grep 零代码命中）；merged 矩阵完成态 ≥39/6 口径（双时点工具链基线在档）；split 功能环 11/11（树/open/edit/save/quit-save 经 back HTTP）——上游 auto-lang PLAN-669（#[api] 实参按名绑定）解阻后达成，工具链须含 669 构建；vue 轨 scripts/regen_vue.py 一键链（生成 --lenient + 七类生成器缺口补件）vue-tsc+vite 构建绿；README SD-01/02 + split 注记勘误（「内建空桩」定性作废→实参装配断层，根因重定性三段在档）。\n- 复审 r1：首轮 needs_replan（AC-03 上游卡死）→ 缺陷报告供料 auto-lang 立 669 → 修复落 master 后复验 pass（re-review 全六 AC pass；四跑对照实验裁定矩阵非确定性=工具链竞态 F-RV6 归上游 668 面非本计划回归）。\n- 关键裁定：pac 永不写 api: 字段（引擎=运行期 --server 自由度）；fs.join 出契约（ts_adapter 对象级白名单连纯逻辑一并拦，T-00 P-5）；vue dev=后端独立 serve + vite 直跑两终端配方（auto run -r vue 内置再生成会覆盖补件）；归上游登记=F-R1（a2r E0432+空体桩）/F-RV6（矩阵竞态）/F-RV7（015 :id 遮蔽 /search）。"
     }
    ],
    "status": "Empty",
