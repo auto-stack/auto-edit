@@ -1,5 +1,9 @@
 # 041-auto-edit — AutoLang 文本编辑器（多文件组件化）
 
+> 本项目（auto-edit 仓）拷贝自 auto-lang `examples/ui/041-auto-edit`，源
+> commit 见 [`specs/PROVENANCE.md`](../PROVENANCE.md)；下方 Plan 补记为
+> 源仓历史，保留为沿革记录。
+
 一个"严肃应用"轨道的 AutoUI 示例：多 tab 代码编辑器（原生 CodeMirror6 内核），
 带菜单栏/工具栏/全局快捷键三源动作触发、右键菜单、脏 tab 关闭确认、Console
 面板、撤销重做与文件打开/保存。Plans 413/414/418/420/422/428 持续迭代，
@@ -59,24 +63,28 @@ Plan 449 完成组件化重构（单文件 486 行 → 五文件工程）。
 ## How to Run
 
 ```
-cd examples/ui/041-auto-edit
-auto run               # pac.at 默认 render: "vm" —— AutoVM + iced 原生窗口
-auto run --render vm   # 同上（显式）
-auto build             # C/ninja 移植路径（windows_ninja port）
+cd specs/auto-edit        # 本仓布局（自仓根起）
+auto run -r vm            # AutoVM + iced 原生窗口（工具链经 PATH 解析）
+auto build                # C/ninja 移植路径（windows_ninja port）
 ```
 
-需要先构建工具链：`cargo build --features ui-iced --bin auto`（仓库根）。
+前置：`auto` 在 PATH（或将 `AUTO_BIN` 指向 auto 可执行文件）；本仓不
+构建工具链。
 
 ## Tests
 
 ```
-cd examples/ui/041-auto-edit/tests
+cd specs/auto-edit/tests
 python desktop_mcp.py   # MCP 桌面动作矩阵：三源触发/tab 工作区/热重载/OS 键位层
 ```
 
-前置：`pip install requests`；可选 `AUTO_BIN` 指向 auto 可执行文件；
-`AUTO_OPEN_PATH`/`AUTO_SAVE_PATH` 环境变量旁路阻塞式文件对话框（不设则跳过
-T9/T10 分组）。
+前置：`pip install requests`；`AUTO_BIN` 环境变量优先，否则取 PATH 的
+`auto`；`AUTO_OPEN_PATH`/`AUTO_SAVE_PATH` 环境变量旁路阻塞式文件对话框
+（不设则跳过 T9/T10 分组）。
+
+现状注记：矩阵当前 39/6——6 失败同属 menubar 展开项快照缺失（上游
+渲染器回归，归因与两次复跑记录见本仓 `docs/plans/001` Task 4）；上游
+修复后重跑预期回 ≈48/2 口径。
 
 注：Plan 451 起 T10「热重载」走 DSL 源路径（reload 工具或 mtime 轮询重读
 app.at 重新提取 actions + generation bump → 视图重建），实测 50/0 全绿。

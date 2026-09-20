@@ -2,8 +2,8 @@
 Plan 418 Phase 1: Desktop MCP action-matrix (real 041 auto-edit)
 ============================================================
 
-Starting real 041 auto-edit in D:\autostack\auto-edit\specs\auto-edit...
-App output log: C:\Users\zhaop\AppData\Local\Temp\auto041_mcp_cxjan_ze.log
+Starting real 041 auto-edit in D:\autostack\.wt\edit-001\auto-edit\specs\auto-edit...
+App output log: C:\Users\zhaop\AppData\Local\Temp\auto041_mcp_q_j_yymi.log
 Waiting for MCP server on port 9247...
 MCP server ready
 
