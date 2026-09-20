@@ -273,6 +273,30 @@ auto-lang / auto-down / jade-edit。
   next: new（r2 有界修订 AC-03 口径 + §5 契约表同步；T-03 已重开，
   其余五任务勾选与全部实证保留；B1/F-W2/F-R1 上游并案面见 §10-B1）
 
+- 2026-09-20 stage: review 补充勘定 | PLAN-003 | r1 | F-W1/F-W2 根因
+  重新定性（用户发起，为 auto-lang 修复计划供料）| **F-W1 的「File/fs
+  内建空桩」定性作废**：内建层完好——上游 013-todo 以 `--server vm`
+  复现，无参 `list_todos()` 正常返回种子数据（同上下文内建与 VM 执行
+  全通）。**真根因 = AutoVM HTTP server 的实参装配约定断层**
+  （http_server.rs legacy positional 分支）：
+  ① GET query 参数不按名绑定形参，而是把整个 query 集合序列化为单个
+  JSON 对象串（`{"path":"pac.at","depth":"1"}`）作第 1 位置实参推入
+  （async 版 ~L2870「Plan 346: Push query params as a JSON object
+  string if no body」；stdnet 版同构 ~L2085）；
+  ② POST body 不解析 JSON，原始串整个塞第 1 实参（013 复现铁证：
+  `create_todo(text)` 收到 text=`{"text":"probe-item"}` 字面量）；
+  ③ 仅 `:param` 路径段参数逐个按位推入（这条是对的）。
+  auto-edit 全部现象由此统一：带 query 参的 exists/read_text/tree/
+  env_str 拿到 JSON 集合串当路径/变量名 → fs 系内建静默容错
+  （`unwrap_or_default`，stdlib.rs:337-355）→ 返回类型正确的空值；
+  无参 ws_root 活。**F-W2 并案**（env_str(name) 的 name =
+  `{"name":"PATH"}` → Env.get 返回 ""——非 env 可见性问题）。
+  修复面定位：http_server.rs 两处实参装配 + route 表数据结构
+  （get_http_routes 返回 (method,path,fn_name) 三元组无 param 清单——
+  按名绑定缺数据；文件内自注「Long-term: codegen should record
+  per-param types in api_routes」= Plan 326 Phase 5 在册 TODO 即此缺口）。
+  修复后预期：vm split 功能环 fs 腿直接复活（无需改本仓），B1 解阻。
+
 ## 10. 待澄清事项
 
 1. **vue 轨 untitled/save-as 形态**：`dialog_save` 为 vm 侧 UI 内建，
@@ -289,12 +313,15 @@ auto-lang / auto-down / jade-edit。
    `AUTO_HTTP_PORT=<port> pnpm dev`（前端，vite 代理 /api 实测 200）；
    ⚠ `auto run -r vue` 内置再生成会覆盖 regen 补件，不用。
 
-4. **B1（work 期阻断登记，上游 auto-lang）**：vm split 形态（--no-merge
-   / --server vm 独立 serve / vue 轨后端）的 AutoVM HTTP 服务上下文
-   （run_file 扁平 api.at）中 File/fs 内建为静默空桩（exists→0 /
-   read_text→"" / tree→"[]" / write→false；Env.get 真实）——AC-03 的
-   fs 腿功能环因此不可用（merged 不受影响）。**解阻塞动作**：auto-lang
-   侧为 run_file 服务 VM 注册真 File/fs 内建（或提供服务态 IO 面板），
-   需在该仓另立计划；修复合并后本仓复跑 split 功能环探针即可闭环。
-   关联：F-W2（env 注入差异）、F-R1（a2r E0432 + 空体桩）同属上游
+4. **B1（work 期阻断登记，上游 auto-lang；根因已勘定见 §9 末条勘误）**：
+   vm split 形态（--no-merge / --server vm 独立 serve / vue 轨后端）的
+   AutoVM HTTP server **实参装配约定断层**（query 集合串单参 + body
+   原始串直塞，不按 #[api] 形参名绑定）——带参契约 fn 全部拿到错误
+   实参，fs 系内建静默容错掩盖为空返回；无参 fn 正常。AC-03 的 fs 腿
+   功能环因此不可用（merged 不受影响）。**解阻塞动作**：auto-lang 侧
+   修 http_server.rs 实参按名绑定（需 codegen 把 param 名单登记进
+   api_routes 表——文件内 Plan 326 Phase 5 在册 TODO），在该仓另立
+   计划；修复合并后本仓复跑 split 功能环探针即闭环（预期零本仓改动）。
+   r2 修订顺带面：README split 现状注记措辞按勘误更正（「内建空桩」→
+   「实参装配断层」）。关联：F-R1（a2r E0432 + 空体桩）同属上游
    引擎面，可并案。
