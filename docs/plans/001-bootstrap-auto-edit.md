@@ -3,7 +3,7 @@ plan_id: "001"
 feature_name: bootstrap-auto-edit
 current_step: 6
 total_steps: 6
-status: execution_done
+status: reviewed
 source_repo: ../auto-lang（只读参照，不修改）
 ---
 
@@ -158,3 +158,24 @@ Files: `.gitignore`（新增）
   产物入册，剩余任务走 plan-001-dev worktree edit-001）；残渣处置：
   调试脚本删除，matrix_err.txt 曾误删经 Task 4 重跑再生 | blockers: 无
   | next: review`。
+
+- 2026-09-20 review：`stage: review | plan_id: 001 | plan_revision: 1
+  （legacy 计划无 revision 字段——规范化记 1，无既有审批可伪造）|
+  outcome: pass | reviewed_commit: 6a3804d84d412c95322d1e0f39832c4a4b36dee4
+  | base_commit: a61df19（master 分支点；master 后续仅簿记提交 5176719
+  | dependency_revisions: 源树 @92c8013a（specs/PROVENANCE.md）；工具链
+  = PATH auto 0.4.2-1467-g4aadc1f57（复跑时点现役）| spec_inputs: 无
+  规范增量（bootstrap 计划；本仓知识库 = .autoos/specs.json auto-os
+  格式，投影随 merge）| acceptance_results: 整体验收①独立拉起不触碰
+  auto-lang 仓内路径 = pass（pac.at 双 dep 仓内相对路径核对 + boot 冒烟
+  零 ERROR/Tick handler 活跃——dep 落空会静默红[E-10 域]）；②矩阵如
+  实验收口径 = pass（四次实测一致：09-19×2 + 收口复跑 + 本复审第四次
+  39/6 同类六失败，上游 menubar 快照回归坐实未修；对照证据：jade
+  desktop 同族 exe 的 menubar 项快照可见[vm-smoke pressMenuItem 绿]——
+  回归面为 041 MENUBAR_OPEN 条件分支形态，与计划机制注记一致）；③
+  git status 干净可复现 = pass（他机 = auto PATH + python + requests）
+  | findings: F-1..F-3 全 🟢info（数值全绿未达按计划自载注记收口+上游
+  重验义务 README 在案；main.at 笔误勘误；Phase A 结构性例外+fork 池
+  治理归下计划裁定[上轮对话方向一/二]）| evidence: 本复审独立复跑四组
+  （py_compile 零输出/boot 零 ERROR/矩阵 39P6F/pac.at 核对）——同会话
+  局限声明在案，裁定从工件重构 | next: merge`。
