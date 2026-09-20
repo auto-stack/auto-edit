@@ -1,15 +1,15 @@
 ---
 plan_id: PLAN-003
-status: execution_done
+status: executing
 feature_name: auto-edit-frontback-dualtrack（auto-edit front/back 架构拆分：src/back + api.at 边界 + back 用 Auto 写 + 双轨化 vm/vue）
 author: [zhaopuming]
 created_at: 2026-09-20
 updated_at: 2026-09-20
 plan_revision: 1
-current_step: 6
+current_step: 5
 total_steps: 6
 supersedes_spec_components: []
-new_spec_components: []
+new_spec_components: []   # 无 docs/specs/ canonical 新建（本仓知识库=.autoos 账本+模块 README，002 同款；SD-01/02 改写 specs/auto-edit/README.md 随 merge 生效）
 touched_goals: []
 ---
 
@@ -184,7 +184,7 @@ auto-lang / auto-down / jade-edit。
 | T-00 | [x] 勘定探针：现源 vue 生成首跑（临时 render 覆盖 `auto build --gen-only -r vue`）+ code_editor/dialog/alert-dialog vue 支持度清单 + vue dev 期后端供给形态勘定 | — | 零源改动（gen 产物可弃） | 决策档补录本档 §5/待澄清②（缺口面+降级形态） | AC-04 | 探针命令输出留存档内 [✅ 2026-09-20：strict exit1/lenient exit0 两跑 + 11 项勘定 P-1..P-11 落 §5 决策档（vue 命令=--lenient -r vue；code_editor vue 全支持；fs.join 出契约；env_str 入契约；vue dev=run -r vue --server vm；待澄清①②裁毕）] |
 | T-01 | [x] src/back 立起：api.at 契约（六 fn + 类型）+ fs.at 实现（AUTO_PROJECT_DIR 根解析 + 四 IO）；pac render 改 `["vm","vue"]` + 「禁裸 auto build」注释围栏 | T-00 | 新增 src/back/；pac.at | back 面在库 | AC-01 | `auto run -r vm` 可起（front 尚未改道，行为同旧）[✅ 2026-09-20 worktree@5b3306a：契约六 fn（env_str 增列）+ 实现（函数名错开避遮蔽）+ pac 双轨+围栏 + .gitignore 五生成目录；门=vm boot merged L28/Init/24 handler OK + vue gen --lenient exit 0 + api client 六 fn 发射（dist/src/lib/api.ts，GET query/POST body）+ rust server 骨架（a2r 轨备用）] |
 | T-02 | [x] store 数据面迁移：editor_store.at 全部 FS 内建 → `use back.api`；merged 直调功能环 + MCP 矩阵复跑 | T-01 | editor_store.at | 零直调达成 + 零行为回退 | AC-01/02 | 矩阵 ≥39；grep 零命中（豁免清单外）[✅ 2026-09-20 worktree@ff23b86：七调用点迁移（ws_root/tree/read×3/write×2/exists/env×2）+ fs.join→本地拼接 + front 零 Env.get；门=MCP 矩阵 39/6 与基线逐项一致（6 上游债同类豁免；T9/T10 open/save 往返 PASS=back api 实证）+ grep `File\\.|fs\\.|Env\\.get` 仅注释命中] |
-| T-03 | [x] split + 引擎切换实跑：`--server vm`/`AUTO_VM_MERGE=0` 功能环；`--server rust` a2r 探针登记 | T-02 | 零源改动（或缺口修补） | 三形态语义实证 | AC-03/06 | 手测清单 + 输出留档 [✅ 2026-09-20 worktree@1efea47+7fc6ac2：**修补**=back 改名 fsys + 整模块 use（具名导入不被 split 扁平化）；**实证**=① merged 默认绿（T-02 矩阵）；② `--server vm` 单独=后端独立 serve（六路由起服，不开窗——待澄清③答案）；③ VM+VM split（--no-merge）=边界通（boot/Init/ws_root+tree HTTP 200/单实例探针树装载绿）但 **F-W1 上游缺口：AutoVM HTTP 服务上下文 File/fs 内建静默空桩**（curl 直证 exists→0/read→""/tree→"[]"/write→false，绝对路径亦然）→ fs 腿功能环被上游卡死（缺口面=auto-lang run_file 服务 VM 的内建注册，非本仓可修）；F-W2 env 旁路差异 + F-W3 SrcChanged 分发怪癖（merged 同在，非本次引入）并案登记；④ `--server rust`=front 起动但 a2r server 编译失败 E0432（模板硬编码 api::Db 状态注入+六 fn 转译为空体桩——AC-06 缺口登记不阻塞）] |
+| T-03 | split + 引擎切换实跑：`--server vm`/`AUTO_VM_MERGE=0` 功能环；`--server rust` a2r 探针登记 | T-02 | 零源改动（或缺口修补） | 三形态语义实证 | AC-03/06 | 手测清单 + 输出留档 [⏪ 2026-09-20 r1 review 重开：AC-03「同功能环绿」口径未达（F-W1 上游缺口，F-RV1）——实证记录保留，待 r2 修订口径后按新验收闭环]（原证：修补=fsys 改名+整模块 use；merged ✓；--server vm=后端独立 serve 六路由；--no-merge=边界通但 F-W1 fs 空桩；rust=E0432+F-R1 登记） |
 | T-04 | [x] vue 轨落地：生成（`-r vue`）+ T-00 缺口修补（如需）+ 生成工程 install/build 绿 | T-01（T-00 缺口面） | gen/（生成物） | vue 展示能力达成 | AC-04 | build exit 0 + pnpm build 绿 [✅ 2026-09-20 worktree@1efea47+7fc6ac2：scripts/regen_vue.py 一键链（生成命令=--gen-only --lenient -r vue）+ 七类补件（natives 声明层/store 自调别名/toggle_id 内联/ref null→-1/EditorCtx 双参/button text variant/auto-sources+env.d.ts）+ StatusBar 多段插值残缺修复；门=regen_vue.py --build exit 0（vue-tsc+vite ✓ built 3.51s）；运行期内建缺口按 P-11 登记 README vue 限制节] |
 | T-05 | [x] 文档收口：README SD-01/SD-02 两节改写 + 运行矩阵全命令实测 | T-02/03/04 | specs/auto-edit/README.md | 文档=新架构契约 | AC-05 | 逐命令实跑记录 [✅ 2026-09-20 worktree@c95744d：Concepts front/back 节 + vue 轨节（R-2 勘正落地）+ Source 表三件新增 + 运行矩阵五块命令；门=全命令实测（merged 矩阵 39/6 终验于 fsys HEAD + split 探针 + backend-serve curl + rust 编译定性 + regen --build exit 0 + vue dev vite/代理 200）] |
 
@@ -238,6 +238,40 @@ auto-lang / auto-down / jade-edit。
   base main@10881b9，零 WIP）；组兄弟 D:/autostack/.wt/edit-003/auto-lang
   @e535e7437（detached，bps dep）| blockers: §10-B1（上游 auto-lang）
   | next: review（对 AC-03 偏差与 P-5/P-10/P-11 三处执行内裁定重点复核）
+
+- 2026-09-20 stage: review | PLAN-003 | r1 | **needs_replan** |
+  reviewed_commit: b244d56（worktree plan-003-dev，零脏改，6 提交链完整）|
+  base_commit: 10881b9 | dependency_revisions: auto-lang@e535e74372（组兄
+  弟 detached）；工具链 auto v0.4.2-1498-g34ee15a47 | spec_inputs:
+  specs/auto-edit/README.md@worktree-c95744d（SD-01/02 落地版）|
+  acceptance_results: AC-01 pass / AC-02 pass / AC-03 **partial→驱动
+  needs_replan** / AC-04 pass / AC-05 pass / AC-06 pass（登记分支）|
+  findings: **F-RV1**（blocker，AC-03/T-03）：F-W1 上游缺口独立复现
+  一致（本 review 新鲜 split 探针：ws_root 真实返回 / exists(绝对路径,
+  真实文件)→0 / read_text→"" / tree→"[]" / write→0）——AC-03「同功能
+  环绿」口径在「AutoVM HTTP 服务上下文 File/fs 内建空桩」的上游现实下
+  不可达，属起草时未预见的**设计假设失效**，需 new 有界修订 r2（建议
+  方向：AC-03 降为「split 边界/契约服务/启动绿 + fs 腿 B1 豁免登记，
+  上游修复后补验」，或维持口径挂起待上游——裁定权在用户/起草侧）。
+  **F-RV2**（info）：F-W2 独立复现（env_str(PATH)="" 而 AUTO_PROJECT_DIR
+  注入面可见——auto-man set_var 注入面与进程 env 两层差异，上游并案）。
+  **F-RV3**（info，测试债）：矩阵 T9 9.4「round-trip」断言在 fs 不可
+  用时空洞通过（marker 未变即真）——merged 轨不受影响，断言强度改进
+  归后续（上游矩阵或本仓测试面），非本计划范围。**F-RV4**（info，认
+  可）：执行内三裁定 P-5/P-10/P-11 复核通过——均在授权面内、实证充分、
+  README 如实登记；r2 修订时建议将 §5 契约表同步为已执行形态（env_str
+  列已在，fs.join 出契约已注）。**F-RV5**（info）：diff 范围与计划影
+  响面严格一致（6 文件，无越权）；worktree b244d56 干净。规范增量：
+  SD-01/SD-02 落地且描述当前行为（含上游缺口现状注记=如实陈述非执行
+  日记）✓；frontmatter 三字段按 002 惯例空+书面说明 ✓ | evidence:
+  本 review 独立复跑（非采信 work 总结）——矩阵 39/6（第三次，失败六
+  项与在册上游债逐项同）/ regen_vue.py --build exit 0（✓ built 3.94s，
+  七补件幂等零告警）/ split 探针（F-W1 五端点复现）/ --server vm 独立
+  serve 复验（六路由+ws_root）/ a2r 生成物源级核对（main.rs:199
+  `use api::Db` 存在 + api.rs 无 Db 定义 → E0432 必然；六 fn 皆
+  `// TODO: Implement` 空体）/ grep 静态检查（front 四命中全注释）|
+  next: new（r2 有界修订 AC-03 口径 + §5 契约表同步；T-03 已重开，
+  其余五任务勾选与全部实证保留；B1/F-W2/F-R1 上游并案面见 §10-B1）
 
 ## 10. 待澄清事项
 
