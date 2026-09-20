@@ -44,18 +44,40 @@ Plan 449 完成组件化重构（单文件 486 行 → 五文件工程）。
   `enabled_if`/`checked_if` 为条件表达式字符串，对合并根 state 求值
   （`.tab_count` 等，无前缀）。热重载：改 app.at 后经 MCP 的
   `action_config_reload` 工具（或渲染器 mtime 轮询）重读源文件重新提取。
-- **vue 模式限制** —— vue 生成器尚未接入 action 配置：快捷键全部失效、
-  `menubar{}` 生成空壳、`toolbar` 无映射（vue 下只剩 DSL 每控件
-  `onkeydown`）。本示例 pac.at 固定 `render: "vm"`。vue 侧支持是独立的
-  编译器特性，另行计划跟踪。
+- **front/back 拆分（PLAN-003）** —— 全部文件系统面收口 `src/back/`
+  （`api.at` 契约 + `fsys.at` Auto 实现本体），front 经
+  `use back.api: ws_root, tree, read_text, write_text, exists, env_str`
+  裸函数直调（013-todo/015-notes 形态）：vm merged = 进程内 CALL（无
+  HTTP）；vm split / vue 轨 = HTTP（ts_adapter 生成 client，vite 代理
+  `/api` → AUTO_HTTP_PORT）。front 零 `fs.*`/`File.*`/`Env.get` 内建
+  （vue 轨 ts_adapter 将 fs/File 拦为 `__vmOnly` 抛错桩——拆 back 的
+  动机）；路径拼接走本地字符串（`ws_dir + "/" + id`，`fs.join` 亦在
+  拦截面）。**pac 不写 `api:` 字段**——服务引擎留运行期 `--server`
+  切换，默认 AutoVM + merged 直调（`api:"rust"` 会杀 merged）。
+- **vue 轨（PLAN-003 双轨化）** —— pac `render: ["vm","vue"]` 单声明 +
+  双命令分工（jade-edit PLAN-081 R-1 裁定 A' 同款）：vm 轨
+  `auto run -r vm`，vue 轨 `python scripts/regen_vue.py --build`（生成
+  固定 `--lenient`——S001 schema 漂移 = 上游 aura schema 未吸收
+  PLAN-630 menubar 族 props，债在上游；⚠ 禁止裸 `auto build`：Multi
+  下选 vm 项走 C/ninja 转译路径）。**vue 生成器已支持 actions 消费**
+  （快捷键经 keydown 回退层、menubar/toolbar 占位合成——PLAN-070 T-05
+  去门化；旧「尚未接入」陈述作废）。vue 首版 = 构建绿 + 生成即展示；
+  运行期限制（vm 宿主内建无 vue 运行时）：`dialog_open/dialog_save`
+  文件对话框、`console_*` 面板数据、`code_editor_*` 读回族、
+  `Env.get`/`Process.exit`——由 `scripts/regen_vue.py` 补类型声明使
+  构建绿，运行期缺口登记于此，深度双轨归后续计划（jade-edit 换基
+  承接同型深水区）。
 
 ## Source
 
 | 文件 | 职责 |
 |---|---|
+| `src/back/api.at` | 后端契约（PLAN-003）：六 `#[api]` fn（ws_root/tree/read_text/write_text/exists/env_str，路由前缀 /api，GET query/POST body）+ 边界语义注记 |
+| `src/back/fsys.at` | 后端实现本体：`fs.*`/`File.*`/`Env.get` 收口（ws 根解析 + 四 IO + env 读）；模块名 fsys 避与内建 fs 对象同名，且 split 扁平化只吃整模块 `use` |
+| `scripts/regen_vue.py` | vue 轨一键链（PLAN-003 T-04）：生成 + 七类生成器缺口补件 + pnpm install/build |
 | `src/front/app.at` 的 `actions {}` 块 | 动作注册表（14 个 action）+ menubar/toolbar 结构（Plan 451 DSL 化；原根目录 auto-edit.at 已删除） |
 | `src/front/app.at` | 根 widget `App`（213 行）：actions 声明块 + view 组合 + on 薄委托；测试定位锚交互（tab 条/确认弹层/编辑区/空态）留根 |
-| `src/front/editor_store.at` | `store EditorStore`（342 行）：全部状态 + 业务逻辑 + RemoveAt/SyncCursor 收口 |
+| `src/front/editor_store.at` | `store EditorStore`（342 行）：全部状态 + 业务逻辑 + RemoveAt/SyncCursor 收口；数据面经 `use back.api` 直调（PLAN-003） |
 | `src/front/status_bar.at` | `StatusBar` 组件（读 `.store` 标量；`ToggleConsole → store.ActConsole()`） |
 | `src/front/console_panel.at` | `ConsolePanel` 组件（`Clear → store.ConsoleClear()`） |
 | `src/front/ctx_menu.at` | `EditorCtxMenu` 组件（坐标锚态直读 `.store`；`Cut/Copy/SelectAll/Dismiss → store.Ctx*()`） |
@@ -63,16 +85,41 @@ Plan 449 完成组件化重构（单文件 486 行 → 五文件工程）。
 ## How to Run
 
 ```
-cd specs/auto-edit        # 本仓布局（自仓根起）
-auto run -r vm            # AutoVM + iced 原生窗口（工具链经 PATH 解析）
-auto build                # C/ninja 移植路径（windows_ninja port）
+cd specs/auto-edit          # 本仓布局（自仓根起）
+
+# —— vm 轨（默认 AutoVM + merged 进程内直调）——
+auto run -r vm              # iced 原生窗口（工具链经 PATH 解析）
+
+# —— vm 轨 split 形态 ——
+auto run -r vm --no-merge   # VM+VM split：AutoVM HTTP 后端 + 前端窗（HTTP 往返）
+auto run --server vm        # 后端独立 serve（只起 AutoVM HTTP，不开窗——vue dev/联调用）
+# ⚠ split 形态现状：AutoVM HTTP 服务上下文的 File/fs 内建为静默空桩
+#   （上游缺口，PLAN-003 F-W1 实勘——exists/read/tree/write 全空），
+#   fs 功能环在 split 形态不可用；merged 不受影响。
+
+# —— 引擎切换（VM+Rust）——
+auto run -r vm --server rust   # a2r 生成的 Rust axum 后端
+# ⚠ 现状：a2r server 生成器模板假设 api::Db 状态注入 + 契约 fn 转译为
+#   空体桩（PLAN-003 F-R1 实勘，编译 E0432）——rust 引擎暂不可用。
+
+# —— vue 轨 ——
+python scripts/regen_vue.py --build        # 生成 + 补件 + install/build（vue-tsc+vite 绿）
+# vue dev（两终端，jade-edit 同款配方；⚠ 不用 auto run -r vue——其内置
+# 再生成会覆盖 regen_vue.py 补件）：
+#   终端1（后端独立 serve）：auto run --server vm -B 8173
+#   终端2（前端）：cd gen/front/vue && AUTO_HTTP_PORT=8173 pnpm dev
+#   vite（pac front_port）代理 /api → AUTO_HTTP_PORT（实测代理 200）。
+#   ⚠ 必须显式 --server vm / AUTO_HTTP_PORT 对齐——vue.rs 缺席时默认走
+#   rust 引擎。vue 后端同样受 F-W1 空桩缺口影响，首版以构建绿为准。
 ```
 
-前置：`auto` 在 PATH（或将 `AUTO_BIN` 指向 auto 可执行文件）；本仓不
-构建工具链。bps 蓝图池经 pac.at `dep bps` 消费**兄弟仓** auto-lang 的
-blueprints（PLAN-002 方向一；路径相对运行目录——主检出需 auto-edit 与
-auto-lang 同居 D:/autostack，组 worktree 需组内 auto-lang 兄弟树；jade
-同款依赖形态）。
+前置：`auto` 在 PATH（或将 `AUTO_BIN` 指向 auto 可执行文件）；`pnpm`
+在 PATH（vue 轨 install/build 用）。本仓不构建工具链。bps 蓝图池经
+pac.at `dep bps` 消费**兄弟仓** auto-lang 的 blueprints（PLAN-002
+方向一；路径相对运行目录——主检出需 auto-edit 与 auto-lang 同居
+D:/autostack，组 worktree 需组内 auto-lang 兄弟树；jade 同款依赖
+形态）。生成物目录（`deps/ dist/ gen/ rust-workspace/ build/`）均
+gitignore，可再生。
 
 ## Tests
 
