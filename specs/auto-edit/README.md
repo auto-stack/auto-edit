@@ -93,9 +93,10 @@ auto run -r vm              # iced 原生窗口（工具链经 PATH 解析）
 # —— vm 轨 split 形态 ——
 auto run -r vm --no-merge   # VM+VM split：AutoVM HTTP 后端 + 前端窗（HTTP 往返）
 auto run --server vm        # 后端独立 serve（只起 AutoVM HTTP，不开窗——vue dev/联调用）
-# ⚠ split 形态现状：AutoVM HTTP 服务上下文的 File/fs 内建为静默空桩
-#   （上游缺口，PLAN-003 F-W1 实勘——exists/read/tree/write 全空），
-#   fs 功能环在 split 形态不可用；merged 不受影响。
+# split 功能环已全绿（2026-09-21 复验：树/打开/编辑/保存/退出存盘经
+#   back HTTP 全通）——上游 auto-lang PLAN-669 修复 #[api] 实参按名绑定
+#   后解锁（此前 query 集合串直塞/body 不解析致带参契约全空，PLAN-003
+#   F-W1→勘误定性为实参装配断层）。工具链须含 669（≥ 2026-09-21 构建）。
 
 # —— 引擎切换（VM+Rust）——
 auto run -r vm --server rust   # a2r 生成的 Rust axum 后端
@@ -110,7 +111,8 @@ python scripts/regen_vue.py --build        # 生成 + 补件 + install/build（v
 #   终端2（前端）：cd gen/front/vue && AUTO_HTTP_PORT=8173 pnpm dev
 #   vite（pac front_port）代理 /api → AUTO_HTTP_PORT（实测代理 200）。
 #   ⚠ 必须显式 --server vm / AUTO_HTTP_PORT 对齐——vue.rs 缺席时默认走
-#   rust 引擎。vue 后端同样受 F-W1 空桩缺口影响，首版以构建绿为准。
+#   rust 引擎。后端 API 经 669 修复可用；vue 首版仍以构建绿为准
+#   （vm 宿主内建无 vue 运行时，见 Concepts vue 轨节限制清单）。
 ```
 
 前置：`auto` 在 PATH（或将 `AUTO_BIN` 指向 auto 可执行文件）；`pnpm`
