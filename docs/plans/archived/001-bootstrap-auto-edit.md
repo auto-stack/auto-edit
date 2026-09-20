@@ -3,7 +3,8 @@ plan_id: "001"
 feature_name: bootstrap-auto-edit
 current_step: 6
 total_steps: 6
-status: reviewed
+status: archived
+completion_kind: delivered
 source_repo: ../auto-lang（只读参照，不修改）
 ---
 
@@ -179,3 +180,10 @@ Files: `.gitignore`（新增）
   治理归下计划裁定[上轮对话方向一/二]）| evidence: 本复审独立复跑四组
   （py_compile 零输出/boot 零 ERROR/矩阵 39P6F/pac.at 核对）——同会话
   局限声明在案，裁定从工件重构 | next: merge`。
+
+- 2026-09-20 merge 收据 `PLAN-001:r1`（五 checkpoint）：
+  - **prepared** ✓：账本投影 worktree 3f54aa2→rebase 后 cd3d719（projection-only——.autoos/specs.json 空骨架首条 P001-1；实现/依赖零改动）；无规范增量（review 记录在案）。
+  - **landed** ✓：master 簿记前移（5176719/b3dde65）→ worktree rebase（range-diff `=` 补丁等价：6a3804d→2973079；投影提交顺延 cd3d719）→ `git merge --ff-only plan-001-dev` 直进，master tip = cd3d719 = delivery commit（无 merge commit）。known-good：主检出 boot 冒烟零 ERROR + py_compile 绿。
+  - **ledger_refreshed** ✓：主检出回读 P001-1（reviews 段首条，file=docs/plans/archived/001-bootstrap-auto-edit.md，related=[PLAN-001]）。
+  - **archived** ✓：git mv 入册 docs/plans/archived/001-bootstrap-auto-edit.md（status archived + completion_kind delivered + 本收据）。
+  - **cleaned**：待补记。
