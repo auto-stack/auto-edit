@@ -386,3 +386,11 @@ auto-lang / auto-down / jade-edit。
   file/related/title 核对）+ 主检 known-good 冒烟（merged 直调 + 24
   handler OK 零 error）；**archived** = git mv 本档 + status archived +
   completion_kind delivered；**cleaned** = 见下一条收据。
+- 2026-09-21 stage: merge | PLAN-003:r1 | **cleaned 补记——五 checkpoint 全闭环**：
+  双树 wt-guard clean（auto-edit 树 493 个 reparse point 分批链接级移除
+  [deps/bps+deps/stylekit 依赖 junction 与 gen/ 内 pnpm node_modules 全量
+  junction，均 ignored 再生目录，只删链接不穿透]；兄弟 auto-lang 树首检即
+  clean）+ 双 worktree 移除（auto-edit + 组兄弟 auto-lang）+ plan-003-dev
+  删除（was dd69981 全落 main@25cfaa5 祖先）+ 组目录 edit-003 移除 +
+  双仓 worktree prune 零残留（list=main only / branch=main only / 主检
+  零脏改）。PLAN-003:r1 delivered。
