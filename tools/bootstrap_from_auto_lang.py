@@ -4,7 +4,6 @@
 Copies (from <script_dir>/../auto-lang):
   examples/ui/041-auto-edit -> specs/auto-edit
   examples/ui/stylekit      -> specs/stylekit
-  blueprints                -> specs/blueprints
 
 Excluded: .git/ .am/ __pycache__/
 Re-runnable: destination dirs are removed before copying.
@@ -23,7 +22,6 @@ SOURCE_ROOT = PROJECT_ROOT.parent / "auto-lang"
 COPIES = [
     ("examples/ui/041-auto-edit", "auto-edit"),
     ("examples/ui/stylekit", "stylekit"),
-    ("blueprints", "blueprints"),
 ]
 
 IGNORE = shutil.ignore_patterns(".git", ".am", "__pycache__")

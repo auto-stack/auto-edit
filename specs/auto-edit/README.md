@@ -69,7 +69,10 @@ auto build                # C/ninja 移植路径（windows_ninja port）
 ```
 
 前置：`auto` 在 PATH（或将 `AUTO_BIN` 指向 auto 可执行文件）；本仓不
-构建工具链。
+构建工具链。bps 蓝图池经 pac.at `dep bps` 消费**兄弟仓** auto-lang 的
+blueprints（PLAN-002 方向一；路径相对运行目录——主检出需 auto-edit 与
+auto-lang 同居 D:/autostack，组 worktree 需组内 auto-lang 兄弟树；jade
+同款依赖形态）。
 
 ## Tests
 
