@@ -186,4 +186,4 @@ Files: `.gitignore`（新增）
   - **landed** ✓：master 簿记前移（5176719/b3dde65）→ worktree rebase（range-diff `=` 补丁等价：6a3804d→2973079；投影提交顺延 cd3d719）→ `git merge --ff-only plan-001-dev` 直进，master tip = cd3d719 = delivery commit（无 merge commit）。known-good：主检出 boot 冒烟零 ERROR + py_compile 绿。
   - **ledger_refreshed** ✓：主检出回读 P001-1（reviews 段首条，file=docs/plans/archived/001-bootstrap-auto-edit.md，related=[PLAN-001]）。
   - **archived** ✓：git mv 入册 docs/plans/archived/001-bootstrap-auto-edit.md（status archived + completion_kind delivered + 本收据）。
-  - **cleaned**：待补记。
+  - **cleaned** ✓：worktree 零未落提交 + wt-guard clean → worktree 移除（--force 清 gitignored .am 残渣）+ plan-001-dev 分支删除（was cd3d719 全落）+ 组目录 edit-001 移除 + prune 零残留——**PLAN-001:r1 五 checkpoint 全闭环 delivered**。
