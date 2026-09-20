@@ -1,0 +1,43 @@
+// back/fs.at — fs 后端实现本体（PLAN-003 T-01）。
+//
+// 全部文件系统 IO 收口于此（front 零 fs.*/File.* 内建——AC-01；vue 轨
+// ts_adapter 将二者拦为 __vmOnly 抛错桩，T-00 P-5 实证，此即拆 back 的
+// 动机）。AutoVM 解释服役（merged 进程内 / split 为 HTTP 服务侧模块）。
+//
+// 函数名与 api.at 契约名刻意错开（root_dir↔ws_root 等）——013-todo 形态：
+// 契约 fn 与实现 fn 同名会在 use 导入处遮蔽冲突。
+
+/// 工作区根：AUTO_PROJECT_DIR（auto-man 注入），缺席兜底 "."
+pub fn root_dir() str {
+    var root str = Env.get("AUTO_PROJECT_DIR")
+    if root == "" {
+        root = "."
+    }
+    return root
+}
+
+/// 目录树 JSON（front 侧 json.to_value 解析；该内建 vue 转译吸收）
+pub fn tree_json(path str, depth int) str {
+    return fs.tree(path, depth)
+}
+
+/// 读文本（直通 File.read_text——现 store 行为保真，无 Option 分支）
+pub fn read_all(path str) str {
+    return File.read_text(path)
+}
+
+/// 写文本 + exists 复核（成功信号；对齐 TreeSelect 前置判存的 IO 惯例）
+pub fn write_all(path str, content str) bool {
+    File.write_text(path, content)
+    return File.exists(path)
+}
+
+/// 路径存在性（目录节点不命中 → TreeSelect 静默忽略语义保持）
+pub fn path_exists(path str) bool {
+    return File.exists(path)
+}
+
+/// 环境变量读（未设 = ""；AUTO_OPEN_PATH/AUTO_SAVE_PATH 矩阵旁路）
+pub fn env_lookup(name str) str {
+    return Env.get(name)
+}

@@ -5,3 +5,12 @@ __pycache__/
 # auto-os 会话运行时（会话/对话状态可再生；账本 specs.json 除外）
 .autoos/*
 !.autoos/specs.json
+
+# PLAN-003：生成物/下载依赖/构建产物（全部可再生；jade-edit 同款惯例——
+# deps=dep 下载缓存，dist=api client+rust server 生成面，gen=vue 生成工程，
+# rust-workspace=a2r 轨生成服务，build=裸 auto build 的 C/ninja 产物脚枪围栏）
+deps/
+dist/
+gen/
+rust-workspace/
+build/

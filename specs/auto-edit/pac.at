@@ -1,8 +1,21 @@
+// pac.at — auto-edit（PLAN-003 单工程双轨，jade-edit R-1 裁定 A' 同款）。
+//
+// render: ["vm","vue"] 单声明 + 双命令分工：
+//   vm 轨：  auto run -r vm    （运行期渲染覆盖，iced 原生窗）
+//   vue 轨：auto build --gen-only --lenient -r vue（build 期覆盖，生成
+//           Vue3+Vite 工程；--lenient = S001 schema 漂移豁免——PLAN-630
+//           menubar 族 props 未进 aura schema，上游债，T-00 P-1/P-2）
+// ⚠ 禁止裸 `auto build`：Multi 声明下选 vm 项走 C/ninja 转译路径（脚枪，
+//   jade-edit T-00 R-1 探针①实证）；build/（C 产物）不入库。
+//
+// 服务引擎（PLAN-003）：**不写 api: 字段**——默认 AutoVM + merged 进程内
+// 直调；运行期 --server {vm,rust} 切 split（vm=AutoVM HTTP / rust=a2r
+// axum；api:"rust" 会杀 merged，故永不写）。
 name: "auto-edit"
 version: "1.0.0"
-description: "auto-edit — AutoLang 文本编辑器（Plan 413/414/418，原 041-code-editor）"
+description: "auto-edit — AutoLang 文本编辑器（Plan 413/414/418，原 041-code-editor；PLAN-003 front/back 拆分 + 双轨）"
 scene: "ui"
-render: "vm"
+render: ["vm","vue"]
 front_port: 4041
 title: "AutoEdit"
 title_zh: "编辑器"
