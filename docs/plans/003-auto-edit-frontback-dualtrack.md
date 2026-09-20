@@ -1,12 +1,12 @@
 ---
 plan_id: PLAN-003
-status: executing
+status: execution_done
 feature_name: auto-edit-frontback-dualtrack（auto-edit front/back 架构拆分：src/back + api.at 边界 + back 用 Auto 写 + 双轨化 vm/vue）
 author: [zhaopuming]
 created_at: 2026-09-20
 updated_at: 2026-09-20
 plan_revision: 1
-current_step: 5
+current_step: 6
 total_steps: 6
 supersedes_spec_components: []
 new_spec_components: []   # 无 docs/specs/ canonical 新建（本仓知识库=.autoos 账本+模块 README，002 同款；SD-01/02 改写 specs/auto-edit/README.md 随 merge 生效）
@@ -184,7 +184,7 @@ auto-lang / auto-down / jade-edit。
 | T-00 | [x] 勘定探针：现源 vue 生成首跑（临时 render 覆盖 `auto build --gen-only -r vue`）+ code_editor/dialog/alert-dialog vue 支持度清单 + vue dev 期后端供给形态勘定 | — | 零源改动（gen 产物可弃） | 决策档补录本档 §5/待澄清②（缺口面+降级形态） | AC-04 | 探针命令输出留存档内 [✅ 2026-09-20：strict exit1/lenient exit0 两跑 + 11 项勘定 P-1..P-11 落 §5 决策档（vue 命令=--lenient -r vue；code_editor vue 全支持；fs.join 出契约；env_str 入契约；vue dev=run -r vue --server vm；待澄清①②裁毕）] |
 | T-01 | [x] src/back 立起：api.at 契约（六 fn + 类型）+ fs.at 实现（AUTO_PROJECT_DIR 根解析 + 四 IO）；pac render 改 `["vm","vue"]` + 「禁裸 auto build」注释围栏 | T-00 | 新增 src/back/；pac.at | back 面在库 | AC-01 | `auto run -r vm` 可起（front 尚未改道，行为同旧）[✅ 2026-09-20 worktree@5b3306a：契约六 fn（env_str 增列）+ 实现（函数名错开避遮蔽）+ pac 双轨+围栏 + .gitignore 五生成目录；门=vm boot merged L28/Init/24 handler OK + vue gen --lenient exit 0 + api client 六 fn 发射（dist/src/lib/api.ts，GET query/POST body）+ rust server 骨架（a2r 轨备用）] |
 | T-02 | [x] store 数据面迁移：editor_store.at 全部 FS 内建 → `use back.api`；merged 直调功能环 + MCP 矩阵复跑 | T-01 | editor_store.at | 零直调达成 + 零行为回退 | AC-01/02 | 矩阵 ≥39；grep 零命中（豁免清单外）[✅ 2026-09-20 worktree@ff23b86：七调用点迁移（ws_root/tree/read×3/write×2/exists/env×2）+ fs.join→本地拼接 + front 零 Env.get；门=MCP 矩阵 39/6 与基线逐项一致（6 上游债同类豁免；T9/T10 open/save 往返 PASS=back api 实证）+ grep `File\\.|fs\\.|Env\\.get` 仅注释命中] |
-| T-03 | split + 引擎切换实跑：`--server vm`/`AUTO_VM_MERGE=0` 功能环；`--server rust` a2r 探针登记 | T-02 | 零源改动（或缺口修补） | 三形态语义实证 | AC-03/06 | 手测清单 + 输出留档 [⏪ 2026-09-20 r1 review 重开：AC-03「同功能环绿」口径未达（F-W1 上游缺口，F-RV1）——实证记录保留，待 r2 修订口径后按新验收闭环]（原证：修补=fsys 改名+整模块 use；merged ✓；--server vm=后端独立 serve 六路由；--no-merge=边界通但 F-W1 fs 空桩；rust=E0432+F-R1 登记） |
+| T-03 | [x] split + 引擎切换实跑：`--server vm`/`AUTO_VM_MERGE=0` 功能环；`--server rust` a2r 探针登记 | T-02 | 零源改动（或缺口修补） | 三形态语义实证 | AC-03/06 | 手测清单 + 输出留档 [✅ 2026-09-21 复验闭环 worktree@7a4ed53：**上游 auto-lang PLAN-669（#[api] 实参按名绑定）落地后 B1 解阻，本仓零改动**——①六端点直打全真值（exists abs/rel→1、read_text→内容、tree→真树、env_str→真值、write→落盘）；②VM+VM split 单实例功能环 11/11 全 PASS（树装载/open env 旁路经 HTTP 开 tab/edit cut/save 落盘+console/quit 菜单/quit-save 脏 tab 落盘+进程退）；③013 POST 按名复验 text=probe669x；④merged 矩阵+vue regen build 在新工具链复绿（矩阵形态位移见 F-V1）；README split 注记勘误收口。原 T-03 实证（fsys 修正/三形态勘定/F-W 系登记）保留于下]（原证：修补=fsys 改名+整模块 use；--server vm=后端独立 serve 六路由；rust=E0432+F-R1 登记） |
 | T-04 | [x] vue 轨落地：生成（`-r vue`）+ T-00 缺口修补（如需）+ 生成工程 install/build 绿 | T-01（T-00 缺口面） | gen/（生成物） | vue 展示能力达成 | AC-04 | build exit 0 + pnpm build 绿 [✅ 2026-09-20 worktree@1efea47+7fc6ac2：scripts/regen_vue.py 一键链（生成命令=--gen-only --lenient -r vue）+ 七类补件（natives 声明层/store 自调别名/toggle_id 内联/ref null→-1/EditorCtx 双参/button text variant/auto-sources+env.d.ts）+ StatusBar 多段插值残缺修复；门=regen_vue.py --build exit 0（vue-tsc+vite ✓ built 3.51s）；运行期内建缺口按 P-11 登记 README vue 限制节] |
 | T-05 | [x] 文档收口：README SD-01/SD-02 两节改写 + 运行矩阵全命令实测 | T-02/03/04 | specs/auto-edit/README.md | 文档=新架构契约 | AC-05 | 逐命令实跑记录 [✅ 2026-09-20 worktree@c95744d：Concepts front/back 节 + vue 轨节（R-2 勘正落地）+ Source 表三件新增 + 运行矩阵五块命令；门=全命令实测（merged 矩阵 39/6 终验于 fsys HEAD + split 探针 + backend-serve curl + rust 编译定性 + regen --build exit 0 + vue dev vite/代理 200）] |
 
@@ -297,6 +297,27 @@ auto-lang / auto-down / jade-edit。
   per-param types in api_routes」= Plan 326 Phase 5 在册 TODO 即此缺口）。
   修复后预期：vm split 功能环 fs 腿直接复活（无需改本仓），B1 解阻。
 
+- 2026-09-21 stage: work 复验 | PLAN-003 | r1 | 上游 669 落地后 B1 闭环，
+  T-03 复勾，execution_done 复立 | code_commit: 7a4ed53（README split 注记
+  勘误——唯一改动）| 复验证据（工具链重建后 auto.exe 含 669，重建前探针
+  先证旧二进制仍复现 raw body 字面量）：①六端点直打全真值；②split 单实例
+  功能环 11/11（树/open/edit/save/quit-save 全经 back HTTP）；③013
+  create_todo text=probe669x（按名解析铁证）；④merged 矩阵 + vue regen
+  build 复跑绿。**needs_replan 动因消解**：F-RV1 所指 AC-03 上游不可达
+  前提已被 669 消除，AC-03 按 r1 原口径达成——r2 修订不再必要（复审另裁
+  除外）。**F-V1（新观测，上游 668/669 下游面，非本仓改动所致）**：
+  新工具链下矩阵形态位移——menubar 六债转绿（T2 菜单项 PASS 等），
+  46 项判定=44 PASS/2 FAIL（T10「tabs left」+「ActSave button missing」，
+  快照/状态漂移形态，与 auto-lang 668 F-668-R1「并流快照漂移」领域
+  吻合）+ T8 段瞬时 MCP 拒连（端口仍 LISTEN、后续快照可达=quit 流程态
+  瞬时阻塞）致脚本尾部崩（无 RESULT 行）；旧工具链 39/6 基线证据保留
+  （绑定其时点工具链）。F-V1 归上游跟踪，不阻塞本计划（本仓代码零改动
+  前提下的工具链位移观测）。另勘：015 `/api/notes/search` 被
+  `/api/notes/:id` 遮蔽返回 400 指名（**既存路由次序债被 669 显性化**，
+  非回归——旧二进制同匹配但静默 null；一并归上游）。
+  | next: review（re-review：AC-01..06 全套，重点 AC-03 新证据与 F-V1
+  归属裁量）
+
 ## 10. 待澄清事项
 
 1. **vue 轨 untitled/save-as 形态**：`dialog_save` 为 vm 侧 UI 内建，
@@ -313,15 +334,11 @@ auto-lang / auto-down / jade-edit。
    `AUTO_HTTP_PORT=<port> pnpm dev`（前端，vite 代理 /api 实测 200）；
    ⚠ `auto run -r vue` 内置再生成会覆盖 regen 补件，不用。
 
-4. **B1（work 期阻断登记，上游 auto-lang；根因已勘定见 §9 末条勘误）**：
-   vm split 形态（--no-merge / --server vm 独立 serve / vue 轨后端）的
-   AutoVM HTTP server **实参装配约定断层**（query 集合串单参 + body
-   原始串直塞，不按 #[api] 形参名绑定）——带参契约 fn 全部拿到错误
-   实参，fs 系内建静默容错掩盖为空返回；无参 fn 正常。AC-03 的 fs 腿
-   功能环因此不可用（merged 不受影响）。**解阻塞动作**：auto-lang 侧
-   修 http_server.rs 实参按名绑定（需 codegen 把 param 名单登记进
-   api_routes 表——文件内 Plan 326 Phase 5 在册 TODO），在该仓另立
-   计划；修复合并后本仓复跑 split 功能环探针即闭环（预期零本仓改动）。
-   r2 修订顺带面：README split 现状注记措辞按勘误更正（「内建空桩」→
-   「实参装配断层」）。关联：F-R1（a2r E0432 + 空体桩）同属上游
-   引擎面，可并案。
+4. **B1（已解阻 2026-09-21）**：vm split 形态的 AutoVM HTTP server 实参
+   装配断层——**上游 auto-lang PLAN-669 已修**（#[api] 形参签名侧信道 +
+   四 serve 路径统一按名绑定器 + 无签名位序回退；复审 R1/R2/R3 清偿落
+   master ac2bdcc85）。本仓复验：六端点全真值 + split 功能环 11/11 +
+   013 POST 按名铁证，零本仓改动（仅 README 注记勘误）。工具链前置：
+   auto.exe 须为含 669 的构建（≥2026-09-21）。r2 修订面随 B1 解阻取消
+   （README 勘误已随 7a4ed53 落地）。F-R1（a2r E0432 + 空体桩）仍未修，
+  归上游另案。
