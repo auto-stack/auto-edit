@@ -1,6 +1,6 @@
 ---
 plan_id: PLAN-002
-status: execution_done
+status: reviewed
 feature_name: bps-dep-consume（bps 池方向一落地：specs/blueprints 拷贝 fork 退役，改 dep path 消费 auto-lang/blueprints canonical）
 author: [zhaopuming]
 created_at: 2026-09-20
@@ -141,3 +141,20 @@ merge 投影 reviews 段；001 的 P001-1 收据不回改。）
   = undefined tree_util.toggle_id → 兄弟就位 = 零 ERROR）+ 矩阵 39/5 同类
   menubar 上游面（quit 项自发转绿，无新失败类）+ 脚本 py_compile +
   PROVENANCE/README 收敛 | blockers: 无 | next: review`。
+
+- 2026-09-20 review：`stage: review | plan_id: PLAN-002 | plan_revision: 1
+  | outcome: pass | reviewed_commit: 3b9c8a65171b5f0a862fdf73d1ab0fa46e5ba03b
+  | base_commit: 920ea97（master；work 簿记 89d94c0 在后）|
+  dependency_revisions: bps 池 = auto-lang blueprints @3df7b21a2（组兄弟
+  树；主检出消费 = auto-lang master 现役）；工具链 PATH auto
+  0.4.2-1467-g4aadc1f57 | spec_inputs: specs/PROVENANCE.md（001 期）|
+  acceptance_results: AC-01 pass（fork 退役核对 + dep 路径核对 + boot 零
+  ERROR 复现）；AC-02 pass（矩阵第六次 39/6——全部同类 menubar 上游面；
+  quit 项在 39/5↔39/6 间波动[两次独立复跑]，无新失败类、通过数下限
+  39=基线）；AC-03 pass（COPIES 表无 blueprints + worktree 零脏 + 脚本
+  py_compile）| findings: F-R1 🟢info（quit 项检查在上游回归面内逐次
+  不稳—— strengthens 上游修单）；F-R2 🟢info（cwd 相对 dep 解析——
+  worktree 需组兄弟 auto-lang 树[jade 惯例]，主检出需同居 autostack；
+  README 已注记，cleaned 阶段移除组兄弟）| evidence: 同会话局限声明在
+  案；三组独立复跑（状态核对/boot/矩阵）+ 六次矩阵历史横向比对 |
+  next: merge`。
