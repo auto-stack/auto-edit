@@ -1,72 +1,85 @@
 {
-  "project": "specs",
-  "version": 0,
-  "sections": [
+ "project": "specs",
+ "version": 0,
+ "sections": [
+  {
+   "id": "goals",
+   "section_type": "Goals",
+   "title": "🎯 Goals",
+   "items": [],
+   "status": "Empty",
+   "content": "",
+   "depends_on": [],
+   "last_modified": 1788936821,
+   "last_verified": null
+  },
+  {
+   "id": "architecture",
+   "section_type": "Architecture",
+   "title": "🏗️ Architecture",
+   "items": [],
+   "status": "Empty",
+   "content": "",
+   "depends_on": [],
+   "last_modified": 1788936821,
+   "last_verified": null
+  },
+  {
+   "id": "designs",
+   "section_type": "Designs",
+   "title": "🎨 Designs",
+   "items": [],
+   "status": "Empty",
+   "content": "",
+   "depends_on": [],
+   "last_modified": 1788936821,
+   "last_verified": null
+  },
+  {
+   "id": "tests",
+   "section_type": "Tests",
+   "title": "🧪 Tests",
+   "items": [],
+   "status": "Empty",
+   "content": "",
+   "depends_on": [],
+   "last_modified": 1788936821,
+   "last_verified": null
+  },
+  {
+   "id": "reviews",
+   "section_type": "Reviews",
+   "title": "🔍 Reviews",
+   "items": [
     {
-      "id": "goals",
-      "section_type": "Goals",
-      "title": "🎯 Goals",
-      "items": [],
-      "status": "Empty",
-      "content": "",
-      "depends_on": [],
-      "last_modified": 1788936821,
-      "last_verified": null
-    },
-    {
-      "id": "architecture",
-      "section_type": "Architecture",
-      "title": "🏗️ Architecture",
-      "items": [],
-      "status": "Empty",
-      "content": "",
-      "depends_on": [],
-      "last_modified": 1788936821,
-      "last_verified": null
-    },
-    {
-      "id": "designs",
-      "section_type": "Designs",
-      "title": "🎨 Designs",
-      "items": [],
-      "status": "Empty",
-      "content": "",
-      "depends_on": [],
-      "last_modified": 1788936821,
-      "last_verified": null
-    },
-    {
-      "id": "tests",
-      "section_type": "Tests",
-      "title": "🧪 Tests",
-      "items": [],
-      "status": "Empty",
-      "content": "",
-      "depends_on": [],
-      "last_modified": 1788936821,
-      "last_verified": null
-    },
-    {
-      "id": "reviews",
-      "section_type": "Reviews",
-      "title": "🔍 Reviews",
-      "items": [],
-      "status": "Empty",
-      "content": "",
-      "depends_on": [],
-      "last_modified": 1788936821,
-      "last_verified": null
-    },
-    {
-      "id": "reports",
-      "section_type": "Reports",
-      "title": "📊 Reports",
-      "items": [],
-      "status": "Empty",
-      "content": "",
-      "depends_on": [],
-      "last_modified": 1788936821,
-      "last_verified": null
+     "id": "P001-1",
+     "section": "reviews",
+     "status": "stable",
+     "title": "PLAN-001 — bootstrap 收据（reviewed pass @ r1 6a3804d：041-auto-edit 拷贝独立运行 + 双路径修正 + 矩阵 39/6 如实验收）",
+     "file": "docs/plans/archived/001-bootstrap-auto-edit.md",
+     "related": [
+      "PLAN-001"
+     ],
+     "superseded_by": null,
+     "content": "- 验收：三树拷贝（auto-edit@92c8013a 源锚 specs/PROVENANCE.md + stylekit + blueprints）+ 双必改点（pac.at dep bps→../blueprints；desktop_mcp.py AUTO_BIN→env||which）+ 041 矩阵如实验收（四次实测 39/6 同类六失败=menubar 展开项快照缺失——上游渲染器回归坐实[机制：MENUBAR_OPEN 条件分支不进 vm vtree；对照：jade desktop 同族 exe menubar 项快照可见]，上游修复后重验预期 ≈48/2；归因/复跑记录见归档计划 Task 4）+ README 本仓化 + .gitignore（含 .autoos 运行时 ignore，specs.json 除外）。\n- 复审 r1 pass：独立复跑四组（py_compile/boot 冒烟零 ERROR/矩阵第四次 39P6F/pac.at 仓内 dep 核对）；findings 三 info（数值全绿按计划自载注记收口+上游重验义务 README 在案；main.at→app.at 笔误勘误；Phase A 结构性例外[零提交仓基线直落 master a61df19]）。\n- 下计划裁定面：specs/blueprints 拷贝 fork 形态的池治理（canonical=auto-lang/blueprints vs 独立池——方向一[dep path 消费，同 jade 惯例]/方向二[池独立成仓]，见 2026-09-20 共享工作对话）。"
     }
-  ]
+   ],
+   "status": "Empty",
+   "content": "",
+   "depends_on": [],
+   "last_modified": 1788936821,
+   "last_verified": null
+  },
+  {
+   "id": "reports",
+   "section_type": "Reports",
+   "title": "📊 Reports",
+   "items": [],
+   "status": "Empty",
+   "content": "",
+   "depends_on": [],
+   "last_modified": 1788936821,
+   "last_verified": null
+  }
+ ]
 }
