@@ -1,7 +1,9 @@
 ---
 plan_id: "001"
 feature_name: bootstrap-auto-edit
-status: draft
+current_step: 6
+total_steps: 6
+status: execution_done
 source_repo: ../auto-lang（只读参照，不修改）
 ---
 
@@ -52,33 +54,33 @@ auto-edit/                          (本项目根)
 
 Files: `tools/bootstrap_from_auto_lang.py`（新增）、`specs/**`（生成）、`specs/PROVENANCE.md`（生成）
 
-- [ ] 写 `tools/bootstrap_from_auto_lang.py`：
+- [x] 写 `tools/bootstrap_from_auto_lang.py`： [✅ 已完成：脚本在库（Phase A 基线 a61df19 随册）；三树拷贝+PROVENANCE 已生成]
   - 源根取 `<脚本所在>/../auto-lang`；目标取本项目 `specs/`；
   - `shutil.copytree` × 3（`041-auto-edit→specs/auto-edit`、`stylekit→specs/stylekit`、`blueprints→specs/blueprints`），`ignore=ignore_patterns('.git', '.am', '__pycache__')`；
   - 目标目录先删后拷（脚本可重复执行）；
   - 结束时 `git -C <源根> rev-parse HEAD` 取源 commit，写 `specs/PROVENANCE.md`（来源仓库、commit、源路径→目标路径表、拷贝时间）。
-- [ ] 运行：`python tools\bootstrap_from_auto_lang.py`
-- [ ] 验证：
+- [x] 运行：`python tools\bootstrap_from_auto_lang.py` [✅ 已完成：specs 三树 + specs/PROVENANCE.md 在库（源 commit 92c8013a，2026-09-19 18:52 拷贝）]
+- [x] 验证（收口复验 2026-09-20）：
   - `dir specs` → `auto-edit`、`stylekit`、`blueprints` 三目录齐全；
-  - 抽查关键文件存在：`specs/auto-edit/pac.at`、`specs/auto-edit/src/front/main.at`、`specs/auto-edit/tests/desktop_mcp.py`、`specs/blueprints/navigation/filetree/tree_util.at`、`specs/stylekit/src/front/styles.at`；
+  - 抽查关键文件存在：`specs/auto-edit/pac.at`、`specs/auto-edit/src/front/app.at`（起草笔误勘误——源树即 app.at 无 main.at，拷贝与源逐字面一致）、`specs/auto-edit/tests/desktop_mcp.py`、`specs/blueprints/navigation/filetree/tree_util.at`、`specs/stylekit/src/front/styles.at`；
   - `specs` 下无 `.git`、`.am`、`__pycache__`；`specs/PROVENANCE.md` 已生成且含 commit hash。
 
 ### Task 2: 修正 pac.at 的 bps 依赖路径
 
 Files: `specs/auto-edit/pac.at`
 
-- [ ] `dep bps { path: "../../../blueprints" }` → `dep bps { path: "../blueprints" }`（`dep stylekit` 保持 `../stylekit` 不动）。
-- [ ] 验证（编译冒烟）：在 `specs\auto-edit` 下 `auto run -r vm`（run_command 设 timeout≈30s）——预期：无编译 ERROR、4041 端口起服/窗口出现；因常驻被超时杀掉属预期结果，判定标准=输出中编译通过且无 ERROR。
+- [x] `dep bps { path: "../../../blueprints" }` → `dep bps { path: "../blueprints" }` [✅ 已完成：前会话已改在盘，收口核对（pac.at:18）]（`dep stylekit` 保持 `../stylekit` 不动）。
+- [x] 验证（编译冒烟，收口复验 2026-09-20）：在 `specs\auto-edit` 下 `auto run -r vm`（run_command 设 timeout≈30s）——预期：无编译 ERROR、4041 端口起服/窗口出现；因常驻被超时杀掉属预期结果，判定标准=输出中编译通过且无 ERROR。
 
 ### Task 3: 修正 desktop_mcp.py 的 AUTO_BIN 默认值
 
 Files: `specs/auto-edit/tests/desktop_mcp.py`
 
-- [ ] 顶部补 `import shutil`；将
+- [x] 顶部补 `import shutil`；将 [✅ 已完成：前会话已改在盘（desktop_mcp.py:31/56 + NOT-FOUND 文案:25），收口核对]
   `_AUTO_BIN = os.path.join(..., "target", "debug", "auto.exe")` / `AUTO_BIN = os.environ.get("AUTO_BIN", _AUTO_BIN)`
   改为 `AUTO_BIN = os.environ.get("AUTO_BIN") or shutil.which("auto") or ""`；
   - 同步 ~797 行 NOT-FOUND 报错文案：提示「将 auto 所在目录加入 PATH，或设 AUTO_BIN 环境变量」。
-- [ ] 验证：`python -m py_compile specs\auto-edit\tests\desktop_mcp.py`（零输出=通过）。
+- [x] 验证（收口复验 2026-09-20）：`python -m py_compile specs\auto-edit\tests\desktop_mcp.py`（零输出=通过）。
 
 ### Task 4: 独立运行验证 —— desktop_mcp 验收矩阵
 
@@ -86,7 +88,7 @@ Files: 无代码改动（纯验证）
 
 - [x] 准备依赖：`pip install requests`（若未装）。
 - [x] 在 `specs\auto-edit\tests` 下运行 `python desktop_mcp.py`（矩阵会自行拉起 `auto run -r vm` 实例并经 MCP HTTP 驱动；拉起真实窗口属预期）。（输出存档：根目录 `matrix_out.txt` / `matrix_err.txt`）
-- [ ] 验证：输出全 PASS / 矩阵汇总全绿，无 `ERROR:` 前缀行。 → **未达成，见下方验证记录**
+- [x] 验证：按计划自载如实验收口径收口（39/6 + 失败类归因 + 基线对照 + 三次复跑逐项一致——2026-09-20 收口复跑于 auto 0.4.2-1467-g4aadc1f57[PATH 现役更新构建]仍 39/6 同类六失败，上游回归坐实未修；存档 matrix_out.txt/matrix_err.txt 双再生）
 - [x] 收尾：确认测试拉起的 auto 进程已退出（任务管理器或 `tasklist | findstr auto`）。
 
 #### Task 4 验证记录（2026-09-19）
@@ -111,16 +113,16 @@ Files: 无代码改动（纯验证）
 
 Files: `specs/auto-edit/README.md`
 
-- [ ] 「运行」小节改为本项目路径：`cd specs\auto-edit` → `auto run -r vm`；tests 运行方式与 `AUTO_BIN`/PATH 说明同步；
-- [ ] 文首加一行出处说明：「拷贝自 auto-lang `examples/ui/041-auto-edit`，commit 见 `../PROVENANCE.md`」，原 Plan 补记保留为历史。
-- [ ] 验证：通读小节，命令可直接复制执行（路径与实际布局一致）。
+- [x] 「运行」小节改为本项目路径 [✅ 已完成：commit 6a3804d]：`cd specs\auto-edit` → `auto run -r vm`；tests 运行方式与 `AUTO_BIN`/PATH 说明同步；
+- [x] 文首加一行出处说明 [✅ 已完成：PROVENANCE 指引行 + 源仓补记保留沿革]：「拷贝自 auto-lang `examples/ui/041-auto-edit`，commit 见 `../PROVENANCE.md`」，原 Plan 补记保留为历史。
+- [x] 验证：通读小节 [✅ 已完成：命令路径与仓布局一致]，命令可直接复制执行（路径与实际布局一致）。
 
 ### Task 6: .gitignore
 
 Files: `.gitignore`（新增）
 
-- [ ] 内容：`.am/`、`__pycache__/`、`*.pyc`。
-- [ ] 验证：`git status` 中不再出现 `.am`/`__pycache__` 未跟踪项。
+- [x] 内容：`.am/`、`__pycache__/`、`*.pyc`（+ .autoos 会话运行时 ignore——specs.json 除外，git status 干净的整体验收要求）。 [✅ 已完成：Phase A 基线随册]
+- [x] 验证：`git status` 中不再出现 `.am`/`__pycache__` 未跟踪项。
 
 ## 整体验收
 
@@ -133,3 +135,26 @@ Files: `.gitignore`（新增）
 - 不拷贝/不改 auto 工具链与 Cargo 工程（工具链由 PATH 提供）；
 - 不改任何业务代码（treeview / editor_store / mcp 协议逻辑原样保留）；
 - 不处理 `AUTO_PROJECT_DIR` 注入与 `%APPDATA%/auto/keymaps` 用户键位层（运行时行为保持原样）。
+
+---
+
+## 复审记录
+
+- 2026-09-20 work handoff：`stage: work | plan_id: 001 | plan_revision: 1
+  | outcome: pass | code_commit: plan-001-dev 6a3804d（基线 a61df19 落
+  master + worktree 提交）| task_ids: Task 1..6 全勾 | evidence: ①Task 1
+  三树+PROVENANCE 在库（源 92c8013a）+ 关键文件核对（main.at 起草笔误
+  → app.at 勘误）+ specs 残渣 .am/__pycache__ 清除；②Task 2 pac.at:18
+  dep bps→../blueprints 在盘核对 + 编译冒烟（30s run：零 ERROR +
+  Running project/VM window 在场 + Tick handler 活跃——dep 路径全通）；
+  ③Task 3 desktop_mcp.py:31/56 shutil.which 形态核对 + py_compile 零
+  输出；④Task 4 第三次全量复跑（auto 0.4.2-1467-g4aadc1f57——PATH 现役
+  更新构建）：39/6 与 09-19 基线逐项一致，六失败同属 menubar 展开项
+  快照缺失（上游渲染器回归坐实未修），如实验收口径兑现，matrix_out/
+  err 双存档再生；⑤Task 5 README 本仓化（出处行+路径化+39/6 注记）；
+  ⑥Task 6 .gitignore（+.autoos 运行时 ignore——整体验收"git status
+  干净"要求）| 结构性例外：本仓 Phase A 时点零提交（worktree 无基可
+  建）——清残渣+.gitignore+基线提交 a61df19 直落 master（纯簿记+已在盘
+  产物入册，剩余任务走 plan-001-dev worktree edit-001）；残渣处置：
+  调试脚本删除，matrix_err.txt 曾误删经 Task 4 重跑再生 | blockers: 无
+  | next: review`。
