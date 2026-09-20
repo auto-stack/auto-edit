@@ -1,6 +1,7 @@
 ---
 plan_id: PLAN-003
-status: reviewed
+status: archived
+completion_kind: delivered
 feature_name: auto-edit-frontback-dualtrack（auto-edit front/back 架构拆分：src/back + api.at 边界 + back 用 Auto 写 + 双轨化 vm/vue）
 author: [zhaopuming]
 created_at: 2026-09-20
@@ -371,3 +372,17 @@ auto-lang / auto-down / jade-edit。
    auto.exe 须为含 669 的构建（≥2026-09-21）。r2 修订面随 B1 解阻取消
    （README 勘误已随 7a4ed53 落地）。F-R1（a2r E0432 + 空体桩）仍未修，
   归上游另案。
+
+- 2026-09-21 stage: merge | PLAN-003 | r1 | pass（五 checkpoint 收口）|
+  merge 收据 keyed PLAN-003:r1：
+  **prepared** = 冻结增量 SD-01/02 + split 勘误（已含 reviewed 7a4ed53）
+  + 账本投影 dd69981（projection-only descendant；rebase 映射
+  7a4ed53→5240f1b + range-diff 7/7 全等：5b3306a→7bde07a / ff23b86→65544a1
+  / 1efea47→04f4440 / 7fc6ac2→3cc7747 / c95744d→da31576 / b244d56→ae3e909
+  / 7a4ed53→5240f1b）；**landed** = main ff-only → dd69981（三 ref 同一，
+  无 merge commit；diff=8 文件 +406/-33：back 两件/regen 脚本/store 迁移
+  /pac/README/.gitignore/账本）；**ledger_refreshed** = .autoos/specs.json
+  reviews 段 P003-1 外科插入（10 行纯增，JSON 回读 P001-1/P002-1/P003-1，
+  file/related/title 核对）+ 主检 known-good 冒烟（merged 直调 + 24
+  handler OK 零 error）；**archived** = git mv 本档 + status archived +
+  completion_kind delivered；**cleaned** = 见下一条收据。
