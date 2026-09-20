@@ -13,6 +13,12 @@
 //   SyncCursor —— line/col/sel 三元组读回（原 5 处重复，现 1 处）
 use bps.navigation.filetree.tree_util: toggle_id
 
+// PLAN-003 T-02: 数据面改道 back.api(013/015 裸函数直调形态)——vm merged
+// = 进程内 CALL;vm split / vue = HTTP。fs.*/File.* 内建自此退出 front
+// (vue 轨 ts_adapter 将其拦为 __vmOnly 抛错桩,拆 back 动机);fs.join 亦
+// 在拦截面(T-00 P-5),TreeSelect 改本地字符串拼接。
+use back.api: ws_root, tree, read_text, write_text, exists, env_str
+
 store EditorStore {
     model {
         // Plan 420 P1: tabs 数组态 —— 每 tab = {key, title, path, dirty, src}。
@@ -64,8 +70,9 @@ print(add(1, 2))
         // PLAN-618 T-06: 左侧文件浏览器树(TreeView 受控——页面持
         // expanded/selected)。文件节点 id = 相对 workspace 根的路径
         // ('/'分隔),目录节点 id 不与任何文件路径重合,TreeSelect 按
-        // fs.join(ws_dir, id) 全路径匹配/读盘。初始表仅 Init 前占位,
-        // .Init 经 fs.tree + json.to_value 装载真实目录(Plan 626 T-05)。
+        // ws_dir+"/"+id 全路径匹配/读盘(PLAN-003 起走 back api)。初始表
+        // 仅 Init 前占位,.Init 经 back tree + json.to_value 装载真实目录
+        // (Plan 626 T-05)。
         var tree_nodes list = [
             { id: "src", label: "src", children: [
                 { id: "src/app.at", label: "app.at", children: [], kind: "file", icon: "file-text", is_leaf: true, badge: "" },
@@ -106,12 +113,10 @@ print(add(1, 2))
         // 名。经 App.Init 薄委托(Init 名保留给根 widget 生命周期,store 侧
         // handler 不得占用——handler_EditorStore_Init 不合成,link 期炸)。
         .LoadWorkspace -> {
-            .ws_dir = Env.get("AUTO_PROJECT_DIR")
-            if .ws_dir == "" {
-                .ws_dir = "."
-            }
+            // PLAN-003 T-02: ws 根解析入 back(ws_root 兜底 "." 语义不变)。
+            .ws_dir = ws_root()
             .ws_name = file_basename(.ws_dir)
-            .tree_nodes = json.to_value(fs.tree(.ws_dir, 4))
+            .tree_nodes = json.to_value(tree(.ws_dir, 4))
             .tree_expanded = ["src"]
             console_log("workspace: " + .ws_dir)
             .console = console_lines()
@@ -270,7 +275,7 @@ print(add(1, 2))
                 if .auto_open_path != .open_consumed {
                     .open_consumed = .auto_open_path
                     let p str = .auto_open_path
-                    let s str = File.read_text(p)
+                    let s str = read_text(p)
                     .open_count = .open_count + 1
                     .tabs.push({key: "tab-" + .open_count.str(), title: file_basename(p), path: p, dirty: false, src: s})
                     .tab = .tab_count
@@ -290,12 +295,13 @@ print(add(1, 2))
         .ActOpen -> {
             // Plan 420 P2: AUTO_OPEN_PATH 环境变量旁路(测试构建语义,prod
             // 忽略)—— 阻塞式 rfd 对话框无法被 MCP 驱动的盲区由此打通。
-            var p str = Env.get("AUTO_OPEN_PATH")
+            // PLAN-003 T-02: env 读入 back(env_str),front 零 Env.get。
+            var p str = env_str("AUTO_OPEN_PATH")
             if p == "" {
                 p = dialog_open(".at, .au, .rs, .txt")
             }
             if p != "" {
-                let s = File.read_text(p)
+                let s = read_text(p)
                 .open_count = .open_count + 1
                 .tabs.push({key: "tab-" + .open_count.str(), title: file_basename(p), path: p, dirty: false, src: s})
                 .tab = .tab_count
@@ -317,7 +323,7 @@ print(add(1, 2))
             if .tab_count > 0 {
                 if .path_active == "" {
                     // Plan 420 P2: AUTO_SAVE_PATH 旁路(与 AUTO_OPEN_PATH 同型)。
-                    var p str = Env.get("AUTO_SAVE_PATH")
+                    var p str = env_str("AUTO_SAVE_PATH")
                     if p == "" {
                         p = dialog_save("untitled.at")
                     }
@@ -329,7 +335,7 @@ print(add(1, 2))
                     }
                 }
                 if .path_active != "" {
-                    File.write_text(.path_active, code_editor_text(.active_key))
+                    write_text(.path_active, code_editor_text(.active_key))
                     .tabs[.tab].dirty = false
                     console_log("saved: " + .path_active)
                 } else {
@@ -417,11 +423,14 @@ print(add(1, 2))
             .tree_expanded = toggle_id(.tree_expanded, id)
         }
         // 选中文件 → OpenByPath 语义:同路径 tab 已开则激活,否则读盘构造
-        // 新 tab(Plan 626 T-05:静态演示表退役,path 存 fs.join 全路径,
-        // 保存/再次匹配都走全路径;目录节点 File.exists 不命中,静默忽略)。
+        // 新 tab(Plan 626 T-05:静态演示表退役,path 存全路径,保存/再次匹配
+        // 都走全路径;目录节点 exists 不命中,静默忽略)。PLAN-003 T-02:
+        // 拼径改本地字符串拼接(fs.join 亦在 vue 拦截面,T-00 P-5——ws_dir
+        // 尾分隔符经 "+/+" 形式归一,Win32 路径规范化容忍双斜杠),读盘/
+        // 判存走 back api。
         .TreeSelect(id) -> {
             .tree_sel = id
-            var full = fs.join(.ws_dir, id)
+            var full str = .ws_dir + "/" + id
             var i int = 0
             var found bool = false
             while i < .tabs.len() {
@@ -432,8 +441,8 @@ print(add(1, 2))
                 i = i + 1
             }
             if !found {
-                if File.exists(full) {
-                    let s = File.read_text(full)
+                if exists(full) {
+                    let s = read_text(full)
                     .open_count = .open_count + 1
                     .tabs.push({key: "tab-" + .open_count.str(), title: file_basename(id), path: full, dirty: false, src: s})
                     .tab = .tab_count
@@ -480,7 +489,7 @@ print(add(1, 2))
             while i < .tabs.len() {
                 if .tabs[i].dirty {
                     if .tabs[i].path != "" {
-                        File.write_text(.tabs[i].path, code_editor_text(.tabs[i].key))
+                        write_text(.tabs[i].path, code_editor_text(.tabs[i].key))
                         .tabs[i].dirty = false
                     }
                 }
