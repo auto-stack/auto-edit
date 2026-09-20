@@ -1,0 +1,7 @@
+.am/
+__pycache__/
+*.pyc
+
+# auto-os 会话运行时（会话/对话状态可再生；账本 specs.json 除外）
+.autoos/*
+!.autoos/specs.json

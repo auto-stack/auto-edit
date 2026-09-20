@@ -1,0 +1,177 @@
+// reference/with_dialog.at — DataTableCrud blueprint, "with_dialog" variant.
+// minimal + the `form_dialog` extension point materialized: a create/edit
+// dialog over the table. Consumer wires `dataSource.query` and owns
+// actions.create/update/delete.
+//
+// PLAN-657 参数化修整（reference 实现对齐 frontmatter 契约面，frontmatter
+// 零改动）：columns props 经 widget 参数接入（表头循环）；受控数据面
+// rows/total 由消费方供给（dataSource.query 无 L1 逆向调用通道——app 侧
+// 取数回填，on_query 上抛查询意图）；actions.create/update/delete 经
+// on_create/on_update/on_delete 回调上抛（契约 Q2 action 点）。body 单元格
+// 仍按 scaffold 固定 name 列渲染——columns 驱动的动态单元格需 view 层
+// Index 表达式（492-R1 VM 轨缺口），记 PLAN-657 组装摩擦。
+// pagination 补 per_page（shadcn Pagination 必填 itemsPerPage——master
+// 预存 vue-tsc TS2345，随本参数化修整）。
+
+widget DataTableCrudDialog (columns: List, rows: List, total: int, on_query: msg, on_create: msg, on_update: msg, on_delete: msg) {
+    msg {
+        SearchChanged,
+        PageChanged,
+        CreateClicked,
+        EditRow,
+        DeleteRow,
+        DialogNameChanged,
+        DialogSubmit,
+        Query(str, int),
+        Create(str),
+        Update(str, str),
+        Delete(str)
+    }
+
+    model {
+        var search str = ""
+        var page int = 1
+        var loading bool = false
+        var error str = ""
+        // dialog state
+        var dialog_open bool = false
+        var dialog_editing str = "" // row id, "" = create
+        var dialog_name str = ""
+    }
+
+    view {
+        col {
+            // ── EDIT: filters ──
+            row {
+                input {
+                    id: "search"
+                    value: .search
+                    oninput: .SearchChanged
+                    placeholder: "Search…"
+                    style: "w-64 px-3 py-2 border rounded-lg text-sm"
+                }
+                button "New item" {
+                    onclick: .CreateClicked
+                    style: "px-4 py-2 bg-blue-600 text-white rounded-lg"
+                }
+                style: "gap-2"
+            }
+
+            table {
+                // header row per props.columns（含操作列——消费方经
+                // columns 供给，不再硬编码）
+                row {
+                    for col in .columns {
+                        text (key: col.id) f"${col.title}" { style: "text-sm font-medium" }
+                    }
+                }
+                for row in .rows {
+                    row (key: row.id) {
+                        text f"${row.name}" { style: "text-sm" }
+                        dropdown-menu {
+                            dropdown-menu-trigger {
+                                button "⋯" {
+                                    variant: "ghost"
+                                    style: "w-8 h-8"
+                                }
+                            }
+                            dropdown-menu-content {
+                                dropdown-menu-item "Edit" { onclick: .EditRow(row.id) }
+                                dropdown-menu-separator {}
+                                dropdown-menu-item "Delete" { onclick: .DeleteRow(row.id) }
+                            }
+                        }
+                    }
+                }
+                style: "w-full gap-1"
+            }
+
+            // ── EDIT: loading / empty / error_display ──
+            if .loading {
+                text "Loading…" { style: "text-sm text-gray-500" }
+            }
+            if .total == 0 && !.loading && .error == "" {
+                text "No results. Adjust your filters." {
+                    style: "text-sm text-gray-500"
+                }
+            }
+            if .error != "" {
+                text f"error: ${.error}" { style: "text-sm text-red-600" }
+            }
+
+            pagination {
+                page: .page
+                total: .total
+                per_page: 8
+                onchange: .PageChanged
+                style: "gap-1"
+            }
+
+            // ── EDIT: form_dialog (create/edit surface) ──
+            if .dialog_open {
+                dialog (open: .dialog_open) {
+                    dialog-content {
+                        dialog-header {
+                            dialog-title "Edit item"
+                        }
+                        col {
+                            label "Name" { for: "dialog_name" }
+                            input {
+                                id: "dialog_name"
+                                value: .dialog_name
+                                oninput: .DialogNameChanged
+                                style: "w-full px-3 py-2 border rounded-lg text-sm"
+                            }
+                            style: "gap-3"
+                        }
+                        dialog-footer {
+                            dialog-close "Cancel"
+                            button "Save" {
+                                onclick: .DialogSubmit
+                                style: "px-4 py-2 bg-blue-600 text-white rounded-lg"
+                            }
+                        }
+                    }
+                }
+            }
+
+            style: "w-full max-w-3xl mx-auto p-6 gap-4"
+        }
+    }
+
+    on {
+        .SearchChanged(s) -> {
+            .search = s
+            .page = 1
+            on_query(s, 1) // consumer re-runs dataSource.query(filter, page)
+        }
+        .PageChanged(p) -> {
+            .page = p
+            on_query(.search, p) // consumer re-runs dataSource.query(filter, page)
+        }
+        .CreateClicked -> {
+            .dialog_editing = ""
+            .dialog_name = ""
+            .dialog_open = true
+        }
+        .EditRow(id) -> {
+            .dialog_editing = id
+            .dialog_name = "" // consumer seeds from the row
+            .dialog_open = true
+        }
+        .DialogNameChanged(s) -> { .dialog_name = s }
+        .DialogSubmit -> {
+            // actions.create (dialog_editing == "") or actions.update
+            if .dialog_editing == "" {
+                on_create(.dialog_name)
+            } else {
+                on_update(.dialog_editing, .dialog_name)
+            }
+            .dialog_open = false
+            // then re-run dataSource.query
+        }
+        .DeleteRow(id) -> {
+            on_delete(id) // actions.delete: confirm, then remove + re-run query
+        }
+    }
+}

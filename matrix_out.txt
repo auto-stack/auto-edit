@@ -1,0 +1,90 @@
+============================================================
+Plan 418 Phase 1: Desktop MCP action-matrix (real 041 auto-edit)
+============================================================
+
+Starting real 041 auto-edit in D:\autostack\auto-edit\specs\auto-edit...
+App output log: C:\Users\zhaop\AppData\Local\Temp\auto041_mcp_cxjan_ze.log
+Waiting for MCP server on port 9247...
+MCP server ready
+
+T1: Snapshot structure
+  PASS  App widget present
+  PASS  toolbar icon file-plus present
+  PASS  toolbar icon undo-2 present
+  PASS  toolbar icon copy present
+  NOTE  editor node not yet in snapshot (render timing); skipping
+  PASS  menubar buttons present
+  PASS  toolbar synthesized onclick present
+  PASS  menubar synthesized onclick present
+
+T2: ActConsole (menu item)
+  PASS  view menu opened
+  FAIL  menu item (切换 Console) found: not in open-menu snapshot
+
+T3: ActAbout (menu item)
+  FAIL  about menu item found: no .ActAbout in help menu snapshot
+
+T3b: Plan 428 code folding (native channel)
+  FAIL  fold menu item found: no 折叠切换 in view menu snapshot
+
+T4: ActNew (menu item)
+  FAIL  new menu item found: no .ActNew in file menu snapshot
+
+T5: ActSwitchTab (menu item)
+  FAIL  switch-tab menu item found: no .ActSwitchTab in view menu
+
+T6: Editor actions (toolbar icons + edit-menu, text-verified)
+  PASS  select-all sets .sel
+  PASS  cut empties editor text
+  PASS  cut logged
+  PASS  undo restores text
+  PASS  redo re-empties text
+  PASS  undo (2nd) restores text
+  PASS  copy logged
+  PASS  cut (2nd) empties text
+  PASS  paste restores text
+  PASS  paste logged
+
+T7: Global shortcut Ctrl+J
+  PASS  console_open flipped via Ctrl+J
+T7b: Actions-block shortcut Ctrl+D (actions decl only)
+  PASS  tab flipped via config Ctrl+D
+
+T9: Plan 420 tab workspace (close/+ open/dirty/save)
+  PASS  all tabs closed
+  PASS  empty state visible
+  PASS  + button found
+  PASS  tab opened from AUTO_OPEN_PATH
+  PASS  opened content matches file
+  PASS  cut toolbar button found
+  PASS  cut logged
+  PASS  dirty confirm popover opens
+  PASS  confirm force-close item found
+  PASS  dirty tab closed
+  PASS  saved file round-trips content
+
+T10: Plan 423 enabled-if + hot reload
+  PASS  T10 all tabs closed
+  PASS  T10 save button found
+  PASS  T10 save disabled marker in snapshot
+  PASS  T10 disabled click dispatches nothing
+  PASS  T10 save re-enabled after open
+  PASS  T10 hot-reloaded toolbar item appears
+  PASS  T10 reloaded item dispatches
+
+T11: OS user keymap layer (e2e)
+  PASS  T11 OS keymap override applied (e2e)
+
+T8: ActQuit (menu item)
+  FAIL  quit menu item found: no .ActQuit in file menu
+
+============================================================
+RESULT: 39 passed, 6 failed
+Failures:
+  - menu item (切换 Console) found: not in open-menu snapshot
+  - about menu item found: no .ActAbout in help menu snapshot
+  - fold menu item found: no 折叠切换 in view menu snapshot
+  - new menu item found: no .ActNew in file menu snapshot
+  - switch-tab menu item found: no .ActSwitchTab in view menu
+  - quit menu item found: no .ActQuit in file menu
+============================================================
