@@ -24,6 +24,9 @@ store EditorStore {
         // Plan 420 P1: tabs 数组态 —— 每 tab = {key, title, path, dirty, src}。
         // key 唯一(code_editor registry 按它保存实例);src 仅作初值/外部
         // 重置(last_external 相等即 no-op,用户输入不会被 stale 值踩掉)。
+        // PLAN-005 起编辑态不回写——cut/paste/undo/redo/ctx-cut 后的
+        // 编辑器全文回读已删(违例残留,与本头注语义自相矛盾);全文只在
+        // 两个 save 位读出(过渡形态,上游 delta/分块读供料后收口)。
         var tabs list = [
             {key: "tab-main", title: "main.at", path: "", dirty: false, src: "// 预填文本显示测试 — 如果你看到这行字,说明正文渲染正常\nfn add(a int, b int) int {\n    return a + b\n}\n\n// 中文注释:你好世界\nprint(add(1, 2))\n"},
             {key: "tab-util", title: "util.at", path: "", dirty: false, src: "// 工具模块 — 每个 tab 的编辑状态独立保存\nfn greet(name str) str {\n    return \"hello \" + name\n}\n\nfn farewell(name str) str {\n    return \"bye \" + name\n}\n"},
@@ -36,6 +39,9 @@ store EditorStore {
         var open_count int = 2
         var title_active str = "main.at"
         var path_active str = ""
+        // PLAN-005: src_active 降格为「激活 tab 初值镜像」——只在
+        // TabActivate/ActSwitchTab/开 tab 位读 tabs[i].src 本值赋值,
+        // 非实时编辑态(编辑 handler 不再回写;矩阵正文断言已迁 save E2E)。
         var src_active str = "// 预填文本显示测试 — 如果你看到这行字,说明正文渲染正常
 fn add(a int, b int) int {
     return a + b
@@ -113,6 +119,14 @@ print(add(1, 2))
         // 名。经 App.Init 薄委托(Init 名保留给根 widget 生命周期,store 侧
         // handler 不得占用——handler_EditorStore_Init 不合成,link 期炸)。
         .LoadWorkspace -> {
+            // PLAN-005 T-04: bench 阶段标记（AUTO_BENCH=1 门控）。T-03 实勘
+            // 结论：VM 轨 time 族内建未接线（now_ms/now_sec 两形态均返 0，
+            // Instant.elapsed 返回约定坏）——标记为裸 stage 行，毫秒值由
+            // host 侧对 stdout 落文件的时间戳记录；print 不进 console 面板，
+            // 矩阵断言零扰动。未设门=分支不进，零行为差异。
+            if env_str("AUTO_BENCH") == "1" {
+                print("BENCH bench_vm_init")
+            }
             // PLAN-003 T-02: ws 根解析入 back(ws_root 兜底 "." 语义不变)。
             .ws_dir = ws_root()
             .ws_name = file_basename(.ws_dir)
@@ -120,6 +134,9 @@ print(add(1, 2))
             .tree_expanded = ["src"]
             console_log("workspace: " + .ws_dir)
             .console = console_lines()
+            if env_str("AUTO_BENCH") == "1" {
+                print("BENCH bench_ws_loaded")
+            }
         }
 
         // ---- 内部 helper：光标三元组读回 ----
@@ -226,8 +243,6 @@ print(add(1, 2))
             .ctx_open = false
             if .tab_count > 0 {
                 code_editor_cut(.active_key)
-                .tabs[.tab].src = code_editor_text(.active_key)
-                .src_active = .tabs[.tab].src
                 .tabs[.tab].dirty = true
             }
             console_log("ctx cut")
@@ -271,11 +286,25 @@ print(add(1, 2))
         // PLAN-016 T-08：open_with 接收消费——与 ActOpen 同构，路径来自
         // 宿主写入的 auto_open_path（读文本入新 tab；防重放 + 清路径）。
         .ConsumeOpen -> {
+            // PLAN-005 T-04: bench 挂载——AUTO_BENCH=1 时 AUTO_OPEN_PATH 兼作
+            // ConsumeOpen 供料（桌面宿主 open_with 臂之外的第二通道；host
+            // 免 UI 触发即可测打开链。未设门=零行为差异，矩阵回归保证）。
+            if env_str("AUTO_BENCH") == "1" {
+                if .auto_open_path == "" {
+                    .auto_open_path = env_str("AUTO_OPEN_PATH")
+                }
+            }
             if .auto_open_path != "" {
                 if .auto_open_path != .open_consumed {
                     .open_consumed = .auto_open_path
                     let p str = .auto_open_path
+                    if env_str("AUTO_BENCH") == "1" {
+                        print("BENCH bench_open_start")
+                    }
                     let s str = read_text(p)
+                    if env_str("AUTO_BENCH") == "1" {
+                        print("BENCH bench_open_done")
+                    }
                     .open_count = .open_count + 1
                     .tabs.push({key: "tab-" + .open_count.str(), title: file_basename(p), path: p, dirty: false, src: s})
                     .tab = .tab_count
@@ -347,8 +376,6 @@ print(add(1, 2))
                 .ActUndo -> {
             if .tab_count > 0 {
                 code_editor_undo(.active_key)
-                .tabs[.tab].src = code_editor_text(.active_key)
-                .src_active = .tabs[.tab].src
             }
             console_log("undo")
             .console = console_lines()
@@ -356,8 +383,6 @@ print(add(1, 2))
         .ActRedo -> {
             if .tab_count > 0 {
                 code_editor_redo(.active_key)
-                .tabs[.tab].src = code_editor_text(.active_key)
-                .src_active = .tabs[.tab].src
             }
             console_log("redo")
             .console = console_lines()
@@ -373,8 +398,6 @@ print(add(1, 2))
         .ActCut -> {
             if .tab_count > 0 {
                 code_editor_cut(.active_key)
-                .tabs[.tab].src = code_editor_text(.active_key)
-                .src_active = .tabs[.tab].src
                 .tabs[.tab].dirty = true
             }
             console_log("cut")
@@ -390,8 +413,6 @@ print(add(1, 2))
         .ActPaste -> {
             if .tab_count > 0 {
                 code_editor_paste(.active_key)
-                .tabs[.tab].src = code_editor_text(.active_key)
-                .src_active = .tabs[.tab].src
                 .tabs[.tab].dirty = true
             }
             console_log("paste")

@@ -161,10 +161,24 @@ def main():
             print(f"[regen-vue] 补件：{gen_natives}（追加对象形态内建声明）")
     # 2. store 自调别名（composable 函数体内、return 前）+ 3. toggle_id
     #    内联 + 4. null→-1
-    patch_file(os.path.join("src", "stores", "useEditorStore.ts"),
+    # PLAN-005 补件③在场守卫 + ⑧ print 遮蔽改写：
+    #   ③ 1652 起 671 生成器在 store 文件内联 use-imported fn（标记
+    #     "PLAN-671 ③"），补件盲目追加 toggle_id 会造 TS2393 重复实现；
+    #     仅生成器缺位时补（旧工具链）。
+    #   ⑧ store 有名为 console 的 state 字段（Ref<string>），.at 的
+    #     print() 在 vue 侧发射 console.log(...)——被字段遮蔽成
+    #     TS2339（PLAN-005 BENCH 标记首发）；改写为 globalThis.console.log。
+    store_rel = os.path.join("src", "stores", "useEditorStore.ts")
+    with open(os.path.join(VUE, store_rel), encoding="utf-8") as f:
+        store_s = f.read()
+    toggle_append = None if "function toggle_id" in store_s else TOGGLE_ID
+    if toggle_append is None:
+        print("[regen-vue] 补件③跳过：toggle_id 生成器已内联（671 已吸收）")
+    patch_file(store_rel,
                [("ref<number>(null)", "ref<number>(-1)"),
-                ("    return {\n", STORE_ALIAS)],
-               append=TOGGLE_ID)
+                ("    return {\n", STORE_ALIAS),
+                ("console.log(", "globalThis.console.log(")],
+               append=toggle_append)
     # 5. EditorCtx 双参签名对齐（App.vue）+ contextmenu 事件坐标实参
     patch_file(os.path.join("src", "App.vue"),
                [("function EditorCtx(i: any): void {", "function EditorCtx(x: any, y: any): void {"),

@@ -381,21 +381,30 @@ def run_tests(mcp_url, proc):
     # T6: toolbar editor actions — undo/redo/cut/copy/paste via toolbar
     # icons; the full edit-menu/toolbar cycle with REAL editor-text
     # assertions (Plan 418 follow-up: previously only alive+console-log were
-    # checked — undo could silently no-op). Model resync relies on the
-    # handlers' code_editor_text() write-back (app.at) so the assertions
-    # hold under MCP dispatch (no real iced events to flush the widget's
-    # external-dirty publish).
+    # checked — undo could silently no-op). PLAN-005: 编辑 handler 的全文
+    # 回写镜像已删（tabs[i].src 只作初值/外部重置，src_active 不再实时），
+    # 正文断言改走 save 路径 E2E——toolbar("save") 触发 ActSave 落盘后读
+    # AUTO_SAVE_PATH 文件比对（starter tab path="" 首存走旁路定路径，续存
+    # 覆盖；断言面反而更强：验的是真实写路径而非模型镜像）。
     print("\nT6: Editor actions (toolbar icons + edit-menu, text-verified)")
-    # Plan 420: 正文断言走派生标量 src_active(激活 tab 的镜像,undo/cut/
-    # paste 等 handler 写回 —— 与旧 src_main/src_util 同步点一致)。
     title_now = state_str(mcp.state("title_active"), "title_active") or ""
-    if "util" in title_now:
-        src_field, marker = "src_active", "工具模块"
-    else:
-        src_field, marker = "src_active", "你好世界"
+    marker = "工具模块" if "util" in title_now else "你好世界"
 
     def src_now():
-        return state_str(mcp.state(src_field), src_field) or ""
+        # PLAN-005: save-then-read —— 触发 ActSave 落盘，读回文件内容。
+        # 落盘完成以 console 新增 "saved:" 行为准（ActSave 内 write_text
+        # 先于 console_log，慢实例上固定 sleep 不够——1652 工具链冷跑
+        # run1 教训），轮询确认后再读文件。
+        if not toolbar("save"):
+            return "<save toolbar missing>"
+        before = (state_str(mcp.state("console"), "console") or "").count("saved:")
+        for _ in range(10):
+            time.sleep(0.3)
+            after = (state_str(mcp.state("console"), "console") or "").count("saved:")
+            if after > before:
+                break
+        with open(os.environ["AUTO_SAVE_PATH"], encoding="utf-8") as f:
+            return f.read()
 
     def toolbar(icon):
         snap_cache[0] = mcp.snapshot()
@@ -425,18 +434,20 @@ def run_tests(mcp_url, proc):
     sel = state_int(mcp.state("sel"), "sel")
     result.check("select-all sets .sel", ok and sel > 0, f"sel={sel}")
 
-    # 2) cut empties the editor AND the model binding
+    # 2) cut empties the editor; save E2E: file on disk is empty
     if toolbar("scissors"):
-        result.check("cut empties editor text", src_now() == "", f"{src_field}={src_now()[:30]!r}")
+        saved = src_now()
+        result.check("cut empties editor text", saved == "", f"saved={saved[:30]!r}")
         result.check("cut logged", "cut" in (state_str(mcp.state("console"), "console") or ""))
 
-    # 3) undo restores the preloaded text
+    # 3) undo restores the preloaded text (save E2E)
     if toolbar("undo-2"):
-        result.check("undo restores text", marker in src_now(), f"{src_field} missing {marker!r}")
+        result.check("undo restores text", marker in src_now(), f"saved missing {marker!r}")
 
-    # 4) redo re-applies the cut
+    # 4) redo re-applies the cut (save E2E: empty again)
     if toolbar("redo-2"):
-        result.check("redo re-empties text", src_now() == "", f"{src_field}={src_now()[:30]!r}")
+        saved = src_now()
+        result.check("redo re-empties text", saved == "", f"saved={saved[:30]!r}")
 
     # 5) undo restores again, then copy → cut → paste round-trips the text
     if toolbar("undo-2"):
@@ -500,6 +511,11 @@ def run_tests(mcp_url, proc):
                     break
                 time.sleep(1)
         roundtrip_path = os.environ["AUTO_OPEN_PATH"]
+        # PLAN-005: T6 的 save E2E 通道已把此文件当断言面（正文比对走它），
+        # 进 T9 前重置回 main() 的已知原文——T9 的 marker 隔离假设不再依赖
+        # T6 的末次落盘内容（paste flake 时可为空串，曾致 splitlines 崩）。
+        with open(roundtrip_path, "w", encoding="utf-8", newline="") as f:
+            f.write("// t9 roundtrip file\nfn t9() int { 42 }\n")
         marker_before = open(roundtrip_path, encoding="utf-8").read()
         # 9.1 close both starter tabs (x icon buttons in the tab strip; a
         # tab dirtied by T6 opens the confirm popover — force-close through it)
