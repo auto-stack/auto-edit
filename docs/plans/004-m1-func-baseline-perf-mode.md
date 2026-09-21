@@ -1,12 +1,12 @@
 ---
 plan_id: PLAN-004
-status: execution_done
+status: executing
 feature_name: M1 性能轨①+②——功能健康基线 + perf 模式一键化
 author: [agent]
 created_at: 2026-09-21T02:35:32Z
-updated_at: 2026-09-21T03:17:42Z
+updated_at: 2026-09-21T03:40:00Z
 plan_revision: 1
-current_step: 8
+current_step: 7
 total_steps: 8
 supersedes_spec_components: []
 new_spec_components: []
@@ -215,7 +215,7 @@ python tools/perf/perf.py <stage>
 | T-01 | [x] 上游供料包文档 | — | `docs/upstream/2026-09-m1-supply.md`（§5.1 五节） | AC-01 | ✅ 86cdfb2：五节齐（rope 单写者版/统一 delta/分块读/F-R1/F-RV6），证据路径含内核 `crates/auto-lang/src/ui/code_editor/core/mod.rs` 定位与归档 F-* 行号 |
 | T-02 | [x] RQ/a2r 实勘探针 | — | `tools/perf/README.md` 模式矩阵（§5.2 四问全答） | AC-07 | ✅ c7636f7：①RQ=`auto rqhost`+`run -q`（wellknown 管道+单实例锁+末窗退出）②**VM 轨官方支持**（`-q` 注记 vm/rust tracks）→AC-05 走 (a) 分支 ③a2r=仓外 `<project>/rust-workspace/`+`AUTO_RUST_WORKSPACE` 权威 env，工具链 cargo 默认 debug→release 由 perf.py 补 ④**F-R1 只阻 `--server rust` 不阻 merged**——L2 主形态 `-r rust -q` 无需等上游 |
 | T-03 | [x] 矩阵稳定性重跑 | — | ≥5 跑次分布表进 §9；README 口径更新（SD-02） | AC-02 | ✅ 1328b1f：附表 A 五连跑（50/0×2、49/0、早崩×2）；README 口径落账并入 T-08 批次；供料 §5 增补 1631 实测（f03a1b0） |
-| T-04 | [x] split/vue 双轨复验 | — | §9 收据（split 五项功能环 + vue 构建退出码） | AC-03 | ✅ split 全绿（附表 B：六端点+写读环+精确回收）；**vue 红 = 上游 1631 漂移**（TS1117 button 补件冲突 + TS2304 Process×3，fetch 刷新后复证——供料 §8 增补 PLAN-671 证据；AC-03 vue 部分以 blocked-upstream 登记） |
+| T-04 | [ ] split/vue 双轨复验 | — | §9 收据（split 五项功能环 + vue 构建退出码） | AC-03 | split 全绿保持有效（附表 B）；**vue 被复审 F-1 重开**——blocked-upstream 定性不成立，两根因均属本仓过渡补件层可修（见 §9 复审 F-1） |
 | T-05 | [x] perf.py 骨架 + check | T-02 | 阶段化 CLI + `check`（环境指纹） | AC-04 | ✅ 93fc83a：check 实测绿（v0.4.2-1631 ≥1588 门/cargo 1.98/pnpm 11.6，指纹落 logs/env-*.txt）；七段 CLI 齐（check/a2r/release/rq-up/rq-down/run/smoke），退出码 0/3/1，F-R1 特征识别+隔离 wellknown+按 PID 收 |
 | T-06 | [x] RQ 段编排 | T-02/T-05 | `rq-up/run/rq-down`（或 blocked 登记，按 T-02） | AC-05 | ✅ 44e3a74：**blocked 登记分支（等价调整）**——blocker 从预案的 F-R1 改判为新缺口「RQ 渲染臂未覆盖 codeeditor」（coverage::native_queue_set 基础集外，供料 §6）；编排链全验证（rq-up 管道探测绿/run 双实例派发/rq-down 按 PID 清理）；smoke 实测 exit 3 构造性验证成立 |
 | T-07 | [x] a2r+release 段编排 | T-05 | `a2r/release` 阶段 + F-R1 归因退出 | AC-05/06 联动 | ✅ ab57177：a2r 实测 exit 3（BLOCKED 归因：**PLAN-027 词汇门**拒 value/text/title 等 23 错——新缺口供料 §7，非 F-R1）；分类补丁构造性验证（exit 3 + 首错行打印）；release 段在位待 a2r 绿后生效 |
@@ -244,6 +244,45 @@ python tools/perf/perf.py <stage>
 - 工程注记：组目录 `.wt/edit-004/`（auto-edit 主树 + auto-lang detach
   兄弟树 @ e82b95b22 供 bps 依赖）；worktree 全部验证跑经 PERF_PROJECT
   锚主检出（gitignored 生成物），worktree 零重物、guard 友好。
+- 2026-09-21T03:40Z · stage: review · plan_revision: 1 · outcome:
+  **needs_fix** · reviewed_commit: worktree ab57177 · base: main fb68b27 ·
+  deps: 工具链 v0.4.2-1631（e82b95b22-dirty），兄弟树 detach @ e82b95b22 ·
+  spec_inputs: specs/auto-edit/README.md（worktree SD-01/02 版）·
+  独立性声明：执行会话内复审，结论自工件与可复现命令重建。
+  **acceptance_results**：AC-01 ✓（供料八节，引文行号与 editor_store.at
+  实测 grep 一致：镜像位 229/350/359/376/393 + save 位 338/492）；AC-02 ✓
+  （SD-02 落盘 + 附表 A，RESULT 行磁盘复核 49/50/50 + 两无 RESULT）；
+  AC-03 **partial→needs_fix**（split 六端点绿有效；vue 红）；AC-04 ✓
+  （复审重跑 exit 0）；AC-05 ✓（等价性裁定见 F-2）；AC-06 ✓；AC-07 ✓。
+  矩阵证据复用理由：分支触碰面 diff --stat 证明应用源零改动（仅
+  docs/tools/README/.gitignore/matrix 清理），矩阵跑于同源 fb68b27。
+  **findings**：
+  - **F-1（major，AC-03/T-04）**：vue blocked-upstream 定性**不成立**。
+    法证链：①1631 生成器已自 emitting `src/natives.d.ts`（671 函数形态
+    内建吸收中间态，`(...args: any[])` 宽松签名），函数们由它解析——
+    本仓补件的 `src/lib/natives.d.ts` 不在 tsc 程序内（listFilesOnly
+    实证：仅 src/natives.d.ts + src/lib/natives.ts 入程序），其
+    `Process/Env` 对象声明因此失效；②生成器 natives 吸收只覆盖函数形态，
+    **漏了对象形态内建（Process/Env）**——探针实证：向 src/natives.d.ts
+    追加两行对象声明后 TS2304×3 全消；③TS1117 = 本仓补件⑥（button
+    text variant）非幂等——生成器 671 已吸收 text variant（带
+    `// PLAN-671 ⑥` 注释的 `text: ""`），补件仍盲目追加 `text:` →
+    重复属性（L14 补件旧值 vs L30 生成器新值）。**修法（本仓补件层，
+    ~10 行）**：regen_vue.py 补件⑥加在场守卫（`text:` 已存在则跳过）；
+    补件①改/增打生成器侧 src/natives.d.ts（追加 Process/Env 声明）；
+    重跑 `regen_vue.py --build` 断言 exit 0；同步**勘误供料 §8**：
+    TS1117 不再请上游纳入 671（上游已修），改为「671 natives 吸收需
+    覆盖对象形态内建」单项。
+  - **F-2（info，AC-05 等价性裁定——用户指定复审焦点②）**：AC-05(b)
+    文字的 "blocked-on-F-R1" 是起草期对 blocker 的预判名，分支的实质
+    要求是「blocked 登记 + 矩阵如实 + exit 3 构造性验证」三机制——
+    实测 blocker 为 §6 codeeditor 覆盖（T-02 静探无法预见、恰为 (b)
+    机制存在的理由），三机制全数满足且附表 C 留痕。裁定：**按机制等价
+    满足，pass**；不改 AC 文本（预判名非验收物）。
+  - **F-3（info）**：release 段与 rust+RQ 端到端未实测（a2r §7 阻），
+    与登记一致，非缺口。
+  next: **work**（修复 F-1 后重开 T-04 → execution_done → 复审只需
+  复核 F-1 修复面：vue exit 0 + 供料 §8 勘误）。
 - **附表 A：矩阵跑次分布（T-03 收据，2026-09-21）**
   - 环境：auto `v0.4.2-1631-ge82b95b22`（2026-09-21 10:14 构建，-dirty）；
     命令 `cd specs/auto-edit/tests && python desktop_mcp.py`（env 旁路
