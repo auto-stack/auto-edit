@@ -1,12 +1,13 @@
 ---
 plan_id: PLAN-004
-status: reviewed
+status: archived
 feature_name: M1 性能轨①+②——功能健康基线 + perf 模式一键化
 author: [agent]
 created_at: 2026-09-21T02:35:32Z
-updated_at: 2026-09-21T03:49:28Z
+updated_at: 2026-09-21T03:56:00Z
 plan_revision: 1
 current_step: 8
+completion_kind: delivered
 total_steps: 8
 supersedes_spec_components: []
 new_spec_components: []
@@ -307,6 +308,19 @@ python tools/perf/perf.py <stage>
   计数（PLAN-003 期上游缺口分类；1b 为第 1 类扩展非新类，计数语义仍
   成立，不改）。规范增量 SD-01/02 不受 F-1 影响，终版确认。
   next: **merge**（用户已预授权衔接）。
+- **PLAN-004:r1 merge 收据（2026-09-21 03:56Z）**
+  - `prepared` ✓：账本投影提交 6bcc275（projection-only descendant
+    of reviewed b0b4676；.autoos/specs.json reviews 段 P004-1 外科插入，
+    10 insertions/0 deletions，回读序 P001-1..P004-1 校验）。
+  - `landed` ✓：rebase plan-004-dev → main（8/8 提交，range-diff 全等
+    `=`；映射 6bcc275→f7d2a12 等）；`git merge --ff-only` 落 main，
+    tip=f7d2a12=delivery；主检出烟测 `perf.py check` exit 0（1631
+    门通过）；树零脏面。
+  - `ledger_refreshed` ✓：主检出账本回读 P004-1 在册（file 指向本
+    归档档路径，随 ff-merge 落位）。
+  - `archived` ✓：本档 `docs/plans/archived/004-m1-func-baseline-
+    perf-mode.md`，status: archived，completion_kind: delivered。
+  - `cleaned`：（本行由清理段回填）
 - **附表 A：矩阵跑次分布（T-03 收据，2026-09-21）**
   - 环境：auto `v0.4.2-1631-ge82b95b22`（2026-09-21 10:14 构建，-dirty）；
     命令 `cd specs/auto-edit/tests && python desktop_mcp.py`（env 旁路
