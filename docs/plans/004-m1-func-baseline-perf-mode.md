@@ -4,9 +4,9 @@ status: executing
 feature_name: M1 性能轨①+②——功能健康基线 + perf 模式一键化
 author: [agent]
 created_at: 2026-09-21T02:35:32Z
-updated_at: 2026-09-21T02:35:32Z
+updated_at: 2026-09-21T02:49:41Z
 plan_revision: 1
-current_step: 0
+current_step: 3
 total_steps: 8
 supersedes_spec_components: []
 new_spec_components: []
@@ -212,11 +212,11 @@ python tools/perf/perf.py <stage>
 
 | ID | 任务 | 依赖 | 产出/意图 | AC | 验证 |
 |---|---|---|---|---|---|
-| T-01 | 上游供料包文档 | — | `docs/upstream/2026-09-m1-supply.md`（§5.1 五节） | AC-01 | 逐节 grep 证据路径在位 |
-| T-02 | RQ/a2r 实勘探针 | — | `tools/perf/README.md` 模式矩阵（§5.2 四问全答） | AC-07 | 表无"未知"；探针命令落 logs/ 可追溯 |
-| T-03 | 矩阵稳定性重跑 | — | ≥5 跑次分布表进 §9；README 口径更新（SD-02） | AC-02 | §9 表齐 + README diff 纯增量 |
+| T-01 | [x] 上游供料包文档 | — | `docs/upstream/2026-09-m1-supply.md`（§5.1 五节） | AC-01 | ✅ 86cdfb2：五节齐（rope 单写者版/统一 delta/分块读/F-R1/F-RV6），证据路径含内核 `crates/auto-lang/src/ui/code_editor/core/mod.rs` 定位与归档 F-* 行号 |
+| T-02 | [x] RQ/a2r 实勘探针 | — | `tools/perf/README.md` 模式矩阵（§5.2 四问全答） | AC-07 | ✅ c7636f7：①RQ=`auto rqhost`+`run -q`（wellknown 管道+单实例锁+末窗退出）②**VM 轨官方支持**（`-q` 注记 vm/rust tracks）→AC-05 走 (a) 分支 ③a2r=仓外 `<project>/rust-workspace/`+`AUTO_RUST_WORKSPACE` 权威 env，工具链 cargo 默认 debug→release 由 perf.py 补 ④**F-R1 只阻 `--server rust` 不阻 merged**——L2 主形态 `-r rust -q` 无需等上游 |
+| T-03 | 矩阵稳定性重跑 | — | ≥5 跑次分布表进 §9；README 口径更新（SD-02） | AC-02 | §9 表齐 + README diff 纯增量（**执行中**：后台五连跑，AUTO_OPEN/SAVE env 旁路置位） |
 | T-04 | split/vue 双轨复验 | — | §9 收据（split 五项功能环 + vue 构建退出码） | AC-03 | 收据命令可复制重放 |
-| T-05 | perf.py 骨架 + check | T-02 | 阶段化 CLI + `check`（环境指纹） | AC-04 | `python tools/perf/perf.py check` 退出码 0 |
+| T-05 | [x] perf.py 骨架 + check | T-02 | 阶段化 CLI + `check`（环境指纹） | AC-04 | ✅ 93fc83a：check 实测绿（v0.4.2-1631 ≥1588 门/cargo 1.98/pnpm 11.6，指纹落 logs/env-*.txt）；七段 CLI 齐（check/a2r/release/rq-up/rq-down/run/smoke），退出码 0/3/1，F-R1 特征识别+隔离 wellknown+按 PID 收 |
 | T-06 | RQ 段编排 | T-02/T-05 | `rq-up/run/rq-down`（或 blocked 登记，按 T-02） | AC-05 | smoke 或归因退出码 3 |
 | T-07 | a2r+release 段编排 | T-05 | `a2r/release` 阶段 + F-R1 归因退出 | AC-05/06 联动 | 构造性验证归因路径 |
 | T-08 | 规范增量落账 + 收口自检 | T-01..T-07 | SD-01 落盘；.gitignore 增补（.rq.json/logs）；matrix_out.txt 清理；AC 逐条复核 | AC-06 | grep README 新节；`git status` 干净面检查 |
@@ -226,6 +226,19 @@ python tools/perf/perf.py <stage>
 - 2026-09-21T02:35:32Z · stage: new · r1 起草 · 授权=用户会话批准
   （范围①②）；待 work 接手。（执行期收据附表：矩阵跑次分布 / split+vue
   复验 / smoke 结果——由 T-03/T-04/T-06 回填。）
+- 2026-09-21T02:49:41Z · stage: work · r1 · T-01/T-02/T-05 完成
+  （86cdfb2 / c7636f7 / 93fc83a，worktree `.wt/edit-004/auto-edit` @
+  `plan-004-dev`）；T-03 后台五连跑进行中；T-07 前置确认：仓外 a2r 落
+  `<project>/rust-workspace/` + `AUTO_RUST_WORKSPACE` 权威 env + bps 依赖
+  需组内 auto-lang 兄弟树（detach @ auto-lang main HEAD，T-07 时建）。
+- **附表 A：矩阵跑次分布（T-03 回填区）**
+  - 环境：auto v0.4.2-1631-ge82b95b22（2026-09-21 10:14 构建）；命令
+    `python desktop_mcp.py`（tests/ 目录，AUTO_OPEN_PATH=src/back/api.at
+    + AUTO_SAVE_PATH=.auto/plan004-matrix/save-probe.txt 旁路置位）；
+    日志 `.auto/plan004-matrix/run{1..5}.log`（gitignored）。
+  - 跑次：（待回填）
+- **附表 B：split+vue 双轨复验收据（T-04 回填区）**：（待回填）
+- **附表 C：RQ/a2r/release/smoke 收据（T-06/T-07 回填区）**：（待回填）
 
 ## 10. 待澄清事项
 
