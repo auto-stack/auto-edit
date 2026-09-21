@@ -56,17 +56,18 @@ Plan 449 完成组件化重构（单文件 486 行 → 五文件工程）。
   切换，默认 AutoVM + merged 直调（`api:"rust"` 会杀 merged）。
 - **vue 轨（PLAN-003 双轨化）** —— pac `render: ["vm","vue"]` 单声明 +
   双命令分工（jade-edit PLAN-081 R-1 裁定 A' 同款）：vm 轨
-  `auto run -r vm`，vue 轨 `python scripts/regen_vue.py --build`（生成
-  固定 `--lenient`——S001 schema 漂移 = 上游 aura schema 未吸收
-  PLAN-630 menubar 族 props，债在上游；⚠ 禁止裸 `auto build`：Multi
-  下选 vm 项走 C/ninja 转译路径）。**vue 生成器已支持 actions 消费**
+  `auto run -r vm`，vue 轨 `python scripts/regen_vue.py --build`（strict
+  裸生成——七类补件链 2026-09-21 退役，上游 auto-lang PLAN-671 全周期
+  delivered 后生成器自完备，含 menubar 族 schema 吸收故 `--lenient`
+  一并摘除；⚠ 禁止裸 `auto build`：Multi 下选 vm 项走 C/ninja 转译
+  路径）。**vue 生成器已支持 actions 消费**
   （快捷键经 keydown 回退层、menubar/toolbar 占位合成——PLAN-070 T-05
   去门化；旧「尚未接入」陈述作废）。vue 首版 = 构建绿 + 生成即展示；
   运行期限制（vm 宿主内建无 vue 运行时）：`dialog_open/dialog_save`
   文件对话框、`console_*` 面板数据、`code_editor_*` 读回族、
-  `Env.get`/`Process.exit`——由 `scripts/regen_vue.py` 补类型声明使
-  构建绿，运行期缺口登记于此，深度双轨归后续计划（jade-edit 换基
-  承接同型深水区）。
+  `Env.get`/`Process.exit`——生成器自备 natives 声明层（函数+对象形态
+  索引签名 + `__vmOnly`/Proxy 抛错桩——PLAN-671）使构建绿，运行期
+  缺口登记于此，深度双轨归后续计划（jade-edit 换基承接同型深水区）。
 
 ## Source
 
@@ -74,7 +75,7 @@ Plan 449 完成组件化重构（单文件 486 行 → 五文件工程）。
 |---|---|
 | `src/back/api.at` | 后端契约（PLAN-003）：六 `#[api]` fn（ws_root/tree/read_text/write_text/exists/env_str，路由前缀 /api，GET query/POST body）+ 边界语义注记 |
 | `src/back/fsys.at` | 后端实现本体：`fs.*`/`File.*`/`Env.get` 收口（ws 根解析 + 四 IO + env 读）；模块名 fsys 避与内建 fs 对象同名，且 split 扁平化只吃整模块 `use` |
-| `scripts/regen_vue.py` | vue 轨一键链（PLAN-003 T-04）：生成 + 七类生成器缺口补件 + pnpm install/build |
+| `scripts/regen_vue.py` | vue 轨一键链：strict 裸生成 + pnpm install/build（七类补件 2026-09-21 退役——上游 PLAN-671 清偿，工具链须 ≥1652/含 671） |
 | `src/front/app.at` 的 `actions {}` 块 | 动作注册表（14 个 action）+ menubar/toolbar 结构（Plan 451 DSL 化；原根目录 auto-edit.at 已删除） |
 | `src/front/app.at` | 根 widget `App`（213 行）：actions 声明块 + view 组合 + on 薄委托；测试定位锚交互（tab 条/确认弹层/编辑区/空态）留根 |
 | `src/front/editor_store.at` | `store EditorStore`（342 行）：全部状态 + 业务逻辑 + RemoveAt/SyncCursor 收口；数据面经 `use back.api` 直调（PLAN-003） |
@@ -104,9 +105,10 @@ auto run -r vm --server rust   # a2r 生成的 Rust axum 后端
 #   空体桩（PLAN-003 F-R1 实勘，编译 E0432）——rust 引擎暂不可用。
 
 # —— vue 轨 ——
-python scripts/regen_vue.py --build        # 生成 + 补件 + install/build（vue-tsc+vite 绿）
-# vue dev（两终端，jade-edit 同款配方；⚠ 不用 auto run -r vue——其内置
-# 再生成会覆盖 regen_vue.py 补件）：
+python scripts/regen_vue.py --build        # 生成（strict）+ install/build（vue-tsc+vite 绿；补件链已退役）
+# vue dev（两终端，jade-edit 同款配方。原「不用 auto run -r vue」围栏已
+#   解除——补件退役后其内置再生成即自完备产出，无覆盖损失[PLAN-671]；
+#   dev 配方仍推荐下述两终端形态）：
 #   终端1（后端独立 serve）：auto run --server vm -B 8173
 #   终端2（前端）：cd gen/front/vue && AUTO_HTTP_PORT=8173 pnpm dev
 #   vite（pac front_port）代理 /api → AUTO_HTTP_PORT（实测代理 200）。
