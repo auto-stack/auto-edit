@@ -47,6 +47,9 @@ MIN_TOOLCHAIN_BUILD = 1588
 # F-R1 特征（a2r server 生成器双缺口；供料包 docs/upstream/ §4）。
 FR1_PATTERNS = ("E0432", "api::Db", "空体桩")
 
+# RQ 渲染臂覆盖缺口特征（VM UI native-queue 臂拒绝渲染；供料包 §6）。
+UNCOVERED_PATTERNS = ("臂视图未覆盖",)
+
 EXIT_OK, EXIT_FAIL, EXIT_BLOCKED = 0, 1, 3
 
 DETACHED = 0x00000008          # DETACHED_PROCESS
@@ -284,6 +287,15 @@ def stage_smoke() -> int:
         alive = [p for p in state.get("apps", []) if _pid_alive(p)]
         _log(f"smoke：双实例存活 {len(alive)}/2（pids={alive}）")
         if len(alive) < 2:
+            logs = sorted(LOGS.glob("app-*.log"))[-2:]
+            text = "".join(p.read_text(encoding="utf-8", errors="replace")
+                           for p in logs)
+            if any(u in text for u in UNCOVERED_PATTERNS):
+                _log("BLOCKED: VM+RQ 渲染臂未覆盖（coverage::native_queue_set "
+                     "缺 kind——上游缺口，供料包 docs/upstream §6）。实例死于"
+                     "「拒绝渲染，禁静默错绘」语义，编排链本身（rq-up/run/"
+                     "rq-down/清理）已验证在位。")
+                return EXIT_BLOCKED
             _log("FATAL: VM+RQ 实例未全部存活——见 logs/app-*.log")
             return EXIT_FAIL
         _log("smoke 绿：check + rq-up + VM+RQ 双实例 + 验证")

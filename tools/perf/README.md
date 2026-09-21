@@ -10,8 +10,8 @@ L0 日常 / L1 结构探针 / L2 性能模式（唯一有预算效力）。
 |---|---|---|---|
 | L0：VM+merged（日常） | `auto run -r vm` | — | 绿（README 既有口径，2026-09-21 复验） |
 | L0'：VM+split | `auto run -r vm --no-merge` | F-RV6（矩阵非确定，功能环曾绿） | split 功能环 2026-09-21 曾全绿 |
-| **VM+RQ**（L1 探针可达） | 终端1 `auto rqhost`；终端2 `auto run -r vm -q` | — | **待 T-06 冒烟**（`-q` 官方注记支持 vm/rust 轨） |
-| **a2r+RQ**（L2 性能模式主形态） | 终端1 `auto rqhost`；终端2 `auto run -r rust -q` | a2r 对本工程生成面待实跑验证；release 需 perf.py 直调 `cargo build --release` | 待 T-06/T-07 |
+| **VM+RQ**（L1 探针可达） | 终端1 `auto rqhost`；终端2 `auto run -r vm -q` | **RQ 渲染臂覆盖缺口——blocked-on-upstream（供料包 §6）**：VM UI native-queue 臂 `coverage::native_queue_set`（基础 kind 集）无 `codeeditor`，按「拒绝渲染，禁静默错绘」语义实例即退 | **实跑复现（smoke 0/2 存活）**；perf.py 已按特征分类 exit 3 |
+| **a2r+RQ**（L2 性能模式主形态） | 终端1 `auto rqhost`；终端2 `auto run -r rust -q` | a2r 对本工程生成面待实跑验证（T-07）；release 需 perf.py 直调 `cargo build --release`；rust 轨是否同受 RQ 覆盖缺口影响待 T-07 实证 | 待 T-06/T-07 → T-06 已证 VM 轨受阻 |
 | a2r server（split 后端） | `auto run --server rust` | **F-R1：E0432 + 契约空体桩——blocked-on-upstream**（供料包 §4） | 复现于 PLAN-003 归档 L223 |
 
 ## RQ 模式机制（源码实勘）
