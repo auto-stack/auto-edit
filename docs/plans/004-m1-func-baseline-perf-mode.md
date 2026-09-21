@@ -1,12 +1,12 @@
 ---
 plan_id: PLAN-004
-status: executing
+status: execution_done
 feature_name: M1 性能轨①+②——功能健康基线 + perf 模式一键化
 author: [agent]
 created_at: 2026-09-21T02:35:32Z
-updated_at: 2026-09-21T02:49:41Z
+updated_at: 2026-09-21T03:17:42Z
 plan_revision: 1
-current_step: 3
+current_step: 8
 total_steps: 8
 supersedes_spec_components: []
 new_spec_components: []
@@ -215,22 +215,35 @@ python tools/perf/perf.py <stage>
 | T-01 | [x] 上游供料包文档 | — | `docs/upstream/2026-09-m1-supply.md`（§5.1 五节） | AC-01 | ✅ 86cdfb2：五节齐（rope 单写者版/统一 delta/分块读/F-R1/F-RV6），证据路径含内核 `crates/auto-lang/src/ui/code_editor/core/mod.rs` 定位与归档 F-* 行号 |
 | T-02 | [x] RQ/a2r 实勘探针 | — | `tools/perf/README.md` 模式矩阵（§5.2 四问全答） | AC-07 | ✅ c7636f7：①RQ=`auto rqhost`+`run -q`（wellknown 管道+单实例锁+末窗退出）②**VM 轨官方支持**（`-q` 注记 vm/rust tracks）→AC-05 走 (a) 分支 ③a2r=仓外 `<project>/rust-workspace/`+`AUTO_RUST_WORKSPACE` 权威 env，工具链 cargo 默认 debug→release 由 perf.py 补 ④**F-R1 只阻 `--server rust` 不阻 merged**——L2 主形态 `-r rust -q` 无需等上游 |
 | T-03 | [x] 矩阵稳定性重跑 | — | ≥5 跑次分布表进 §9；README 口径更新（SD-02） | AC-02 | ✅ 1328b1f：附表 A 五连跑（50/0×2、49/0、早崩×2）；README 口径落账并入 T-08 批次；供料 §5 增补 1631 实测（f03a1b0） |
-| T-04 | split/vue 双轨复验 | — | §9 收据（split 五项功能环 + vue 构建退出码） | AC-03 | 收据命令可复制重放 |
+| T-04 | [x] split/vue 双轨复验 | — | §9 收据（split 五项功能环 + vue 构建退出码） | AC-03 | ✅ split 全绿（附表 B：六端点+写读环+精确回收）；**vue 红 = 上游 1631 漂移**（TS1117 button 补件冲突 + TS2304 Process×3，fetch 刷新后复证——供料 §8 增补 PLAN-671 证据；AC-03 vue 部分以 blocked-upstream 登记） |
 | T-05 | [x] perf.py 骨架 + check | T-02 | 阶段化 CLI + `check`（环境指纹） | AC-04 | ✅ 93fc83a：check 实测绿（v0.4.2-1631 ≥1588 门/cargo 1.98/pnpm 11.6，指纹落 logs/env-*.txt）；七段 CLI 齐（check/a2r/release/rq-up/rq-down/run/smoke），退出码 0/3/1，F-R1 特征识别+隔离 wellknown+按 PID 收 |
 | T-06 | [x] RQ 段编排 | T-02/T-05 | `rq-up/run/rq-down`（或 blocked 登记，按 T-02） | AC-05 | ✅ 44e3a74：**blocked 登记分支（等价调整）**——blocker 从预案的 F-R1 改判为新缺口「RQ 渲染臂未覆盖 codeeditor」（coverage::native_queue_set 基础集外，供料 §6）；编排链全验证（rq-up 管道探测绿/run 双实例派发/rq-down 按 PID 清理）；smoke 实测 exit 3 构造性验证成立 |
-| T-07 | a2r+release 段编排 | T-05 | `a2r/release` 阶段 + F-R1 归因退出 | AC-05/06 联动 | 构造性验证归因路径 |
-| T-08 | 规范增量落账 + 收口自检 | T-01..T-07 | SD-01 落盘；.gitignore 增补（.rq.json/logs）；matrix_out.txt 清理；AC 逐条复核 | AC-06 | grep README 新节；`git status` 干净面检查 |
+| T-07 | [x] a2r+release 段编排 | T-05 | `a2r/release` 阶段 + F-R1 归因退出 | AC-05/06 联动 | ✅ ab57177：a2r 实测 exit 3（BLOCKED 归因：**PLAN-027 词汇门**拒 value/text/title 等 23 错——新缺口供料 §7，非 F-R1）；分类补丁构造性验证（exit 3 + 首错行打印）；release 段在位待 a2r 绿后生效 |
+| T-08 | [x] 规范增量落账 + 收口自检 | T-01..T-07 | SD-01 落盘；.gitignore 增补（.rq.json/logs）；matrix_out.txt 清理；AC 逐条复核 | AC-06 | ✅ ab57177：SD-01（性能模式节）+ SD-02（1631 定标口径）落 specs/auto-edit/README.md；matrix_out/err 双清 + `/matrix_*.txt` 围栏；AC 复核见 §9 终局记录 |
 
 ## 9. 复审记录
 
 - 2026-09-21T02:35:32Z · stage: new · r1 起草 · 授权=用户会话批准
   （范围①②）；待 work 接手。（执行期收据附表：矩阵跑次分布 / split+vue
   复验 / smoke 结果——由 T-03/T-04/T-06 回填。）
-- 2026-09-21T02:49:41Z · stage: work · r1 · T-01/T-02/T-05 完成
-  （86cdfb2 / c7636f7 / 93fc83a，worktree `.wt/edit-004/auto-edit` @
-  `plan-004-dev`）；T-03 后台五连跑进行中；T-07 前置确认：仓外 a2r 落
-  `<project>/rust-workspace/` + `AUTO_RUST_WORKSPACE` 权威 env + bps 依赖
-  需组内 auto-lang 兄弟树（detach @ auto-lang main HEAD，T-07 时建）。
+- 2026-09-21T03:17:42Z · stage: work · r1 · **execution_done** ·
+  outcome: **pass（带 3 项上游 blocked 登记）** · code_commit:
+  worktree `.wt/edit-004/auto-edit` @ `plan-004-dev`（86cdfb2 →
+  c7636f7 → 93fc83a → 44e3a74 → ab57177，5 commits）+ 主检出记账
+  （872345a/61c3bca/1328b1f）· task_ids: T-01..T-08 全 [x] ·
+  **AC 复核**：AC-01 ✓（供料包八节超集交付）；AC-02 ✓（SD-02 落盘 +
+  附表 A 五连跑）；AC-03 split ✓ / **vue = blocked-upstream**
+  （§8/PLAN-671，fetch 后复证非缓存）；AC-04 ✓；AC-05 ✓（(b) 等价
+  分支：blocker 改判 §6 codeeditor 覆盖，exit 3 构造性验证）；AC-06 ✓
+  （SD-01 落盘 + a2r 词汇门归因 exit 3）；AC-07 ✓（矩阵全行实测态，
+  无"未知"）· **blockers（全上游，供料包在档）**：①§6 RQ 渲染臂
+  codeeditor 覆盖（阻 L1/L2 的 RQ 面）；②§7 a2r 词汇门（阻 L2 主形态
+  与 release 段）；③§8 vue 1631 构建红（PLAN-671 证据增补）。
+  · next: **review**（复审请重点核：AC-03 vue blocked 定性、AC-05
+  blocker 改判的等价性、供料 §6/§7 的证据充分性）。
+- 工程注记：组目录 `.wt/edit-004/`（auto-edit 主树 + auto-lang detach
+  兄弟树 @ e82b95b22 供 bps 依赖）；worktree 全部验证跑经 PERF_PROJECT
+  锚主检出（gitignored 生成物），worktree 零重物、guard 友好。
 - **附表 A：矩阵跑次分布（T-03 收据，2026-09-21）**
   - 环境：auto `v0.4.2-1631-ge82b95b22`（2026-09-21 10:14 构建，-dirty）；
     命令 `cd specs/auto-edit/tests && python desktop_mcp.py`（env 旁路
@@ -253,7 +266,25 @@ python tools/perf/perf.py <stage>
     形态从"失败集漂移"收敛为"实例死亡"；③**基线口径（临时，F-RV6 修复
     后废除重跑条款）**：完成态跑次 = RESULT 行出现且 **≥49 passed /
     0 failed 判绿**；无 RESULT = 工具链竞态早崩 → 重跑一次而非计失败。
-- **附表 B：split+vue 双轨复验收据（T-04 回填区）**：（待回填）
+- **附表 B：split+vue 双轨复验收据（T-04）**
+  - split（VM+VM，2026-09-21 11:09，主检出 `specs/auto-edit`，工具链
+    1631）：`AUTO_OPEN_PATH=<api.at> auto run -r vm --no-merge -B 8199`
+    （stdout 落 `.auto/plan004-split.log`）。六端点全真值：
+    ①`/api/ws_root`→真实根路径；②`/api/exists`(abs)→1；③`/api/read_text`
+    首段与源一致；④`/api/env_str(AUTO_OPEN_PATH)`→回传旁路值；
+    ⑤`/api/tree(depth=2)`→真 JSON（含 deps/ 挂载面）；⑥`POST
+    /api/write_text`→1 且回读逐字一致（HTTP 日志 200/0ms ×2）。
+    实例按命令行过滤精确回收（pid 27896，端口复核关闭）——期间并行
+    a2r 构建的 auto.exe 未受连坐。UI 侧功能环由矩阵（merged，同 UI
+    代码，附表 A）+ PLAN-003 split 11/11 存档收据共同覆盖。
+  - vue（regen_vue.py --build，主检出）：**红——上游 1631 漂移**（11:09
+    首跑 + 11:15 `auto fetch` 刷新后复跑同错，排除缓存陈旧）：①
+    `src/components/ui/button/index.ts` TS1117（对象字面量重复属性——
+    「button text variant」补件与新生成物冲突）；② `useEditorStore.ts`
+    TS2304 `Cannot find name 'Process'` ×3（natives 声明面缺
+    Process.exit——退出确认三 handler）。定性=七类补件失配/不足，
+    供料 §8 增补 PLAN-671 证据；解阻判据=`regen_vue.py --build` 退出码 0。
+    日志 `.auto/plan004-vue.log` / `.auto/plan004-vue2.log`。
 - **附表 C：RQ/a2r/release/smoke 收据（T-06 已回填，T-07 待补）**
   - T-06（44e3a74，2026-09-21 11:03/11:07 两轮）：
     - smoke 轮1（11:03）：rq-up 绿（pid 24492，wellknown 管道探测过）；
@@ -266,7 +297,15 @@ python tools/perf/perf.py <stage>
     - 结论：编排链在位；**app 渲染阻塞 = 新上游缺口（供料 §6）**，
       与 F-R1 无关；L1（VM+RQ）与 L2 的 RQ 面均待上游 native_queue_set
       增补 codeeditor 后解阻。
-  - T-07：（待回填）
+  - T-07（ab57177，11:09 首跑 / 11:15 复跑）：`PERF_PROJECT=主检出
+    specs/auto-edit python tools/perf/perf.py a2r` 两轮均失败——
+    首轮 exit 1（未分类形态）触发分类补丁；补丁后 exit **3**：BLOCKED
+    归因打印「生成器缺口（上游，供料 §7）。首错：error: a2r codegen:
+    prop \`value\` not in the recognized vocabulary (PLAN-027 explicit
+    rejection gate)」——生成物 23 错全为词汇拒绝门（value/text/title
+    等嵌 compile_error!，a2r-*.log 全量在档）。release 段在位但因 a2r
+    阻未生效；`--server rust` 的 F-R1 独立且仍未修（供料 §4，未复验——
+    非本形态依赖）。
 
 ## 10. 待澄清事项
 
