@@ -320,7 +320,13 @@ python tools/perf/perf.py <stage>
     归档档路径，随 ff-merge 落位）。
   - `archived` ✓：本档 `docs/plans/archived/004-m1-func-baseline-
     perf-mode.md`，status: archived，completion_kind: delivered。
-  - `cleaned`：（本行由清理段回填）
+  - `cleaned` ✓：双树移除前 fresh guard clean（auto-edit 树含 vue 验证
+    跑遗留——11 轮链接级清理 ~543 junctions 后 clean；auto-lang 兄弟树
+    首检 clean）；`git worktree remove`（auto-edit --force 清 gitignored
+    残留）+ `branch -d plan-004-dev`（was f7d2a12=delivery）+ 组目录
+    edit-004 移除 + 双仓 `worktree prune`——终态 auto-edit 仅 main@af7f7c7、
+    auto-lang 仅 master，`.wt/` 无 edit-004 残留。坑位备忘：本机 grep 为
+    ugrep，`[\\/]` 字符类过滤失灵——guard 输出过滤用 `^D:` 盘符锚。
 - **附表 A：矩阵跑次分布（T-03 收据，2026-09-21）**
   - 环境：auto `v0.4.2-1631-ge82b95b22`（2026-09-21 10:14 构建，-dirty）；
     命令 `cd specs/auto-edit/tests && python desktop_mcp.py`（env 旁路
