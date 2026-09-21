@@ -1,12 +1,12 @@
 ---
 plan_id: PLAN-004
-status: executing
+status: execution_done
 feature_name: M1 性能轨①+②——功能健康基线 + perf 模式一键化
 author: [agent]
 created_at: 2026-09-21T02:35:32Z
-updated_at: 2026-09-21T03:40:00Z
+updated_at: 2026-09-21T03:44:46Z
 plan_revision: 1
-current_step: 7
+current_step: 8
 total_steps: 8
 supersedes_spec_components: []
 new_spec_components: []
@@ -215,7 +215,7 @@ python tools/perf/perf.py <stage>
 | T-01 | [x] 上游供料包文档 | — | `docs/upstream/2026-09-m1-supply.md`（§5.1 五节） | AC-01 | ✅ 86cdfb2：五节齐（rope 单写者版/统一 delta/分块读/F-R1/F-RV6），证据路径含内核 `crates/auto-lang/src/ui/code_editor/core/mod.rs` 定位与归档 F-* 行号 |
 | T-02 | [x] RQ/a2r 实勘探针 | — | `tools/perf/README.md` 模式矩阵（§5.2 四问全答） | AC-07 | ✅ c7636f7：①RQ=`auto rqhost`+`run -q`（wellknown 管道+单实例锁+末窗退出）②**VM 轨官方支持**（`-q` 注记 vm/rust tracks）→AC-05 走 (a) 分支 ③a2r=仓外 `<project>/rust-workspace/`+`AUTO_RUST_WORKSPACE` 权威 env，工具链 cargo 默认 debug→release 由 perf.py 补 ④**F-R1 只阻 `--server rust` 不阻 merged**——L2 主形态 `-r rust -q` 无需等上游 |
 | T-03 | [x] 矩阵稳定性重跑 | — | ≥5 跑次分布表进 §9；README 口径更新（SD-02） | AC-02 | ✅ 1328b1f：附表 A 五连跑（50/0×2、49/0、早崩×2）；README 口径落账并入 T-08 批次；供料 §5 增补 1631 实测（f03a1b0） |
-| T-04 | [ ] split/vue 双轨复验 | — | §9 收据（split 五项功能环 + vue 构建退出码） | AC-03 | split 全绿保持有效（附表 B）；**vue 被复审 F-1 重开**——blocked-upstream 定性不成立，两根因均属本仓过渡补件层可修（见 §9 复审 F-1） |
+| T-04 | [x] split/vue 双轨复验 | — | §9 收据（split 五项功能环 + vue 构建退出码） | AC-03 | ✅ b0b4676（F-1 修复后）：split 全绿（附表 B）+ **vue `regen_vue.py --build` 退出码 0**（worktree 全新生成+install+build；日志 `.auto/plan004-vue-fix.log` 零 error TS）；补件⑥/1b 在 committed/dirty 两依赖世界各走正确分支（幂等设计覆盖工具链漂移） |
 | T-05 | [x] perf.py 骨架 + check | T-02 | 阶段化 CLI + `check`（环境指纹） | AC-04 | ✅ 93fc83a：check 实测绿（v0.4.2-1631 ≥1588 门/cargo 1.98/pnpm 11.6，指纹落 logs/env-*.txt）；七段 CLI 齐（check/a2r/release/rq-up/rq-down/run/smoke），退出码 0/3/1，F-R1 特征识别+隔离 wellknown+按 PID 收 |
 | T-06 | [x] RQ 段编排 | T-02/T-05 | `rq-up/run/rq-down`（或 blocked 登记，按 T-02） | AC-05 | ✅ 44e3a74：**blocked 登记分支（等价调整）**——blocker 从预案的 F-R1 改判为新缺口「RQ 渲染臂未覆盖 codeeditor」（coverage::native_queue_set 基础集外，供料 §6）；编排链全验证（rq-up 管道探测绿/run 双实例派发/rq-down 按 PID 清理）；smoke 实测 exit 3 构造性验证成立 |
 | T-07 | [x] a2r+release 段编排 | T-05 | `a2r/release` 阶段 + F-R1 归因退出 | AC-05/06 联动 | ✅ ab57177：a2r 实测 exit 3（BLOCKED 归因：**PLAN-027 词汇门**拒 value/text/title 等 23 错——新缺口供料 §7，非 F-R1）；分类补丁构造性验证（exit 3 + 首错行打印）；release 段在位待 a2r 绿后生效 |
@@ -283,6 +283,13 @@ python tools/perf/perf.py <stage>
     与登记一致，非缺口。
   next: **work**（修复 F-1 后重开 T-04 → execution_done → 复审只需
   复核 F-1 修复面：vue exit 0 + 供料 §8 勘误）。
+- 2026-09-21T03:44:46Z · stage: work · r1 · **execution_done（F-1 修复
+  回合）** · outcome: pass · code_commit: b0b4676（worktree，第 6 个）·
+  task_ids: T-04（重开→复勾）· evidence: vue 全新生成链退出码 0 + 零
+  error TS（附表 B）；补件⑥守卫与 1b 追加在 committed/dirty 两依赖
+  世界各验证一分支；供料 §8 勘误收窄为单项真实上游诉求 · blockers:
+  无新增（上游三登记 §6/§7/§8-收窄后不变）· next: **review（仅复核
+  F-1 修复面）**。
 - **附表 A：矩阵跑次分布（T-03 收据，2026-09-21）**
   - 环境：auto `v0.4.2-1631-ge82b95b22`（2026-09-21 10:14 构建，-dirty）；
     命令 `cd specs/auto-edit/tests && python desktop_mcp.py`（env 旁路
@@ -316,14 +323,20 @@ python tools/perf/perf.py <stage>
     实例按命令行过滤精确回收（pid 27896，端口复核关闭）——期间并行
     a2r 构建的 auto.exe 未受连坐。UI 侧功能环由矩阵（merged，同 UI
     代码，附表 A）+ PLAN-003 split 11/11 存档收据共同覆盖。
-  - vue（regen_vue.py --build，主检出）：**红——上游 1631 漂移**（11:09
-    首跑 + 11:15 `auto fetch` 刷新后复跑同错，排除缓存陈旧）：①
-    `src/components/ui/button/index.ts` TS1117（对象字面量重复属性——
-    「button text variant」补件与新生成物冲突）；② `useEditorStore.ts`
-    TS2304 `Cannot find name 'Process'` ×3（natives 声明面缺
-    Process.exit——退出确认三 handler）。定性=七类补件失配/不足，
-    供料 §8 增补 PLAN-671 证据；解阻判据=`regen_vue.py --build` 退出码 0。
-    日志 `.auto/plan004-vue.log` / `.auto/plan004-vue2.log`。
+  - vue 旧红收据（沿革，11:09/11:15 主检出双跑同错 + fetch 刷新排除
+    缓存）：TS1117（button 重复属性）+ TS2304（`Process` 未声明 ×3）
+    ——复审 F-1 法证定性为过渡补件层两根因（非上游 blocked），日志
+    `.auto/plan004-vue.log` / `.auto/plan004-vue2.log`。
+  - vue（F-1 修复后收据，2026-09-21 11:44，b0b4676）：worktree
+    `specs/auto-edit` 全新生成链 `python scripts/regen_vue.py --build`
+    → **退出码 0**（生成 + 补件 + pnpm install + vue-tsc + vite 全绿；
+    日志 `.auto/plan004-vue-fix.log`，全零 error TS）。补件分支持痕：
+    本轮（bps 依赖解析至兄弟树=**已提交** e82b95b22 世界）补件⑥执行
+    插入（生成物无 text variant）、1b 无生成器侧文件跳过；主检出
+    （**dirty** auto-lang 世界：生成器发射 text variant + src/natives.d.ts）
+    分支经复审探针验证。两分支幂等成立=对工具链 dirty/committed 漂移
+    免疫，正是过渡补件的验收形态。旧红收据（vue/vue2 双跑同错 + 复审
+    法证）保留于上方为沿革。
 - **附表 C：RQ/a2r/release/smoke 收据（T-06 已回填，T-07 待补）**
   - T-06（44e3a74，2026-09-21 11:03/11:07 两轮）：
     - smoke 轮1（11:03）：rq-up 绿（pid 24492，wellknown 管道探测过）；
