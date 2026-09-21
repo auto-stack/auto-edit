@@ -231,12 +231,28 @@ python tools/perf/perf.py <stage>
   `plan-004-dev`）；T-03 后台五连跑进行中；T-07 前置确认：仓外 a2r 落
   `<project>/rust-workspace/` + `AUTO_RUST_WORKSPACE` 权威 env + bps 依赖
   需组内 auto-lang 兄弟树（detach @ auto-lang main HEAD，T-07 时建）。
-- **附表 A：矩阵跑次分布（T-03 回填区）**
-  - 环境：auto v0.4.2-1631-ge82b95b22（2026-09-21 10:14 构建）；命令
-    `python desktop_mcp.py`（tests/ 目录，AUTO_OPEN_PATH=src/back/api.at
-    + AUTO_SAVE_PATH=.auto/plan004-matrix/save-probe.txt 旁路置位）；
-    日志 `.auto/plan004-matrix/run{1..5}.log`（gitignored）。
-  - 跑次：（待回填）
+- **附表 A：矩阵跑次分布（T-03 收据，2026-09-21）**
+  - 环境：auto `v0.4.2-1631-ge82b95b22`（2026-09-21 10:14 构建，-dirty）；
+    命令 `cd specs/auto-edit/tests && python desktop_mcp.py`（env 旁路
+    `AUTO_OPEN_PATH=src/back/api.at`、`AUTO_SAVE_PATH=.auto/plan004-matrix/
+    save-probe.txt`）；轮间隔 `taskkill //F //IM auto.exe` + sleep 2；日志
+    `.auto/plan004-matrix/run{1..5}.log` + `summary.txt`（gitignored）。
+  - 分布：
+
+    | run | RESULT | exit | 注 |
+    |---|---|---|---|
+    | 1 | 50 passed / 0 failed | 0 | 完整（至 T11 OS 键位层） |
+    | 2 | 50 passed / 0 failed | 0 | 完整 |
+    | 3 | 无 RESULT（早崩） | 1 | T3b 后 app 实例死：MCP 9247 拒连（WinError 10061） |
+    | 4 | 49 passed / 0 failed | 0 | 完整；1 项 render-timing skip（editor node not yet in snapshot） |
+    | 5 | 无 RESULT（早崩） | 1 | T6 后同形态（9247 拒连） |
+
+  - 结论：①**测试级失败 = 0**——README 39/6 的 menubar 快照债在 1631
+    清零（上游 1589–1631 区间顺带修复，本仓零改动受益）；②**进程级早崩
+    2/5**——app 实例中途死亡、死亡点逐跑不同（T3b/T6），F-RV6 竞态存活，
+    形态从"失败集漂移"收敛为"实例死亡"；③**基线口径（临时，F-RV6 修复
+    后废除重跑条款）**：完成态跑次 = RESULT 行出现且 **≥49 passed /
+    0 failed 判绿**；无 RESULT = 工具链竞态早崩 → 重跑一次而非计失败。
 - **附表 B：split+vue 双轨复验收据（T-04 回填区）**：（待回填）
 - **附表 C：RQ/a2r/release/smoke 收据（T-06/T-07 回填区）**：（待回填）
 
