@@ -46,6 +46,19 @@ def main():
     if rc != 0:
         sys.exit(rc)
 
+    # PLAN-005 唯一保留件（非退役补件复活）：生成器硬编码 print→console.log
+    # （ts_adapter.rs），与本 app store 名为 console 的 state 字段（Ref）遮蔽
+    # 成 TS2339——上游未吸收（供料包 §9 登记），单行外科缓解：store 生成物
+    # 内改写为 globalThis.console.log。幂等（改写后锚点不再命中）。
+    store = os.path.join(VUE, "src", "stores", "useEditorStore.ts")
+    if os.path.exists(store):
+        with open(store, encoding="utf-8") as f:
+            s = f.read()
+        if "console.log(" in s and "globalThis.console.log(" not in s:
+            with open(store, "w", encoding="utf-8", newline="\n") as f:
+                f.write(s.replace("console.log(", "globalThis.console.log("))
+            print("[regen-vue] print 遮蔽缓解：console.log → globalThis.console.log（store）")
+
     if "--install" in sys.argv or "--build" in sys.argv:
         rc = run([which("pnpm"), "install"], cwd_root=False)
         if rc != 0:
