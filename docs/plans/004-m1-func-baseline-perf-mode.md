@@ -214,10 +214,10 @@ python tools/perf/perf.py <stage>
 |---|---|---|---|---|---|
 | T-01 | [x] 上游供料包文档 | — | `docs/upstream/2026-09-m1-supply.md`（§5.1 五节） | AC-01 | ✅ 86cdfb2：五节齐（rope 单写者版/统一 delta/分块读/F-R1/F-RV6），证据路径含内核 `crates/auto-lang/src/ui/code_editor/core/mod.rs` 定位与归档 F-* 行号 |
 | T-02 | [x] RQ/a2r 实勘探针 | — | `tools/perf/README.md` 模式矩阵（§5.2 四问全答） | AC-07 | ✅ c7636f7：①RQ=`auto rqhost`+`run -q`（wellknown 管道+单实例锁+末窗退出）②**VM 轨官方支持**（`-q` 注记 vm/rust tracks）→AC-05 走 (a) 分支 ③a2r=仓外 `<project>/rust-workspace/`+`AUTO_RUST_WORKSPACE` 权威 env，工具链 cargo 默认 debug→release 由 perf.py 补 ④**F-R1 只阻 `--server rust` 不阻 merged**——L2 主形态 `-r rust -q` 无需等上游 |
-| T-03 | 矩阵稳定性重跑 | — | ≥5 跑次分布表进 §9；README 口径更新（SD-02） | AC-02 | §9 表齐 + README diff 纯增量（**执行中**：后台五连跑，AUTO_OPEN/SAVE env 旁路置位） |
+| T-03 | [x] 矩阵稳定性重跑 | — | ≥5 跑次分布表进 §9；README 口径更新（SD-02） | AC-02 | ✅ 1328b1f：附表 A 五连跑（50/0×2、49/0、早崩×2）；README 口径落账并入 T-08 批次；供料 §5 增补 1631 实测（f03a1b0） |
 | T-04 | split/vue 双轨复验 | — | §9 收据（split 五项功能环 + vue 构建退出码） | AC-03 | 收据命令可复制重放 |
 | T-05 | [x] perf.py 骨架 + check | T-02 | 阶段化 CLI + `check`（环境指纹） | AC-04 | ✅ 93fc83a：check 实测绿（v0.4.2-1631 ≥1588 门/cargo 1.98/pnpm 11.6，指纹落 logs/env-*.txt）；七段 CLI 齐（check/a2r/release/rq-up/rq-down/run/smoke），退出码 0/3/1，F-R1 特征识别+隔离 wellknown+按 PID 收 |
-| T-06 | RQ 段编排 | T-02/T-05 | `rq-up/run/rq-down`（或 blocked 登记，按 T-02） | AC-05 | smoke 或归因退出码 3 |
+| T-06 | [x] RQ 段编排 | T-02/T-05 | `rq-up/run/rq-down`（或 blocked 登记，按 T-02） | AC-05 | ✅ 44e3a74：**blocked 登记分支（等价调整）**——blocker 从预案的 F-R1 改判为新缺口「RQ 渲染臂未覆盖 codeeditor」（coverage::native_queue_set 基础集外，供料 §6）；编排链全验证（rq-up 管道探测绿/run 双实例派发/rq-down 按 PID 清理）；smoke 实测 exit 3 构造性验证成立 |
 | T-07 | a2r+release 段编排 | T-05 | `a2r/release` 阶段 + F-R1 归因退出 | AC-05/06 联动 | 构造性验证归因路径 |
 | T-08 | 规范增量落账 + 收口自检 | T-01..T-07 | SD-01 落盘；.gitignore 增补（.rq.json/logs）；matrix_out.txt 清理；AC 逐条复核 | AC-06 | grep README 新节；`git status` 干净面检查 |
 
@@ -254,7 +254,19 @@ python tools/perf/perf.py <stage>
     后废除重跑条款）**：完成态跑次 = RESULT 行出现且 **≥49 passed /
     0 failed 判绿**；无 RESULT = 工具链竞态早崩 → 重跑一次而非计失败。
 - **附表 B：split+vue 双轨复验收据（T-04 回填区）**：（待回填）
-- **附表 C：RQ/a2r/release/smoke 收据（T-06/T-07 回填区）**：（待回填）
+- **附表 C：RQ/a2r/release/smoke 收据（T-06 已回填，T-07 待补）**
+  - T-06（44e3a74，2026-09-21 11:03/11:07 两轮）：
+    - smoke 轮1（11:03）：rq-up 绿（pid 24492，wellknown 管道探测过）；
+      双 VM 实例派发（20960/14784）后 0/2 存活——app 日志死因
+      `native queue 臂视图未覆盖: tag:codeeditor`（拒绝渲染语义）；
+      rqhost 侧 `adopt App→…app-1/-2` 后 `adoption 未达 Active（预算
+      耗尽弃置）`；rq-down 清理正常。exit 1。
+    - smoke 轮2（11:07，分类补丁后）：同场景 exit **3**（BLOCKED 归因
+      打印成立）——AC-05/06 构造性验证。
+    - 结论：编排链在位；**app 渲染阻塞 = 新上游缺口（供料 §6）**，
+      与 F-R1 无关；L1（VM+RQ）与 L2 的 RQ 面均待上游 native_queue_set
+      增补 codeeditor 后解阻。
+  - T-07：（待回填）
 
 ## 10. 待澄清事项
 
