@@ -1,10 +1,10 @@
 ---
 plan_id: PLAN-004
-status: execution_done
+status: reviewed
 feature_name: M1 性能轨①+②——功能健康基线 + perf 模式一键化
 author: [agent]
 created_at: 2026-09-21T02:35:32Z
-updated_at: 2026-09-21T03:44:46Z
+updated_at: 2026-09-21T03:49:28Z
 plan_revision: 1
 current_step: 8
 total_steps: 8
@@ -290,6 +290,23 @@ python tools/perf/perf.py <stage>
   世界各验证一分支；供料 §8 勘误收窄为单项真实上游诉求 · blockers:
   无新增（上游三登记 §6/§7/§8-收窄后不变）· next: **review（仅复核
   F-1 修复面）**。
+- 2026-09-21T03:49:28Z · stage: review · plan_revision: 1 · outcome:
+  **pass（scoped，F-1 修复面）** · reviewed_commit: worktree b0b4676 ·
+  base: ab57177（上轮 needs_fix 基线）· 独立性声明：执行会话内，自工件
+  重建。**复核四项**：①补件⑥守卫 ✓（在场跳过 + 缺位补插双分支，8 空格
+  variant 锚与两世界生成物实测缩进一致）；②补件 1b ✓（存在性门 +
+  逐声明缺席追加，追加内容与复审探针逐字节同型）；③vue exit 0 ✓
+  （收据复核：`vue_fix_exit=0` + 零 error TS；运行与提交内容同一——
+  编辑→跑→提交无中间改动，worktree clean 实证；committed 世界走
+  ⑥插入/1b 跳过分支，dirty 世界走守卫/追加分支[探针证]，双分支覆盖）；
+  ④供料 §8 勘误 ✓（button 条划线作废+归因下游非幂等、真实诉求收窄为
+  「671 natives 吸收覆盖对象形态内建」单项，与法证事实一致）。
+  **AC 终态**：AC-01/02/04/05/06/07 沿用 a5d882f 结论（F-1 diff 仅触
+  regen_vue.py+供料，证据面未受扰动）；**AC-03 全量 pass**（split +
+  vue exit 0）。findings：F-4（info，非阻塞）——README 存一处"七类"
+  计数（PLAN-003 期上游缺口分类；1b 为第 1 类扩展非新类，计数语义仍
+  成立，不改）。规范增量 SD-01/02 不受 F-1 影响，终版确认。
+  next: **merge**（用户已预授权衔接）。
 - **附表 A：矩阵跑次分布（T-03 收据，2026-09-21）**
   - 环境：auto `v0.4.2-1631-ge82b95b22`（2026-09-21 10:14 构建，-dirty）；
     命令 `cd specs/auto-edit/tests && python desktop_mcp.py`（env 旁路
