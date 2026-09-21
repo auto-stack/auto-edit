@@ -1,0 +1,82 @@
+[
+  {
+    "id": "steady_start",
+    "metric": "稳态启动到可输入（RQ 渲染器已预热，空窗口）",
+    "budget": "<= 80 ms",
+    "tier": "hard",
+    "validity": "L2-only（硬门禁仅在 L2 性能模式评估；战略 §5 阶梯）",
+    "unlock": "RQ 模式 + 预热渲染器 + exe 路径（Q2）+ 启动链瘦身（bench 分解供归因）——头条指标"
+  },
+  {
+    "id": "renderer_cold_start",
+    "metric": "渲染器冷启动（登录/首启一次性）",
+    "budget": "单列，预算随 Q2 拓扑定",
+    "tier": "hard",
+    "validity": "budget-pending-Q2（预算值未定，硬门禁待 Q2 拓扑裁定后落值）",
+    "unlock": "Q2（bundled iced vs RQ 常驻渲染器）"
+  },
+  {
+    "id": "warm_start",
+    "metric": "热启动（会话恢复，懒装载）",
+    "budget": "<= 120 ms（恢复 20 tab 不读盘）",
+    "tier": "ledger",
+    "validity": "M4 统一收口",
+    "unlock": "同上 + 会话懒装载（M2）"
+  },
+  {
+    "id": "open_100mb",
+    "metric": "打开 100 MB 文本",
+    "budget": "<= 1 s，滚动不掉帧",
+    "tier": "ledger",
+    "validity": "rope 前架构性不可达，禁调优，只记基线（战略补注 6(a)）",
+    "unlock": "内核 rope 化 + 分块读（上游）"
+  },
+  {
+    "id": "open_1gb",
+    "metric": "打开 1 GB 日志",
+    "budget": "可打开（分块/mmap 流式）",
+    "tier": "ledger",
+    "validity": "rope 前架构性不可达，禁调优，只记基线",
+    "unlock": "同上 + 流式装载"
+  },
+  {
+    "id": "type_latency",
+    "metric": "键入到上屏",
+    "budget": "<= 1 帧（16 ms，120 Hz 下 8 ms）",
+    "tier": "ledger",
+    "validity": "测量本身待供料（T-03 实勘：.at 层无帧时间戳观测通道）",
+    "unlock": "内核帧时间戳插桩（上游小供料，战略 §2.1 已登记）"
+  },
+  {
+    "id": "scroll_fps",
+    "metric": "滚动帧率",
+    "budget": "满刷新率（120 Hz 面板跑满）",
+    "tier": "ledger",
+    "validity": "测量本身待供料（同上；内核已做视口切片 Plan 629）",
+    "unlock": "小文件已解；大文件满帧率需 rope；帧率测量需内核插桩"
+  },
+  {
+    "id": "diff_100mb",
+    "metric": "100 MB 文件全量 diff 出结果",
+    "budget": "<= 2 s",
+    "tier": "ledger",
+    "validity": "M3 前无 diff 引擎",
+    "unlock": "diff 引擎（M3）"
+  },
+  {
+    "id": "idle_mem",
+    "metric": "空闲内存（app 实例）",
+    "budget": "<= 60 MB",
+    "tier": "ledger",
+    "validity": "L0 采样记录基线（记账不阻塞）；预算断言 M4 收口",
+    "unlock": "rope 化（去整串镜像）+ exe 打包；共享渲染器进程单列，预算随 Q2"
+  },
+  {
+    "id": "installer",
+    "metric": "安装包",
+    "budget": "<= 15 MB 单 exe，无运行时依赖",
+    "tier": "ledger",
+    "validity": "Q2 前无打包件",
+    "unlock": "独立 exe 路径（Q2）"
+  }
+]

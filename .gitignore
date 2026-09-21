@@ -22,5 +22,9 @@ build/
 tools/perf/.rq.json
 tools/perf/logs/
 
+# PLAN-005：bench 测量套件运行时（fixtures 可再生 + 探针日志；results/ 入仓追踪）
+tools/bench/fixtures/
+tools/bench/logs/
+
 # PLAN-004：矩阵跑次输出残留（session 产物，收据入计划文档）
 /matrix_*.txt
