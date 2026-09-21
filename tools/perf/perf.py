@@ -33,7 +33,11 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent          # tools/perf
 ROOT = HERE.parents[1]                          # 仓库根
-PROJECT = ROOT / "specs" / "auto-edit"          # 应用工程（pac 所在）
+# 目标工程：默认本仓 specs/auto-edit；PERF_PROJECT 可锚到主检出同路径
+# （验证跑不污染 worktree——生成物 rust-workspace/ 等落主检出 gitignored 区，
+# 分支与 main 在 app 代码零差异时等价）。
+PROJECT = Path(os.environ.get("PERF_PROJECT")
+               or ROOT / "specs" / "auto-edit")
 LOGS = HERE / "logs"
 RQ_JSON = HERE / ".rq.json"
 
@@ -144,7 +148,13 @@ def stage_a2r() -> int:
             _log("BLOCKED: a2r 生成失败且命中 F-R1 特征（api::Db/E0432/空体桩）。"
                  "供料登记见 docs/upstream/2026-09-m1-supply.md §4。")
             return EXIT_BLOCKED
-        _log(f"FATAL: a2r 生成失败（未命中 F-R1 特征，属新缺口——输出在 {log}）")
+        if "a2r codegen" in text or "could not compile" in text:
+            first = next((ln for ln in text.splitlines()
+                          if ln.startswith("error")), "<无首错行>")
+            _log(f"BLOCKED: a2r 生成物编译失败——生成器缺口（上游，供料 §7）。"
+                 f"首错：{first[:120]}")
+            return EXIT_BLOCKED
+        _log(f"FATAL: a2r 生成失败（未识别形态——输出在 {log}）")
         return EXIT_FAIL
     ws = PROJECT / "rust-workspace"
     _log(f"a2r 绿：生成物 → {ws}")
@@ -152,7 +162,10 @@ def stage_a2r() -> int:
 
 
 def _workspace_manifest() -> Path | None:
-    ws = PROJECT / "rust-workspace"
+    # 落点解析序对齐 rust_ui.rs resolve_rust_workspace_dir：
+    # AUTO_RUST_WORKSPACE（权威）→ <project>/rust-workspace。
+    ws = Path(os.environ.get("AUTO_RUST_WORKSPACE")
+              or PROJECT / "rust-workspace")
     if not ws.exists():
         return None
     root = ws / "Cargo.toml"           # 虚拟 manifest（members）优先

@@ -21,3 +21,6 @@ build/
 # PLAN-004：perf 模式运行时（rqhost pid 记录 + 探针日志，可再生）
 tools/perf/.rq.json
 tools/perf/logs/
+
+# PLAN-004：矩阵跑次输出残留（session 产物，收据入计划文档）
+/matrix_*.txt

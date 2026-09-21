@@ -113,6 +113,17 @@ python scripts/regen_vue.py --build        # 生成 + 补件 + install/build（v
 #   ⚠ 必须显式 --server vm / AUTO_HTTP_PORT 对齐——vue.rs 缺席时默认走
 #   rust 引擎。后端 API 经 669 修复可用；vue 首版仍以构建绿为准
 #   （vm 宿主内建无 vue 运行时，见 Concepts vue 轨节限制清单）。
+
+# —— 性能模式（L2，PLAN-004：tools/perf 一键链）——
+python tools/perf/perf.py check     # 依赖自检+环境指纹（工具链须 ≥1588/含 669）
+python tools/perf/perf.py smoke     # rqhost 预热 + VM+RQ 双实例编排验证
+python tools/perf/perf.py a2r       # a2r 生成（当前 blocked：上游词汇门，供料 §7）
+python tools/perf/perf.py release   # cargo --release（依赖 a2r 绿后生效）
+# 语义=测量模式阶梯（docs/strategy/002-north-star-v2.md §5）：L0 日常
+#   VM+merged / L2=a2r+release+RQ（唯一有预算效力）。模式矩阵与阻塞全景
+#   见 tools/perf/README.md；退出码 0/3/1（3=blocked-on-upstream：RQ 渲染
+#   臂 codeeditor 覆盖缺口[供料 §6]、a2r 词汇门[§7]）。PERF_PROJECT /
+#   AUTO_RUST_WORKSPACE 可把验证跑锚到主检出（worktree 零重物）。
 ```
 
 前置：`auto` 在 PATH（或将 `AUTO_BIN` 指向 auto 可执行文件）；`pnpm`
@@ -134,9 +145,14 @@ python desktop_mcp.py   # MCP 桌面动作矩阵：三源触发/tab 工作区/�
 `auto`；`AUTO_OPEN_PATH`/`AUTO_SAVE_PATH` 环境变量旁路阻塞式文件对话框
 （不设则跳过 T9/T10 分组）。
 
-现状注记：矩阵当前 39/6——6 失败同属 menubar 展开项快照缺失（上游
-渲染器回归，归因与两次复跑记录见本仓 `docs/plans/001` Task 4）；上游
-修复后重跑预期回 ≈48/2 口径。
+现状注记（2026-09-21，PLAN-004 T-03 以工具链 v0.4.2-1631 五连跑定标，
+收据见 `docs/plans/004` 附表 A）：**测试级失败清零**——原 39/6 的
+menubar 快照债已随上游修复消散；**进程级早崩 2/5**（app 实例中途死亡、
+MCP 拒连、死亡点逐跑异——上游 F-RV6 竞态存活，证据增补见
+`docs/upstream/2026-09-m1-supply.md` §5）。基线口径（临时，上游修复后
+废除重跑条款重定正式基线）：**完成态跑次 = RESULT 行出现且 ≥49
+passed / 0 failed 判绿；无 RESULT 行 = 工具链竞态早崩 → 重跑一次而非
+计败**。
 
 注：Plan 451 起 T10「热重载」走 DSL 源路径（reload 工具或 mtime 轮询重读
 app.at 重新提取 actions + generation bump → 视图重建），实测 50/0 全绿。
