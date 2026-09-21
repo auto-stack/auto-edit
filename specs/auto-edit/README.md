@@ -18,7 +18,12 @@ Plan 449 完成组件化重构（单文件 486 行 → 五文件工程）。
   激活重算，原先 CloseTab/ConfirmClose 各持一份）、`SyncCursor`（line/col/sel
   三元组读回，原先 5 处重复）。store handler 间经 `store.Xxx()` 互调（038
   先例）。派生标量仍由 handler 就地重算——VM view 不能调函数（Plan 402
-  约束），模板只读字段。
+  约束），模板只读字段。**`tabs[i].src` 数据语义（PLAN-005 收敛）**：仅作
+  初值/外部重置（last_external 相等即 no-op，typed 输入不会被 stale 值
+  踩掉）；编辑态**不回写**——cut/paste/undo/redo/ctx-cut 后的全文回读已删
+  （违例残留），编辑器全文只在两个 save 位读出（ActSave/QuitSaveClose；
+  过渡形态，上游 delta/分块读供料后收口）。矩阵正文断言走 save 路径 E2E
+  （见 Tests 节注）。
 - **013 式组件（无 props + 直调 store）** —— `StatusBar`/`ConsolePanel`/
   `EditorCtxMenu` 不带 props：标量/锚态经 `use editor_store` 直读 `.store.*`，
   自有 msg，handler 直调 `store.Xxx()`（013-todo 的 TodoList 形态）。
@@ -124,6 +129,18 @@ python tools/perf/perf.py release   # cargo --release（依赖 a2r 绿后生效�
 #   见 tools/perf/README.md；退出码 0/3/1（3=blocked-on-upstream：RQ 渲染
 #   臂 codeeditor 覆盖缺口[供料 §6]、a2r 词汇门[§7]）。PERF_PROJECT /
 #   AUTO_RUST_WORKSPACE 可把验证跑锚到主检出（worktree 零重物）。
+
+# —— 测量套件（PLAN-005：tools/bench，L0 proxy + 预算断言）——
+python tools/bench/bench.py check     # 依赖自检+环境指纹+全量读检测器红证自检
+python tools/bench/bench.py proxy     # L0 套件：启动分解（弃暖机）/打开计时
+                                      #   1/10/100 MB/内存采样/全量读检测/
+                                      #   断言报告 → results/<ts>.jsonl
+python tools/bench/bench.py assert    # 仅预算断言（对最近 results 文件）
+# 阶梯效力引用：--mode l1/l2 经 tools/perf/perf.py 链取归因（blocked
+#   exit 3）；硬门禁仅 L2 评估，L0 断言报告逐行显式终态（not-armed/
+#   arch-blocked/blocked-upstream/pending-feature/ledger 五类，无静默
+#   缺席）。结果 results/ 入仓追踪；fixtures/、logs/ gitignored。
+#   观测通道探针矩阵与四问实勘见 tools/bench/README.md。
 ```
 
 前置：`auto` 在 PATH（或将 `AUTO_BIN` 指向 auto 可执行文件）；`pnpm`
@@ -144,6 +161,10 @@ python desktop_mcp.py   # MCP 桌面动作矩阵：三源触发/tab 工作区/�
 前置：`pip install requests`；`AUTO_BIN` 环境变量优先，否则取 PATH 的
 `auto`；`AUTO_OPEN_PATH`/`AUTO_SAVE_PATH` 环境变量旁路阻塞式文件对话框
 （不设则跳过 T9/T10 分组）。
+
+注（PLAN-005）：T6 正文断言走 **save 路径 E2E**——toolbar 保存落盘后读
+`AUTO_SAVE_PATH` 文件比对（`src_active` 不再实时，降格为激活 tab 初值
+镜像）；该断言面验的是真实写路径而非模型镜像。
 
 现状注记（2026-09-21，PLAN-004 T-03 以工具链 v0.4.2-1631 五连跑定标，
 收据见 `docs/plans/004` 附表 A）：**测试级失败清零**——原 39/6 的
