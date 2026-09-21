@@ -17,3 +17,7 @@ build/
 
 # PLAN-003：auto-os 会话运行时（vue dev/run 生成，可再生）
 .auto/
+
+# PLAN-004：perf 模式运行时（rqhost pid 记录 + 探针日志，可再生）
+tools/perf/.rq.json
+tools/perf/logs/
