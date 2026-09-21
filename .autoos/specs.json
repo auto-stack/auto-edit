@@ -95,6 +95,16 @@
      "related": ["PLAN-003", "PLAN-004"],
      "superseded_by": null,
      "content": "- 验收：矩阵 1631 五连跑定标（测试级失败清零——原 39/6 menubar 债随上游修复消散；早崩 2/5=F-RV6 实例死亡形态，临时口径=完成态 ≥49/0 判绿、早崩重跑不计败）；split 六端点+POST 写读环绿（HTTP 日志 200/0ms）；vue regen_vue.py --build exit 0（复审 F-1 修复：补件⑥在场守卫防 TS1117 + 补件 1b 生成器侧 src/natives.d.ts 追加 Process/Env 治 TS2304——committed/dirty 双依赖世界幂等验证）；tools/perf/perf.py 七段一键链（check/a2r/release/rq-up/rq-down/run/smoke，退出码 0/3/1，rqhost 预热管道探测+按 PID 收）；README SD-01 性能模式节 + SD-02 Tests 定标口径。\n- 复审 r1：首轮 needs_fix（AC-03 vue「blocked-upstream」定性被法证推翻——1631 生成器自 emitting src/natives.d.ts[671 中间态]只漏对象形态内建、TS1117=补件⑥非幂等；探针实证两行声明即消三错，~10 行修复）→ scoped 复审 pass；AC-05 blocker 改判等价裁定（实判 §6 codeeditor 覆盖 vs 预案 F-R1——「登记+矩阵如实+exit3 构造性验证」机制等价）。\n- 关键裁定：L2 性能模式=a2r+release+RQ（auto rqhost 共享合成器 + run -q，wellknown 管道 autodesk-rqhost，末窗退出语义）；上游三登记=§6 RQ 渲染臂 codeeditor 覆盖（native_queue_set 基础集外）/§7 a2r PLAN-027 词汇门（F-R1 只阻 --server rust 不阻 merged 主形态）/§8-收窄「671 natives 吸收需覆盖对象形态内建」；PERF_PROJECT/AUTO_RUST_WORKSPACE 落点锚定=worktree 零重物验证配方。"
+    },
+    {
+     "id": "P005-1",
+     "section": "reviews",
+     "status": "stable",
+     "title": "PLAN-005 — M1 性能轨③收据（reviewed pass @ r1 3123c50：测量体系 tools/bench L0 proxy + 去 src 镜像先行段）",
+     "file": "docs/plans/archived/005-m1-measure-bench-desrc-mirror.md",
+     "related": ["PLAN-004", "PLAN-005"],
+     "superseded_by": null,
+     "content": "- 验收：A 段去镜像——editor_store 五处编辑路径全文回读删净（rg 仅存 ActSave/QuitSaveClose 两 write_text save 位），矩阵 T6 正文断言迁 save E2E（toolbar 保存落盘→saved: 计数轮询→读 AUTO_SAVE_PATH 比对；50/0×2 完成态，1652 工具链实例级 flake 经基线原码对照定谳非回归）；vue regen_vue.py --build exit 0（d845e54 退役链世界：ts_adapter print→console.log 与 store console 字段遮蔽的单行缓解 console.log→globalThis.console.log）。B 段 tools/bench/bench.py 三命令（check/proxy/assert，退出码 0/3/1）：proxy 端到端=启动链 5 跑弃暖机（spawn→init 287-536ms 主导）+打开计时 1/10/100MB（100MB 460ms、内存线性放大至 521MB=整串镜像直接证据）+内存采样（psutil 缺席回退 PowerShell WorkingSet64，方法记入 JSONL）+全量读检测（白名单=save handler 上下文，构造性红证自检）+预算断言；budgets.json=战略 §2.1 全 10 行五类终态（not-armed/arch-blocked/blocked-upstream/pending-feature/ledger，硬门禁仅 L2）；results/ JSONL+baseline-L0-20260921.md 入仓；README SD-01（tabs[i].src 仅初值/外部重置单一语义）+SD-02（测量套件节）+SD-03（Tests T6 save E2E 注）。\n- 复审 r1：直过 pass（同会话内审——独立性受限已声明，全 AC 重跑取证）；AC-04 语义修订追认=BENCH 裸标记行+host 侧毫秒（VM 轨 time 族未接线四探针实证：now_ms 两形态返 0/Instant.elapsed 得 None/实装仅 a2r-std）；矩阵完成态门环境附记（复审窗口分支与基线原码同形早崩=F-RV6 竞态，证据承载=执行期 50/0×2+vm 轨代码与 HEAD 字节同一 diff 证）；findings RV-01..05 全非阻塞（含 vue strict 生成 bps 池校验非确定中止观察、T9/T10 收编非 finally 预存改进项）。\n- 关键裁定：BENCH 观测通道=host 时间戳+AUTO_BENCH=1 门控 app 裸标记行（print→stdout 落文件零常态成本，不进 console 面板矩阵断言零扰动；上游 time 族接线后可升级 app 侧毫秒）；--mode l1/l2 经 perf.py 链取归因 exit 3；上游登记入供料包 §9=首帧钩子勘无（键入/滚动行 blocked-upstream）+VM 轨 time 族未接线+ts_adapter print 遮蔽+code_editor_paste 剪贴板瞬态失败观测缺口；执行期 main 并行前移 d845e54（vue671 补件链退役）已对账合并（8a5ab1c，regen_vue 冲突取退役版，vm 轨零改动）。"
     }
    ],
    "status": "Empty",
