@@ -474,3 +474,9 @@ python tools/bench/bench.py <cmd> [--mode l0|l1|l2] [--runs N] [--full]
   - **archived**：本文件 `docs/plans/archived/005-m1-measure-bench-
     desrc-mirror.md`，status=archived + completion_kind=delivered。
   - **cleaned**：待补记（双树 wt-guard → worktree/分支/组目录移除）。
+  - **cleaned**（2026-09-21T07:45:00Z 补记）：auto-edit worktree 摘链
+    493（deps/bps、deps/stylekit 两 junction + gen/front/vue pnpm 链接大军，
+    单轮摘净）→ wt-guard clean → worktree remove + plan-005-dev 删除
+    （was 31ebb7b）；auto-lang 兄弟树首检 clean（只读零写入）→ remove；
+    组目录 edit-005 移除 + 双仓 prune——零残留（worktree list 仅主检出，
+    分支仅 main/origin-main）。
