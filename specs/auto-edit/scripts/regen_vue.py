@@ -9,6 +9,10 @@ aura schema 未吸收 PLAN-630 menubar 族 props 的债，非本仓可修）。
   1. vm 宿主内建裸标识符（dialog/console/code_editor_*/Env/Process/
      file_basename）无类型声明 → src/lib/natives.d.ts（TS2304 面；
      运行期无实现 = vue 首版登记限制，见 README vue 节）。
+  1b.（PLAN-004 F-1）1631 起生成器自 emitting src/natives.d.ts（671
+     中间态，函数形态内建已声明）——tsc 程序只收录它、lib 版出局；
+     其缺对象形态 Process/Env → 追加声明（上游债：671 吸收需覆盖
+     对象形态内建）。
   2. composable 文件内 store.X() 自调无别名 → 文件尾追加 store 别名
      （绑定模块内 handler const；App.vue 侧自带 reactive(useEditorStore())）。
   3. tree_util.toggle_id bp 函数在组件文件被内联、store 文件残留裸调
@@ -16,7 +20,8 @@ aura schema 未吸收 PLAN-630 menubar 族 props 的债，非本仓可修）。
   4. int -1 模型初值被发射为 ref<number>(null) → 改回 -1。
   5. EditorCtx(x,y) 双参 handler 签名误发 (i) → 签名对齐（App.vue）。
   6. button variant "text"（vm 专属扁平样式）不在 shadcn cva 联合 →
-     ui/button 补 text variant。
+     ui/button 补 text variant（PLAN-004 F-1 起加在场守卫：1631 生成器
+     已自带该 variant[671 ⑥ 吸收]，在场则跳过，防 TS1117 重复属性）。
   7. Select Anything overlay 引 ../auto-sources 与 import.meta.env →
      stub + env.d.ts（PLAN-646 jade 同款补件）。
 
@@ -134,8 +139,26 @@ def main():
     if rc != 0:
         sys.exit(rc)
 
-    # 1. natives 声明层（重写式，幂等）
+    # 1. natives 声明层（重写式，幂等；1631 起 tsc 程序只收录生成器侧
+    #    src/natives.d.ts，此 lib 版不在程序内——留作旧工具链兼容）
     patch_file(os.path.join("src", "lib", "natives.d.ts"), [], write=NATIVES_DTS)
+    # 1b. 生成器侧 src/natives.d.ts（1631 起 PLAN-671 中间态：函数形态
+    #     内建已声明，对象形态 Process/Env 缺——PLAN-004 复审 F-1 的
+    #     TS2304 根因）。追加式幂等。
+    gen_natives = os.path.join("src", "natives.d.ts")
+    gen_full = os.path.join(VUE, gen_natives)
+    if os.path.exists(gen_full):
+        with open(gen_full, encoding="utf-8") as f:
+            gns = f.read()
+        add = ""
+        if "declare const Env" not in gns:
+            add += "declare const Env: { get(name: string): string }\n"
+        if "declare const Process" not in gns:
+            add += "declare const Process: { exit(code: number): void }\n"
+        if add:
+            with open(gen_full, "a", encoding="utf-8", newline="\n") as f:
+                f.write(add)
+            print(f"[regen-vue] 补件：{gen_natives}（追加对象形态内建声明）")
     # 2. store 自调别名（composable 函数体内、return 前）+ 3. toggle_id
     #    内联 + 4. null→-1
     patch_file(os.path.join("src", "stores", "useEditorStore.ts"),
@@ -150,9 +173,17 @@ def main():
     #     已修扁平化，vue 侧仍破；两段各补界符）
     patch_file(os.path.join("src", "components", "StatusBar.vue"),
                [("store.line }}:{{ store.col", "{{ store.line }}:{{ store.col }}")])
-    # 6. button text variant
-    patch_file(os.path.join("src", "components", "ui", "button", "index.ts"),
-               [("        default:", BUTTON_TEXT_VARIANT + "        default:")])
+    # 6. button text variant —— 在场守卫（PLAN-004 复审 F-1 的 TS1117
+    #    根因）：1631 起生成器已自带 text variant（PLAN-671 ⑥ 吸收，
+    #    空预设语义），盲目追加会造重复属性；仅旧工具链缺位时补。
+    btn_rel = os.path.join("src", "components", "ui", "button", "index.ts")
+    with open(os.path.join(VUE, btn_rel), encoding="utf-8") as f:
+        btn_s = f.read()
+    if "        text:" in btn_s:
+        print("[regen-vue] 补件⑥跳过：button 已含 text variant（生成器 671 已吸收）")
+    else:
+        patch_file(btn_rel,
+                   [("        default:", BUTTON_TEXT_VARIANT + "        default:")])
     # 7. auto-sources stub + env.d.ts（jade 同款）
     patch_file(os.path.join("src", "auto-sources.ts"), [], write=AUTO_SOURCES)
     patch_file(os.path.join("src", "env.d.ts"), [], write=ENV_DTS)
