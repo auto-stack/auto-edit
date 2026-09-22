@@ -439,3 +439,8 @@ vm`），预算断言也只输出 `_L0_STATES` 五类终态。本计划补齐 L2
   - SD-03 登记：并发规范层补建（f25cb38/5c95903）后按新惯例回寄的
     docs/specs 落点，与已审 SD-01/02 同源同内容（README 运行矩阵单源
     保持；docs/specs 为规范 canonical）。
+  - **cleaned**（12:52 补记）：移树前复验 wt-guard clean + dev 全落
+    （plan-006-dev tip ed6cdb0 为 main 祖先）→ worktree
+    `D:/autostack/.wt/edit-006/auto-edit` 移除 + 分支 plan-006-dev 删除
+    （was ed6cdb0）+ 组目录 edit-006 零残留 + 双侧 prune——worktree list
+    仅余主检出。PLAN-006:r1 五 checkpoint 全闭环。
