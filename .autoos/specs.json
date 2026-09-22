@@ -135,6 +135,16 @@
      "related": ["PLAN-007", "PLAN-003"],
      "superseded_by": null,
      "content": "- 交付：打开→编辑→保存文件字节保真契约——tabs 增 bom/eol/readonly 三标量；ProbeByteMeta 装载探测（64KB 采样窗 read_text_range 单读〔全文件 census 禁止=envelope 池滞留〕+ BOM 码点 65279 检出 + edit(0,3) rope 剥离 + 前缀字符运行期捕获〔语言面无 unicode 转义、无码点→字符内建〕）；WriteFidelity save 位收口（BOM 前缀回写 + EOL 主形态重写补偿 buffer 编辑即归一 LF〔buffer_text join 丢弃 cosmic LineEnding，T-00 实测〕+ readonly 拦截）；EolConvert 转换链（结构化 edit(0,字节全长)——handler 侧 set_text 触 last_external 被绑定推送清场，实测教训）+ SyncByteMeta 状态栏派生标量；非法 UTF-8 错误形=readonly+标题后缀+save 拦截（旧行为清写原文件 32B→0B 实测危害）。\n- 验收：矩阵完成态 57/0（T12 七检查：BOM 正/负向、CRLF/LF 编辑后字节往返 sha256 等值、CR 无编辑+label、mixed→LF 确认弹层、非法 UTF-8 哈希零变；fixtures 六件 .gitattributes -text 入库〔autocrlf 曾毁伤 CRLF/MIXED blob〕）；检测器白名单扩 WriteFidelity/EolConvert（扫描器带参 handler 头正则修正）+ 构造性红证三腿；vue build exit 0（探测方法双轨映射面路由）。\n- 规范：SD-01 editor-store.md 字节保真节 / SD-02 back-api.md 七端点勘正+IO 字节语义 / SD-03 00-overview M2 开篇+Q1 摘要 / SD-04 战略补注十（Q1 两产品并存裁定原文）。\n- 上游：供料 §11 四件——lossy 读端点 want / EOL LineEnding 漏斗 want / 快照 computed-events 竞态 / 1914-dirty load_file 100MB RSS 219→1014MB 回归（基线对照归因工具链，tools/bench/results/20260922-2012*.jsonl 在档）。"
+    },
+    {
+      "id": "P009-1",
+      "section": "reviews",
+      "status": "stable",
+      "title": "PLAN-009 — M2-02 查找替换收据（reviewed pass @ r1 8d35888：四态拼装+ReplaceAll+find-in-files，矩阵 77/0）",
+      "file": "docs/plans/archived/009-m2-find-replace.md",
+      "related": ["PLAN-008"],
+      "superseded_by": null,
+      "content": "- 交付：查找替换四态（正则/大小写/整词/转义）单一 find_effective 串拼装协议（SyncFindEffective 收口：regex_escape 14 元字符 Str.replace 链反斜杠最先→(?-i) 内联旗标〔覆盖内核 builder case_insensitive，T-00 探针正案〕→\b 锚）驱动高亮/替换/fif 三消费面；查找栏根视图（Ctrl+F/Ctrl+H/菜单三入口+三开关+下一处/×）+ code_editor search prop Ident 绑定（live diff+非空首跳）；input 派发=键入文本 handler 首参（015-notes 形，T-00④ 翻案定案：框架写回仅根级、裸 value 对 store 字段不 mint）；back regex_replace（Rust regex，大小写不敏感默认+旗标透传，marker 算术计数——Regex.match 列表 .len() vm handler 恒 20 弃用）+ ReplaceAll（readonly 拦截+零匹配零动作+「替换 N 处」反馈）；back search_files（fs.list_dir 递归+剥根噪声过滤镜像 tree skip-list+逐行 test+try/catch 兜底+500 上限+10MB 门，count 由 back 交付）+ 根视图内联结果面板（行点击=裸循环索引载荷——字段访问载荷经 MCP 派发携带字面量不解析，实勘收口）。\n- 验收：矩阵完成态 77/0 双跑绿（T13 二十检查：开栏+拼装四组合+×关栏/find_next 推进回绕/ReplaceAll E2E 落盘字节+计数/readonly 哈希零变/空 query/fif 端点+条目点击/500 截断/10MB 门；判绿 ≥65 README 同步）；probe_find.py 23/0（T-00 决策门）；bench check 绿（白名单+ReplaceAllRequest 第五件+红证三腿）；vue regen --build exit 0（to_value 内联形=JSON.parse 吸收面）。\n- 规范：SD-01 editor-store.md 查找替换节 / SD-02 back-api.md 九端点勘正+搜索服务端点节 / SD-03 00-overview M2 第二件行。\n- 上游：供料 §12 九件——四 want（单处替换 code_editor_replace_next/find_prev/match_count/goto 行）+五观察（Regex.match 列表 .len() 恒 20/首拍派发竞态窗口/fs.walk codegen 错名 auto.file.walk File.create 错派/fs.walk_files 2847 白名单缺登记+撞号 Path.to_string/fs.metadata 映射覆盖为 auto.fs.size）。工具链钉版 1914-g56bfaf1fc-dirty（与 PLAN-008 判定基线同构建；兄弟树 5f62ebac5 零改动）。"
     }
    ],
    "status": "Empty",
