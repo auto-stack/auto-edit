@@ -4,15 +4,15 @@ PLAN-004 T-02 实勘产物（2026-09-21；工具链 `v0.4.2-1631-ge82b95b22`）�
 战略语义：`docs/strategy/002-north-star-v2.md` §5 测量模式阶梯——
 L0 日常 / L1 结构探针 / L2 性能模式（唯一有预算效力）。
 
-## 模式矩阵（实勘结论）
+## 模式矩阵（实勘结论；2026-09-22 解阻更新）
 
 | 模式 | 启动命令（自 `specs/auto-edit/`） | 已知阻塞 | 验证状态 |
 |---|---|---|---|
 | L0：VM+merged（日常） | `auto run -r vm` | — | 绿（README 既有口径，2026-09-21 复验） |
 | L0'：VM+split | `auto run -r vm --no-merge` | F-RV6（矩阵非确定，功能环曾绿） | split 功能环 2026-09-21 曾全绿 |
 | **VM+RQ**（L1 探针可达） | 终端1 `auto rqhost`；终端2 `auto run -r vm -q` | **RQ 渲染臂覆盖缺口——blocked-on-upstream（供料包 §6）**：VM UI native-queue 臂 `coverage::native_queue_set`（基础 kind 集）无 `codeeditor`，按「拒绝渲染，禁静默错绘」语义实例即退 | **实跑复现（smoke 0/2 存活）**；perf.py 已按特征分类 exit 3 |
-| **a2r+RQ**（L2 性能模式主形态） | 终端1 `auto rqhost`；终端2 `auto run -r rust -q` | **a2r codegen 词汇门——blocked-on-upstream（供料 §7）**：PLAN-027 拒绝门对 `value/text/title` 等 prop 嵌 compile_error!（23 错）；另 RQ 面待 §6 解阻后才能端到端 | **实跑复现**（`perf.py a2r` exit 3，fetch 后稳定复现）；release 段待 a2r 绿后生效 |
-| a2r server（split 后端） | `auto run --server rust` | **F-R1：E0432 + 契约空体桩——blocked-on-upstream**（供料包 §4） | 复现于 PLAN-003 归档 L223 |
+| **a2r+RQ**（L2 性能模式主形态） | 终端1 `auto rqhost`；终端2 release 直拉（bench L2 运行器）或 `auto run -r rust -q` | —（**已解阻**） | **2026-09-22 双判据绿**：`perf.py a2r` exit 0（上游 PLAN-674 §6 RQ codeeditor 覆盖 + PLAN-681 §7 a2r 部署面/§4 F-R1-B delivered 后，工具链 1836-gdcbda3f71）+ `bench.py proxy --mode l2` 端到端 exit 0（PLAN-006 首份 L2 基线 `tools/bench/results/baseline-L2-20260922.md`） |
+| a2r server（split 后端） | `auto run --server rust` | **F-R1：E0432 + 契约空体桩——blocked-on-upstream**（供料包 §4） | 复现于 PLAN-003 归档 L223（F-R1-B 已修但 split 轨整体未复验） |
 
 ## RQ 模式机制（源码实勘）
 
@@ -38,10 +38,13 @@ L0 日常 / L1 结构探针 / L2 性能模式（唯一有预算效力）。
   仓外项目输出 `<project>/rust-workspace/`（本仓 .gitignore 已列）。
 - 工具链对生成物的 cargo 调用为**默认 profile（debug）**（L3129
   `cargo build --manifest-path …`）——L2 的 release 编译由 perf.py 直调
-  `cargo build --release --manifest-path <rust-workspace>/…/Cargo.toml`
-  补足，产物路径/exe 名（pac `exe_name`）在 T-07 实跑时回填本表。
+  `cargo build --release --manifest-path <rust-workspace>/Cargo.toml`
+  补足。**产物路径实锚（PLAN-006 T-00/T-07 回填，2026-09-22）**：
+  `specs/auto-edit/rust-workspace/target/release/auto-edit.exe`
+  （37.8 MB；首编 5m05s；exe 名 = pac `exe_name`）。
 - **F-R1 只阻塞 `--server rust`（独立 axum 后端），不阻塞 merged rust
-  轨**——L2 性能模式用 `-r rust -q`（进程内直调）即可，无需等 F-R1。
+  轨**——L2 性能模式用 release 直拉（bench L2 运行器，PLAN-006）或
+  `-r rust -q`（进程内直调）即可，无需等 F-R1。
 
 ## 运维注记（T-06 待决/回填）
 
