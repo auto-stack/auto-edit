@@ -1,0 +1,7 @@
+// pac.at — PLAN-009 T-00 决策探针 app（probe_find.py 的载具，vm 轨专用
+// 脚手架，非产品件）。零依赖、单视图：search prop Ident 绑定 + input 写回
+// + 内核 find/replace 链五项勘定面。与产品 auto-edit 完全隔离。
+name: "probe-find"
+version: "0.1.0"
+scene: "ui"
+render: "vm"

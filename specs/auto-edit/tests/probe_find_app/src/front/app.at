@@ -1,0 +1,182 @@
+// app.at — PLAN-009 T-00 决策探针（probe_find.py 载具，vm 轨专用脚手架）。
+//
+// 五项勘定面（决策记录落 PLAN-009 §10）：
+//   ① search prop Ident 绑定 live：code_editor search: .store.eff ——
+//     input 键入 → PatternInput($event) 载荷形态更新 eff → 下轮视图
+//     apply_search diff + 非空首跳（高亮+光标落首匹配）。
+//   ② (?-i) 内联旗标 vs 内核 builder case_insensitive(true)：pattern
+//     "(?-i)Alpha" 首跳须落大写 Alpha（末位 col 12）非小写 alpha（col 6）；
+//     种子仅一处 Alpha → find_next 回绕原位。
+//   ③ 整词 \b 锚："\bfoo\b" 首跳 line2（末位 col 4）→ find_next col15
+//     （foobar col5-10 跳过）。
+//   ④ input 写回时机：显式 oninput handler 在 vm 轨**无字段写回**
+//     （首跑实证：handler 触发而 .pattern 恒空）——改 $event 载荷形态
+//     （036 先例，PLAN-009 §10 Q-2 预登记后备）。
+//   ⑤ 替换链预演：code_editor_text 读出 → Regex.replace（'g'，(?i)/
+//     (?-i) 前缀两形态）→ code_editor_edit(0,len,out) 全文重写 → delta
+//     drain-弃 → 读回断言（EolConvert 链复用面）。
+//   + DoCount：Regex.match 'g' 计数三形态勘定（foo=2 / (?i)alpha=3 /
+//     直调链 vs 临时变量链）。
+//
+// 光标断言约定（首跑勘定）：跳转后 cursor = 匹配末位（exclusive）。
+// 视图 apply_search 的首跳发生在视图重建期（handler 之后），store 字段
+// 在 handler 期读会滞后 —— DoRead 按钮显式回读 cursor 二元组。
+
+fn regex_escape(s str) str {
+    var out str = s.replace("\\", "\\\\")
+    out = out.replace("^", "\\^")
+    out = out.replace("$", "\\$")
+    out = out.replace(".", "\\.")
+    out = out.replace("|", "\\|")
+    out = out.replace("?", "\\?")
+    out = out.replace("*", "\\*")
+    out = out.replace("+", "\\+")
+    out = out.replace("(", "\\(")
+    out = out.replace(")", "\\)")
+    out = out.replace("[", "\\[")
+    out = out.replace("]", "\\]")
+    out = out.replace("{", "\\{")
+    out = out.replace("}", "\\}")
+    return out
+}
+
+store ProbeStore {
+    model {
+        // 种子四行：case 混合（l1）/词中陷阱（l2）/字面点+任意符陷阱（l3）/
+        // 元字符（l4）。
+        var seed str = "alpha Alpha ALPHA\nfoo foobar foo\na.b axb a.b\n1+1 (x) [y] tail\n"
+        var pattern str = ""
+        var eff str = ""
+        var pattern2 str = ""
+        var pattern3 str = ""
+        var e3 int = 0
+        var line int = 1
+        var col int = 1
+        var find_ok bool = false
+        var rcount int = 0
+        var rcount2 int = 0
+        var rcount3 int = 0
+        var rhead str = ""
+        var edits int = 0
+    }
+    msg { PatternInput(str), Pat1, Pat3(str), SetCaseFlag, SetWordAnchor, SetLiteralEsc,
+          DoFind, DoReplace, DoRead, DoCount }    on {
+        // ④ 变体 in1：无参 msg（r1 形——handler 触发、写回待验）。
+        .Pat1 -> {
+            .edits = .edits + 1
+        }
+        // ④ 变体 in3：单参 msg（r3 形/015-notes 形）。
+        .Pat3(v) -> {
+            .pattern3 = v
+            .e3 = .e3 + 1
+        }
+        .PatternInput(v) -> {
+            .pattern = v
+            .eff = v
+            .edits = .edits + 1
+        }
+        .SetCaseFlag -> {
+            .pattern = "(?-i)Alpha"
+            .eff = .pattern
+        }
+        .SetWordAnchor -> {
+            .pattern = "\\bfoo\\b"
+            .eff = .pattern
+        }
+        .SetLiteralEsc -> {
+            .pattern = "a.b"
+            .eff = regex_escape(.pattern)
+        }
+        .DoFind -> {
+            .find_ok = code_editor_find("k1")
+            store.DoRead()
+        }
+        .DoReplace -> {
+            // ⑤ 替换链预演（EolConvert 链同形）：读出 → 正则替换 →
+            // 结构化 edit 全文重写（byte 边界；不触 last_external guard）
+            // → delta drain-弃 → 读回。
+            // 计数 = marker 算术（替换结果上 len+replace 商——r3 勘定
+            // Regex.match 列表 .len() 在 vm handler 字节码恒 20，弃用；
+            // Str.replace/len 为 PLAN-008 EOL 计数同款选型）。
+            let body str = code_editor_text("k1")
+            let m str = "~~PM9~~"
+            let probe str = Regex.replace(body, "(?-i)Alpha", m, "g")
+            .rcount2 = (probe.len() - probe.replace(m, "").len()) / m.len()
+            let out str = Regex.replace(body, "(?-i)Alpha", "YY", "g")
+            code_editor_edit("k1", 0, body.len(), out)
+            code_editor_delta("k1")
+            let after str = code_editor_text("k1")
+            .rhead = after.substr(0, 16)
+            .edits = .edits + 1
+        }
+        .DoCount -> {
+            // 计数勘定：已知命中数对照（foo=2；(?i)alpha=3）——marker 算术。
+            let b str = code_editor_text("k1")
+            let m str = "~~PM9~~"
+            let o1 str = Regex.replace(b, "foo", m, "g")
+            .rcount = (o1.len() - o1.replace(m, "").len()) / m.len()
+            let o2 str = Regex.replace(b, "(?i)alpha", m, "g")
+            .rcount3 = (o2.len() - o2.replace(m, "").len()) / m.len()
+        }
+        .DoRead -> {
+            .line = code_editor_cursor_line("k1") + 1
+            .col = code_editor_cursor_col("k1") + 1
+        }
+    }
+}
+
+widget App {
+    // 视图事件绑定 App 自身 handler（解析期校验 on{}），store 面经薄委托
+    // 进入（013/auto-edit 同构）。
+    msg { PatternInput(str), Pat1, Pat3(str), SetCaseFlag, SetWordAnchor, SetLiteralEsc,
+          DoFind, DoReplace, DoRead, DoCount }
+    view {
+        col (style: "h-full w-full p-2 gap-2") {
+            input {
+                value: .store.pattern
+                oninput: .PatternInput
+                placeholder: "pattern"
+                style: "h-8 px-2 text-sm w-full"
+            }
+            input {
+                value: .store.pattern2
+                placeholder: "pattern2"
+                style: "h-8 px-2 text-sm w-full"
+            }
+            input {
+                value: .store.pattern3
+                oninput: .Pat3
+                placeholder: "pattern3"
+                style: "h-8 px-2 text-sm w-full"
+            }
+            row (style: "gap-2 shrink-0") {
+                button (text: "caseflag", variant: "outline") { onclick: .SetCaseFlag }
+                button (text: "wordanchor", variant: "outline") { onclick: .SetWordAnchor }
+                button (text: "litesc", variant: "outline") { onclick: .SetLiteralEsc }
+                button (text: "findnext", variant: "outline") { onclick: .DoFind }
+                button (text: "replace", variant: "outline") { onclick: .DoReplace }
+                button (text: "count", variant: "outline") { onclick: .DoCount }
+                button (text: "read", variant: "outline") { onclick: .DoRead }
+            }
+            code_editor (key: "k1", lang: "auto", style: "h-64 w-full") {
+                content: .store.seed
+                search: .store.eff
+            }
+            text "eff=[${.store.eff}] line=${.store.line} col=${.store.col} ok=${.store.find_ok} rc=${.store.rcount} rc2=${.store.rcount2} rc3=${.store.rcount3} head=[${.store.rhead}]" {
+                style: "text-xs font-mono text-muted-foreground"
+            }
+        }
+    }
+    on {
+        .PatternInput(v) -> { store.PatternInput(v) }
+        .Pat1 -> { store.Pat1() }
+        .Pat3(v) -> { store.Pat3(v) }
+        .SetCaseFlag -> { store.SetCaseFlag() }
+        .SetWordAnchor -> { store.SetWordAnchor() }
+        .SetLiteralEsc -> { store.SetLiteralEsc() }
+        .DoFind -> { store.DoFind() }
+        .DoReplace -> { store.DoReplace() }
+        .DoCount -> { store.DoCount() }
+        .DoRead -> { store.DoRead() }
+    }
+}
