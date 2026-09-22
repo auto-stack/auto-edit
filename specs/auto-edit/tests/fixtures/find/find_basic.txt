@@ -1,0 +1,3 @@
+alpha Alpha ALPHA
+foo foobar foo
+alpha again

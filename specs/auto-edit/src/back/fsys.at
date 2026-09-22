@@ -60,10 +60,19 @@ pub fn regex_replace_json(text str, pattern str, replacement str, global bool) s
     if global {
         flags = "g"
     }
+    // 大小写不敏感默认（SD-02 契约：与查找面内核 builder
+    // case_insensitive(true) 同默认；pattern 自带旗标前缀——`(` 开头，
+    // 如查找面 `(?-i)` 直通形态——则透传）。裸 Regex.replace 是
+    // case-sensitive（shim 直编 Regex::new 无旗标），不补齐会与高亮面
+    // 劈叉（T13.3 实勘：query=alpha 仅替换小写 1 处，高亮 4 处）。
+    var pat str = pattern
+    if pat.substr(0, 1) != "(" {
+        pat = "(?i)" + pat
+    }
     let m str = "~~AM09REPLMARK~~"
-    let probe str = Regex.replace(text, pattern, m, flags)
+    let probe str = Regex.replace(text, pat, m, flags)
     let count int = (probe.len() - probe.replace(m, "").len()) / m.len()
-    let out str = Regex.replace(text, pattern, replacement, flags)
+    let out str = Regex.replace(text, pat, replacement, flags)
     return json.from_value({out: out, count: count})
 }
 

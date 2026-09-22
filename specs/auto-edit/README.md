@@ -184,6 +184,14 @@ fixtures/ 六件入仓）——完成态 **57/0**（50/0 + 7 新检查），判�
 随升 **≥56 passed / 0 failed**；menu/paste 类非确定 flake（失败点逐跑
 漂移、隔离复现即绿——F-RV6 同族）复跑条款沿用。
 
+PLAN-009 口径更新（2026-09-22，工具链 1914 钉版同版）：矩阵扩 T13 查找
+替换检查组（开栏+effective 拼装四组合、find_next 推进/回绕、Replace All
+E2E 落盘字节+计数反馈、readonly 替换拦截+磁盘哈希零变、空 query 零动作、
+find-in-files 端点+条目点击开文件、500 条上限截断，fixtures/find/ 四件
+入仓）——完成态 **75/0**（57/0 + 18 新检查），判绿下限随升 **≥65
+passed / 0 failed**（T-00 决策探针 `tests/probe_find.py` 23/0 为前置
+决策门，不入矩阵计数）；T12 复跑条款沿用。
+
 注：Plan 451 起 T10「热重载」走 DSL 源路径（reload 工具或 mtime 轮询重读
 app.at 重新提取 actions + generation bump → 视图重建），实测 50/0 全绿。
 OS 用户键位层（`%APPDATA%/auto/keymaps/auto-edit.at`）保持外部文件——那是

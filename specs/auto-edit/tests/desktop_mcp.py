@@ -973,6 +973,328 @@ def run_tests(mcp_url, proc):
     else:
         print("  NOTE  tests/fixtures/ missing; skipping T12")
 
+    # T13: PLAN-009 —— 查找替换四态 + ReplaceAll + find-in-files 检查组
+    # （T12 形态：每检查独立新鲜进程 + 仓内 fixture 临时拷贝——磁盘断言
+    # 打拷贝，仓内 fixture 保持 pristine）。子组：
+    #   13.1 开栏 + effective 拼装四组合（字面转义/正则直通/大小写前缀/
+    #        整词锚——装配序=转义→(?-i)→\b，T-00 决策）
+    #   13.2 find_next 推进（live 首跳后 下一处 序列 + 回绕）
+    #   13.3 Replace All E2E（落盘字节断言 + 计数反馈）
+    #   13.4 readonly tab 拦截（非法 UTF-8 fixture，磁盘哈希零变）
+    #   13.5 空 query 零动作
+    #   13.6 find-in-files 端点 + 结果条目点击开文件
+    #   13.7 上限截断（600 命中临时件 → count==500 + truncated）
+    print("\nT13: PLAN-009 find/replace + find-in-files")
+    find_fix = os.path.join(fixtures_dir, "find") if os.path.isdir(fixtures_dir) else ""
+    if find_fix and os.path.isdir(find_fix):
+
+        def _t13_app(path=None):
+            port = pick_free_port()
+            env = {**os.environ, "AUTOUI_MCP_PORT": str(port)}
+            if path:
+                env["AUTO_OPEN_PATH"] = path
+            proc = subprocess.Popen(
+                [AUTO_BIN, "run", "-r", "vm"],
+                cwd=PROJECT, env=env,
+                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            url = f"http://127.0.0.1:{port}/mcp"
+            assert wait_for_server(url, 30), "T13 server never up"
+            t = McpClient(url)
+            for _ in range(15):
+                s = t.snapshot()
+                if "(rendered)" in s and s.count("onclick") > 0:
+                    break
+                time.sleep(1)
+            time.sleep(1.5)  # 首拍派发竞态窗口定驻（T-00④ 卫生）
+            if path:
+                # 打开 = 点 + 按钮（ActOpen 读 AUTO_OPEN_PATH 旁路——T9/T12
+                # 同款；ConsumeOpen 的 env 种子仅 AUTO_BENCH=1 下生效，被动
+                # 等待永不发生——T13 首两跑 loaded=0 根因），再等 loaded 行。
+                plus = find_button_by_onclick(t.snapshot(), "ActOpen")
+                if plus:
+                    t.click(plus)
+                base = os.path.basename(path)
+                for _ in range(48):
+                    c = state_str(t.state("console"), "console") or ""
+                    if ("loaded: " in c or "load error" in c) and base in c:
+                        break
+                    time.sleep(0.25)
+            return proc, t
+
+        def _unesc(s):
+            """autoui_state 文本对反斜杠的加倍渲染解码（探针 probe_find 同款）。"""
+            if s is None:
+                return None
+            return s.replace("\\\\", "\\")
+
+        def _t13_type_query(t, text):
+            """键入查找词并重试至 find_effective 反映（首拍派发竞态卫生，
+            probe_find type_into_input 同款）。"""
+            for _ in range(4):
+                _t13_type(t, _t13_find_input(t), text)
+                eff = state_str(t.state("find_effective"), "find_effective")
+                if eff == text:
+                    return True
+                time.sleep(0.5)
+            return False
+
+        def _t13_open_find(t):
+            t.call("autoui_keyboard", key="f", modifiers=["ctrl"])
+            time.sleep(0.5)
+            return t
+
+        def _t13_find_input(t):
+            iid = re.search(r"input #(\w+)", t.snapshot())
+            return iid.group(1) if iid else None
+
+        def _t13_type(t, el, text):
+            t.call("autoui_type", element_id=el, text=text, clear_first=True)
+            time.sleep(0.6)
+
+        def _t13_click_text(t, label):
+            el = find_button_by_text(t.snapshot(), label)
+            if el:
+                t.click(el)
+                time.sleep(0.5)
+            return el is not None
+
+        def _t13_cursor(t):
+            st = t.state("line", "col")
+            return state_int(st, "line"), state_int(st, "col")
+
+        def _t13_open_fif(t):
+            """开 find-in-files 面板（Ctrl+Shift+F；修饰序兼容兜底=菜单入口）。"""
+            t.call("autoui_keyboard", key="f", modifiers=["ctrl", "shift"])
+            time.sleep(0.6)
+            if state_bool(t.state("fif_open"), "fif_open") is True:
+                return True
+            menu = find_button_by_text(t.snapshot(), "编辑")
+            if menu:
+                t.click(menu)
+                time.sleep(1.0)
+                item = find_button_by_text(t.snapshot(), "跨文件查找")
+                if item:
+                    t.click(item)
+                    time.sleep(0.6)
+            return state_bool(t.state("fif_open"), "fif_open") is True
+
+        # 13.1 开栏 + 拼装四组合
+        try:
+            p13, t = _t13_app()
+            _t13_open_find(t)
+            ok_open = state_bool(t.state("find_open"), "find_open")
+            result.check("T13.1 find bar opens (Ctrl+F)", ok_open is True,
+                         t.state("find_open"))
+            _t13_type_query(t, "a.b")
+            eff = _unesc(state_str(t.state("find_effective"), "find_effective"))
+            result.check("T13.1a literal escape: eff a\\.b", eff == "a\\.b", f"eff={eff!r}")
+            _t13_click_text(t, ".*")
+            eff = _unesc(state_str(t.state("find_effective"), "find_effective"))
+            result.check("T13.1b regex passthrough: eff a.b", eff == "a.b", f"eff={eff!r}")
+            _t13_click_text(t, "Aa")
+            eff = _unesc(state_str(t.state("find_effective"), "find_effective"))
+            result.check("T13.1c case flag: eff (?-i)a.b", eff == "(?-i)a.b", f"eff={eff!r}")
+            _t13_click_text(t, "[w]")
+            eff = _unesc(state_str(t.state("find_effective"), "find_effective"))
+            result.check("T13.1d word anchors: eff \\b(?-i)a.b\\b (regex on, dot raw)",
+                         eff == "\\b(?-i)a.b\\b", f"eff={eff!r}")
+            _kill_proc_tree(p13)
+        except Exception as e:
+            result.check("T13.1 find bar + assembly", False, repr(e))
+
+        # 13.2 find_next 推进（fixture: alpha Alpha ALPHA / foo foobar foo /
+        # alpha again；query=alpha 不敏感：3+1 命中）
+        try:
+            src = os.path.join(find_fix, "find_basic.txt")
+            p13, t = _t13_app(src)
+            _t13_open_find(t)
+            typed = _t13_type_query(t, "alpha")
+            effv = state_str(t.state("find_effective"), "find_effective")
+            # live 首跳后内部光标在 match1（1-5）；下一处→match2 (1,12)
+            ok_btn = _t13_click_text(t, "下一处")
+            l, c = _t13_cursor(t)
+            result.check("T13.2 find_next -> match2 (1,12)",
+                         ok_btn and (l, c) == (1, 12),
+                         f"cursor=({l},{c}) typed={typed} eff={effv!r}")
+            _t13_click_text(t, "下一处")
+            l, c = _t13_cursor(t)
+            result.check("T13.2 find_next -> match3 (1,18)", (l, c) == (1, 18),
+                         f"cursor=({l},{c})")
+            _t13_click_text(t, "下一处")
+            l, c = _t13_cursor(t)
+            result.check("T13.2 find_next wraps -> line3 match (3,6)", (l, c) == (3, 6),
+                         f"cursor=({l},{c})")
+            _kill_proc_tree(p13)
+        except Exception as e:
+            result.check("T13.2 find_next progression", False, repr(e))
+
+        # 13.3 Replace All E2E（落盘字节断言 + 计数反馈）
+        try:
+            dst = tempfile.NamedTemporaryFile(
+                prefix="auto041_t13_", suffix="_find_basic.txt", delete=False)
+            dst.write(open(os.path.join(find_fix, "find_basic.txt"), "rb").read())
+            dst.close()
+            p13, t = _t13_app(dst.name)
+            t.call("autoui_keyboard", key="h", modifiers=["ctrl"])
+            time.sleep(0.5)
+            _t13_type_query(t, "alpha")
+            effv = state_str(t.state("find_effective"), "find_effective")
+            snap = t.snapshot()
+            m = re.search(r'input #(\w+) \{[^}]*placeholder: "替换为"', snap)
+            result.check("T13.3 replace row visible (Ctrl+H)",
+                         m is not None, f"eff={effv!r} snap={snap[:100]}")
+            if m:
+                _t13_type(t, m.group(1), "XX")
+                before = (state_str(t.state("console"), "console") or "").count("replace all:")
+                _t13_click_text(t, "全部替换")
+                c = ""
+                for _ in range(20):
+                    c = state_str(t.state("console"), "console") or ""
+                    if c.count("replace all:") > before:
+                        break
+                    time.sleep(0.3)
+                result.check("T13.3 replace all: 4 处 console", "replace all: 4 处" in c,
+                             c[-120:])
+                # save 落盘回读
+                before_s = (state_str(t.state("console"), "console") or "").count("saved:")
+                save_btn = find_button_by_icon(t.snapshot(), "save")
+                t.click(save_btn)
+                for _ in range(20):
+                    c = state_str(t.state("console"), "console") or ""
+                    if c.count("saved:") > before_s:
+                        break
+                    time.sleep(0.3)
+                got = open(dst.name, "rb").read()
+                want = "XX XX XX\nfoo foobar foo\nXX again\n".encode()
+                result.check("T13.3 replace E2E disk bytes", got == want,
+                             f"got={got[:60]!r} want={want[:60]!r}")
+            _kill_proc_tree(p13)
+            os.unlink(dst.name)
+        except Exception as e:
+            result.check("T13.3 replace all E2E", False, repr(e))
+
+        # 13.4 readonly tab 拦截（非法 UTF-8 fixture：替换被拦 + 磁盘零变）
+        try:
+            import hashlib as _h13b
+            dst = tempfile.NamedTemporaryFile(
+                prefix="auto041_t13_", suffix="_invalid.bin", delete=False)
+            dst.write(open(os.path.join(fixtures_dir, "INVALID_UTF8.bin"), "rb").read())
+            dst.close()
+            h0 = _h13b.sha256(open(dst.name, "rb").read()).hexdigest()
+            p13, t = _t13_app(dst.name)
+            time.sleep(0.5)
+            ro = state_bool(t.state("readonly_active"), "readonly_active")
+            lb = state_int(t.state("loaded_bytes"), "loaded_bytes")
+            result.check("T13.4 pre: readonly engaged after load",
+                         ro is True, f"ro={ro} loaded={lb}")
+            t.call("autoui_keyboard", key="h", modifiers=["ctrl"])
+            time.sleep(0.5)
+            _t13_type_query(t, "text")
+            m = re.search(r'input #(\w+) \{[^}]*placeholder: "替换为"', t.snapshot())
+            if m:
+                typed = _t13_type_query(t, "text")
+                effv = state_str(t.state("find_effective"), "find_effective")
+                _t13_type(t, m.group(1), "YY")
+                _t13_click_text(t, "全部替换")
+                c = ""
+                for _ in range(16):
+                    c = state_str(t.state("console"), "console") or ""
+                    if "blocked (readonly)" in c:
+                        break
+                    time.sleep(0.3)
+                h1 = _h13b.sha256(open(dst.name, "rb").read()).hexdigest()
+                result.check("T13.4 readonly blocks replace + disk unchanged",
+                             ro is True and "blocked (readonly" in c and h0 == h1,
+                             f"ro={ro} typed={typed} eff={effv!r} "
+                             f"console_head={c[:120]!r} hash_eq={h0 == h1}")
+            _kill_proc_tree(p13)
+            os.unlink(dst.name)
+        except Exception as e:
+            result.check("T13.4 readonly replace block", False, repr(e))
+
+        # 13.5 空 query 零动作（Ctrl+H 直接全部替换）
+        try:
+            p13, t = _t13_app()
+            t.call("autoui_keyboard", key="h", modifiers=["ctrl"])
+            time.sleep(0.5)
+            _t13_click_text(t, "全部替换")
+            time.sleep(0.5)
+            c = state_str(t.state("console"), "console") or ""
+            result.check("T13.5 empty query: zero action logged",
+                         "replace all: empty query" in c, c[-100:])
+            _kill_proc_tree(p13)
+        except Exception as e:
+            result.check("T13.5 empty query zero action", False, repr(e))
+
+        # 13.6 find-in-files：端点结果 + 条目点击开文件
+        # （workspace 根 = 仓 specs/auto-edit；needle 动态拼装——字面量不
+        # 落本文件，desktop_mcp.py 自身不计入命中。fixtures/find/find_fif/
+        # 两件：one.txt L1 + two.txt L1/L2 = 3 条）
+        try:
+            needle = "fifneedle" + "009"
+            p13, t = _t13_app()
+            result.check("T13.6 fif panel opens (Ctrl+Shift+F/menu)",
+                         _t13_open_fif(t) is True, t.state("fif_open"))
+            _t13_open_find(t)
+            _t13_type_query(t, needle)
+            _t13_click_text(t, "搜索")
+            fc = -1
+            for _ in range(20):
+                st = t.state("fif_count", "fif_truncated")
+                fc = state_int(st, "fif_count")
+                if fc >= 0 and (state_str(t.state("console"), "console") or "").count("fif:") > 0:
+                    break
+                time.sleep(0.4)
+            trunc = state_bool(t.state("fif_truncated"), "fif_truncated")
+            result.check("T13.6 fif results: count==3 not truncated",
+                         fc == 3 and trunc is False, f"count={fc} trunc={trunc}")
+            tc0 = state_int(t.state("tab_count"), "tab_count")
+            m = re.search(r'button #(\w+) "[^"]*two\.txt[^"]*"', t.snapshot())
+            if m:
+                t.click(m.group(1))
+                time.sleep(1.2)
+                st = t.state("tab_count", "title_active")
+                result.check("T13.6 result click opens file tab",
+                             state_int(st, "tab_count") == tc0 + 1
+                             and state_str(st, "title_active") == "two.txt", st)
+            else:
+                result.check("T13.6 result click opens file tab", False,
+                             "two.txt row not in snapshot")
+            _kill_proc_tree(p13)
+        except Exception as e:
+            result.check("T13.6 find-in-files", False, repr(e))
+
+        # 13.7 上限截断（600 命中临时件 → count==500 + truncated；finally 删除）
+        big = os.path.join(find_fix, "_t13_big_tmp.txt")
+        try:
+            with open(big, "w", encoding="utf-8", newline="") as f:
+                for _ in range(600):
+                    f.write("hitline009 unique\n")
+            p13, t = _t13_app()
+            _t13_open_fif(t)
+            _t13_open_find(t)
+            _t13_type_query(t, "hitline009")
+            _t13_click_text(t, "搜索")
+            fc = -1
+            trunc = None
+            for _ in range(30):
+                st = t.state("fif_count", "fif_truncated")
+                fc = state_int(st, "fif_count")
+                trunc = state_bool(st, "fif_truncated")
+                if fc >= 500:
+                    break
+                time.sleep(0.4)
+            result.check("T13.7 truncation: count==500 + truncated",
+                         fc == 500 and trunc is True, f"count={fc} trunc={trunc}")
+            _kill_proc_tree(p13)
+        except Exception as e:
+            result.check("T13.7 limit truncation", False, repr(e))
+        finally:
+            if os.path.exists(big):
+                os.unlink(big)
+    else:
+        print("  NOTE  tests/fixtures/find missing; skipping T13")
+
     print()
     print("T8: ActQuit (menu item)")
     open_menu(mcp, snap_cache, "文件")
