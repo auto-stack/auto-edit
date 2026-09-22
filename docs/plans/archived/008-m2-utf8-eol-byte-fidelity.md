@@ -1,6 +1,6 @@
 ---
 plan_id: PLAN-008
-status: reviewed
+status: archived
 feature_name: m2-utf8-eol-byte-fidelity（M2-01：UTF-8 面 + 行尾语义——打开到保存的文件字节保真）
 author: [zhaopuming]
 created_at: 2026-09-22T19:00:00+08:00
@@ -416,3 +416,24 @@ T-06 收口。current_step=0。
 
 - **mixed EOL 保真降级口径**：已裁定（见上③）。
 - **只读态边界**：已裁定（见上④）。
+
+- **merge 收据 PLAN-008:r1（2026-09-22T21:40，五 checkpoint）**：
+  `prepared`——reviewed 基线 r1 pass @ c3547e3（+范围等价重写证明：
+  rebase onto main 9c6f155 后 range-diff ceaeaad..36330fa vs
+  9c6f155..5a49428 **8/8 全等**，旧→新映射 1829525→766d3ad/1ce7e52→
+  13f7fe3/0c26484→5eb7199/6f827c9→906f2c9/7f17034→4401bdb/2581972→
+  ca648ac/c3547e3→e0af422/36330fa→5a49428）；canonical spec 增量=
+  reviewed 分支内（2581972）；账本投影=specs.json reviews 段 P008-1
+  外科插入（projection-only 后裔 36330fa，**+10 行零删除**，整文件
+  解析+回读 8 items）。`landed`——delivery commit **5a49428**
+  （projection 后裔即 delivery），main `git merge --ff-only
+  plan-008-dev` 无 merge 提交，tip=5a49428 实证；canonical 四锚
+  （editor-store.md 字节保真节/back-api.md 七端点+IO 字节语义/
+  00-overview M2 开篇/战略补注十）+ upstream §11 主检出在位。
+  `ledger_refreshed`——.autoos/specs.json（tracked，经 worktree+git
+  入库）：reviews 段 8 items（P001..P008）+P008-1 回读验证，主检出
+  json.load 过。烟测=主 tip 全新检出（组拓扑 smoke-p008 临时组，
+  BOM 往返+BOM/CRLF 编辑往返 sha256 全等 + fixtures -text 全新检出
+  字节完整性 od 实证；烟测组已按 guard 协议移除）。
+  `archived`——git mv docs/plans/archived/ + status archived +
+  completion_kind **delivered**。`cleaned`——（随后行）。
