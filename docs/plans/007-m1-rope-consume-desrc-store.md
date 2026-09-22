@@ -377,6 +377,14 @@ BENCH 标记行（bench_open_start/done）保持包夹语义。
     L0 正式锚 20260922-150608.jsonl
   - `blockers`: 无
   - `next`: review（/auto-plan:review）
+  - **L2 全链增补收据（同日 687 映射补齐后首跑）**：a2r 门通
+    （1856-g8771d0d75 工具链）；release 编译过；单 iced 直拉启动链
+    **steady 12.7/12.4ms（run1-2，与 rqhost 形态首基线同量级）、
+    mem 37MB、拓扑门（后端就绪行+存活）过**；open 段败于**新登记
+    上游缺口**（a2r 生成物 Tick 改 store 后 code_editor 视图不重建/
+    不注册——探针无限 false，upstream §10 新条目在档；vm 轨同代码
+    正常）——AC-05 的 L2 端到端完整面随该缺口解阻补跑，启动链面
+    已实证。
 
 ## 10. 待澄清事项
 
