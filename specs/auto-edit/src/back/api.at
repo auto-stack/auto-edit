@@ -70,3 +70,28 @@ pub fn exists(path str) bool {
 pub fn env_str(name str) str {
     return fsys.env_lookup(name)
 }
+
+/// 正则替换（PLAN-009 T-03）：Rust regex（AutoVM shim Regex.replace），
+/// 与内核查找链双轨同语义。pattern 支持 `(?i)`/`(?-i)` 内联旗标前缀
+/// （与查找面 find_effective 同约定，T-00② 正案）；global=true 走
+/// "g" 全局替换，false 仅首处。
+/// 返回 JSON `{"out":<替换后全文>,"count":<真实替换数>}`——count 用
+/// marker 算术（替换结果上 len+replace 商；Regex.match 列表 .len() 在
+/// vm handler 字节码恒 20 已弃用——T-00⑤ 勘定，upstream §12 观察）。
+/// front 零 Regex.* 调用（ts_adapter find_all/is_match 无 vue 映射的坑
+/// 绕开；跨轨禁补件裁定不破）。
+/// POST /api/regex_replace {text, pattern, replacement, global}
+#[api(method = "POST", path = "/api/regex_replace")]
+pub fn regex_replace(text str, pattern str, replacement str, global bool) str {
+    return fsys.regex_replace_json(text, pattern, replacement, global)
+}
+
+/// 跨文件查找（PLAN-009 T-04）：工作区递归、逐行匹配、条目上限。
+/// 返回 JSON `{"results":[{"file","line","preview"}…],"count":<条数>,
+/// "truncated":bool}`——count 由 back 计数交付（front 侧列表 .len() 在
+/// vm handler 字节码不可靠，T-00⑤ 同源规避）；limit<=0 兜底 500。
+/// GET /api/search_files?path=..&pattern=..&limit=..
+#[api(method = "GET", path = "/api/search_files")]
+pub fn search_files(path str, pattern str, limit int) str {
+    return fsys.search_files_json(path, pattern, limit)
+}

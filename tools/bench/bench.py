@@ -92,7 +92,12 @@ STORE_FILE = "editor_store.at"
 # PLAN-008: 白名单扩为「save 位 + 登记的保真/转换 handler」（封闭集、登记制不变）——
 # WriteFidelity=保真回写收口（ActSave/QuitSaveClose 改道，code_editor_text
 # 唯一读出位）；EolConvert=行尾转换命令（显式全文操作，T-03 登记件）。
-ALLOWED_HANDLERS = {"ActSave", "QuitSaveClose", "WriteFidelity", "EolConvert"}
+# PLAN-009: ReplaceAllRequest=全部替换命令（第三件显式全文操作——读出+
+# 重写同 EolConvert 形态，读出经 back regex_replace 端点，T-03 登记件；
+# 查找/下一处/find-in-files 路径零全文读——search prop 增量 diff 进内核
+# + back 行级流式，不受检测器影响）。
+ALLOWED_HANDLERS = {"ActSave", "QuitSaveClose", "WriteFidelity", "EolConvert",
+                    "ReplaceAllRequest"}
 
 
 def _log(msg: str) -> None:

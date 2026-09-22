@@ -54,6 +54,12 @@ widget App {
         action (id: "edit.eol-crlf",      handler: .ActEolCrlf,    title: "转为 CRLF (Windows)")
         action (id: "edit.eol-lf",        handler: .ActEolLf,      title: "转为 LF (Unix)")
         action (id: "edit.eol-cr",        handler: .ActEolCr,      title: "转为 CR (Mac)")
+        // PLAN-009 T-02: 查找替换四命令（Ctrl+F 开栏 / Ctrl+H 开替换行 /
+        // F3 下一处 / Ctrl+Shift+F 跨文件查找）。
+        action (id: "edit.find",          handler: .ActFind,       title: "查找",   icon: "search",   shortcut: "Ctrl+F")
+        action (id: "edit.replace",       handler: .ActReplace,    title: "替换…",  shortcut: "Ctrl+H")
+        action (id: "edit.find-next",     handler: .FindNext,      title: "查找下一个", shortcut: "F3")
+        action (id: "search.find-in-files", handler: .FifOpen,     title: "跨文件查找", shortcut: "Ctrl+Shift+F")
         action (id: "view.console",    handler: .ActConsole,    title: "切换 Console", icon: "terminal", shortcut: "Ctrl+J",
                 checked_if: ".store.console_open")
         // 仅声明层快捷键(验证回退层):Ctrl+D 切换 tab
@@ -104,6 +110,12 @@ widget App {
                             menubar-item (title: "复制", icon: "copy") { onclick: .ActCopy }
                             menubar-item (title: "粘贴", icon: "clipboard") { onclick: .ActPaste }
                             menubar-item (title: "全选", shortcut: "Ctrl+A") { onclick: .ActSelectAll }
+                            menubar-separator
+                            // PLAN-009 T-02: 查找替换入口（与 actions 快捷键同源）。
+                            menubar-item (title: "查找", icon: "search", shortcut: "Ctrl+F") { onclick: .ActFind }
+                            menubar-item (title: "替换…", shortcut: "Ctrl+H") { onclick: .ActReplace }
+                            menubar-item (title: "查找下一个", shortcut: "F3") { onclick: .FindNext }
+                            menubar-item (title: "跨文件查找", shortcut: "Ctrl+Shift+F") { onclick: .FifOpen }
                             menubar-separator
                             // PLAN-008 T-03: 行尾分组（menubar-label；无子
                             // 菜单能力，平铺三命令）。
@@ -181,10 +193,76 @@ widget App {
                     }
                     col (style: "h-px w-full bg-border shrink-0")
 
+                    // PLAN-009 T-02: 查找栏（根视图——Plan 449 快照定位约束，
+                    // tab 条与编辑区之间）。input 双向=T-00④ handler 首参形；
+                    // 三开关双分支 variant 切换（tab 激活/非激活同款条件节点
+                    // 惯例——vm 视图不支持参数化样式表达式）。
+                    if .store.find_open {
+                        col (style: "shrink-0 w-full bg-muted/10 border-b border-border") {
+                            row (style: "h-9 items-center gap-1 px-2 shrink-0") {
+                                input {
+                                    value: .store.find_query
+                                    oninput: .FindInput
+                                    placeholder: "查找"
+                                    style: "h-7 flex-1 min-w-0 px-2 text-[12px]"
+                                }
+                                if .store.find_case {
+                                    button (text: "Aa", variant: "outline") { onclick: .FindToggleCase
+                                        style: "h-6 px-2 text-[11px]" }
+                                }
+                                if !.store.find_case {
+                                    button (text: "Aa", variant: "text") { onclick: .FindToggleCase
+                                        style: "h-6 px-2 text-[11px] text-muted-foreground" }
+                                }
+                                if .store.find_word {
+                                    button (text: "[w]", variant: "outline") { onclick: .FindToggleWord
+                                        style: "h-6 px-2 text-[11px]" }
+                                }
+                                if !.store.find_word {
+                                    button (text: "[w]", variant: "text") { onclick: .FindToggleWord
+                                        style: "h-6 px-2 text-[11px] text-muted-foreground" }
+                                }
+                                if .store.find_regex {
+                                    button (text: ".*", variant: "outline") { onclick: .FindToggleRegex
+                                        style: "h-6 px-2 text-[11px]" }
+                                }
+                                if !.store.find_regex {
+                                    button (text: ".*", variant: "text") { onclick: .FindToggleRegex
+                                        style: "h-6 px-2 text-[11px] text-muted-foreground" }
+                                }
+                                button (text: "下一处", variant: "text") { onclick: .FindNext
+                                    style: "h-6 px-2 text-[11px] text-muted-foreground" }
+                                button (variant: "text") {
+                                    icon (name: "x", style: "h-3 w-3 text-muted-foreground") {}
+                                    onclick: .FindClose
+                                    style: "h-6 w-6 px-0 py-0"
+                                }
+                            }
+                            // 替换行（Ctrl+H 展开）。
+                            if .store.find_replace_mode {
+                                row (style: "h-9 items-center gap-1 px-2 shrink-0") {
+                                    input {
+                                        value: .store.find_replacement
+                                        oninput: .FindReplaceInput
+                                        placeholder: "替换为"
+                                        style: "h-7 flex-1 min-w-0 px-2 text-[12px]"
+                                    }
+                                    // PLAN-009 T-03: 全部替换（readonly 拦截
+                                    // + 计数反馈在 store handler）。
+                                    button (text: "全部替换", variant: "outline") { onclick: .ReplaceAllRequest
+                                        style: "h-6 px-2 text-[11px]" }
+                                }
+                            }
+                        }
+                    }
+
                     for i, t in .store.tabs {
                         if t.key == .store.active_key {
                             code_editor (key: t.key, lang: "auto", style: "flex-1 w-full") {
                                 content: t.src
+                                // PLAN-009 T-02: 查找高亮接线（Ident 绑定，
+                                // T-00① 正案；live diff + 非空首跳）。
+                                search: .store.find_effective
                                 oninput: .SrcChanged(i)
                                 oncursor: .CursorMoved(i)
                                 oncontextmenu: .EditorCtx
@@ -201,6 +279,43 @@ widget App {
 
                     if .store.console_open {
                         ConsolePanel()
+                    }
+
+                    // PLAN-009 T-04: find-in-files 结果面板（内联根视图——
+                    // Plan 449 快照定位约束：条目点击必须 MCP 可达，组件
+                    // 子树对快照不可见故不用 console_panel 形态；面板开合
+                    // FifOpen/FifClose，搜索打 find_effective 同查找面）。
+                    if .store.fif_open {
+                        col (style: "w-full shrink-0") {
+                            col (style: "h-px w-full bg-border")
+                            row (style: "h-7 items-center bg-muted/30 shrink-0 gap-3 px-2") {
+                                text "FIND RESULTS" {
+                                    style: "text-[11px] font-bold text-muted-foreground"
+                                }
+                                button (text: "搜索", variant: "text") { onclick: .FifSearch
+                                    style: "text-[11px] h-5 px-1 text-muted-foreground" }
+                                button (text: "×", variant: "text") { onclick: .FifClose
+                                    style: "text-[11px] h-5 px-1 text-muted-foreground" }
+                                text "${.store.fif_count} 处" {
+                                    style: "text-[11px] text-muted-foreground ml-auto"
+                                }
+                            }
+                            scroll (style: "h-40 w-full bg-muted/10 shrink-0") {
+                                col (style: "p-2") {
+                                    for r in .store.fif_results {
+                                        button (text: "${r.file}:${r.line}: ${r.preview}", variant: "text") {
+                                            onclick: .FifResultClick(r.file)
+                                            style: "h-6 px-1 text-[11px] font-mono text-muted-foreground text-left w-full"
+                                        }
+                                    }
+                                    if .store.fif_truncated {
+                                        text "…结果已截断（上限 500 条）" {
+                                            style: "text-[11px] text-muted-foreground"
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -297,6 +412,22 @@ widget App {
         .ActEolCr -> { store.EolConvertRequest("cr") }
         .EolConfirmGo -> { store.EolConfirmGo() }
         .EolConfirmCancel -> { store.EolConfirmCancel() }
+        // PLAN-009 T-02: 查找链薄委托（FindInput/FindReplaceInput=
+        // T-00④ handler 首参形直传）。
+        .ActFind -> { store.FindOpen() }
+        .ActReplace -> { store.FindReplaceOpen() }
+        .FindInput(q) -> { store.FindInput(q) }
+        .FindReplaceInput(r) -> { store.FindReplaceInput(r) }
+        .FindToggleCase -> { store.FindToggleCase() }
+        .FindToggleWord -> { store.FindToggleWord() }
+        .FindToggleRegex -> { store.FindToggleRegex() }
+        .FindNext -> { store.FindNext() }
+        .FindClose -> { store.FindClose() }
+        .FifOpen -> { store.FifOpen() }
+        .FifClose -> { store.FifClose() }
+        .FifSearch -> { store.FifSearch() }
+        .FifResultClick(f) -> { store.FifResultClick(f) }
+        .ReplaceAllRequest -> { store.ReplaceAllRequest() }
         .ActCut -> { store.ActCut() }
         .ActCopy -> { store.ActCopy() }
         .ActPaste -> { store.ActPaste() }

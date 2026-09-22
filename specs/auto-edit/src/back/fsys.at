@@ -50,3 +50,147 @@ pub fn path_exists(path str) bool {
 pub fn env_lookup(name str) str {
     return Env.get(name)
 }
+
+/// 正则替换（PLAN-009 T-03）：Regex.replace（Rust regex）+ marker 算术
+/// 计数。计数不用 Regex.match 列表（vm handler 字节码 .len() 恒 20，
+/// T-00⑤ 勘定）——sentinel 串替换后按 len 差商计数（Str.replace/len
+/// 双轨映射内，PLAN-008 EOL 计数同款选型）；count=真实替换数，无列表帽。
+pub fn regex_replace_json(text str, pattern str, replacement str, global bool) str {
+    var flags str = ""
+    if global {
+        flags = "g"
+    }
+    let m str = "~~AM09REPLMARK~~"
+    let probe str = Regex.replace(text, pattern, m, flags)
+    let count int = (probe.len() - probe.replace(m, "").len()) / m.len()
+    let out str = Regex.replace(text, pattern, replacement, flags)
+    return json.from_value({out: out, count: count})
+}
+
+/// fif 路径噪声过滤（镜像 fs.tree 的 skip-list 语义——Explorer 与
+/// find-in-files 口径一致）：隐藏段/VCS/构建产物/依赖树跳过。入参为
+/// **剥根后的相对路径**（根前缀剥离在 search_files_json——根路径自身
+/// 合法含点段如 .wt 组目录，全路径匹配会误杀全部条目，实勘教训）；
+/// 段命中用 replace 等值判定（Str.replace 双轨映射内，find 的 vm 面
+/// 签名不依赖）。
+fn fif_skipped(rel str) bool {
+    var np str = rel.replace("\\", "/")
+    if np.len() == 0 {
+        return false
+    }
+    var skipped bool = false
+    if np.substr(0, 1) == "." {
+        skipped = true
+    }
+    if np.replace("/.", "") != np {
+        skipped = true
+    }
+    if np.replace("/target/", "") != np {
+        skipped = true
+    }
+    if np.replace("/node_modules/", "") != np {
+        skipped = true
+    }
+    if np.replace("/gen/", "") != np {
+        skipped = true
+    }
+    if np.replace("/dist/", "") != np {
+        skipped = true
+    }
+    if np.replace("/build/", "") != np {
+        skipped = true
+    }
+    if np.replace("/__pycache__/", "") != np {
+        skipped = true
+    }
+    return skipped
+}
+
+/// 跨文件查找（PLAN-009 T-04）：fs.walk 递归（walk_files 2847 未入
+/// bigvm 白名单且撞号 Path.to_string——VM 模式 .at 调用 Undefined
+/// symbol，read_dir 2843→2866 同症先例；fs.walk 2860 双表齐=等价递归
+/// 面，本仓零 auto-lang 改动约束下的仓内可解路径，upstream §12 登记
+/// walk_files 白名单补件 want）+ fs.metadata 大小门（>10MB 跳过）+
+/// try/catch 读（非法 UTF-8/锁定/竞态删除静默跳过——不中断整体搜索）
+/// + 逐行 Regex.test（split("\n") 行号天然；跨行不匹配=内核 find 逐行
+/// 同口径；CRLF 尾 \r 随行参与匹配——显示语义可接受）。
+/// pattern 大小写不敏感默认（`(?i)` 前缀追加），pattern 自带旗标前缀
+/// （`(` 开头，如查找面 `(?-i)` 直通形态）则原样透传——与查找面
+/// effective 串同约定。preview=行文本截断 200 字符；条数达 limit 置
+/// truncated。计数用手工计数器（列表 .len() 规避面，同上）。
+pub fn search_files_json(path str, pattern str, limit int) str {
+    var items list = []
+    var n int = 0
+    var truncated bool = false
+    var maxn int = limit
+    if maxn <= 0 {
+        maxn = 500
+    }
+    var re_case str = "(?i)" + pattern
+    if pattern.substr(0, 1) == "(" {
+        re_case = pattern
+    }
+    // 递归枚举 = fs.list_dir（codegen 映射 auto.fs.walk=递归扁平 JSON，
+    // 反斜杠分隔符；`fs.walk` 的 codegen 映射错名 auto.file.walk——
+    // 实勘 File.create 错派 500，upstream §12 登记；`fs.walk_files`
+    // 2847 未入 bigvm 白名单且撞号 Path.to_string，同节登记）。
+    let files = json.to_value(fs.list_dir(path))
+    var root_norm str = path.replace("\\", "/")
+    for f in files {
+        if n >= maxn {
+            truncated = true
+            break
+        }
+        // 剥根前缀后过滤（fif_skipped 入参=相对路径——根自身点段如
+        // .wt 组目录不可触发隐藏段匹配，实勘教训见 fif_skipped 注）。
+        var fpath str = f
+        var rel str = f.replace("\\", "/")
+        if root_norm != "" {
+            var stripped str = rel.replace(root_norm + "/", "")
+            if stripped != rel {
+                rel = stripped
+            } else {
+                if rel.replace(root_norm, "") != rel {
+                    rel = rel.replace(root_norm, "")
+                }
+            }
+        }
+        if fif_skipped(rel) {
+            continue
+        }
+        // 大小门：fs.metadata 实测返回 int 字节长（codegen 映射
+        // auto.fs.size——metadata JSON 形态被该映射覆盖，is_dir/len
+        // 字段访问不可用，upstream §12 同节登记）；>10MB 跳过。
+        var fsize int = fs.metadata(fpath)
+        if fsize > 10485760 {
+            continue
+        }
+        if fs.is_dir(fpath) {
+            continue
+        }
+        // 读失败（非法 UTF-8/锁定/竞态删除/目录误入）静默跳过——不中断
+        // 整体搜索（兜底语义对齐 load_file 错误路径）。
+        try {
+            let content str = File.read_text(fpath)
+            let lines = content.split("\n")
+            var lineno int = 0
+            for ln in lines {
+                lineno = lineno + 1
+                if n >= maxn {
+                    truncated = true
+                    break
+                }
+                if Regex.test(ln, re_case) {
+                    var preview str = ln
+                    if preview.len() > 200 {
+                        preview = preview.substr(0, 200)
+                    }
+                    items.push({file: fpath, line: lineno, preview: preview})
+                    n = n + 1
+                }
+            }
+        } catch {
+        }
+    }
+    return json.from_value({results: items, count: n, truncated: truncated})
+}

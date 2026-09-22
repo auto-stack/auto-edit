@@ -15,11 +15,32 @@
 //   RunPendingLoad —— 分块装载消费（PLAN-007：Tick 侧，协议见 handler 注）
 use bps.navigation.filetree.tree_util: toggle_id
 
+// PLAN-009 T-01: effective pattern 字面转义例程——14 元字符 Str.replace
+// 链（双轨映射面内，PLAN-008 EOL 计数同款选型）；反斜杠最先替换（不二
+// 次转义）。probe_find.py T-00 轮同源代码实证（探针 r5 全绿）。
+fn regex_escape(s str) str {
+    var out str = s.replace("\\", "\\\\")
+    out = out.replace("^", "\\^")
+    out = out.replace("$", "\\$")
+    out = out.replace(".", "\\.")
+    out = out.replace("|", "\\|")
+    out = out.replace("?", "\\?")
+    out = out.replace("*", "\\*")
+    out = out.replace("+", "\\+")
+    out = out.replace("(", "\\(")
+    out = out.replace(")", "\\)")
+    out = out.replace("[", "\\[")
+    out = out.replace("]", "\\]")
+    out = out.replace("{", "\\{")
+    out = out.replace("}", "\\}")
+    return out
+}
+
 // PLAN-003 T-02: 数据面改道 back.api(013/015 裸函数直调形态)——vm merged
 // = 进程内 CALL;vm split / vue = HTTP。fs.*/File.* 内建自此退出 front
 // (vue 轨 ts_adapter 将其拦为 __vmOnly 抛错桩,拆 back 动机);fs.join 亦
 // 在拦截面(T-00 P-5),TreeSelect 改本地字符串拼接。
-use back.api: ws_root, tree, write_text, exists, env_str, read_text_range
+use back.api: ws_root, tree, write_text, exists, env_str, read_text_range, regex_replace, search_files
 
 store EditorStore {
     model {
@@ -110,6 +131,27 @@ store EditorStore {
         // automan.rs set_var)——Explorer 头部展示名,TreeSelect/保存按它拼全路径。
         var ws_dir str = ""
         var ws_name str = ""
+        // PLAN-009 T-01: 查找面状态。栏开合（find_open / find_replace_mode
+        // 替换行展开）+ 输入对（find_query / find_replacement）+ 三开关
+        // （find_case 大小写敏感 / find_word 整词 / find_regex 正则；默认
+        // false/false/false = 字面 + 不敏感 + 非整词）。find_effective =
+        // 拼装收口产出（SyncFindEffective；三消费面——高亮 search prop/
+        // 替换 regex_replace/find-in-files search_files——单一事实源）。
+        var find_open bool = false
+        var find_replace_mode bool = false
+        var find_query str = ""
+        var find_replacement str = ""
+        var find_case bool = false
+        var find_word bool = false
+        var find_regex bool = false
+        var find_effective str = ""
+        // PLAN-009 T-04: find-in-files 结果态（FindResultsPanel 组件 state
+        // 断言面；fif_results = back search_files JSON 经 json.to_value
+        // 解包的条目数组 {file,line,preview}）。
+        var fif_results list = []
+        var fif_count int = 0
+        var fif_truncated bool = false
+        var fif_open bool = false
     }
 
     msg {
@@ -136,6 +178,19 @@ store EditorStore {
         // （Request=mixed 确认门；EolConvert=转换本体，检测器白名单件）。
         SyncByteMeta, EolConvertRequest(str), EolConvert(str),
         EolConfirmGo, EolConfirmCancel,
+        // PLAN-009 T-01: 查找链。FindInput/FindReplaceInput = 两输入行
+        // （T-00④ 定案：键入文本=handler 首参，handler 显式赋值）；三
+        // Toggle=开关（重算 find_effective）；SyncFindEffective=拼装收口
+        // 内部 helper；FindOpen/FindReplaceOpen=栏开启（Ctrl+F/Ctrl+H 与
+        // 菜单共用；计划 msg 清单的必要扩——开合需显式入口）；FindNext=
+        // 下一处；FindClose=关栏清搜索态。
+        FindInput(str), FindReplaceInput(str),
+        FindToggleCase, FindToggleWord, FindToggleRegex,
+        SyncFindEffective, FindOpen, FindReplaceOpen, FindNext, FindClose,
+        // PLAN-009 T-03: 全部替换（检测器白名单第三件显式全文操作）。
+        ReplaceAllRequest,
+        // PLAN-009 T-04: find-in-files 面板开合 + 搜索（back search_files）。
+        FifOpen, FifClose, FifSearch, FifResultClick(str),
     }
 
     on {
@@ -591,6 +646,182 @@ store EditorStore {
         .EolConfirmCancel -> {
             .eol_confirm_open = false
             .eol_confirm_target = ""
+        }
+
+        // ---- PLAN-009 T-01: 查找链（拼装协议=T-00 决策记录）----
+        // effective pattern 拼装收口（单一事实源）：find_query + 三开关 →
+        // find_effective。拼装序：字面模式先转义（regex_escape 14 元字符）
+        // → 大小写敏感前缀 `(?-i)`（内联覆盖内核 builder
+        // case_insensitive(true)，T-00② 正案）→ 整词首尾 `\b` 锚。
+        // 空 query → 空串（内核语义=清搜索态，高亮熄灭）。
+        .SyncFindEffective -> {
+            var p str = ""
+            if .find_query != "" {
+                if .find_regex {
+                    p = .find_query
+                } else {
+                    p = regex_escape(.find_query)
+                }
+                if .find_case {
+                    p = "(?-i)" + p
+                }
+                if .find_word {
+                    p = "\\b" + p + "\\b"
+                }
+            }
+            .find_effective = p
+        }
+
+        // 输入行（T-00④ 定案：vm 轨 input 派发=键入文本作 handler 首参，
+        // handler 显式赋值——框架写回对 store 子树字段不适用）。
+        .FindInput(q) -> {
+            .find_query = q
+            store.SyncFindEffective()
+            .console = console_lines()
+        }
+        .FindReplaceInput(r) -> {
+            .find_replacement = r
+            .console = console_lines()
+        }
+
+        // 三开关（重算 effective；T-02 按钮双分支 variant 切换）。
+        .FindToggleCase -> {
+            .find_case = !.find_case
+            store.SyncFindEffective()
+            .console = console_lines()
+        }
+        .FindToggleWord -> {
+            .find_word = !.find_word
+            store.SyncFindEffective()
+            .console = console_lines()
+        }
+        .FindToggleRegex -> {
+            .find_regex = !.find_regex
+            store.SyncFindEffective()
+            .console = console_lines()
+        }
+
+        // 栏开启（Ctrl+F/Ctrl+H/菜单三源共用）。
+        .FindOpen -> {
+            .find_open = true
+            .console = console_lines()
+        }
+        .FindReplaceOpen -> {
+            .find_open = true
+            .find_replace_mode = true
+            .console = console_lines()
+        }
+
+        // 下一处（按钮/F3）：内核 find_next（光标后下一处、回绕、选区、
+        // 滚动入视）；tab 门 + 空 effective 门（无 query 零动作）。
+        .FindNext -> {
+            if .tab_count > 0 {
+                if .find_effective != "" {
+                    code_editor_find(.active_key)
+                    store.SyncCursor(.active_key)
+                }
+            }
+            .console = console_lines()
+        }
+
+        // 关栏（× 按钮）：清 effective=清内核搜索态（高亮熄灭）。
+        .FindClose -> {
+            .find_open = false
+            .find_replace_mode = false
+            .find_effective = ""
+            .console = console_lines()
+        }
+
+        // ---- PLAN-009 T-04: find-in-files 面板开合（搜索本体 FifSearch
+        // 见该任务节；开=挂结果面板，关=清结果态）。
+        .FifOpen -> {
+            .fif_open = true
+            .console = console_lines()
+        }
+        .FifClose -> {
+            .fif_open = false
+            .fif_results = []
+            .fif_count = 0
+            .fif_truncated = false
+            .console = console_lines()
+        }
+
+        // ---- PLAN-009 T-04: find-in-files 搜索本体——back search_files
+        // （工作区根；pattern=find_effective 与查找面同串同语义）→
+        // json.to_value 解包 → 结果态（count 由 back 交付——列表 .len()
+        // 规避面）。空 effective/未载 workspace 零动作。
+        .FifSearch -> {
+            if .fif_open {
+                if .find_effective != "" {
+                    if .ws_dir != "" {
+                        let raw str = search_files(.ws_dir, .find_effective, 500)
+                        let v = json.to_value(raw)
+                        .fif_results = v.results ?? []
+                        .fif_count = v.count ?? 0
+                        .fif_truncated = v.truncated ?? false
+                        console_log("fif: " + .fif_count.str() + " hits — " + .ws_dir)
+                    }
+                }
+            }
+            .console = console_lines()
+        }
+
+        // 结果条目点击开文件（OpenPath 公共核复用——同路径已开则激活，
+        // TreeSelect 同款遍历；pattern 高亮经 find_effective 天然延续到
+        // 新 tab 的 search prop——AC-06）。
+        .FifResultClick(path) -> {
+            var i int = 0
+            var found bool = false
+            while i < .tabs.len() {
+                if .tabs[i].path == path {
+                    found = true
+                    store.TabActivate(i)
+                }
+                i = i + 1
+            }
+            if !found {
+                if exists(path) {
+                    store.OpenPath(path)
+                    console_log("fif: open " + path)
+                }
+            }
+            .console = console_lines()
+        }
+
+        // ---- PLAN-009 T-03: 全部替换（检测器白名单第三件显式全文操作
+        // ——读出+重写同 EolConvert 形态）。链（T-00⑤ 预演同形）：
+        // readonly 拦截（WriteFidelity 拦截面复用，PLAN-008 兜底语义
+        // 延续）→ code_editor_text 读出（编辑器全文读出位）→ back
+        // regex_replace（Rust regex；pattern=find_effective 同查找面）
+        // → json.to_value 解包 → count>0 才 edit(0,len,out) 全文重写 +
+        // delta drain-弃 + dirty + SyncCursor + 计数 console 反馈。
+        // 空 query/零匹配零动作（零匹配不重写——省一次全文置换）。
+        .ReplaceAllRequest -> {
+            if .tab_count > 0 {
+                if .tabs[.tab].readonly {
+                    console_log("replace: blocked (readonly tab)")
+                } else {
+                    if .find_effective != "" {
+                        let body str = code_editor_text(.active_key)
+                        let raw str = regex_replace(body, .find_effective, .find_replacement, true)
+                        let v = json.to_value(raw)
+                        let out str = v.out ?? ""
+                        let count int = v.count ?? 0
+                        if count > 0 {
+                            code_editor_edit(.active_key, 0, body.len(), out)
+                            code_editor_delta(.active_key)
+                            .tabs[.tab].dirty = true
+                            store.SyncCursor(.active_key)
+                            console_log("replace all: " + count.str() + " 处")
+                        } else {
+                            console_log("replace all: 0 matches")
+                        }
+                    } else {
+                        console_log("replace all: empty query")
+                    }
+                }
+            }
+            .console = console_lines()
         }
 
         .ActOpen -> {
