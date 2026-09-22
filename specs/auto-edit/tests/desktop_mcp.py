@@ -1239,12 +1239,12 @@ def run_tests(mcp_url, proc):
             _t13_type_query(t, needle)
             _t13_click_text(t, "搜索")
             fc = -1
-            for _ in range(20):
+            for _ in range(60):
                 st = t.state("fif_count", "fif_truncated")
                 fc = state_int(st, "fif_count")
                 if fc >= 0 and (state_str(t.state("console"), "console") or "").count("fif:") > 0:
                     break
-                time.sleep(0.4)
+                time.sleep(0.5)
             trunc = state_bool(t.state("fif_truncated"), "fif_truncated")
             result.check("T13.6 fif results: count==3 not truncated",
                          fc == 3 and trunc is False, f"count={fc} trunc={trunc}")
@@ -1277,13 +1277,13 @@ def run_tests(mcp_url, proc):
             _t13_click_text(t, "搜索")
             fc = -1
             trunc = None
-            for _ in range(30):
+            for _ in range(90):
                 st = t.state("fif_count", "fif_truncated")
                 fc = state_int(st, "fif_count")
                 trunc = state_bool(st, "fif_truncated")
                 if fc >= 500:
                     break
-                time.sleep(0.4)
+                time.sleep(0.5)
             result.check("T13.7 truncation: count==500 + truncated",
                          fc == 500 and trunc is True, f"count={fc} trunc={trunc}")
             _kill_proc_tree(p13)

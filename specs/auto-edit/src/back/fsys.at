@@ -83,14 +83,13 @@ pub fn regex_replace_json(text str, pattern str, replacement str, global bool) s
 /// 段命中用 replace 等值判定（Str.replace 双轨映射内，find 的 vm 面
 /// 签名不依赖）。
 fn fif_skipped(rel str) bool {
-    var np str = rel.replace("\\", "/")
-    if np.len() == 0 {
+    // 前导 / 归一：使首段（如工作区顶层的 gen/、node_modules/——vue 轨
+    // build 产物树 11k+ 文件，T-06 实勘）与中段同样命中段检查。
+    var np str = "/" + rel.replace("\\", "/")
+    if np.len() <= 1 {
         return false
     }
     var skipped bool = false
-    if np.substr(0, 1) == "." {
-        skipped = true
-    }
     if np.replace("/.", "") != np {
         skipped = true
     }

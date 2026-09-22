@@ -71,6 +71,14 @@ M2（Notepad++ 对位，战略 §2.2）首件已落：**打开→编辑→保存
 组（完成态 57/0）与 tests/fixtures/ 六件字节基准在仓。上游件（lossy
 读端点/EOL 逐行保真）登记 docs/upstream 2026-09 供料 §11。
 
+**第二件已落（PLAN-009，2026-09-22）**：**查找替换四态（正则/大小写/
+整词/转义）+ 全部替换 + 跨文件查找（find-in-files）**——单一
+find_effective 串拼装协议驱动高亮/替换/fif 三消费面（editor-store.md
+查找替换节 + back-api.md 搜索服务端点节）；矩阵扩 T13 检查组（完成态
+75/0）+ tests/fixtures/find/ 四件；检测器白名单扩 ReplaceAllRequest
+（第三件显式全文操作）。上游件（单处替换/find_prev/匹配计数/goto 行
++ T-00 衍生观察件）登记 docs/upstream 2026-09 供料 §12。
+
 **兄弟仓 Q1 裁定摘要（2026-09-22，战略补注十收口）**：jade-edit 与
 auto-edit **两产品长期并存**（auto=原生旗舰轻量编辑器、jade=web 轻量
 版并向知识库发展），组件尽量共用（未来插件级共用）。jade 侧战略文档

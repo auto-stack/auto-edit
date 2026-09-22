@@ -140,3 +140,53 @@ Cancel）；转换本体=code_editor_text 读出 + 归一替换 + **结构化
 **禁用 handler 侧 `code_editor_set_text` 重写正文**——它触 registry
 last_external，下轮视图绑定推送（content=t.src 空串）不等值即清场
 （装载协议②同款防御面；PLAN-008 执行期实测教训）。
+
+## 查找替换状态与 effective pattern 拼装（PLAN-009 SD-01，M2-02）
+
+> 来源：PLAN-009 T-01..T-04 交付；拼装协议=T-00 决策记录
+> （probe_find.py 23/0 实证）。本节为三消费面（高亮/替换/find-in-files）
+> 的语义契约。
+
+**find 状态字段（EditorStore）**：`find_open`（栏开合）/`find_replace_mode`
+（替换行展开，Ctrl+H）/`find_query`/`find_replacement`（两输入行）/
+`find_case`/`find_word`/`find_regex`（三开关；默认 false/false/false=
+字面+不敏感+非整词）/`find_effective`（拼装产出）。
+find-in-files 结果态：`fif_results`（条目数组 {file,line,preview}）/
+`fif_count`/`fif_truncated`/`fif_open`。
+
+**SyncFindEffective 拼装协议（单一事实源）**：find_query + 三开关 →
+find_effective；拼装序固定——①字面模式先转义（`regex_escape` 14 元字符
+Str.replace 链，反斜杠最先防二次转义；正则模式直通）→ ②大小写敏感前缀
+`(?-i)`（内联旗标覆盖内核 builder `case_insensitive(true)`，T-00② 正案）
+→ ③整词首尾 `\b` 锚。空 query → 空串（内核语义=清搜索态、高亮熄灭）。
+同一 effective 串驱动 search prop 高亮、back regex_replace、back
+search_files 三面——语义一致性由同串保证。
+
+**input 派发协议（T-00④ 定案）**：vm 轨 input 键入文本 = handler 首参
+（015-notes SearchChanged(q) 形）——`FindInput(q)`/`FindReplaceInput(r)`
+显式赋值 store 字段；框架写回（input_state_map）仅根级字段，store 子树
+`.store.X` 不适用；裸 value（无 oninput）对 store 字段不 mint type
+handler。视图 `value:` 绑定仅作显示回读（单向）。
+
+**查找高亮/跳转**：code_editor `search: .store.find_effective` Ident 绑定
+（T-00① 正案）——eff 变更 → 下轮视图 apply_search diff + 非空首跳（高亮
++光标落首匹配；跳转后 cursor=匹配末位 exclusive）。「下一处」（按钮/F3）
+= 内核 `code_editor_find`（光标后下一处、回绕、选区、滚动入视）+
+SyncCursor 回读；空 eff/tab_count==0 零动作。
+
+**全部替换（ReplaceAllRequest，检测器白名单第三件显式全文操作）**：
+readonly 拦截（WriteFidelity 拦截面复用）→ `code_editor_text` 读出 →
+back regex_replace（pattern=find_effective 同串）→ json.to_value 解包 →
+count>0 才 `edit(0, len, out)` 全文重写 + delta drain-弃 + dirty +
+SyncCursor +「替换 N 处」console 计数。空 query/零匹配零动作。链形态=
+EolConvert 复用面（禁 handler 侧 set_text 重写，防 last_external 清场）。
+
+**find-in-files 结果面**：面板内联**根视图**（Plan 449 快照定位约束——
+条目点击必须 MCP 可达，组件子树对快照不可见故不用 console_panel 形态）。
+搜索打 `.find_effective` 同串（与查找面语义一致）；条目点击 = FifResultClick
+→ OpenPath 公共核（同路径已开则激活，TreeSelect 同款遍历）→ pattern 高亮
+经 find_effective 天然延续新 tab（首匹配跳转）。
+
+**已知边界**：单处替换/上一处/匹配计数 n/m/goto 行=上游 want
+（docs/upstream 2026-09 供料 §12）；Esc 关栏未接（input widget 无
+keydown 面，× 按钮为关闭路径）；跨行正则不匹配（内核逐行 find 同口径）。

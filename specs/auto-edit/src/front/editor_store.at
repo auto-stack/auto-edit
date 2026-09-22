@@ -754,8 +754,11 @@ store EditorStore {
             if .fif_open {
                 if .find_effective != "" {
                     if .ws_dir != "" {
-                        let raw str = search_files(.ws_dir, .find_effective, 500)
-                        let v = json.to_value(raw)
+                        // json.to_value 内联包裹（vue 转译吸收=JSON.parse
+                        // 无注解 any——中间 typed str 层会让 string 类型
+                        // 传染字段访问，vue build TS2339，T-06 实勘教训；
+                        // ProbeByteMeta 同款内联先例）。
+                        let v = json.to_value(search_files(.ws_dir, .find_effective, 500))
                         .fif_results = v.results ?? []
                         .fif_count = v.count ?? 0
                         .fif_truncated = v.truncated ?? false
@@ -803,8 +806,9 @@ store EditorStore {
                 } else {
                     if .find_effective != "" {
                         let body str = code_editor_text(.active_key)
-                        let raw str = regex_replace(body, .find_effective, .find_replacement, true)
-                        let v = json.to_value(raw)
+                        // json.to_value 内联包裹（vue 转译吸收面，FifSearch
+                        // 同款；typed str 中间层=vue TS2339 根因）。
+                        let v = json.to_value(regex_replace(body, .find_effective, .find_replacement, true))
                         let out str = v.out ?? ""
                         let count int = v.count ?? 0
                         if count > 0 {
