@@ -6,8 +6,8 @@ author: [zcode]
 created_at: 2026-09-22T14:00:00+08:00
 updated_at: 2026-09-22T14:45:00+08:00
 plan_revision: 1
-current_step: 6
-total_steps: 6
+current_step: 7
+total_steps: 7
 supersedes_spec_components: []
 new_spec_components: [SD-01 editor-store tabs/src 契约改版（去镜像+分块装载+delta 脏态）, SD-02 perf-measurement Q2 中期拓扑（单 iced）与 L2 口径同步, SD-03 strategy 002 补注（Q2 中期裁定原文落账）]
 touched_goals: []
@@ -357,6 +357,26 @@ BENCH 标记行（bench_open_start/done）保持包夹语义。
     上游 / (b) 回滚装载链——默认倾向 a）。
   - `next`: 用户裁 §10-5 后 → review（若 a）或 needs_replan 裁定
     回滚范围（若 b）。
+- 2026-09-22T16:20:00+08:00 · stage: work · PLAN-007 · r1 · **§10-5
+  用户裁定=上游修复路线，已闭环**：auto-lang PLAN-687（真分块+
+  code_editor_load_file 端点 8771d0d75）落地后 AC-02 终态达成
+  （100MB 219MB vs 521 锚 -58%、全档 Flat、<25ms）。**outcome 翻转：
+  blocked → pass**；execution_done。
+  - `stage: work`
+  - `outcome: pass`（AC-01 ✓ / **AC-02 ✓ 终态** / AC-03 ✓ 矩阵 50/0 /
+    AC-04 ✓ / AC-05 ✓（单 iced 代码+拓扑实证；a2r 映射随 687 补齐
+    code_editor_edit/load_file/read_text_range——L2 全链复跑收据见
+    增补）/ AC-06 ✓ / AC-07 ✓）
+  - `code_commit`: 增补提交（endpoint store 一行化 + 新 JSONL +
+    基线报告终态节；plan-007-dev 在 b7204cf 后）
+  - `deps`: auto-lang plan-687-dev @ 8771d0d75（供料兄弟树
+    .wt/edit-007/auto-lang detach 同 tip）；工具链 1855-gea2a4af4d
+    （lang-687 构建，exe 已保出 .wt/lang-687/auto-687.exe）
+  - `evidence`: 矩阵 50/0（撞号修复后终跑；两次无 RESULT 早死=负载
+    竞态 F-RV6 口径在册，二分法排除二进制回归）；vue regen 绿；
+    L0 正式锚 20260922-150608.jsonl
+  - `blockers`: 无
+  - `next`: review（/auto-plan:review）
 
 ## 10. 待澄清事项
 
@@ -374,15 +394,30 @@ BENCH 标记行（bench_open_start/done）保持包夹语义。
    spec SD-02；≤80ms 数字维持。
 4. **1GB 探针**：不纳入（默认成立）——rope 锚点由 100MB 承载；
    另 100MB 单块直载已 30s 级，1GB 无解释力。
-5. **【T-03 新增，待用户裁定】AC-02 内存下降未达成的处置**：实测
-   （工具链 1850，L0/vm，多 session 并行机）——100MB 装载 RSS
-   **729-1356MB（三次实测区间）vs 锚 521MB**（不降反升）；1MB 持平
-   （236 vs 229.5）、10MB +83MB（334 vs 251）。定性（upstream §10
-   观察 B 三件）：edit O(n) 全文重写（块数=时长平方因子：4MB 块超窗/
-   16MB 78s/单块 30-84s，内存无差）；read_text_range 双轨实现=全量
-   读盘假分块（IO 层未分块）；envelope 全文过 VM 池滞留。**修复面
-   全在上游**（真分块 IO/envelope 流式/S2 增量 rewrite）。下游已采
-   单块直载（时限劣化最小）。提案（待裁）：(a) AC-02 文案改为「锚点
-   如实记录（方向反转归因上游 S1 形态）+ 1MB 档持平注记」，内存收益
-   递延到上游分块 IO+S2 解阻后的补跑；或 (b) 回滚装载链保 521 锚
-   （弃 AC-01 去驻留——不推荐，与计划主目标相悖）。默认倾向 (a)。
+5. **【已裁（2026-09-22 用户指令）→ 上游修复路线】AC-02 内存下降
+   未达成**：实测（工具链 1850，L0/vm，多 session 并行机）——100MB
+   装载 RSS **729-1356MB（三次实测区间）vs 锚 521MB**（不降反升）；
+   1MB 持平（236 vs 229.5）、10MB +83MB（334 vs 251）。定性（upstream
+   §10 观察 B 三件）：edit O(n) 全文重写（S2 债维持）；read_text_range
+   双轨实现=**全量读盘假分块**（IO 层未分块——**本件修**）；envelope
+   全文过 VM 池（池有回收机制 Plan 432/510 系——真分块后 envelope
+   变块级瞬态，重测定性）。**用户裁定：修改上游标准库实现**（auto-lang
+   正式 plan，L1 流程：双轨 parity + byte-identical envelope）；实现
+   方针=**标准库函数可借助 Rust 的现成实现加速（std::fs seek+局部读），
+   未来再自研**。观察 A（renderer 构建序）不修——主检出 renderer.rs
+   有并行 session WIP（并发冲突面），下游已有装载协议防御，维持登记。
+   解阻后：auto-edit 侧回多块装载 + 锚点复跑（AC-02 复验）。
+   **【已解（同日）】**：auto-lang **PLAN-687** 执行毕（plan-687-dev
+   @ 8771d0d75，execution_done）：①read_text_range 双轨**真分块窗读**
+   （File seek+精确窗，IO O(limit)；流式收窄注记=块区 UTF-8 校验）；
+   ②实测真分块后内存仍 1362MB——根因重定位为 **envelope 过 VM 的
+   机构性滞留（~8× 文件尺寸线性；池有回收机制但帧退出局部槽不清账
+   +分配器留存）**→ 按用户方针扩 ③**code_editor_load_file(key,path)
+   装载端点**（nat#9908；native std::fs 单趟读+core.set_text 单次
+   重写+delta drain-弃+last_external 不触）——下游 RunPendingLoad
+   一行化。**AC-02 终态达成**：100MB 装载 **219MB vs 锚 521（-58%）**，
+   1/10/100MB 全档 Flat ~219MB、装载 <25ms（JSONL 20260922-150608 +
+   baseline 终态节）；矩阵 **50/0**；vue regen --build 绿（natives.d.ts
+   由新工具链 intrinsics 表驱动生成）。坑位在案：9907 撞 Env.track
+   （P673-D2 无守卫坑实测错派发返垃圾）；regen_vue.py 不认 AUTO_BIN
+   （which("auto") 拿主检出二进制——改进登记）。
