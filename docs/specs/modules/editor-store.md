@@ -1,6 +1,6 @@
 # EditorStore 契约（modules/editor-store）
 
-> 来源：src/front/editor_store.at（527 行）头注与实现 + PLAN-003/005。
+> 来源：src/front/editor_store.at 头注与实现 + PLAN-003/005/007。
 > 本册锁定状态语义与不变量；handler 清单以代码为准。
 
 ## 状态面（model）
@@ -11,28 +11,68 @@
   重算，模板只读（VM view 不能调函数，Plan 402）。
 - Console 面板数据、右键菜单坐标锚态、确认弹层开合态均在 store。
 
-## tabs[i].src 数据语义（PLAN-005 收敛，硬契约）
+## tabs[i].src 数据语义（PLAN-007 改版，硬契约）
 
-**仅作初值/外部重置**：`last_external` 相等即 no-op（typed 输入不会被
-stale 值踩掉）。**编辑态不回写**——cut/paste/undo/redo/ctx-cut 后的
-编辑器全文回读已删（PLAN-005 A 段去镜像）；编辑器全文只在两个 save 位
-读出（ActSave/QuitSaveClose；过渡形态，上游 delta/分块读供料后收口）。
-**违例检测**：`tools/bench` 的"编辑路径全量读检测器"静态检查——新增
-编辑路径回读即红（save 位白名单外）。
+**文件 tab 零全文驻留**（PLAN-007 去文本化；PLAN-005 的「初值/外部
+重置镜像」契约退役）：文件 tab 的 `src` **恒空串**——正文经分块装载链
+直达编辑器 rope，全文永不进 VM 堆。`src` 种子位仅 untitled/演示 tab
+用（T-00 裁定的 AC-01 除外位）。`src_active`（激活 tab 初值镜像，
+PLAN-005 降格物）随同退役——矩阵内容到达观测面改 `loaded_bytes`
+（= 装载完成时最后 envelope 的 total 字节数）。
+
+**装载链协议**（`OpenPath` 公共核 + `RunPendingLoad` Tick 消费，
+块 4MB；T-00 四轮探针实证）：
+
+1. **存在性探针**：`code_editor_edit(key, 0, 0, "")` 返 true 才装载
+   （空表插入合法形；编辑器 widget 缺席返 false——本 Tick 静默递延，
+   下轮重试。视图重建在 handler 外发生，handler 内忙等会死锁）。
+2. **装载前对齐**：`code_editor_set_text(key, "")` 对齐 `last_external`
+   ——视图构建序为绑定推送**先于** widget 实化（renderer.rs
+   `code_editor_set_text(storage_key, value)` → `CodeEditor::new`），
+   首建推送落空、`last_external` 留 None，装载后首次重建的 stale 推送
+   会**清场**。此刻文本必空，对齐无害，此后绑定推送（content 绑定值
+   空串）永续 no-op。注意 set_text 的 VM shim 对 registry false 无差别
+   抛错（false 兼指缺席与 guard no-op，后者正是已对齐常见路径）——
+   必须 try/catch 吞错。
+3. **块位=文件字节偏移**：`read_text_range` envelope 的 `next_offset`
+   推进（纯追加态下文件偏移≡编辑器偏移，规避 .at str len 的
+   char/byte 歧义）；错误形（envelope `total:-1`）按旧 read_text
+   空串语义静默空 tab。
+4. **完成即 drain-弃**：`code_editor_delta(key)` 破坏性读、返回值弃
+   ——delta 队列无界且 replacement 持块全文拷贝，不弃则装载量级驻留
+   吃掉去镜像收益。
+
+**脏态接线（T-00 裁 A）**：沿既有 `SrcChanged`/on 载荷零改动
+（`core.edit` 不触发 on_change 回调——装载不踩 SrcChanged/edits，
+源码+探针双证）。Tick 侧 delta drain 置 dirty（候选 B，为 M2 会话
+恢复预埋增量流）登记后续，非本期。
+
+**save 过渡位**：编辑器全文只在两个 save 位读出（ActSave/
+QuitSaveClose）+ `write_text` 落盘（save 时瞬态一份，非驻留）——上游
+`code_editor_save(key, path)` 直写端点供料后收口（docs/upstream 登记）。
+**违例检测**：`tools/bench` 的"编辑路径全量读检测器"静态检查——
+save 位白名单（ActSave/QuitSaveClose）外任何 `code_editor_text` 即红。
 
 ## 收口 helper（store handler 间经 store.Xxx() 互调，038/013 先例）
 
 - `RemoveAt`——关闭 tab 的 remove + 索引修补 + 激活态重算（原
   CloseTab/ConfirmClose 各持一份，合一）。
 - `SyncCursor`——line/col/sel 三元组读回（原 5 处重复，合一）。
+- `OpenPath`——打开文件 tab 公共核（ConsumeOpen/ActOpen/TreeSelect
+  三点合一；PLAN-007：零全文 tab + `load_key` 装载递延）。
+- `RunPendingLoad`——分块装载消费（PLAN-007：Tick 侧，协议见上节）。
 
-## 数据面边界（PLAN-003 T-02）
+## 数据面边界（PLAN-003 T-02；PLAN-007 扩端点）
 
-全部 IO 经 `use back.api: ws_root, tree, read_text, write_text, exists,
-env_str` 裸函数直调（merged=进程内 CALL；split/vue=HTTP）。front 内
-**禁止** `fs.*`/`File.*`/`Env.get`/`fs.join`（vue 轨拦截面）；路径拼接
-走本地字符串（`ws_dir + "/" + id`）。模块名 `fsys` 刻意避与内建 fs
-对象同名（split 扁平化只吃整模块 use）。
+全部 IO 经 `use back.api: ws_root, tree, write_text, exists, env_str,
+read_text_range` 裸函数直调（merged=进程内 CALL；split/vue=HTTP）。
+front 内**禁止** `fs.*`/`File.*`/`Env.get`/`fs.join`（vue 轨拦截面）；
+路径拼接走本地字符串（`ws_dir + "/" + id`）。模块名 `fsys` 刻意避与
+内建 fs 对象同名（split 扁平化只吃整模块 use）。PLAN-007 增
+`read_text_range(path, offset, limit)`（envelope `{text,total,
+next_offset}` 直通；`read_text` 全量端点保留供既有消费者）。vue 轨
+ts_adapter 不发射 673 内建（`code_editor_edit` 装载位=vue 断点，
+docs/upstream 登记）。
 
 ## 生命周期约定
 
@@ -41,3 +81,7 @@ env_str` 裸函数直调（merged=进程内 CALL；split/vue=HTTP）。front 内
   装载真目录树；树节点 id 为相对路径）。
 - 脏 tab 关闭与退出/关窗共用确认链（alert-dialog 模态，PLAN-530 族；
   菜单「退出」同入口）。
+- 装载时序（PLAN-007）：建 tab（Tick N）→ 视图重建实化编辑器 → 下轮
+  Tick（≤800ms，interval 声明期常量不可运行期调）装载——空窗期为
+  过渡形态已知项（bench 的 `spawn_to_open_start` 含此等待，`open_ms`
+  标记对只包夹纯装载时长）。

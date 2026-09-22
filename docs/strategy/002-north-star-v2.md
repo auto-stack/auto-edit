@@ -49,6 +49,21 @@
    L2 基线报告）。注意 ① 在性能模式语境下含硬上游依赖：a2r F-R1 未解
    则性能模式根本跑不通——故上游供料包（F-R1 + F-RV6 + rope/delta/
    分块读）仍为 M1 第一优先、与①并行。
+9. **2026-09-22 补注九（Q2 中期裁定——单 iced 自包含）**：用户会话
+   原文——「RQ 的架构我们换了，还没实现好，现在的 auto-edit 先只考虑
+   单 iced 应用模式（即自带 iced/wgpu 渲染底层），和现在的 AutoUI 的
+   VM 模式一样。」（上游实证：auto-lang Design rq-remote-renderer
+   立档 + PLAN-683 远程 renderer 路线重写立项，ce77f58fe/ad0468148。）
+   裁定：(a) 交付拓扑中期收敛**单 iced 自包含**（同 `auto run -r vm`
+   单进程原生窗形态）；补注二 7(b) 的「RQ+预热渲染器=交付拓扑候选」
+   **撤回待 683 重设计落定后重估**，§9-Q2 的 bundled-iced-vs-RQ 两择
+   中期收敛为 bundled iced。(b) 测量面随裁（PLAN-007）：L2 运行器改
+   release **零旗标直拉**，rqhost 预热拓扑退役；PLAN-006 的 rqhost
+   形态首基线数字=历史锚点**保留在档**（`baseline-L2-20260922.md`），
+   不再作回归对照基线；renderer_cold_start 过渡期 n/a（进程内无分离
+   冷启面，pending 683 重设计后重估），steady_start 预热语义改「进程内
+   iced 初始化含、系统暖机弃首跑」（≤80ms 数字维持，budgets.json
+   注记同步）。(c) installer 预算行的 Q2 exe 路径待裁面不变。
 
 ---
 

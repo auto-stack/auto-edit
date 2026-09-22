@@ -325,7 +325,13 @@ store EditorStore {
             .load_key = .tabs[.tab].key
         }
 
-        // PLAN-007 T-01: 分块装载（Tick 消费 load_key；块尺寸 4MB）。
+        // PLAN-007 T-01: 分块装载（Tick 消费 load_key；块上限 = 2GB
+        // 单块——T-03 实测定调：edit 每次调用 O(n) 全文重写（S1 固有，
+        // S2 债），块数是平方因子：4MB 块 100MB=1356MB RSS/78s、16MB 块
+        // 同劣化；单块=单次 rewrite（全文仅 VM 瞬时过载，不落 store
+        // 字段——plan §2 文面允许）。S2 解阻后回归真分块（upstream
+        // §10 观察 B）。delta 逐块 drain-弃（队列无界且 replacement
+        // 持块全文拷贝）。
         // 协议三件（T-00 四轮探针实证，见 plan §8 T-00③）：
         // ① 存在性探针 edit(key,0,0,"")——空表插入合法形 true、编辑器
         //    缺席 false（本 Tick 静默递延，下轮重试；视图重建在 handler
@@ -357,30 +363,30 @@ store EditorStore {
                     if env_str("AUTO_BENCH") == "1" {
                         print("BENCH bench_open_start")
                     }
-                    var off int = 0
-                    var total int = 0
-                    var more bool = true
-                    while more {
-                        let env = json.to_value(read_text_range(path, off, 4194304))
-                        let chunk str = env.text ?? ""
-                        let t int = env.total ?? -1
-                        let next int = env.next_offset ?? -1
-                        if t < 0 {
-                            more = false
-                        } else {
-                            total = t
-                            if chunk != "" {
-                                code_editor_edit(key, off, off, chunk)
-                            }
-                            if next < 0 {
-                                more = false
-                            } else {
-                                off = next
-                            }
-                        }
+            var off int = 0
+            var total int = 0
+            var more bool = true
+            while more {
+                let env = json.to_value(read_text_range(path, off, 2147483647))
+                let chunk str = env.text ?? ""
+                let t int = env.total ?? -1
+                let next int = env.next_offset ?? -1
+                if t < 0 {
+                    more = false
+                } else {
+                    total = t
+                    if chunk != "" {
+                        code_editor_edit(key, off, off, chunk)
+                        code_editor_delta(key)
                     }
-                    code_editor_delta(key)
-                    .loaded_bytes = total
+                    if next < 0 {
+                        more = false
+                    } else {
+                        off = next
+                    }
+                }
+            }
+            .loaded_bytes = total
                     .load_key = ""
                     console_log("loaded: " + path + " " + total.str() + " bytes")
                     if env_str("AUTO_BENCH") == "1" {

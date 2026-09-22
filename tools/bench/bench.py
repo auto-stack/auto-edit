@@ -525,7 +525,7 @@ def _l2_suite(runs: int, sizes: list[int], fp: dict) -> dict | None:
             r = run_release_tracked(
                 {"AUTO_BENCH": "1", "AUTO_OPEN_PATH": str(fixture)},
                 want_markers=["bench_open_start", "bench_open_done"],
-                timeout_s=120.0, log_name=f"l2-open-{mb}mb",
+                timeout_s=_open_timeout_s(mb), log_name=f"l2-open-{mb}mb",
                 mem_after=["bench_open_done"])
             app_pids.append(r["pid"])
             m = r["markers"]
@@ -605,6 +605,13 @@ def _startup_runs(runs: int) -> list[dict]:
     return out
 
 
+def _open_timeout_s(mb: int) -> float:
+    """打开计时超时按尺寸缩放（PLAN-007：分块装载的 edit O(n·k) 成本——
+    S1 固有 S2 债，4MB 块下 100MB 曾超 120s 窗实测未捕获；16MB 块下
+    100MB ~90s 量级，给 60s 引导 + 4s/MB 余量）。"""
+    return max(120.0, 60.0 + mb * 4.0)
+
+
 def _open_timing(sizes: list[int]) -> list[dict]:
     out = []
     for mb in sizes:
@@ -613,7 +620,7 @@ def _open_timing(sizes: list[int]) -> list[dict]:
         r = run_app_tracked(
             {"AUTO_BENCH": "1", "AUTO_OPEN_PATH": str(fixture)},
             want_markers=["bench_open_start", "bench_open_done"],
-            timeout_s=120.0, log_name=f"open-{mb}mb",
+            timeout_s=_open_timeout_s(mb), log_name=f"open-{mb}mb",
             mem_after=["bench_open_done"])
         m = r["markers"]
         rec = {"size_mb": mb,
