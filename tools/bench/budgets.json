@@ -1,19 +1,19 @@
 [
   {
     "id": "steady_start",
-    "metric": "稳态启动到可输入（RQ 渲染器已预热，空窗口）",
+    "metric": "稳态启动到可输入（单 iced 进程内初始化，空窗口）",
     "budget": "<= 80 ms",
     "tier": "hard",
     "validity": "L2-only（硬门禁仅在 L2 性能模式评估；战略 §5 阶梯）",
-    "unlock": "RQ 模式 + 预热渲染器 + exe 路径（Q2）+ 启动链瘦身（bench 分解供归因）——头条指标"
+    "unlock": "exe 路径（Q2）+ 启动链瘦身（bench 分解供归因）——头条指标。Q2 中期裁定=单 iced（2026-09-22，战略补注九）：预热语义改为进程内 iced 初始化含、系统暖机弃首跑（原「RQ 渲染器已预热」语义随 rqhost 拓扑退役；≤80ms 数字维持）"
   },
   {
     "id": "renderer_cold_start",
     "metric": "渲染器冷启动（登录/首启一次性）",
     "budget": "单列，预算随 Q2 拓扑定",
     "tier": "hard",
-    "validity": "budget-pending-Q2（预算值未定，硬门禁待 Q2 拓扑裁定后落值）",
-    "unlock": "Q2（bundled iced vs RQ 常驻渲染器）"
+    "validity": "budget-pending-Q2。Q2 中期裁定=单 iced（2026-09-22）：进程内无分离冷启面，PLAN-007 起过渡期记 n/a（arch-blocked-note），pending 上游 683 远程 renderer 重设计落定后重估",
+    "unlock": "上游 683 重设计（原 Q2 bundled-iced-vs-RQ 两择随单 iced 裁定收敛，冷启面是否独立存在待重设计定形）"
   },
   {
     "id": "warm_start",

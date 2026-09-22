@@ -11,22 +11,25 @@
 //   RemoveAt   —— 关闭 tab 的 remove + 索引修补 + 激活态重算
 //                 （原 CloseTab/ConfirmClose 各持一份，现合一）
 //   SyncCursor —— line/col/sel 三元组读回（原 5 处重复，现 1 处）
+//   OpenPath   —— 打开文件 tab 公共核（PLAN-007：零全文 tab + 装载递延）
+//   RunPendingLoad —— 分块装载消费（PLAN-007：Tick 侧，协议见 handler 注）
 use bps.navigation.filetree.tree_util: toggle_id
 
 // PLAN-003 T-02: 数据面改道 back.api(013/015 裸函数直调形态)——vm merged
 // = 进程内 CALL;vm split / vue = HTTP。fs.*/File.* 内建自此退出 front
 // (vue 轨 ts_adapter 将其拦为 __vmOnly 抛错桩,拆 back 动机);fs.join 亦
 // 在拦截面(T-00 P-5),TreeSelect 改本地字符串拼接。
-use back.api: ws_root, tree, read_text, write_text, exists, env_str
+use back.api: ws_root, tree, write_text, exists, env_str, read_text_range
 
 store EditorStore {
     model {
         // Plan 420 P1: tabs 数组态 —— 每 tab = {key, title, path, dirty, src}。
-        // key 唯一(code_editor registry 按它保存实例);src 仅作初值/外部
-        // 重置(last_external 相等即 no-op,用户输入不会被 stale 值踩掉)。
-        // PLAN-005 起编辑态不回写——cut/paste/undo/redo/ctx-cut 后的
-        // 编辑器全文回读已删(违例残留,与本头注语义自相矛盾);全文只在
-        // 两个 save 位读出(过渡形态,上游 delta/分块读供料后收口)。
+        // key 唯一(code_editor registry 按它保存实例)。
+        // PLAN-007 去文本化:文件 tab 的 src 恒空串(零全文驻留)——正文经
+        // 分块装载链直达编辑器 rope(RunPendingLoad),全文永不进 VM 堆;
+        // src 种子位仅 untitled/演示 tab 用(T-00 裁定,AC-01 除外位)。
+        // PLAN-005 起编辑态不回写;全文只在两个 save 位读出(过渡形态,
+        // 上游 code_editor_save 直写端点供料后收口,docs/upstream 登记)。
         var tabs list = [
             {key: "tab-main", title: "main.at", path: "", dirty: false, src: "// 预填文本显示测试 — 如果你看到这行字,说明正文渲染正常\nfn add(a int, b int) int {\n    return a + b\n}\n\n// 中文注释:你好世界\nprint(add(1, 2))\n"},
             {key: "tab-util", title: "util.at", path: "", dirty: false, src: "// 工具模块 — 每个 tab 的编辑状态独立保存\nfn greet(name str) str {\n    return \"hello \" + name\n}\n\nfn farewell(name str) str {\n    return \"bye \" + name\n}\n"},
@@ -39,17 +42,12 @@ store EditorStore {
         var open_count int = 2
         var title_active str = "main.at"
         var path_active str = ""
-        // PLAN-005: src_active 降格为「激活 tab 初值镜像」——只在
-        // TabActivate/ActSwitchTab/开 tab 位读 tabs[i].src 本值赋值,
-        // 非实时编辑态(编辑 handler 不再回写;矩阵正文断言已迁 save E2E)。
-        var src_active str = "// 预填文本显示测试 — 如果你看到这行字,说明正文渲染正常
-fn add(a int, b int) int {
-    return a + b
-}
-
-// 中文注释:你好世界
-print(add(1, 2))
-"
+        // PLAN-007: 装载链状态——load_key 非空 = 有文件 tab 待分块装载
+        // (Tick 侧 RunPendingLoad 消费;编辑器 widget 实化后才能装载,
+        // 见该 handler 头注)。loaded_bytes = 最近一次装载的字节数
+        // (envelope total;src_active 退役后的矩阵内容到达观测面)。
+        var load_key str = ""
+        var loaded_bytes int = 0
         var edits int = 0
         var line int = 1
         var col int = 1
@@ -112,6 +110,8 @@ print(add(1, 2))
         // Tick 消费一次）。
         ConsumeOpen,
         LoadWorkspace, CloseRequest, QuitDiscard, QuitSaveClose, QuitConfirmCancel,
+        // PLAN-007: 分块装载消费臂（Tick 侧驱动）+ 打开 tab 公共核。
+        RunPendingLoad, OpenPath(str),
     }
 
     on {
@@ -151,7 +151,6 @@ print(add(1, 2))
             .active_key = .tabs[i].key
             .title_active = .tabs[i].title
             .path_active = .tabs[i].path
-            .src_active = .tabs[i].src
             store.SyncCursor(.tabs[i].key)
             .console = console_lines()
         }
@@ -268,15 +267,15 @@ print(add(1, 2))
 
         // ---- Plan 418: semantic actions (menu / toolbar / shortcut 3-source) ----
         .ActNew -> {
-            // code_editor_set_text 编译进 store handler 会产出坏字节码
-            // （virt_memory read_i32 越界 panic，Plan 449 调查结论）——该
-            // 内建调用留在 App 根 handler（widget 路径已验证），见 app.at。
+            // Plan 449 旧结论「code_editor_set_text 编译进 store handler
+            // 产出坏字节码」已在 1836 工具链证伪（PLAN-007 T-00 探针直调
+            // 无 panic）——编辑器清空仍留 App 根 handler（行为原位，见
+            // app.at on 块）。
             if .tab_count > 0 {
                 .tabs[.tab].path = ""
                 .tabs[.tab].title = "untitled.at"
                 .tabs[.tab].dirty = false
                 .tabs[.tab].src = ""
-                .src_active = ""
                 .title_active = "untitled.at"
                 .path_active = ""
             }
@@ -284,7 +283,10 @@ print(add(1, 2))
             .console = console_lines()
         }
         // PLAN-016 T-08：open_with 接收消费——与 ActOpen 同构，路径来自
-        // 宿主写入的 auto_open_path（读文本入新 tab；防重放 + 清路径）。
+        // 宿主写入的 auto_open_path（防重放 + 清路径）。
+        // PLAN-007: 读文本入 store 的旧链退役——tab 由 OpenPath 零全文
+        // 创建，装载递延 RunPendingLoad（bench_open_* 标记随之迁至装载
+        // 位包夹，open_ms 语义=纯装载时长）。
         .ConsumeOpen -> {
             // PLAN-005 T-04: bench 挂载——AUTO_BENCH=1 时 AUTO_OPEN_PATH 兼作
             // ConsumeOpen 供料（桌面宿主 open_with 臂之外的第二通道；host
@@ -298,26 +300,94 @@ print(add(1, 2))
                 if .auto_open_path != .open_consumed {
                     .open_consumed = .auto_open_path
                     let p str = .auto_open_path
+                    store.OpenPath(p)
+                    .auto_open_path = ""
+                }
+            }
+        }
+
+        // PLAN-007 T-01: 打开文件 tab 的公共核（ConsumeOpen/ActOpen/
+        // TreeSelect 三点合一，RemoveAt/SyncCursor 收口先例同款）——
+        // 文件 tab 零全文（src 恒空串），装载递延 RunPendingLoad：编辑
+        // 器 widget 实化（视图重建）先于装载，分块链直达 rope，全文
+        // 永不进 VM 堆。
+        .OpenPath(p) -> {
+            .open_count = .open_count + 1
+            .tabs.push({key: "tab-" + .open_count.str(), title: file_basename(p), path: p, dirty: false, src: ""})
+            .tab = .tab_count
+            .tab_count = .tab_count + 1
+            .active_key = .tabs[.tab].key
+            .title_active = .tabs[.tab].title
+            .path_active = p
+            .line = 1
+            .col = 1
+            .sel = 0
+            .load_key = .tabs[.tab].key
+        }
+
+        // PLAN-007 T-01: 分块装载（Tick 消费 load_key；块尺寸 4MB）。
+        // 协议三件（T-00 四轮探针实证，见 plan §8 T-00③）：
+        // ① 存在性探针 edit(key,0,0,"")——空表插入合法形 true、编辑器
+        //    缺席 false（本 Tick 静默递延，下轮重试；视图重建在 handler
+        //    外发生，handler 内忙等会死锁）；
+        // ② 装载前 set_text(key,"") 对齐 last_external——视图构建序为
+        //    绑定推送先于 widget 实化，首建推送落空、last_external 留
+        //    None，装载后首次重建的 stale 推送会清场；此刻文本必空，
+        //    对齐无害，此后绑定推送（content: t.src 的空串）永续 no-op；
+        // ③ 块位=文件字节偏移（next_offset 推进；纯追加态下文件偏移≡
+        //    编辑器偏移，规避 str len 的 char/byte 歧义）。
+        // 错误形（total:-1）按旧 read_text 空串语义静默空 tab；装载完成
+        // delta drain-弃（队列无界且 replacement 持块拷贝，不弃则全文
+        // 量驻留吃掉去镜像收益——T-00③ 实勘）。
+        .RunPendingLoad -> {
+            if .load_key != "" {
+                if code_editor_edit(.load_key, 0, 0, "") {
+                    let key str = .load_key
+                    let path str = .path_active
+                    // 对齐 last_external。注意 set_text 的 VM shim 对
+                    // registry false 无差别抛错——false 兼指「缺席」与
+                    // 「guard no-op（已对齐）」，后者正是常见路径（视图
+                    // 已推过空串），故必须 try/catch：两路径语义均为
+                    // 已对齐/将就绪，吞错即正确。
+                    try {
+                        code_editor_set_text(key, "")
+                    } catch {
+                        // guard no-op——last_external 已是 Some("")，达标
+                    }
                     if env_str("AUTO_BENCH") == "1" {
                         print("BENCH bench_open_start")
                     }
-                    let s str = read_text(p)
+                    var off int = 0
+                    var total int = 0
+                    var more bool = true
+                    while more {
+                        let env = json.to_value(read_text_range(path, off, 4194304))
+                        let chunk str = env.text ?? ""
+                        let t int = env.total ?? -1
+                        let next int = env.next_offset ?? -1
+                        if t < 0 {
+                            more = false
+                        } else {
+                            total = t
+                            if chunk != "" {
+                                code_editor_edit(key, off, off, chunk)
+                            }
+                            if next < 0 {
+                                more = false
+                            } else {
+                                off = next
+                            }
+                        }
+                    }
+                    code_editor_delta(key)
+                    .loaded_bytes = total
+                    .load_key = ""
+                    console_log("loaded: " + path + " " + total.str() + " bytes")
                     if env_str("AUTO_BENCH") == "1" {
                         print("BENCH bench_open_done")
                     }
-                    .open_count = .open_count + 1
-                    .tabs.push({key: "tab-" + .open_count.str(), title: file_basename(p), path: p, dirty: false, src: s})
-                    .tab = .tab_count
-                    .tab_count = .tab_count + 1
-                    .active_key = .tabs[.tab].key
-                    .title_active = .tabs[.tab].title
-                    .path_active = p
-                    .src_active = s
-                    .line = 1
-                    .col = 1
-                    .sel = 0
-                    .auto_open_path = ""
                 }
+                .console = console_lines()
             }
         }
 
@@ -330,18 +400,7 @@ print(add(1, 2))
                 p = dialog_open(".at, .au, .rs, .txt")
             }
             if p != "" {
-                let s = read_text(p)
-                .open_count = .open_count + 1
-                .tabs.push({key: "tab-" + .open_count.str(), title: file_basename(p), path: p, dirty: false, src: s})
-                .tab = .tab_count
-                .tab_count = .tab_count + 1
-                .active_key = .tabs[.tab].key
-                .title_active = .tabs[.tab].title
-                .path_active = p
-                .src_active = s
-                .line = 1
-                .col = 1
-                .sel = 0
+                store.OpenPath(p)
                 console_log("open: " + p)
             } else {
                 console_log("open: cancelled")
@@ -429,7 +488,6 @@ print(add(1, 2))
                 .active_key = .tabs[.tab].key
                 .title_active = .tabs[.tab].title
                 .path_active = .tabs[.tab].path
-                .src_active = .tabs[.tab].src
                 store.SyncCursor(.active_key)
             }
             .console = console_lines()
@@ -463,18 +521,7 @@ print(add(1, 2))
             }
             if !found {
                 if exists(full) {
-                    let s = read_text(full)
-                    .open_count = .open_count + 1
-                    .tabs.push({key: "tab-" + .open_count.str(), title: file_basename(id), path: full, dirty: false, src: s})
-                    .tab = .tab_count
-                    .tab_count = .tab_count + 1
-                    .active_key = .tabs[.tab].key
-                    .title_active = .tabs[.tab].title
-                    .path_active = full
-                    .src_active = s
-                    .line = 1
-                    .col = 1
-                    .sel = 0
+                    store.OpenPath(full)
                     console_log("open: " + full)
                 }
                 .console = console_lines()

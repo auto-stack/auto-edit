@@ -16,8 +16,9 @@
 // 求值；均为 Plan 449 调查结论，详见 README「vm 组件边界」）：
 //   tab 条（x 按钮形状定位、"+" 的 onclick: .ActOpen）、确认弹层
 //   （"直接关闭" 文本定位）、编辑区（code_editor 绑定根事件）、空态文本。
-// code_editor_* 内建若编译进 store handler 会产出坏字节码（panic），
-// 故编辑器写操作（set_text）留在根 handler（见 on 块 .ActNew）。
+// code_editor_* 内建的 Plan 449「store handler 坏字节码」结论已在 1836
+// 工具链证伪（PLAN-007 T-00 探针；store 侧 RunPendingLoad 现役调用族），
+// .ActNew 根侧 set_text 保留为原位清空行为（见 on 块注）。
 
 use editor_store: EditorStore
 use status_bar: StatusBar
@@ -234,7 +235,13 @@ widget App {
     on {
         // PLAN-016 T-08：桌面 open_with 接收（宿主 write_state auto_open_path
         // → Tick 消费；interval 声明在 store，合并根 state 后被 Tick 契约读取）。
-        .Tick -> { store.ConsumeOpen() }
+        // PLAN-007：装载消费随行——ConsumeOpen 建 tab（零全文）后，视图重建
+        // 实化编辑器，下一轮 Tick 的 RunPendingLoad 分块装载（同 handler 内
+        // 装载会因编辑器未实化而必败，顺序即协议）。
+        .Tick -> {
+            store.ConsumeOpen()
+            store.RunPendingLoad()
+        }
         .TabActivate(i) -> { store.TabActivate(i) }
         .SrcChanged(i) -> { store.SrcChanged(i) }
         .CursorMoved(i) -> { store.CursorMoved(i) }
@@ -242,8 +249,10 @@ widget App {
         .ConfirmClose -> { store.ConfirmClose() }
         .ConfirmCancel -> { store.ConfirmCancel() }
         .EditorCtx(x, y) -> { store.EditorCtx(x, y) }
-        // code_editor_* 内建若编译进 store handler 会产出坏字节码（panic），
-        // 故编辑器写操作（set_text）留在根 handler；状态操作在 store.ActNew。
+        // Plan 449 旧结论「code_editor_set_text 编译进 store handler 产出
+        // 坏字节码」已在 1836 工具链证伪（PLAN-007 T-00 探针直调无 panic；
+        // store 侧 RunPendingLoad 现役调用 edit/set_text/delta）。此处的
+        // set_text 保留为 ActNew 清空编辑器的根侧原位（行为不变）。
         .ActNew -> {
             store.ActNew()
             if .store.tab_count > 0 {

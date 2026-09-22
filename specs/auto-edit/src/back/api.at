@@ -43,6 +43,13 @@ pub fn read_text(path str) str {
     return fsys.read_all(path)
 }
 
+/// 分块读文本（PLAN-007 装载链；envelope 直通，见 fsys.read_range）
+/// GET /api/read_text_range?path=..&offset=..&limit=..
+#[api(method = "GET", path = "/api/read_text_range")]
+pub fn read_text_range(path str, offset int, limit int) str {
+    return fsys.read_range(path, offset, limit)
+}
+
 /// 写文本文件（落盘后 exists 复核）
 /// POST /api/write_text
 #[api(method = "POST", path = "/api/write_text")]

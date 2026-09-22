@@ -26,6 +26,15 @@ pub fn read_all(path str) str {
     return File.read_text(path)
 }
 
+/// 分块读（PLAN-007 装载链）：read_text_range envelope 直通——
+/// {"text":..,"total":<文件字节数>,"next_offset":<字节>|null}；错误形
+/// total:-1；EOF=next_offset null（仅真 EOF）；块边界不切多字节字符。
+/// 调用方（editor_store RunPendingLoad）只把 text 块送编辑器，全文
+/// 永不进 VM 堆。
+pub fn read_range(path str, offset int, limit int) str {
+    return File.read_text_range(path, offset, limit)
+}
+
 /// 写文本 + exists 复核（成功信号；对齐 TreeSelect 前置判存的 IO 惯例）
 pub fn write_all(path str, content str) bool {
     File.write_text(path, content)

@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""bench.py — 测量套件（PLAN-005 B 段 L0；PLAN-006 L2 数字面 + 武装断言）。
+"""bench.py — 测量套件（PLAN-005 B 段 L0；PLAN-006 L2 数字面 + 武装断言；
+PLAN-007 L2 单 iced 化——Q2 中期裁定落账）。
 
 战略语义（docs/strategy/002-north-star-v2.md §5 测量模式阶梯）：
   L0 = VM+merged（日常，无绝对性能效力——报告价值 = 启动链形状分解 +
        结构回归代理[编辑路径全量读检测] + 缓冲区类基线记账[rope 前禁调优]）
   L1 = VM+RQ（上游 §6 渲染臂覆盖缺口 blocked）
-  L2 = a2r+release+RQ（唯一有预算效力；上游解阻后 PLAN-006 建成数字面——
-       release 产物直拉 + rqhost 预热，steady_start/renderer_cold_start 武装）
+  L2 = a2r+release+**单 iced**（唯一有预算效力；PLAN-006 建成数字面，原为
+       rqhost 预热拓扑；PLAN-007 随 Q2 中期裁定改独立渲染零旗标直拉——
+       steady_start 武装，renderer_cold_start 过渡期 n/a 注记）
 
 与 tools/perf/perf.py 分工：perf.py = 模式**切换**编排（L2 机构）；
 bench.py = 测量**套件**（跑数与断言）。--mode l1/l2 经 perf.py 链取归因，
@@ -58,27 +60,30 @@ DEFAULT_RUNS = 5                     # 启动分解跑数（首跑弃暖机）
 DEFAULT_FIXTURE_MB = (1, 10, 100)    # 默认集；--full 加 512（T-03 Q4 裁定）
 FULL_FIXTURE_MB = (1, 10, 100, 512)
 
-# ---------------- PLAN-006 L2 数字面（release 直拉 + rqhost 预热）----------------
-# 隔离 well-known（同 perf.py 常量：后缀防与本机常驻实例串扰；锁管道 <wk>-lock）
-L2_WELLKNOWN = "autodesk-rqhost-edit004"
-# release 产物直拉的客户端旗标组合（T-00 勘定，镜像宿主 spawn_launcher_
-# outproc 形 + 生成 main.rs autodesk gate L1190-1236 语义）：--autodesk-
-# launcher 进 client 臂；--autodesk-rqhost 采纳 rendezvous；wellknown 经
-# --autodesk-broker 传入（client 臂不读 AUTO_RQHOST_WELLKNOWN——该 env 只被
-# daemon 读）；--autodesk-render=queue 钉死队列渲染（覆盖扫描制下 queue 优先）。
-L2_CLIENT_FLAGS = ["--autodesk-launcher", "--autodesk-rqhost",
-                   "--autodesk-render=queue"]
-DETACHED = 0x00000008          # DETACHED_PROCESS（同 perf.py）
-NEW_GROUP = 0x00000200         # CREATE_NEW_PROCESS_GROUP
+# ---------------- PLAN-007 L2 数字面（单 iced 直拉：Q2 中期拓扑）----------------
+# Q2 中期裁定（2026-09-22，用户原文见 docs/strategy/002 补注九）：RQ 架构
+# 重写中段（上游 PLAN-683 远程 renderer 路线），auto-edit 交付拓扑中期收敛
+# 单 iced 自包含。L2 运行器随裁：release 产物**零旗标直拉**（PLAN-007 T-00
+# 实锚——生成物 main.rs autodesk gate：--autodesk-render 三态属 client 臂，
+# 带 launcher 无 rqhost 走 broker rendezvous 需宿主；零旗标 = run_app_
+# devtools 纯独立 iced 窗）。rqhost 生命周期（rq-up/rq-down/daemon 采纳
+# 双门）随拓扑退役；renderer_cold_start 过渡期 n/a（进程内无分离冷启面，
+# pending 上游 683 重设计后重估）。
 L2_POLL_S = 0.002              # L2 标记轮询粒度（80ms 级预算 → 2ms 档；L0 保持 25ms）
 STEADY_BUDGET_MS = 80.0        # 战略 §2.1 steady_start 硬预算
+# 拓扑有效性观测（替代 PLAN-006 的 daemon「window opened」双门）：app 日志
+# 出现后端就绪行 + 进程存活（单 iced 无 adopt 握手，窗口创建即 iced 事件
+# 循环启动；PLAN-007 T-00 探针实证该行与 BENCH 标记的到达序）。
+BACKEND_READY_LINE = "Running with Iced backend"
 
 EXIT_OK, EXIT_FAIL, EXIT_BLOCKED = 0, 1, 3
 
 # 供料包归因（docs/upstream/2026-09-m1-supply.md）
 BLOCK_L1 = ("VM+RQ 渲染臂 codeeditor 覆盖缺口（native_queue_set 缺 kind，"
             "实例死于「拒绝渲染，禁静默错绘」语义）——供料包 §6。")
-BLOCK_L2 = ("L2 链上游阻塞：a2r 词汇门（§7）/ RQ 渲染臂覆盖（§6）——"
+BLOCK_L2 = ("L2 链上游阻塞：a2r 词汇门——PLAN-007 装载链新内建（code_editor_"
+            "edit/delta、File.read_text_range）无 trans/ui_gen 映射（681 清偿"
+            "面外，docs/upstream 登记；L2 锚点补跑随上游解阻另收）——"
             "perf.py 链 exit 3 归因透传。")
 
 # 编辑路径全量读检测：code_editor_text 允许位 = editor_store.at 的 save
@@ -320,10 +325,12 @@ _L0_STATES = {
 }
 _STATE_ORDER = ["not-armed", "pending-feature", "arch-blocked",
                 "blocked-upstream", "ledger"]
-# L2 终态序（§5.2 表）：not-armed 位被 armed / armed-record 顶替，余行
-# 保持记账语义但携带 L2 实测数字（rope 前后对照锚点）。
-_L2_STATE_ORDER = ["armed", "armed-record", "pending-feature",
-                   "arch-blocked", "blocked-upstream", "ledger"]
+# L2 终态序（§5.2 表）：not-armed 位被 armed 顶替，余行保持记账语义但
+# 携带 L2 实测数字（rope 前后对照锚点）。PLAN-007：单 iced 下
+# renderer_cold_start 无分离观测面 → armed-record 位由 arch-blocked-note
+# 顶替（armed-record 随 rqhost 拓扑退役，历史基线 JSONL 在档）。
+_L2_STATE_ORDER = ["armed", "pending-feature", "arch-blocked",
+                   "arch-blocked-note", "blocked-upstream", "ledger"]
 
 
 def _l2_row(rid: str, entry: dict, m: dict | None) -> tuple[str, str]:
@@ -338,15 +345,16 @@ def _l2_row(rid: str, entry: dict, m: dict | None) -> tuple[str, str]:
                             else ("pass" if mean <= STEADY_BUDGET_MS else "fail"))
         return ("armed",
                 "L2 武装（hard）：spawn→bench_ws_loaded 代理口径（首帧通道 "
-                "blocked-upstream，观测缺席——§10-1 默认采用+注记）；fail=记录性"
-                "判定（首基线锚点，归因见启动链两段分解；硬门禁「回归当天修」"
-                "属 M4 门禁生效后，战略补注 6(d)）")
+                "blocked-upstream，观测缺席——§10-1 默认采用+注记）；单 iced "
+                "口径（Q2 中期裁定 2026-09-22）：预热语义=进程内 iced 初始化"
+                "含、系统暖机弃首跑；fail=记录性判定（首基线锚点，硬门禁"
+                "「回归当天修」属 M4 门禁生效后，战略补注 6(d)）")
     if rid == "renderer_cold_start":
-        entry["measured_ms"] = m.get("renderer_cold_ms")
-        entry["daemon_mem_bytes"] = m.get("rqhost_mem_bytes")
-        return ("armed-record",
-                "L2 武装记录：rqhost spawn→pipe-ready 单列数字（debug 构建形态，"
-                "§10-2 默认）；预算值 pending-Q2 不判")
+        entry["measured_ms"] = None
+        return ("arch-blocked-note",
+                "PLAN-007 单 iced 过渡期 n/a：进程内无分离冷启面（rqhost "
+                "拓扑随 Q2 中期裁定退役）；pending 上游 683 重设计后重估"
+                "（budgets.json validity 同步注记）")
     state, note = _L0_STATES[rid]
     if rid in ("open_100mb", "open_1gb"):
         mb = 100 if rid == "open_100mb" else 1024
@@ -355,8 +363,7 @@ def _l2_row(rid: str, entry: dict, m: dict | None) -> tuple[str, str]:
             entry["l2_open_ms"] = v       # rope 前后对照锚点（1gb 无 fixture 则缺省）
     if rid == "idle_mem":
         entry["l2_app_mem_bytes"] = m.get("idle_mean_bytes")
-        entry["rqhost_mem_bytes"] = m.get("rqhost_mem_bytes")
-        note += "；L2 附 app 实测（rqhost 守护单列另记，预算随 Q2）"
+        note += "；L2 附 app 实测（单 iced 无守护单列；预算随 Q2）"
     return state, note
 
 
@@ -422,108 +429,16 @@ def _perf_stage(stage: str) -> int:
     return subprocess.run([sys.executable, str(PERF_PY), stage]).returncode
 
 
-def _pipe_up(wellknown: str, timeout_s: float = 1.0) -> bool:
-    """探测 well-known 管道在位（连上即关——serve 环吞探测 ping，同 perf.py）。
+def _backend_ready_seen(log_path: Path, timeout_s: float = 8.0) -> bool:
+    """app 日志是否出现后端就绪行（单 iced 拓扑有效性门之一，PLAN-007）。
 
-    注意：只作就绪信号，不作存活信号——daemon 服务环瞬时无实例时管道
-    短暂不可连但进程仍在（实勘：误判死→重拉撞 -lock 锁）。存活判定用
-    `_pid_alive`。"""
-    try:
-        f = open(rf"\\.\pipe\{wellknown}", "r+b", buffering=0)
-        f.close()
-        return True
-    except PermissionError:
-        return True          # 管道在位但忙（实例满）——daemon 已监听
-    except OSError:
-        return False
-
-
-def _pid_alive(pid: int | None) -> bool:
-    if not pid:
-        return False
-    out = subprocess.run(["tasklist", "/FI", f"PID eq {pid}", "/FO", "CSV", "/NH"],
-                         capture_output=True, text=True).stdout
-    return str(pid) in out
-
-
-def _rqhost_start(state: dict, measure: bool) -> bool:
-    """（重）spawn rqhost daemon（debug 工具链，§10-2 默认；构建形态记档）。
-
-    measure=True 记 spawn→pipe-ready 冷启动（renderer_cold_start 只记首测）。
-    daemon 日志追加同文件。spawn 带锁竞态重试（前任实例 -lock 释放滞后/
-    服务环暂空误连失败——3 次退避）。
-    """
-    LOGS.mkdir(exist_ok=True)
-    log = Path(state["log"])
-    env = {**os.environ, "AUTO_RQHOST_WELLKNOWN": L2_WELLKNOWN}
-    ready = False
-    for attempt in range(3):
-        t0 = time.perf_counter()
-        with open(log, "ab") as f:
-            proc = subprocess.Popen([_auto_exe(), "rqhost"], cwd=str(PROJECT), env=env,
-                                    stdout=f, stderr=subprocess.STDOUT,
-                                    creationflags=DETACHED | NEW_GROUP)
-        deadline = time.time() + 20.0
-        while time.time() < deadline:
-            if _pipe_up(L2_WELLKNOWN, 0.3):
-                ready = True
-                break
-            if proc.poll() is not None:
-                break        # 瞬死（如 -lock 被占第二实例退出）——重试
-            time.sleep(L2_POLL_S)
-        if ready:
-            break
-        _log(f"WARN: rqhost 启动未就绪（attempt {attempt + 1}，rc={proc.returncode}）"
-             "——0.5s 后重试（锁释放竞态）")
-        time.sleep(0.5)
-    if not ready:
-        _kill_pid(proc.pid)
-        _log(f"FATAL: rqhost 3 次尝试未就绪（wellknown={L2_WELLKNOWN}，日志 {log}）")
-        return False
-    if measure:
-        state["cold_start_ms"] = round((time.perf_counter() - t0) * 1000.0, 1)
-        _log(f"rqhost 冷启动：spawn→pipe-ready {state['cold_start_ms']}ms"
-             f"（pid={proc.pid}，debug 构建）")
-    else:
-        state["restarts"] = state.get("restarts", 0) + 1
-        _log(f"rqhost 复活：pid={proc.pid}")
-    state["rq_pid"] = proc.pid
-    (PERF_PY.parent / ".rq.json").write_text(json.dumps(
-        {"rq_pid": proc.pid, "wellknown": L2_WELLKNOWN,
-         "started": _ts(), "apps": []}), encoding="utf-8")
-    return True
-
-
-def _window_opened_since(log_path: Path, offset: int, timeout_s: float = 8.0) -> bool:
-    """daemon 日志自 offset 起是否出现「window opened」（采纳成立观测）。
-
-    耐心轮询：标记先于 adopt 结果打印，窗开启在 adopt 握手后——给足
-    8s（客户端 adopt 超时 5s + 余量）。"""
+    耐心轮询：进程引导（含依赖装载）先后于该行；给足 8s。"""
     deadline = time.time() + timeout_s
     while time.time() < deadline:
         try:
-            with open(log_path, "rb") as f:
-                f.seek(offset)
-                if b"window opened" in f.read():
-                    return True
-        except OSError:
-            pass
-        time.sleep(0.005)
-    return False
-
-
-def _window_opened_since(log_path: Path, offset: int, timeout_s: float = 8.0) -> bool:
-    """daemon 日志自 offset 起是否出现「window opened」（采纳成立观测）。
-
-    耐心轮询：标记先于 adopt 结果打印，窗开启在 adopt 握手后——给足
-    8s（客户端 adopt 超时 5s + 余量）。"""
-    deadline = time.time() + timeout_s
-    while time.time() < deadline:
-        try:
-            with open(log_path, "rb") as f:
-                f.seek(offset)
-                if b"window opened" in f.read():
-                    return True
+            if BACKEND_READY_LINE in log_path.read_text(
+                    encoding="utf-8", errors="replace"):
+                return True
         except OSError:
             pass
         time.sleep(0.005)
@@ -532,18 +447,15 @@ def _window_opened_since(log_path: Path, offset: int, timeout_s: float = 8.0) ->
 
 def run_release_tracked(env_extra: dict, want_markers: list[str],
                         timeout_s: float, log_name: str,
-                        mem_after: list[str] | None = None,
-                        on_complete=None) -> dict:
-    """L2 形状：直拉 release 产物（不经 auto.exe 宿主），2ms 轮询，保活
-    （收编归 suite 末——daemon 末窗退出语义）。"""
+                        mem_after: list[str] | None = None) -> dict:
+    """L2 形状（PLAN-007 单 iced）：零旗标直拉 release 产物，2ms 轮询。
+    每跑独立（自带渲染与窗口），跑毕按 PID 收编——无 daemon 序列保活。"""
     exe = _release_exe()
     if exe is None:
         _log("FATAL: release 产物缺席（rust-workspace/target/release/auto-edit.exe）")
         sys.exit(EXIT_FAIL)
-    cmd = [str(exe), *L2_CLIENT_FLAGS, f"--autodesk-broker={L2_WELLKNOWN}"]
-    return _spawn_tracked(cmd, env_extra, want_markers, timeout_s, log_name,
-                          mem_after, poll_s=L2_POLL_S, on_complete=on_complete,
-                          keep_alive=True)
+    return _spawn_tracked([str(exe)], env_extra, want_markers, timeout_s,
+                          log_name, mem_after, poll_s=L2_POLL_S)
 
 
 def _l2_env_extra(fp: dict) -> dict:
@@ -552,66 +464,46 @@ def _l2_env_extra(fp: dict) -> dict:
              if exe else "<absent>")
     return {"release_exe": str(exe) if exe else "<absent>",
             "release_exe_mtime": mtime,
-            "renderer_daemon_build":
-                f"debug（auto.exe rqhost，{fp['auto_version']}）",
-            "rqhost_wellknown": L2_WELLKNOWN}
+            "topology": "single-iced（Q2 中期裁定 2026-09-22；零旗标直拉，"
+                        "rqhost 生命周期随拓扑退役）"}
+
+
+def _l2_topology_ok(r: dict) -> bool:
+    """单 iced 拓扑有效性门：后端就绪行 + 进程存活（PLAN-007，替代
+    PLAN-006 的 daemon「window opened」+ adopt 双门）。"""
+    return bool(r["alive_at_end"]) and _backend_ready_seen(Path(r["log"]))
 
 
 def _l2_suite(runs: int, sizes: list[int], fp: dict) -> dict | None:
-    """L2 数字面（§5.1）：rqhost 冷启动单列 + 启动分解（release 直拉，
-    steady_start=spawn→bench_ws_loaded 代理口径 §10-1）+ 打开计时 +
-    守护内存（N 跑后稳态）。
+    """L2 数字面（PLAN-007 单 iced 形态）：启动分解（零旗标直拉，steady_
+    start=spawn→bench_ws_loaded 代理口径）+ 打开计时。每跑独立收编。
 
-    daemon 生命周期协议（顺设计，不与末窗退出语义对抗）：**单一 daemon
-    服务整个测量序列**，app 全程保活（窗口累积——rqhost 本就是多 app
-    共享合成器，smoke 双实例先例）→「RQ 渲染器已预热」语义成立且无
-    重启竞态；suite 末统一收编全部 app + rq-down。
-
-    拓扑有效性双门（首跑实勘：BENCH 标记先于 adopt 结果打印——死
-    daemon 上标记照达但窗未建）：每跑断言 daemon 侧「window opened」
-    + app 存活，任一不过 = 真失败。
+    a2r 门（perf.py a2r）在 stage_proxy 前置——PLAN-007 装载链新内建无
+    trans 映射时整链 exit 3 归因（§10-2 降级口径：L0 承载内存锚点）。
     """
     exe = _release_exe()
     if exe is None:
         _log("FATAL: release 产物缺席——门控链应已编译，查 rust-workspace/target/release/")
         return None
-    rc = _perf_stage("rq-down")
-    if rc != EXIT_OK:
-        _log(f"FATAL: 预清理 rq-down rc={rc}")
-        return None
-    time.sleep(0.3)             # rq-down 后锁句柄释放余量（spawn 重试兜底同在）
-    daemon = {"rq_pid": None, "cold_start_ms": None, "restarts": 0,
-              "wellknown": L2_WELLKNOWN,
-              "log": str(LOGS / f"rqhost-l2-{_ts()}.log")}
-    if not _rqhost_start(daemon, measure=True):
-        return None
-    daemon["daemon_build"] = _l2_env_extra(fp)["renderer_daemon_build"]
-    dlog = Path(daemon["log"])
     app_pids: list[int] = []
     try:
-        _log(f"启动链分解（L2）：{runs} 跑（首跑弃暖机）——release 直拉 {exe.name} + queue 渲染"
-             "（单一 daemon 序列服务，app 保活累积窗口）")
+        _log(f"启动链分解（L2）：{runs} 跑（首跑弃暖机）——单 iced 零旗标直拉 {exe.name}")
         startup: list[dict] = []
         for i in range(runs):
-            off = dlog.stat().st_size
-            last = i == runs - 1
             r = run_release_tracked(
                 {"AUTO_BENCH": "1"},
                 want_markers=["bench_vm_init", "bench_ws_loaded"],
                 timeout_s=45.0, log_name=f"l2-startup-{i}",
-                mem_after=["bench_ws_loaded"],
-                on_complete=(lambda: daemon.__setitem__(
-                    "daemon_mem_steady", _sample_mem(daemon["rq_pid"]))
-                    if last else None))
+                mem_after=["bench_ws_loaded"])
             app_pids.append(r["pid"])
             m = r["markers"]
             if "bench_vm_init" not in m or "bench_ws_loaded" not in m:
                 _log(f"FATAL: L2 run{i} 标记缺失（得 {sorted(m)}，日志 {r['log']}）"
                      "——武装断言需数字，按真失败处理")
                 return None
-            if not r["alive_at_end"] or not _window_opened_since(dlog, off):
+            if not _l2_topology_ok(r):
                 _log(f"FATAL: L2 run{i} 拓扑无效（app 存活={r['alive_at_end']}，"
-                     "daemon 未建窗——采纳未成立）——数字不纳入")
+                     "后端就绪行未达——单 iced 门）——数字不纳入")
                 return None
             rec = {"run": i, "warmup": i == 0,
                    "spawn_to_vm_init_ms": round(m["bench_vm_init"], 1),
@@ -629,7 +521,6 @@ def _l2_suite(runs: int, sizes: list[int], fp: dict) -> dict | None:
         opens: list[dict] = []
         for mb in sizes:
             fixture, gen_s = make_fixture(mb)
-            off = dlog.stat().st_size
             _log(f"打开计时（L2）{mb}MB（fixture 生成 {gen_s:.2f}s，gitignored）")
             r = run_release_tracked(
                 {"AUTO_BENCH": "1", "AUTO_OPEN_PATH": str(fixture)},
@@ -641,9 +532,9 @@ def _l2_suite(runs: int, sizes: list[int], fp: dict) -> dict | None:
             if "bench_open_start" not in m or "bench_open_done" not in m:
                 _log(f"FATAL: L2 open {mb}MB 标记缺失（得 {sorted(m)}，日志 {r['log']}）")
                 return None
-            if not r["alive_at_end"] or not _window_opened_since(dlog, off):
+            if not _l2_topology_ok(r):
                 _log(f"FATAL: L2 open {mb}MB 拓扑无效（app 存活={r['alive_at_end']}，"
-                     "daemon 未建窗）")
+                     "后端就绪行未达——单 iced 门）")
                 return None
             rec = {"size_mb": mb,
                    "open_ms": round(m["bench_open_done"] - m["bench_open_start"], 1),
@@ -654,13 +545,11 @@ def _l2_suite(runs: int, sizes: list[int], fp: dict) -> dict | None:
             mem_mb = (round(rec["mem_loaded"][0] / 1048576)
                       if rec["mem_loaded"] and rec["mem_loaded"][0] else None)
             _log(f"  {mb}MB: open={rec['open_ms']}ms mem={mem_mb}MB")
-        return {"startup": startup, "opens": opens, "rqhost": daemon}
+        return {"startup": startup, "opens": opens}
     finally:
         for pid in app_pids:
             _kill_pid(pid)
         _log(f"app 实例统一收编（{len(app_pids)} 个，按 PID）")
-        rc = _perf_stage("rq-down")
-        _log(f"会话末 rq-down rc={rc}（按 .rq.json PID 收编，不留孤儿）")
 
 
 # ---------------------------------------------------------------- 阶段
@@ -756,7 +645,7 @@ def _mode_gate(mode: str) -> int | None:
         _log("l1 链意外打通（上游已解阻？）——硬门禁仍只认 L2，此处按归因口径返回")
         return EXIT_BLOCKED
     if mode == "l2":
-        _log("mode l2（a2r+release+RQ）：perf.py a2r 起链")
+        _log("mode l2（a2r+release+单 iced）：perf.py a2r 起链")
         rc = subprocess.run([sys.executable, str(PERF_PY), "a2r"]).returncode
         if rc == EXIT_BLOCKED:
             _log(f"BLOCKED: {BLOCK_L2}")
@@ -764,12 +653,12 @@ def _mode_gate(mode: str) -> int | None:
         if rc != EXIT_OK:
             _log(f"FATAL: perf.py a2r 失败 rc={rc}")
             return EXIT_FAIL
-        _log("a2r 绿——继续 release/rq-up/proxy 数字面（上游解阻后本分支生效）")
-        for stage in ("release", "rq-up"):
-            rc = subprocess.run([sys.executable, str(PERF_PY), stage]).returncode
-            if rc != EXIT_OK:
-                _log(f"BLOCKED/FATAL: perf.py {stage} rc={rc}——{BLOCK_L2}")
-                return EXIT_BLOCKED if rc == EXIT_BLOCKED else EXIT_FAIL
+        _log("a2r 绿——继续 release（PLAN-007：单 iced 无 rq-up 段）"
+             "，proxy 数字面按 L2 评估（硬门禁武装）")
+        rc = subprocess.run([sys.executable, str(PERF_PY), "release"]).returncode
+        if rc != EXIT_OK:
+            _log(f"BLOCKED/FATAL: perf.py release rc={rc}")
+            return EXIT_BLOCKED if rc == EXIT_BLOCKED else EXIT_FAIL
         return None    # 链通，proxy 数字面按 L2 评估（硬门禁武装）
     _log(f"FATAL: 未知 mode {mode}")
     return EXIT_FAIL
@@ -790,13 +679,6 @@ def stage_proxy(runs: int, full: bool, mode: str) -> int:
         if data is None:
             return EXIT_FAIL
         lines[0].update(_l2_env_extra(fp))
-        rq = data["rqhost"]
-        lines.append({"type": "rqhost", "wellknown": rq["wellknown"],
-                      "daemon_build": rq["daemon_build"],
-                      "cold_start_ms": rq["cold_start_ms"],
-                      "daemon_restarts": rq.get("restarts", 0),
-                      "daemon_mem_steady": rq.get("daemon_mem_steady"),
-                      "rq_pid": rq["rq_pid"]})
         lines.append({"type": "startup_runs", "warmup_discarded": True,
                       "runs": data["startup"]})
         lines.append({"type": "open_timing", "sizes": data["opens"]})
@@ -806,10 +688,8 @@ def stage_proxy(runs: int, full: bool, mode: str) -> int:
         metrics = {
             "steady_runs_ms": steady,
             "steady_mean_ms": round(sum(steady) / len(steady), 1) if steady else None,
-            "renderer_cold_ms": rq["cold_start_ms"],
             "open_ms": {r["size_mb"]: r["open_ms"] for r in data["opens"]},
             "idle_mean_bytes": round(sum(idle) / len(idle)) if idle else None,
-            "rqhost_mem_bytes": (rq.get("daemon_mem_steady") or (None,))[0],
         }
     else:
         startup = _startup_runs(runs)
@@ -843,9 +723,12 @@ def stage_proxy(runs: int, full: bool, mode: str) -> int:
         return EXIT_FAIL
     if mode == "l2":
         unarmed = [r["id"] for r in budgets
-                   if r["tier"] == "hard" and r.get("measured_ms") is None]
+                   if r["tier"] == "hard"
+                   and str(r.get("state", "")).startswith("armed")
+                   and r.get("measured_ms") is None]
         if unarmed:
-            _log(f"FATAL: L2 硬行无实测数字：{unarmed}（武装断言缺数）")
+            _log(f"FATAL: L2 武装行无实测数字：{unarmed}（武装断言缺数；"
+                 "renderer_cold_start 单 iced 过渡期 n/a 不在武装位）")
             return EXIT_FAIL
         # 武装 fail 是记录性判定（§5.2）：首基线锚点 + 归因分解，不触发调优
         # 也不改退出码——硬门禁「回归当天修」语义属 M4 门禁生效后。

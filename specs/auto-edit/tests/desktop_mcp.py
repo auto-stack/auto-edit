@@ -548,14 +548,25 @@ def run_tests(mcp_url, proc):
         if ok_plus:
             mcp.click(plus)
             time.sleep(0.8)
-            st = mcp.state("tab_count", "title_active", "src_active")
+            st = mcp.state("tab_count", "title_active")
             result.check("tab opened from AUTO_OPEN_PATH",
                          state_int(st, "tab_count") == 1
                          and state_str(st, "title_active") == os.path.basename(roundtrip_path),
                          st)
-            result.check("opened content matches file",
-                         marker_before.splitlines()[0] in (state_str(st, "src_active") or ""),
-                         st)
+            # PLAN-007: src_active 退役——内容到达改判 loaded_bytes（分块
+            # 装载完成 = 最后 envelope 的 total 字节数；正文正确性由 9.4
+            # save roundtrip E2E 承载）。装载经 Tick 递延（编辑器实化后
+            # 才能 load，间隔 800ms），轮询至多 6s。
+            want_bytes = len(marker_before.encode("utf-8"))
+            got_bytes = -1
+            for _ in range(30):
+                got_bytes = state_int(mcp.state("loaded_bytes"), "loaded_bytes")
+                if got_bytes == want_bytes:
+                    break
+                time.sleep(0.2)
+            result.check("opened content loaded (bytes)",
+                         got_bytes == want_bytes,
+                         f"loaded_bytes={got_bytes} want={want_bytes}")
 
         # 9.3 dirty-confirm: ActCut unconditionally dirties the active tab
         # (autoui_type passes the TEXT as first handler arg -- the generic

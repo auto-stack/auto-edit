@@ -3,18 +3,22 @@
 PLAN-004 T-02 实勘产物（2026-09-21；工具链 `v0.4.2-1631-ge82b95b22`）。
 战略语义：`docs/strategy/002-north-star-v2.md` §5 测量模式阶梯——
 L0 日常 / L1 结构探针 / L2 性能模式（唯一有预算效力）。
+**PLAN-007（2026-09-22）**：Q2 中期裁定（战略补注九）——交付拓扑中期
+收敛**单 iced 自包含**；L2 运行形态改 release 零旗标直拉（rqhost
+预热拓扑退役，bench L2 运行器同步改造）。perf.py 的 rq-up/rq-down/run
+/smoke 段保留（工具链机构面），L2 门控链现为 a2r→release。
 
-## 模式矩阵（实勘结论；2026-09-22 解阻更新）
+## 模式矩阵（实勘结论；2026-09-22 解阻更新；PLAN-007 单 iced 化）
 
 | 模式 | 启动命令（自 `specs/auto-edit/`） | 已知阻塞 | 验证状态 |
 |---|---|---|---|
 | L0：VM+merged（日常） | `auto run -r vm` | — | 绿（README 既有口径，2026-09-21 复验） |
 | L0'：VM+split | `auto run -r vm --no-merge` | F-RV6（矩阵非确定，功能环曾绿） | split 功能环 2026-09-21 曾全绿 |
 | **VM+RQ**（L1 探针可达） | 终端1 `auto rqhost`；终端2 `auto run -r vm -q` | **RQ 渲染臂覆盖缺口——blocked-on-upstream（供料包 §6）**：VM UI native-queue 臂 `coverage::native_queue_set`（基础 kind 集）无 `codeeditor`，按「拒绝渲染，禁静默错绘」语义实例即退 | **实跑复现（smoke 0/2 存活）**；perf.py 已按特征分类 exit 3 |
-| **a2r+RQ**（L2 性能模式主形态） | 终端1 `auto rqhost`；终端2 release 直拉（bench L2 运行器）或 `auto run -r rust -q` | —（**已解阻**） | **2026-09-22 双判据绿**：`perf.py a2r` exit 0（上游 PLAN-674 §6 RQ codeeditor 覆盖 + PLAN-681 §7 a2r 部署面/§4 F-R1-B delivered 后，工具链 1836-gdcbda3f71）+ `bench.py proxy --mode l2` 端到端 exit 0（PLAN-006 首份 L2 基线 `tools/bench/results/baseline-L2-20260922.md`） |
+| **a2r+单 iced**（L2 性能模式主形态，PLAN-007） | release 零旗标直拉（bench L2 运行器） | **PLAN-007 装载链新内建 a2r 映射缺口——blocked-on-upstream**：`code_editor_edit/delta`、`File.read_text_range` 无 trans/ui_gen 映射（681 清偿面外，docs/upstream 登记；L2 锚点补跑随上游解阻另收，L0 承载内存锚点） | 2026-09-22 PLAN-006 曾绿（rqhost 形态，1836-gdcbda3f71，`baseline-L2-20260922.md` 在档）；PLAN-007 单 iced 拓扑以旧代码 release exe 零旗标直拉探针实证（后端就绪行 + BENCH 标记） |
 | a2r server（split 后端） | `auto run --server rust` | **F-R1：E0432 + 契约空体桩——blocked-on-upstream**（供料包 §4） | 复现于 PLAN-003 归档 L223（F-R1-B 已修但 split 轨整体未复验） |
 
-## RQ 模式机制（源码实勘）
+## RQ 模式机制（源码实勘；rqhost 拓扑已随 Q2 中期裁定退役，档案保留）
 
 来源：`crates/auto-lang/src/ui/desktop_protocol/rqhost.rs`（PLAN-031）。
 
@@ -45,17 +49,23 @@ L0 日常 / L1 结构探针 / L2 性能模式（唯一有预算效力）。
 - **F-R1 只阻塞 `--server rust`（独立 axum 后端），不阻塞 merged rust
   轨**——L2 性能模式用 release 直拉（bench L2 运行器，PLAN-006）或
   `-r rust -q`（进程内直调）即可，无需等 F-R1。
+- **单 iced 直拉实锚（PLAN-007 T-00）**：生成物 main.rs autodesk gate
+  ——`--autodesk-render` 三态属 client 臂，带 `--autodesk-launcher` 无
+  `--autodesk-rqhost` 走 broker rendezvous（需宿主）；**零旗标 =
+  `run_app_devtools` 纯独立 iced 窗**（"Running with Iced backend"
+  后端就绪行 = 拓扑观测点）。
 
 ## 运维注记（T-06 待决/回填）
 
 - **bps 依赖路径**：pac `dep bps` 为相对路径（`../../../auto-lang/
-  blueprints`）——worktree 内跑 app 需组内 auto-lang 兄弟树或环境
-  覆盖（是否存在待查）；临时方案 = 验证跑在主检出（零代码编辑，
-  产物 gitignored，不违反 master-zero-WIP）。
+  blueprints`）——worktree 内跑 app 需组内 auto-lang 兄弟树（PLAN-004
+  先例：`.wt/edit-004/auto-lang` detach @ 工具链提交；PLAN-007 同法
+  `.wt/edit-007/auto-lang` @ ddf42ec8a）。
 - 探针输出一律落文件（`logs/`，防管道阻塞）；复跑前清 auto.exe 孤儿
-  （`taskkill //F //IM auto.exe`，注意与 rqhost PID 收编的区分）。
+  （`taskkill //F /IM auto.exe`，注意与 rqhost PID 收编的区分）。
 - 工具链版本指纹：`auto --version`（须 ≥ 含 669 的构建）+ auto.exe
-  mtime 核对，每次 smoke 记录入 `logs/env-<ts>.txt`。
+  mtime 核对，每次 smoke 记录入 `logs/env-<ts>.txt`；多 session 并行时
+  二进制可能被他人中途重建（PLAN-007 实勘 1836→1850），版本如实入档。
 
 ## perf.py（T-05–T-07 交付）
 
