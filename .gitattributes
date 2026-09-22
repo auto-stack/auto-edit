@@ -1,0 +1,2 @@
+# PLAN-008: 字节保真 fixtures 必须逐字节入库（autocrlf 会把 CRLF 归一成 LF 毁掉断言基准）
+specs/auto-edit/tests/fixtures/* -text
