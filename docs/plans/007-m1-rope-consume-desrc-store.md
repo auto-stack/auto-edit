@@ -1,6 +1,6 @@
 ---
 plan_id: PLAN-007
-status: executing
+status: reviewed
 feature_name: m1-rope-consume-desrc-store
 author: [zcode]
 created_at: 2026-09-22T14:00:00+08:00
@@ -322,6 +322,66 @@ BENCH 标记行（bench_open_start/done）保持包夹语义。
 依赖：T-00 → T-01/T-02（可并行）→ T-03 → T-04/T-05。
 
 ## 9. 复审记录
+
+- 2026-09-22T16:25:00+08:00 · stage: review · PLAN-007 · r1 ·
+  **outcome: pass**（独立性声明：执行会话内复审，结论自工件与可复现
+  命令重建）。
+  - `reviewed_commit`: 5063e73（plan-007-dev tip；worktree
+    `D:/autostack/.wt/edit-007/auto-edit` clean 实证）
+  - `base_commit`: 806dc06（main；4 commits ahead）
+  - `dependency_revisions`: auto-lang plan-687-dev @ aa307c155
+    （供料兄弟树 .wt/edit-007/auto-lang detach 同 tip；**未落 auto-lang
+    master——见 finding F-1**）；工具链 v0.4.2-1856-g8771d0d75-dirty
+    （lang-687 构建，`.wt/lang-687/auto-687.exe` 保出件）
+  - `spec_inputs`: docs/specs/modules/editor-store.md（worktree SD-01
+    改版版）/ perf-measurement.md（SD-02）/ docs/strategy/
+    002-north-star-v2.md（SD-03 补注九）
+  - `acceptance_results`：
+    - **AC-01 pass**——代码审读：文件 tab `src: ""`（OpenPath 单点，
+      ConsumeOpen/ActOpen/TreeSelect 三入口合一实证）；src_active 仅
+      头注残留（grep=1 且为注释）；`code_editor_text` 全仓恰好两处=
+      ActSave/QuitSaveClose（与白名单逐一对应）。bench check 绿
+      （检测器红证自检 PASS，构建 1856≥1588）。
+    - **AC-02 pass**——JSONL 直读（results/20260922-150608.jsonl）：
+      1/10/100MB 装载内存 219/218/219MB vs 锚 229.5/251.3/521.1（100MB
+      -58%）；S2 残差注记在档（baseline-L0-20260922-plan007.md 终态
+      节）；L2 装载内存项按 §10-2 预授权降级由 L0 承载（a2r 视图联动
+      缺口 upstream §10 在档）。
+    - **AC-03 pass**——矩阵复现：首跑 45/3（三败均为 menu 快照
+      flake 族：ActAbout/折叠切换/ActNew 定位不到——非本计划触碰面）
+      → 按口径复跑 **50 passed / 0 failed**（完成态 ≥49/0 达标）。
+    - **AC-04 pass**——五文件 diff 在档（strategy +15 行=补注九原文/
+      budgets 注记不改 tier/双 README/perf-measurement spec）；「单
+      iced」注记全件分布 grep 实证。
+    - **AC-05 pass（§10-2 降级口径）**——启动链面实证：steady
+      12.7/12.4ms（run1-2，logs/l2-startup-*-161049.log）、拓扑门
+      （后端就绪行+存活）过、3 跑含复跑、无孤儿（tasklist 0）；open
+      段端到端 exit 0 未达——败因=a2r 生成物视图-状态联动缺口（**新**
+      上游缺陷，upstream §10 登记，非本计划面），§10-2 预授权降级
+      谱系适用（L2 验证面=装载链代码审读 + L0 承载数字 ✓ 均在档）。
+    - **AC-06 pass**——vm 消费落地（矩阵+锚点）；a2r 消费编译面落地
+      （映射补齐后生成+release 编译过，运行期 blocked=上述新缺口
+      登记）；vue regen --build 绿复跑（4.67s，natives.d.ts 含
+      code_editor_load_file——新工具链生成）+ 运行期断点 upstream
+      登记。
+    - **AC-07 pass**——diff 19 文件全在授权面（specs/tools/docs）；
+      auto-lang 仓零改动（本计划改动全在 auto-edit 仓；687 为独立
+      auto-lang 计划载体，见 F-1）；零生成物补件、零 .at 外挂。
+  - `findings`：
+    - **F-1（落地顺序硬前置，非本计划缺陷）**：PLAN-007 运行时依赖
+      auto-lang PLAN-687（nat#9908）——687 尚未落 auto-lang master。
+      007 先落则主检出 vm 轨 app 在现行主检出工具链下不可启动
+      （Undefined symbol: code_editor_load_file），merge 烟测必红。
+      处置：先落 687（auto-lang review+merge）+ 重建主检出 auto.exe
+      再落 007。
+    - F-2（非阻塞，记录）：touched_goals=[]（沿本仓计划惯例，无
+      goals.md 引用面）；矩阵 menu 快照 flake 族再现实证（45/3→50/0）
+      ——F-RV6 谱系非确定面持续在册。
+  - `evidence`: /tmp/matrix-review2.log（RESULT: 50 passed, 0 failed
+    ——本记录已内联关键行）；results/20260922-150608.jsonl 入仓；
+    tools/bench/logs/l2-*-161049.log（gitignored，数字已内联上文）；
+    vue 构建收据 4.67s（本记录内联）。
+  - `next`: merge（**先决=F-1**：PLAN-687 落地+主检出工具链重建）。
 
 - 2026-09-22T14:00:00+08:00 · stage: new · PLAN-007 · r1 · 起草完毕，
   handoff → work。Q2 中期裁定（用户原文）已录入标题引块与 §4，由
