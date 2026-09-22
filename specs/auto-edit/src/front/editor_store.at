@@ -325,68 +325,34 @@ store EditorStore {
             .load_key = .tabs[.tab].key
         }
 
-        // PLAN-007 T-01: 分块装载（Tick 消费 load_key；块上限 = 2GB
-        // 单块——T-03 实测定调：edit 每次调用 O(n) 全文重写（S1 固有，
-        // S2 债），块数是平方因子：4MB 块 100MB=1356MB RSS/78s、16MB 块
-        // 同劣化；单块=单次 rewrite（全文仅 VM 瞬时过载，不落 store
-        // 字段——plan §2 文面允许）。S2 解阻后回归真分块（upstream
-        // §10 观察 B）。delta 逐块 drain-弃（队列无界且 replacement
-        // 持块全文拷贝）。
-        // 协议三件（T-00 四轮探针实证，见 plan §8 T-00③）：
-        // ① 存在性探针 edit(key,0,0,"")——空表插入合法形 true、编辑器
-        //    缺席 false（本 Tick 静默递延，下轮重试；视图重建在 handler
-        //    外发生，handler 内忙等会死锁）；
-        // ② 装载前 set_text(key,"") 对齐 last_external——视图构建序为
-        //    绑定推送先于 widget 实化，首建推送落空、last_external 留
-        //    None，装载后首次重建的 stale 推送会清场；此刻文本必空，
-        //    对齐无害，此后绑定推送（content: t.src 的空串）永续 no-op；
-        // ③ 块位=文件字节偏移（next_offset 推进；纯追加态下文件偏移≡
-        //    编辑器偏移，规避 str len 的 char/byte 歧义）。
-        // 错误形（total:-1）按旧 read_text 空串语义静默空 tab；装载完成
-        // delta drain-弃（队列无界且 replacement 持块拷贝，不弃则全文
-        // 量驻留吃掉去镜像收益——T-00③ 实勘）。
+        // PLAN-007 T-01: 装载（Tick 消费 load_key）。上游 PLAN-687 供料
+        // code_editor_load_file(key, path)——native 端到端装载：std::fs
+        // 单趟读（借 Rust 实现，用户 2026-09-22 方针）+ core.set_text
+        // 单次重写 + 装载 delta drain-弃。全文零 VM 过载（envelope 过
+        // 池/池滞留/O(n) 多趟重写三根因同除——T-03 三形状实测 729-1356MB
+        // 反例后由本端点收敛）。协议①②维持：存在性探针 edit(key,0,0,
+        // "")（编辑器实化前静默递延）+ 装载前 set_text(key,"") try/catch
+        // 对齐 last_external（load 不触 guard——core 级 set_text 不改
+        // last_external，装载后 stale 推送须 no-op 防清场）。
         .RunPendingLoad -> {
             if .load_key != "" {
                 if code_editor_edit(.load_key, 0, 0, "") {
                     let key str = .load_key
                     let path str = .path_active
-                    // 对齐 last_external。注意 set_text 的 VM shim 对
-                    // registry false 无差别抛错——false 兼指「缺席」与
-                    // 「guard no-op（已对齐）」，后者正是常见路径（视图
-                    // 已推过空串），故必须 try/catch：两路径语义均为
-                    // 已对齐/将就绪，吞错即正确。
                     try {
                         code_editor_set_text(key, "")
                     } catch {
-                        // guard no-op——last_external 已是 Some("")，达标
+                        // guard no-op——last_external 已对齐，达标
                     }
                     if env_str("AUTO_BENCH") == "1" {
                         print("BENCH bench_open_start")
                     }
-            var off int = 0
-            var total int = 0
-            var more bool = true
-            while more {
-                let env = json.to_value(read_text_range(path, off, 2147483647))
-                let chunk str = env.text ?? ""
-                let t int = env.total ?? -1
-                let next int = env.next_offset ?? -1
-                if t < 0 {
-                    more = false
-                } else {
-                    total = t
-                    if chunk != "" {
-                        code_editor_edit(key, off, off, chunk)
-                        code_editor_delta(key)
-                    }
-                    if next < 0 {
-                        more = false
+                    let total int = code_editor_load_file(key, path)
+                    if total >= 0 {
+                        .loaded_bytes = total
                     } else {
-                        off = next
+                        .loaded_bytes = 0
                     }
-                }
-            }
-            .loaded_bytes = total
                     .load_key = ""
                     console_log("loaded: " + path + " " + total.str() + " bytes")
                     if env_str("AUTO_BENCH") == "1" {
