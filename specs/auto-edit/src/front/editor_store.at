@@ -478,16 +478,24 @@ store EditorStore {
             if idx >= 0 {
                 let env = json.to_value(read_text_range(path, 0, 65536))
                 let w str = env.text ?? ""
-                if w.char_at(0) == 65279 {
+                // BOM 检出：char_at 取码点（i32），经 .str() 字串化比对
+                // 「65279」——vm 轨精确；vue 轨 charAt 返 string、该分支
+                // 为装载位断点死分支（build-green 语义，生成器 natives
+                // 层无 match_count/char_at 数值面——T-06 vue 复验勘定）。
+                if w.char_at(0).str() == "65279" {
                     .tabs[idx].bom = true
                     .bom_prefix = w.substr(0, 3)
                     code_editor_edit(key, 0, 3, "")
                     code_editor_delta(key)
                     console_log("meta: bom stripped (prefix captured)")
                 }
-                let crlf int = w.match_count("\r\n")
-                let nl int = w.match_count("\n")
-                let cr int = w.match_count("\r")
+                // EOL 计数：len+replace 算术（替 match_count——vue ts_adapter
+                // 无该方法映射；replace/len 两端皆映射，各端自洽单位制下
+                // 计数等价）。
+                let l0 int = w.len()
+                let crlf int = (l0 - w.replace("\r\n", "").len()) / 2
+                let nl int = l0 - w.replace("\n", "").len()
+                let cr int = l0 - w.replace("\r", "").len()
                 let lf int = nl - crlf
                 let cro int = cr - crlf
                 var e str = "lf"
