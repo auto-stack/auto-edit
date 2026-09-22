@@ -60,3 +60,18 @@ auto-lang/blueprints（路径相对运行目录，主检出需同居 D:/autostac
 节，注明来源计划）→ 归档。`.autoos/specs.json` 是 musk 结构化规范存储
 （`/spec1` 命令读写面），其 reviews 段承载计划收据；文档规范以本册为
 canonical。新计划修订规范走追加+来源注记，不回改历史节。
+
+## M2 面开篇注记（PLAN-008，2026-09-22）
+
+M2（Notepad++ 对位，战略 §2.2）首件已落：**打开→编辑→保存链路的文件
+字节保真契约**（UTF-8 BOM 形态保留 / CRLF-LF-CR 识别-显示-转换-保留 /
+非法 UTF-8 无损兜底——错误 tab+只读+save 拦截，绝不静默转码落盘）。
+规范详 [modules/editor-store.md](modules/editor-store.md) 字节保真节与
+[modules/back-api.md](modules/back-api.md) IO 字节语义节；矩阵 T12 检查
+组（完成态 57/0）与 tests/fixtures/ 六件字节基准在仓。上游件（lossy
+读端点/EOL 逐行保真）登记 docs/upstream 2026-09 供料 §11。
+
+**兄弟仓 Q1 裁定摘要（2026-09-22，战略补注十收口）**：jade-edit 与
+auto-edit **两产品长期并存**（auto=原生旗舰轻量编辑器、jade=web 轻量
+版并向知识库发展），组件尽量共用（未来插件级共用）。jade 侧战略文档
+已自行落账，本册只存摘要不重复正文。

@@ -1,12 +1,14 @@
 # front/back 边界契约（modules/back-api）
 
-> 来源：PLAN-003 交付 + src/back/{api.at,fsys.at}。
+> 来源：PLAN-003 交付 + src/back/{api.at,fsys.at}；计数勘正与 IO 字节
+> 语义节=PLAN-008 SD-02。
 
-## 契约（src/back/api.at，六 #[api]）
+## 契约（src/back/api.at，七 #[api]——PLAN-008 勘正：PLAN-007 增
+read_text_range 后计数「六」未同步）
 
-`ws_root / tree / read_text / write_text / exists / env_str`——路由前缀
-/api，GET 走 query、POST 走 body。消费形态：`use back.api: <fns>` 裸
-函数直调（013-todo/015-notes 形态）：
+`ws_root / tree / read_text / read_text_range / write_text / exists /
+env_str`——路由前缀 /api，GET 走 query、POST 走 body。消费形态：
+`use back.api: <fns>` 裸函数直调（013-todo/015-notes 形态）：
 
 | 轨道/形态 | 通路 |
 |---|---|
@@ -37,3 +39,15 @@
 a2r server 生成器模板假设 api::Db 状态注入 + 契约 fn 转译为空体桩
 （PLAN-003 F-R1 实勘，编译 E0432）。阻塞全景与供料归因见
 [perf-measurement.md](perf-measurement.md)。
+
+## IO 字节语义（PLAN-008 SD-02，M2-01 字节保真边界）
+
+- **BOM/EOL 均 front 字符域处理**（字节保真零新端点）：BOM=U+FEFF 前缀
+  字符（read_text_range 窗读可探）；EOL=\r\n/\n/\r 字符替换。back 各
+  IO 端点对二者**逐字节直通**（不剥离/不规范化）。
+- **非法 UTF-8 错误形直通**：`read_text` → 空串（unwrap_or_default
+  惯例）；`read_text_range` → envelope `{"text":"","total":-1,
+  "next_offset":null}`；`code_editor_load_file`（编辑器装载端点）→
+  -1。下游兜底语义见 editor-store.md 字节保真节（错误形 tab+只读+
+  save 拦截）；替换符查看（U+FFFD lossy 渲染）=上游 lossy 读端点
+  want（docs/upstream 2026-09 供料 §11）。
