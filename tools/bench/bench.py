@@ -89,7 +89,10 @@ BLOCK_L2 = ("L2 链上游阻塞：a2r 词汇门——PLAN-007 装载链新内建
 # 编辑路径全量读检测：code_editor_text 允许位 = editor_store.at 的 save
 # 上下文 handler（A 段即其首个绿证）。
 STORE_FILE = "editor_store.at"
-ALLOWED_HANDLERS = {"ActSave", "QuitSaveClose"}
+# PLAN-008: 白名单扩为「save 位 + 登记的保真/转换 handler」（封闭集、登记制不变）——
+# WriteFidelity=保真回写收口（ActSave/QuitSaveClose 改道，code_editor_text
+# 唯一读出位）；EolConvert=行尾转换命令（显式全文操作，T-03 登记件）。
+ALLOWED_HANDLERS = {"ActSave", "QuitSaveClose", "WriteFidelity", "EolConvert"}
 
 
 def _log(msg: str) -> None:
@@ -247,9 +250,10 @@ def _scan_store_handlers(text: str):
 def check_full_read(project_root: Path) -> dict:
     """编辑路径全量读检测（战略 §5 代理指标三件之一）。
 
-    code_editor_text 的允许位 = editor_store.at 内 ActSave/QuitSaveClose
-    两个 save 上下文 handler；其余任何 front 文件/handler 出现即红。
-    注释行不计。
+    code_editor_text 的允许位 = editor_store.at 内登记的 save 上下文
+    handler（ActSave/QuitSaveClose 两 save 位 + WriteFidelity 保真回写
+    收口 + EolConvert 行尾转换命令——PLAN-008 白名单扩容，封闭集登记制
+    不变）；其余任何 front 文件/handler 出现即红。注释行不计。
     """
     reds: list[str] = []
     greens: list[str] = []

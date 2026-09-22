@@ -23,16 +23,18 @@ use back.api: ws_root, tree, write_text, exists, env_str, read_text_range
 
 store EditorStore {
     model {
-        // Plan 420 P1: tabs 数组态 —— 每 tab = {key, title, path, dirty, src}。
-        // key 唯一(code_editor registry 按它保存实例)。
+        // Plan 420 P1: tabs 数组态 —— 每 tab = {key, title, path, dirty, src,
+        // bom, eol, readonly}。key 唯一(code_editor registry 按它保存实例)。
         // PLAN-007 去文本化:文件 tab 的 src 恒空串(零全文驻留)——正文经
         // 分块装载链直达编辑器 rope(RunPendingLoad),全文永不进 VM 堆;
         // src 种子位仅 untitled/演示 tab 用(T-00 裁定,AC-01 除外位)。
         // PLAN-005 起编辑态不回写;全文只在两个 save 位读出(过渡形态,
         // 上游 code_editor_save 直写端点供料后收口,docs/upstream 登记)。
+        // PLAN-008 T-01 字节保真元数据:bom/eol/readonly 三标量(探测协议
+        // 见 RunPendingLoad/ProbeByteMeta;契约详 editor-store.md SD-01)。
         var tabs list = [
-            {key: "tab-main", title: "main.at", path: "", dirty: false, src: "// 预填文本显示测试 — 如果你看到这行字,说明正文渲染正常\nfn add(a int, b int) int {\n    return a + b\n}\n\n// 中文注释:你好世界\nprint(add(1, 2))\n"},
-            {key: "tab-util", title: "util.at", path: "", dirty: false, src: "// 工具模块 — 每个 tab 的编辑状态独立保存\nfn greet(name str) str {\n    return \"hello \" + name\n}\n\nfn farewell(name str) str {\n    return \"bye \" + name\n}\n"},
+            {key: "tab-main", title: "main.at", path: "", dirty: false, bom: false, eol: "lf", readonly: false, src: "// 预填文本显示测试 — 如果你看到这行字,说明正文渲染正常\nfn add(a int, b int) int {\n    return a + b\n}\n\n// 中文注释:你好世界\nprint(add(1, 2))\n"},
+            {key: "tab-util", title: "util.at", path: "", dirty: false, bom: false, eol: "lf", readonly: false, src: "// 工具模块 — 每个 tab 的编辑状态独立保存\nfn greet(name str) str {\n    return \"hello \" + name\n}\n\nfn farewell(name str) str {\n    return \"bye \" + name\n}\n"},
         ]
         var active_key str = "tab-main"
         // 派生标量(索引镜像/空态判断/状态栏与矩阵断言面;结构变化时由
@@ -48,6 +50,11 @@ store EditorStore {
         // (envelope total;src_active 退役后的矩阵内容到达观测面)。
         var load_key str = ""
         var loaded_bytes int = 0
+        // PLAN-008 T-01: BOM 前缀字符的运行期捕获位——语言面无 \u 转义、
+        // 无码点→字符内建（T-00 勘定），探测窗命中 U+FEFF 时把首字符
+        // substr 捕获于此，save 位复用回写前缀。不变式：任一 tab
+        // bom==true ⇒ 本会话本字段非空（bom 只在捕获同分支置位）。
+        var bom_prefix str = ""
         var edits int = 0
         var line int = 1
         var col int = 1
@@ -112,6 +119,11 @@ store EditorStore {
         LoadWorkspace, CloseRequest, QuitDiscard, QuitSaveClose, QuitConfirmCancel,
         // PLAN-007: 分块装载消费臂（Tick 侧驱动）+ 打开 tab 公共核。
         RunPendingLoad, OpenPath(str),
+        // PLAN-008 T-01: 装载后字节元数据探测（BOM/EOL/采样窗协议）。
+        ProbeByteMeta(str, str),
+        // PLAN-008 T-02: save 位字节保真回写收口（ActSave/QuitSaveClose
+        // 共用；编辑器全文唯一读出位——检测器白名单登记件）。
+        WriteFidelity(int),
     }
 
     on {
@@ -313,7 +325,7 @@ store EditorStore {
         // 永不进 VM 堆。
         .OpenPath(p) -> {
             .open_count = .open_count + 1
-            .tabs.push({key: "tab-" + .open_count.str(), title: file_basename(p), path: p, dirty: false, src: ""})
+            .tabs.push({key: "tab-" + .open_count.str(), title: file_basename(p), path: p, dirty: false, bom: false, eol: "lf", readonly: false, src: ""})
             .tab = .tab_count
             .tab_count = .tab_count + 1
             .active_key = .tabs[.tab].key
@@ -350,6 +362,9 @@ store EditorStore {
                     let total int = code_editor_load_file(key, path)
                     if total >= 0 {
                         .loaded_bytes = total
+                        // PLAN-008 T-01: 字节元数据探测（BOM/EOL/采样窗，
+                        // 协议见 ProbeByteMeta 头注；错误形分支 T-04）
+                        store.ProbeByteMeta(key, path)
                     } else {
                         .loaded_bytes = 0
                     }
@@ -360,6 +375,69 @@ store EditorStore {
                     }
                 }
                 .console = console_lines()
+            }
+        }
+
+        // PLAN-008 T-01: 装载后字节元数据探测（T-00 决策记录落地）——
+        // 单窗 read_text_range(path, 0, 65536) 采样（687 真分块 IO，磁盘
+        // 窗口 O(limit)；全文件 census 会把全文 envelope 重新过 VM 字符串
+        // 池=PLAN-007 观察 B③ 的机构性滞留，禁止——采样窗池驻留常数界
+        // ~3×64KB/次打开）。BOM：首字符码点 65279（U+FEFF）→ bom=true +
+        // 捕获前缀字符 + code_editor_edit(key,0,3,"") 剥离正文首字符
+        // （byte 边界=EF BB BF；core.edit 纯 rope 拼接不经 buffer 漏斗，
+        // EOL 安全；delta drain-弃=装载协议④同款卫生）。EOL：窗内
+        // match_count 三计数→crlf/lf/cr/mixed 分类（窗内无行尾→lf 兜底；
+        // >64KB 文件按窗口判形态——显示语义，保真由 save 位重写承载）。
+        .ProbeByteMeta(key, path) -> {
+            var idx int = -1
+            var i int = 0
+            while i < .tabs.len() {
+                if .tabs[i].key == key {
+                    idx = i
+                }
+                i = i + 1
+            }
+            if idx >= 0 {
+                let env = json.to_value(read_text_range(path, 0, 65536))
+                let w str = env.text ?? ""
+                if w.char_at(0) == 65279 {
+                    .tabs[idx].bom = true
+                    .bom_prefix = w.substr(0, 3)
+                    code_editor_edit(key, 0, 3, "")
+                    code_editor_delta(key)
+                    console_log("meta: bom stripped (prefix captured)")
+                }
+                let crlf int = w.match_count("\r\n")
+                let nl int = w.match_count("\n")
+                let cr int = w.match_count("\r")
+                let lf int = nl - crlf
+                let cro int = cr - crlf
+                var e str = "lf"
+                if crlf > 0 {
+                    if lf == 0 {
+                        if cro == 0 {
+                            e = "crlf"
+                        } else {
+                            e = "mixed"
+                        }
+                    } else {
+                        e = "mixed"
+                    }
+                } else {
+                    if lf > 0 {
+                        if cro == 0 {
+                            e = "lf"
+                        } else {
+                            e = "mixed"
+                        }
+                    } else {
+                        if cro > 0 {
+                            e = "cr"
+                        }
+                    }
+                }
+                .tabs[idx].eol = e
+                console_log("meta: " + path + " eol=" + e)
             }
         }
 
@@ -395,16 +473,50 @@ store EditorStore {
                     }
                 }
                 if .path_active != "" {
-                    write_text(.path_active, code_editor_text(.active_key))
-                    .tabs[.tab].dirty = false
-                    console_log("saved: " + .path_active)
+                    // PLAN-008 T-02: 保真回写收口（BOM 前缀 + EOL 主形态
+                    // 重写 + readonly 拦截 T-04——全文唯一读出位）。
+                    store.WriteFidelity(.tab)
                 } else {
                     console_log("save: cancelled")
                 }
             }
             .console = console_lines()
         }
-                .ActUndo -> {
+        // PLAN-008 T-02: save 位字节保真回写（T-00 决策③落地）——编辑器
+        // 全文唯一读出位（检测器白名单：WriteFidelity 登记件，取代原
+        // ActSave/QuitSaveClose 两处内联读）。按 tab 元数据包装落盘：
+        // BOM = bom_prefix 前缀回写（探测时捕获的 U+FEFF 字面字符——
+        // 无编辑纯往返时 rope 已剥离，此前缀即复原 EF BB BF）；
+        // EOL = crlf/cr 主形态重写（补偿 buffer 编辑即归一 LF：先
+        // "\r\n"→"\n" 幂等归一、lone "\r"→"\n"，再统一 "\n"→目标形态——
+        // 无编辑的纯形态 rope 两步互抵无损）；lf/mixed 零动作（无编辑
+        // =mixed 逐字保真；编辑后=归一 LF 形态，逐行保真为上游 want
+        // §10-⑥）。readonly（T-04 非法 UTF-8 错误形）拦截：不落盘。
+        .WriteFidelity(i) -> {
+            if .tabs[i].path != "" {
+                if .tabs[i].readonly {
+                    console_log("save blocked (readonly): " + .tabs[i].path)
+                } else {
+                    let body str = code_editor_text(.tabs[i].key)
+                    var out str = body
+                    if .tabs[i].bom {
+                        out = .bom_prefix + body
+                    }
+                    if .tabs[i].eol == "crlf" {
+                        out = out.replace("\r\n", "\n").replace("\n", "\r\n")
+                    } else {
+                        if .tabs[i].eol == "cr" {
+                            out = out.replace("\r\n", "\n").replace("\r", "\n").replace("\n", "\r")
+                        }
+                    }
+                    write_text(.tabs[i].path, out)
+                    .tabs[i].dirty = false
+                    console_log("saved: " + .tabs[i].path)
+                }
+            }
+        }
+
+        .ActUndo -> {
             if .tab_count > 0 {
                 code_editor_undo(.active_key)
             }
@@ -529,8 +641,8 @@ store EditorStore {
             while i < .tabs.len() {
                 if .tabs[i].dirty {
                     if .tabs[i].path != "" {
-                        write_text(.tabs[i].path, code_editor_text(.tabs[i].key))
-                        .tabs[i].dirty = false
+                        // PLAN-008 T-02: 保真回写收口（原直写位改道）。
+                        store.WriteFidelity(i)
                     }
                 }
                 i = i + 1
