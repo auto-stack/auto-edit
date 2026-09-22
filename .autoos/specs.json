@@ -125,6 +125,16 @@
      "related": ["PLAN-005", "PLAN-006", "PLAN-004"],
      "superseded_by": null,
      "content": "- 交付：editor_store 文件 tab src 恒空串（零全文驻留；untitled/演示 tab 保留种子位）+ src_active 退役（矩阵断言面改 loaded_bytes）；装载链 OpenPath 公共核 + RunPendingLoad（Tick 消费——协议四件：存在性探针 edit(key,0,0,\"\") / set_text(key,\"\") try-catch 对齐 last_external〔VM shim 对 registry false 无差别抛错，guard no-op 也抛〕/ 终态=上游 687 code_editor_load_file 端点一行化〔native std::fs 单趟读+core.set_text 单次重写+delta 即弃+last_external 不触〕/ 错误形静默空 tab）；back 增 read_text_range 端点。L2 单 iced 化（bench _l2_suite 零旗标直拉，rqhost 生命周期退役，renderer_cold_start=arch-blocked-note，拓扑门=后端就绪行+存活）。Q2 中期裁定落账四件（战略补注九原文/budgets 注记/双 README/perf-measurement spec）+ upstream §10（a2r 三缺→687 清偿 + a2r 视图-状态联动新缺口登记 + 假分块/首建推送落空两观察）。\n- 数字：中间形态三形状反例在档（4MB/16MB/单块 729-1356MB——envelope 过 VM 滞留 ~8× 线性+假分块+edit O(n)）；终态 100MB 装载 219MB vs 锚 521（-58%）1/10/100MB 全档 Flat ~219、<25ms（results/20260922-150608.jsonl + baseline-L0-20260922-plan007.md 终态节）。矩阵 50/0（T9.2 loaded_bytes 新断言过）；vue regen --build 绿（natives.d.ts 由新工具链 intrinsics 驱动生成）；L2 首跑 a2r 门通+单 iced 启动链 steady 12.7/12.4ms mem 37MB（open 段败于 a2r 视图联动新缺口，§10-2 降级谱系）。\n- 复审 r1：pass（同会话内审——独立性受限已声明；AC-01..07 从工件与复现命令重建断言；矩阵 45/3 menu-flake→复跑 50/0 双跑在档；findings F-1=落地顺序硬前置〔687 须先落——已按序执行〕F-2=touched_goals 惯例空+flake 谱系记录）。依赖：auto-lang PLAN-687 @ 8360bc583（先落+主检出工具链 1871 重建）。"
+    },
+    {
+     "id": "P008-1",
+     "section": "reviews",
+     "status": "stable",
+     "title": "PLAN-008 — M2-01 字节保真收据（reviewed pass @ r1 c3547e3：BOM/EOL 往返+转换+非法 UTF-8 无损兜底，矩阵 57/0）",
+     "file": "docs/plans/archived/008-m2-utf8-eol-byte-fidelity.md",
+     "related": ["PLAN-007", "PLAN-003"],
+     "superseded_by": null,
+     "content": "- 交付：打开→编辑→保存文件字节保真契约——tabs 增 bom/eol/readonly 三标量；ProbeByteMeta 装载探测（64KB 采样窗 read_text_range 单读〔全文件 census 禁止=envelope 池滞留〕+ BOM 码点 65279 检出 + edit(0,3) rope 剥离 + 前缀字符运行期捕获〔语言面无 unicode 转义、无码点→字符内建〕）；WriteFidelity save 位收口（BOM 前缀回写 + EOL 主形态重写补偿 buffer 编辑即归一 LF〔buffer_text join 丢弃 cosmic LineEnding，T-00 实测〕+ readonly 拦截）；EolConvert 转换链（结构化 edit(0,字节全长)——handler 侧 set_text 触 last_external 被绑定推送清场，实测教训）+ SyncByteMeta 状态栏派生标量；非法 UTF-8 错误形=readonly+标题后缀+save 拦截（旧行为清写原文件 32B→0B 实测危害）。\n- 验收：矩阵完成态 57/0（T12 七检查：BOM 正/负向、CRLF/LF 编辑后字节往返 sha256 等值、CR 无编辑+label、mixed→LF 确认弹层、非法 UTF-8 哈希零变；fixtures 六件 .gitattributes -text 入库〔autocrlf 曾毁伤 CRLF/MIXED blob〕）；检测器白名单扩 WriteFidelity/EolConvert（扫描器带参 handler 头正则修正）+ 构造性红证三腿；vue build exit 0（探测方法双轨映射面路由）。\n- 规范：SD-01 editor-store.md 字节保真节 / SD-02 back-api.md 七端点勘正+IO 字节语义 / SD-03 00-overview M2 开篇+Q1 摘要 / SD-04 战略补注十（Q1 两产品并存裁定原文）。\n- 上游：供料 §11 四件——lossy 读端点 want / EOL LineEnding 漏斗 want / 快照 computed-events 竞态 / 1914-dirty load_file 100MB RSS 219→1014MB 回归（基线对照归因工具链，tools/bench/results/20260922-2012*.jsonl 在档）。"
     }
    ],
    "status": "Empty",
