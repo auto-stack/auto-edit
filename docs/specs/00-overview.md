@@ -1,9 +1,10 @@
 # auto-edit 规范总览（00-overview）
 
 > 本册为 auto-edit 的规范知识层总览。规范正文自 PLAN-001..006 六个计划、
-> `specs/auto-edit/README.md`（架构真源）与代码重建（2026-09-22）——
-> 此前六计划实施收据只落 `.autoos/specs.json` reviews 段，goals/architecture/
-> designs/tests 四段从未建立，本册补齐文档面。
+> `specs/auto-edit/README.md` 与代码重建（2026-09-22）。历史口径勘定：
+> PLAN-002 立惯例「知识库=.autoos 账本+模块 README」——六计划的 SD 增量
+> 均落 README（git 实迹在案），docs/specs/ 与 specs.json 四段从未建立；
+> 本册补齐结构化文档面，README 保留为运行矩阵/快速上手单源。
 
 ## 项目定位（北极星摘要，全量见 docs/strategy/002-north-star-v2.md）
 

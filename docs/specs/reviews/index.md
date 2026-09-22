@@ -12,9 +12,13 @@
 | PLAN-005 | M1 性能轨③（测量体系 + 去 src 镜像先行段） | archived | P005-1（delivery 31ebb7b ff-only 落 main） | modules/editor-store（src 语义）/ perf-measurement |
 | PLAN-006 | m1-l2-baseline-report（L2 数字面：release 直拉运行器+l2 预算武装） | **execution_done（未 review）** | —（待 review 后入 reviews 段） | perf-measurement L2 节 |
 
-**流程债记录（2026-09-22 勘定）**：PLAN-001..005 实施后 merge 阶段只落了
-reviews 收据段，goals/architecture/designs/tests 四段与 docs/specs/ 文档
-面从未建立——本册即补建（来源=六计划+README+代码，见各册头注）。
+**流程勘定（2026-09-22，勘误 v2）**：规范沉淀**确有发生**——PLAN-002 立
+惯例「本仓知识库=.autoos 账本+模块 README，无 docs/specs/」，003/004/005
+的 SD-01..03 均按此落 `specs/auto-edit/README.md`（git 实迹：da31576/
+83e550e/ade6e73）。**债的真实形态**=规范落点单吊 README（欠结构化分区/
+模块册/可导航性），specs.json 四段与 docs/specs/ 从未建立——本册即按
+计划+README+代码重建结构化文档面（各册头注含来源）。此后新计划的规范
+增量目标改指 docs/specs/（本册），README 保持运行矩阵/快速上手单源。
 PLAN-006 的 `docs/plans/006-*.md` 当前为**未提交工作树文件**，其 review
 与收据落段待后续流程。此后计划的 merge 阶段须按 00-overview「计划与规范
 的关系」节执行规范增量沉淀。
