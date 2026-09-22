@@ -436,4 +436,9 @@ T-06 收口。current_step=0。
   BOM 往返+BOM/CRLF 编辑往返 sha256 全等 + fixtures -text 全新检出
   字节完整性 od 实证；烟测组已按 guard 协议移除）。
   `archived`——git mv docs/plans/archived/ + status archived +
-  completion_kind **delivered**。`cleaned`——（随后行）。
+  completion_kind **delivered**。`cleaned`——双 worktree guard clean
+（auto-edit+auto-lang 兄弟）+ 全提交落地实证（merge-base
+  --is-ancestor）后移除；7 个 auto.exe 孤儿进程清理（目录锁根因，
+  taskkill 后重试）+ 钉版 exe 删 + 分支 plan-008-dev 删（was
+  5a49428）+ 组目录零残留 + 双仓 prune——五 checkpoint 全闭环
+  **delivered**。
