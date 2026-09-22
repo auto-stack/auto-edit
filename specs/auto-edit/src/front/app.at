@@ -49,6 +49,11 @@ widget App {
         action (id: "edit.copy",       handler: .ActCopy,       title: "复制",   icon: "copy")
         action (id: "edit.paste",      handler: .ActPaste,      title: "粘贴",   icon: "clipboard")
         action (id: "edit.select-all", handler: .ActSelectAll,  title: "全选",   shortcut: "Ctrl+A")
+        // PLAN-008 T-03: 行尾转换三命令（menubar 族无子菜单——「行尾」
+        // 分组在编辑菜单内以 menubar-label 呈现，偏差在案）。
+        action (id: "edit.eol-crlf",      handler: .ActEolCrlf,    title: "转为 CRLF (Windows)")
+        action (id: "edit.eol-lf",        handler: .ActEolLf,      title: "转为 LF (Unix)")
+        action (id: "edit.eol-cr",        handler: .ActEolCr,      title: "转为 CR (Mac)")
         action (id: "view.console",    handler: .ActConsole,    title: "切换 Console", icon: "terminal", shortcut: "Ctrl+J",
                 checked_if: ".store.console_open")
         // 仅声明层快捷键(验证回退层):Ctrl+D 切换 tab
@@ -99,6 +104,13 @@ widget App {
                             menubar-item (title: "复制", icon: "copy") { onclick: .ActCopy }
                             menubar-item (title: "粘贴", icon: "clipboard") { onclick: .ActPaste }
                             menubar-item (title: "全选", shortcut: "Ctrl+A") { onclick: .ActSelectAll }
+                            menubar-separator
+                            // PLAN-008 T-03: 行尾分组（menubar-label；无子
+                            // 菜单能力，平铺三命令）。
+                            menubar-label "行尾"
+                            menubar-item (title: "转为 CRLF (Windows)") { onclick: .ActEolCrlf }
+                            menubar-item (title: "转为 LF (Unix)") { onclick: .ActEolLf }
+                            menubar-item (title: "转为 CR (Mac)") { onclick: .ActEolCr }
                         }
                     }
                     menubar-menu (value: "view") {
@@ -228,6 +240,20 @@ widget App {
                 }
             }
 
+            // PLAN-008 T-03: mixed 行尾转换确认（统一将抹平混合形态）。
+            alert-dialog (open: .store.eol_confirm_open) {
+                alert-dialog-content {
+                    alert-dialog-header {
+                        alert-dialog-title "混合行尾"
+                        alert-dialog-description "文件包含混合行尾形态。统一转换将把所有行尾改为目标形态，继续吗?"
+                    }
+                    alert-dialog-footer {
+                        alert-dialog-cancel "取消" { onclick: .EolConfirmCancel }
+                        alert-dialog-action "统一转换" { onclick: .EolConfirmGo }
+                    }
+                }
+            }
+
             StatusBar()
         }
     }
@@ -265,6 +291,12 @@ widget App {
         .ActUndo -> { store.ActUndo() }
         .ActRedo -> { store.ActRedo() }
         .ActSelectAll -> { store.ActSelectAll() }
+        // PLAN-008 T-03: 行尾转换三命令（薄委托进 store 转换链）。
+        .ActEolCrlf -> { store.EolConvertRequest("crlf") }
+        .ActEolLf -> { store.EolConvertRequest("lf") }
+        .ActEolCr -> { store.EolConvertRequest("cr") }
+        .EolConfirmGo -> { store.EolConfirmGo() }
+        .EolConfirmCancel -> { store.EolConfirmCancel() }
         .ActCut -> { store.ActCut() }
         .ActCopy -> { store.ActCopy() }
         .ActPaste -> { store.ActPaste() }

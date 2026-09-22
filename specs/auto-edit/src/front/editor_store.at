@@ -55,6 +55,14 @@ store EditorStore {
         // substr 捕获于此，save 位复用回写前缀。不变式：任一 tab
         // bom==true ⇒ 本会话本字段非空（bom 只在捕获同分支置位）。
         var bom_prefix str = ""
+        // PLAN-008 T-03: 状态栏字节保真显示位（激活 tab 派生标量，handler
+        // 就地重算惯例——VM view 不能调函数；矩阵断言面）。
+        var eol_label str = "LF"
+        var bom_active bool = false
+        var readonly_active bool = false
+        // PLAN-008 T-03: mixed 行尾转换确认弹层（alert-dialog 先例）。
+        var eol_confirm_open bool = false
+        var eol_confirm_target str = ""
         var edits int = 0
         var line int = 1
         var col int = 1
@@ -124,6 +132,10 @@ store EditorStore {
         // PLAN-008 T-02: save 位字节保真回写收口（ActSave/QuitSaveClose
         // 共用；编辑器全文唯一读出位——检测器白名单登记件）。
         WriteFidelity(int),
+        // PLAN-008 T-03: 状态栏派生标量重算 + 行尾转换命令链
+        // （Request=mixed 确认门；EolConvert=转换本体，检测器白名单件）。
+        SyncByteMeta, EolConvertRequest(str), EolConvert(str),
+        EolConfirmGo, EolConfirmCancel,
     }
 
     on {
@@ -158,12 +170,41 @@ store EditorStore {
             .sel = code_editor_selection_len(key)
         }
 
+        // ---- PLAN-008 T-03 内部 helper：状态栏字节保真三元组重算 ----
+        // （激活 tab 的 bom/eol/readonly → 显示派生标量；结构/激活/元数据
+        // 变更位调用，模板只读惯例。）
+        .SyncByteMeta -> {
+            if .tab_count > 0 {
+                .bom_active = .tabs[.tab].bom
+                .readonly_active = .tabs[.tab].readonly
+                var e str = .tabs[.tab].eol
+                var lbl str = "LF"
+                if e == "crlf" {
+                    lbl = "CRLF"
+                } else {
+                    if e == "cr" {
+                        lbl = "CR"
+                    } else {
+                        if e == "mixed" {
+                            lbl = "MIXED"
+                        }
+                    }
+                }
+                .eol_label = lbl
+            } else {
+                .bom_active = false
+                .readonly_active = false
+                .eol_label = "LF"
+            }
+        }
+
         .TabActivate(i) -> {
             .tab = i
             .active_key = .tabs[i].key
             .title_active = .tabs[i].title
             .path_active = .tabs[i].path
             store.SyncCursor(.tabs[i].key)
+            store.SyncByteMeta()
             .console = console_lines()
         }
         // Plan 428: 切换激活编辑器第 2 行 fn 块的折叠态并读回隐藏行数。
@@ -200,6 +241,7 @@ store EditorStore {
                 .title_active = .tabs[.tab].title
                 .path_active = .tabs[.tab].path
                 store.SyncCursor(.active_key)
+                store.SyncByteMeta()
             } else {
                 .tab = -1
                 .active_key = ""
@@ -208,6 +250,7 @@ store EditorStore {
                 .line = 1
                 .col = 1
                 .sel = 0
+                store.SyncByteMeta()
             }
         }
         .CloseTab(i) -> {
@@ -288,8 +331,12 @@ store EditorStore {
                 .tabs[.tab].title = "untitled.at"
                 .tabs[.tab].dirty = false
                 .tabs[.tab].src = ""
+                .tabs[.tab].bom = false
+                .tabs[.tab].eol = "lf"
+                .tabs[.tab].readonly = false
                 .title_active = "untitled.at"
                 .path_active = ""
+                store.SyncByteMeta()
             }
             console_log("new: cleared active tab")
             .console = console_lines()
@@ -335,6 +382,7 @@ store EditorStore {
             .col = 1
             .sel = 0
             .load_key = .tabs[.tab].key
+            store.SyncByteMeta()
         }
 
         // PLAN-007 T-01: 装载（Tick 消费 load_key）。上游 PLAN-687 供料
@@ -367,6 +415,36 @@ store EditorStore {
                         store.ProbeByteMeta(key, path)
                     } else {
                         .loaded_bytes = 0
+                        // PLAN-008 T-04: 非法 UTF-8 无损兜底——错误提示
+                        // tab + readonly 置位（WriteFidelity 拦截落盘）+
+                        // 状态栏标注；原文件字节零触碰（T-00 实测旧行为
+                        // 会把空编辑器清写盘 32B→0B——拦截对象即此路径）。
+                        // load_file 的 -1 兼指缺席/IO/非法 UTF-8——错误
+                        // 路径专用 exists 前置判定区分「文件缺失」（维持
+                        // 旧静默空 tab 语义）与「编码错误」（兜底形态）。
+                        // widget 无禁编面（T-00 勘，§10-④）——边界=save
+                        // 拦截+显著标注；替换符查看=上游 lossy want。
+                        if exists(path) {
+                            var eidx int = -1
+                            var j int = 0
+                            while j < .tabs.len() {
+                                if .tabs[j].key == key {
+                                    eidx = j
+                                }
+                                j = j + 1
+                            }
+                            if eidx >= 0 {
+                                .tabs[eidx].readonly = true
+                                .tabs[eidx].title = file_basename(path) + "（编码错误-只读）"
+                                if .tab == eidx {
+                                    .title_active = .tabs[eidx].title
+                                }
+                                store.SyncByteMeta()
+                                console_log("load error: invalid UTF-8 (readonly, save blocked) — " + path)
+                            }
+                        } else {
+                            console_log("load error: file not found — " + path)
+                        }
                     }
                     .load_key = ""
                     console_log("loaded: " + path + " " + total.str() + " bytes")
@@ -438,7 +516,73 @@ store EditorStore {
                 }
                 .tabs[idx].eol = e
                 console_log("meta: " + path + " eol=" + e)
+                store.SyncByteMeta()
             }
+        }
+
+        // PLAN-008 T-03: 行尾转换命令链——Request=mixed 确认门（统一将
+        // 抹平混合形态，alert-dialog 先例）；EolConvert=转换本体（显式
+        // 全文操作：code_editor_text 读出 + 归一替换 + set_text 重写 +
+        // delta drain-弃——检测器白名单登记件「save 位+登记转换 handler」
+        // 封闭集）。转换后 eol 元数据/状态栏同步，dirty 置位（可撤销性：
+        // set_text 全文重写，Ctrl+Z 可回）。
+        .EolConvertRequest(target) -> {
+            if .tab_count > 0 {
+                if .tabs[.tab].eol == "mixed" {
+                    .eol_confirm_target = target
+                    .eol_confirm_open = true
+                    console_log("eol: mixed line endings — confirm to unify")
+                } else {
+                    store.EolConvert(target)
+                }
+            }
+            .console = console_lines()
+        }
+
+        .EolConvert(target) -> {
+            if .tab_count > 0 {
+                if .tabs[.tab].readonly {
+                    console_log("eol: blocked (readonly tab)")
+                } else {
+                    let body str = code_editor_text(.active_key)
+                    var out str = body.replace("\r\n", "\n").replace("\r", "\n")
+                    if target == "crlf" {
+                        out = out.replace("\n", "\r\n")
+                    } else {
+                        if target == "cr" {
+                            out = out.replace("\n", "\r")
+                        }
+                    }
+                    if out != body {
+                        // 全文重写走结构化 edit（start=0,end=字节全长——
+                        // VM str.len()=Rust s.len() 字节语义，T-00 勘定）：
+                        // 该路径不触 registry set_text 的 last_external
+                        // guard——handler 侧 set_text 会被下轮绑定推送
+                        // （content=t.src=""≠last_external）清场（装载
+                        // 协议②同款防御面，实测教训）；delta drain-弃。
+                        code_editor_edit(.active_key, 0, body.len(), out)
+                        code_editor_delta(.active_key)
+                    }
+                    .tabs[.tab].eol = target
+                    .tabs[.tab].dirty = true
+                    store.SyncByteMeta()
+                    console_log("eol: converted to " + target)
+                }
+            }
+            .console = console_lines()
+        }
+
+        .EolConfirmGo -> {
+            .eol_confirm_open = false
+            if .eol_confirm_target != "" {
+                store.EolConvert(.eol_confirm_target)
+            }
+            .eol_confirm_target = ""
+        }
+
+        .EolConfirmCancel -> {
+            .eol_confirm_open = false
+            .eol_confirm_target = ""
         }
 
         .ActOpen -> {
