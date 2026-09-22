@@ -177,6 +177,13 @@ MCP 拒连、死亡点逐跑异——上游 F-RV6 竞态存活，证据增补见
 passed / 0 failed 判绿；无 RESULT 行 = 工具链竞态早崩 → 重跑一次而非
 计败**。
 
+PLAN-008 口径更新（2026-09-22，工具链 1914 钉版）：矩阵扩 T12 字节保真
+检查组（BOM 正/负向、CRLF/LF 编辑后字节往返、CR 无编辑往返+状态栏
+label、mixed→LF 转换经确认弹层、非法 UTF-8 只读兜底+磁盘哈希零变，
+fixtures/ 六件入仓）——完成态 **57/0**（50/0 + 7 新检查），判绿下限
+随升 **≥56 passed / 0 failed**；menu/paste 类非确定 flake（失败点逐跑
+漂移、隔离复现即绿——F-RV6 同族）复跑条款沿用。
+
 注：Plan 451 起 T10「热重载」走 DSL 源路径（reload 工具或 mtime 轮询重读
 app.at 重新提取 actions + generation bump → 视图重建），实测 50/0 全绿。
 OS 用户键位层（`%APPDATA%/auto/keymaps/auto-edit.at`）保持外部文件——那是

@@ -229,11 +229,16 @@ def run_app_tracked(env_extra: dict, want_markers: list[str],
 # ---------------------------------------------------------------- 全量读检测
 
 def _scan_store_handlers(text: str):
-    """yield (lineno, handler_name_or_None, line)——handler 归属按花括号深度。"""
+    """yield (lineno, handler_name_or_None, line)——handler 归属按花括号深度。
+
+    头行形态兼认 `.Name -> {` 与带参 `.Name(arg, ..) -> {`（PLAN-008 修正：
+    白名单登记件 WriteFidelity/EolConvert 均为带参 handler，旧正则不认
+    参数组、整段误归 <顶层> 使登记失效——构造性红证的登记→绿腿暴露）。
+    """
     cur, depth = None, 0
     for i, line in enumerate(text.splitlines(), 1):
         if cur is None:
-            m = re.match(r"\s*\.(\w+)\s*->", line)
+            m = re.match(r"\s*\.(\w+)(\([^)]*\))?\s*->", line)
             if m:
                 cur = m.group(1)
                 depth = line.count("{") - line.count("}")

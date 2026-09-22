@@ -778,6 +778,201 @@ def run_tests(mcp_url, proc):
     else:
         print("  NOTE  AUTO_OPEN_PATH not set; skipping T11")
 
+    # T12: PLAN-008 —— 字节保真检查组（BOM/EOL 往返、mixed 转换、非法
+    # UTF-8 兜底；每检查独立新鲜进程 + 仓内 fixture 的临时拷贝——磁盘
+    # 断言打拷贝，仓内 fixture 保持 pristine）。「编辑」步 = 编辑菜单
+    # 全选 → 工具栏 cut → undo（T6 既有模式；正文等值回归但经真实
+    # buffer 漏斗——AC-01/02 的"编辑后"形态）。
+    print("\nT12: PLAN-008 byte fidelity (BOM/EOL roundtrip, convert, fallback)")
+    fixtures_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fixtures")
+    if os.path.isdir(fixtures_dir):
+        import hashlib as _hashlib
+
+        def _fix_copy(name):
+            dst = tempfile.NamedTemporaryFile(
+                prefix="auto041_t12_", suffix="_" + name, delete=False)
+            with open(os.path.join(fixtures_dir, name), "rb") as f:
+                dst.write(f.read())
+            dst.close()
+            return dst.name
+
+        def _t12_app(path):
+            port = pick_free_port()
+            t12_proc = subprocess.Popen(
+                [AUTO_BIN, "run", "-r", "vm"],
+                cwd=PROJECT,
+                env={**os.environ, "AUTOUI_MCP_PORT": str(port),
+                     "AUTO_OPEN_PATH": path},
+                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            t12_url = f"http://127.0.0.1:{port}/mcp"
+            assert wait_for_server(t12_url, 30), "T12 server never up"
+            t12 = McpClient(t12_url)
+            for _ in range(15):
+                s = t12.snapshot()
+                if "(rendered)" in s and s.count("onclick") > 0:
+                    break
+                time.sleep(1)
+            return t12_proc, t12
+
+        def _t12_open(t12, path):
+            plus = find_button_by_onclick(t12.snapshot(), "ActOpen")
+            t12.click(plus)
+            base = os.path.basename(path)
+            for _ in range(48):
+                c = state_str(t12.state("console"), "console") or ""
+                if ("loaded: " in c or "load error" in c) and base in c:
+                    return
+                time.sleep(0.25)
+            raise TimeoutError("T12 load line missing for " + base)
+
+        def _t12_edit(t12):
+            menu = find_button_by_text(t12.snapshot(), "编辑")
+            if menu:
+                t12.click(menu)
+                time.sleep(1.0)
+                sel = find_button_by_text(t12.snapshot(), "全选")
+                if sel:
+                    t12.click(sel)
+                    time.sleep(0.5)
+            cut = find_button_by_icon(t12.snapshot(), "scissors")
+            if cut:
+                t12.click(cut)
+                time.sleep(0.4)
+            undo = find_button_by_icon(t12.snapshot(), "undo-2")
+            if undo:
+                t12.click(undo)
+                time.sleep(0.4)
+
+        def _t12_save(t12):
+            before = (state_str(t12.state("console"), "console") or "").count("saved:")
+            save_btn = find_button_by_icon(t12.snapshot(), "save")
+            t12.click(save_btn)
+            c = ""
+            for _ in range(40):
+                c = state_str(t12.state("console"), "console") or ""
+                if c.count("saved:") > before or "blocked" in c:
+                    return c
+                time.sleep(0.25)
+            return c
+
+        # 12.1 BOM 往返（编辑后）：首三字节 EF BB BF + 全文等值
+        try:
+            p = _fix_copy("BOM_UTF8.txt")
+            orig = open(os.path.join(fixtures_dir, "BOM_UTF8.txt"), "rb").read()
+            t12_proc, t12 = _t12_app(p)
+            _t12_open(t12, p)
+            _t12_edit(t12)
+            _t12_save(t12)
+            got = open(p, "rb").read()
+            result.check("BOM roundtrip: EF BB BF prefix + content (after edit)",
+                         got.startswith(b"\xef\xbb\xbf") and got == orig,
+                         f"head={got[:6]!r} equal={got == orig}")
+            _kill_proc_tree(t12_proc)
+        except Exception as e:
+            result.check("BOM roundtrip: EF BB BF prefix + content (after edit)",
+                         False, repr(e))
+
+        # 12.2 BOM 负向：无 BOM 文件（编辑后）保存不引入 BOM
+        try:
+            p = _fix_copy("LF.txt")
+            orig = open(os.path.join(fixtures_dir, "LF.txt"), "rb").read()
+            t12_proc, t12 = _t12_app(p)
+            _t12_open(t12, p)
+            _t12_edit(t12)
+            _t12_save(t12)
+            got = open(p, "rb").read()
+            result.check("BOM negative: no BOM introduced (after edit)",
+                         not got.startswith(b"\xef\xbb\xbf") and got == orig,
+                         f"head={got[:4]!r} equal={got == orig}")
+            _kill_proc_tree(t12_proc)
+        except Exception as e:
+            result.check("BOM negative: no BOM introduced (after edit)",
+                         False, repr(e))
+
+        # 12.3/12.4 EOL 往返（编辑后）：CRLF/LF 字节级行尾保留
+        for fname in ("CRLF.txt", "LF.txt"):
+            try:
+                p = _fix_copy(fname)
+                orig = open(os.path.join(fixtures_dir, fname), "rb").read()
+                t12_proc, t12 = _t12_app(p)
+                _t12_open(t12, p)
+                _t12_edit(t12)
+                _t12_save(t12)
+                got = open(p, "rb").read()
+                result.check(f"EOL roundtrip: {fname[:-4]} byte-level preserved (after edit)",
+                             got == orig, f"got={got[:24]!r}")
+                _kill_proc_tree(t12_proc)
+            except Exception as e:
+                result.check(f"EOL roundtrip: {fname[:-4]} byte-level preserved (after edit)",
+                             False, repr(e))
+
+        # 12.5 EOL CR（无编辑）+ 状态栏 label 断言
+        try:
+            p = _fix_copy("CR.txt")
+            orig = open(os.path.join(fixtures_dir, "CR.txt"), "rb").read()
+            t12_proc, t12 = _t12_app(p)
+            _t12_open(t12, p)
+            time.sleep(0.5)
+            lbl = state_str(t12.state("eol_label"), "eol_label")
+            _t12_save(t12)
+            got = open(p, "rb").read()
+            result.check("EOL CR: preserved (no edit) + status label CR",
+                         got == orig and lbl == "CR", f"equal={got == orig} label={lbl}")
+            _kill_proc_tree(t12_proc)
+        except Exception as e:
+            result.check("EOL CR: preserved (no edit) + status label CR",
+                         False, repr(e))
+
+        # 12.6 mixed 识别 + 转 LF（确认弹层）：磁盘零 \r\n + label 同步
+        try:
+            p = _fix_copy("MIXED.txt")
+            t12_proc, t12 = _t12_app(p)
+            _t12_open(t12, p)
+            time.sleep(0.5)
+            lbl0 = state_str(t12.state("eol_label"), "eol_label")
+            menu = find_button_by_text(t12.snapshot(), "编辑")
+            t12.click(menu)
+            time.sleep(1.0)
+            item = find_button_by_text(t12.snapshot(), "转为 LF (Unix)")
+            t12.click(item)
+            time.sleep(0.8)
+            go = find_button_by_text(t12.snapshot(), "统一转换")
+            if go:
+                t12.click(go)
+                time.sleep(0.8)
+            lbl1 = state_str(t12.state("eol_label"), "eol_label")
+            _t12_save(t12)
+            got = open(p, "rb").read()
+            result.check("mixed→LF convert: dialog + zero CRLF on disk + label sync",
+                         lbl0 == "MIXED" and lbl1 == "LF" and got.count(b"\r\n") == 0
+                         and b"\r" not in got, f"{lbl0}->{lbl1} got={got!r}")
+            _kill_proc_tree(t12_proc)
+        except Exception as e:
+            result.check("mixed→LF convert: dialog + zero CRLF on disk + label sync",
+                         False, repr(e))
+
+        # 12.7 非法 UTF-8 兜底：readonly 标注 + save 拦截 + 磁盘哈希零变
+        try:
+            p = _fix_copy("INVALID_UTF8.bin")
+            orig = open(p, "rb").read()
+            h0 = _hashlib.sha256(orig).hexdigest()
+            t12_proc, t12 = _t12_app(p)
+            _t12_open(t12, p)
+            time.sleep(0.8)
+            title = state_str(t12.state("title_active"), "title_active") or ""
+            ro = state_bool(t12.state("readonly_active"), "readonly_active")
+            c = _t12_save(t12)
+            h1 = _hashlib.sha256(open(p, "rb").read()).hexdigest()
+            result.check("invalid UTF-8: readonly tab + save blocked + disk unchanged",
+                         ro is True and "编码错误" in title and h0 == h1,
+                         f"ro={ro} title={title!r} hash_eq={h0 == h1} console={c[-60:]!r}")
+            _kill_proc_tree(t12_proc)
+        except Exception as e:
+            result.check("invalid UTF-8: readonly tab + save blocked + disk unchanged",
+                         False, repr(e))
+    else:
+        print("  NOTE  tests/fixtures/ missing; skipping T12")
+
     print()
     print("T8: ActQuit (menu item)")
     open_menu(mcp, snap_cache, "文件")
