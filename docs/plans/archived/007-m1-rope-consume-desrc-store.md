@@ -1,6 +1,6 @@
 ---
 plan_id: PLAN-007
-status: reviewed
+status: archived
 feature_name: m1-rope-consume-desrc-store
 author: [zcode]
 created_at: 2026-09-22T14:00:00+08:00
@@ -489,3 +489,14 @@ BENCH 标记行（bench_open_start/done）保持包夹语义。
    由新工具链 intrinsics 表驱动生成）。坑位在案：9907 撞 Env.track
    （P673-D2 无守卫坑实测错派发返垃圾）；regen_vue.py 不认 AUTO_BIN
    （which("auto") 拿主检出二进制——改进登记）。
+
+- 2026-09-22T16:55:00+08:00 · stage: merge · PLAN-007 · r1 · **outcome:
+  pass（delivered 全五 checkpoint）**。
+  - 前置 F-1 已按序执行：auto-lang PLAN-687 先落（8360bc583 ff-only
+    + range-diff 映射在 687 归档档）+ 主检出工具链重建 1871。
+  - prepared f6d4d8e^（canonical SD-01/02/03 在 reviewed 提交内 +
+    账本 P007-1 外科 +10 行零扰动）；**landed f6d4d8e ff-only**
+    （rebase main 5 提交重放无冲突；主检出烟测绿=check 1871 + app
+    双标记达 + 零孤儿——F-1 解除实证）；ledger_refreshed（P007-1
+    回读在位）；archived 本文件；cleaned 随组目录清理补记。
+  - stage: merge | outcome: pass | delivery f6d4d8e | next: none
