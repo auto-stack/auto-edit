@@ -1,10 +1,10 @@
 ---
 plan_id: PLAN-008
-status: execution_done
+status: reviewed
 feature_name: m2-utf8-eol-byte-fidelity（M2-01：UTF-8 面 + 行尾语义——打开到保存的文件字节保真）
 author: [zhaopuming]
 created_at: 2026-09-22T19:00:00+08:00
-updated_at: 2026-09-22T21:05:00+08:00
+updated_at: 2026-09-22T21:20:00+08:00
 plan_revision: 1
 current_step: 7
 total_steps: 7
@@ -306,6 +306,31 @@ T-06 收口。current_step=0。
   bench 对照 JSONL 双份在档 | blockers=无 | next=review
   （/auto-plan:review；AC-01..07 逐条面见 §7，AC-05 复跑条款沿用，
   AC-07 上游件=upstream §11 四件）
+
+- **review pass（2026-09-22T21:20）**：stage=review | PLAN-008 | r1 |
+  outcome=**pass** | reviewed_commit=c3547e3c6f42c86776955b959ab12a7e
+  1bb46373（plan-008-dev tip，worktree clean+guard clean 实证） |
+  base=ceaeaad | deps=auto-lang 兄弟树 94774f2f7（零改动）+ 工具链钉
+  版 `.wt/edit-008/auto-008.exe`（1914-g56bfaf1fc-dirty） |
+  spec_inputs=docs/specs/modules/editor-store.md（SD-01 :89 追加节）、
+  modules/back-api.md（SD-02 :6 勘正+:43 字节语义节）、00-overview.md
+  （SD-03 :64）、docs/strategy/002-north-star-v2.md（SD-04 补注十
+  :67）、docs/upstream/2026-09-m1-supply.md（§11 :214 四件） |
+  acceptance_results=**AC-01..07 全 pass**——AC-01..04=T12 七检查
+  （矩阵提交态复跑 **56/1→复跑 57/0**，唯一失败=T2 菜单 flake 家族
+  [console_open 派发 no-op]，T12 全过、隔离复现不在本件面）；AC-05=
+  完成态 57/0≥下限 56+旧检查零回归+红证三腿在提交态复跑 PASS
+  （green[WriteFidelity/EolConvert 归属正确]/摘登记 red/自检 PASS）；
+  AC-06=补注十含裁定原文+日期+jade 勿双边重复注记、00-overview 摘要
+  同步（内容实勘）；AC-07=upstream §11 lossy want+T-00 衍生
+  LineEnding 漏斗 want（+快照竞态/1914 回归两超额观察件）|
+  findings=无阻塞项；N1=1914 工具链菜单/粘贴非确定 flake（既有家族，
+  复跑条款在 README）；N2=1914-dirty load_file 100MB RSS 219→1014MB
+  回归（基线对照归因上游，upstream §11 在档）|
+  局限声明=本复审与实施同会话，裁定自提交态重跑+工件实勘重建（矩阵/
+  红证/规范锚点均独立复现，非采信执行者自述）| next=**merge**
+  （/auto-plan:merge；vue build exit 0 证据复用理由=源等同——构建时
+  工作树与提交内容一致，仅 gitignored gen/ 事后清除）
 
 ## 10. 待澄清事项
 
