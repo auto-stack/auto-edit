@@ -1,0 +1,388 @@
+---
+plan_id: PLAN-007
+status: executing
+feature_name: m1-rope-consume-desrc-store
+author: [zcode]
+created_at: 2026-09-22T14:00:00+08:00
+updated_at: 2026-09-22T14:45:00+08:00
+plan_revision: 1
+current_step: 6
+total_steps: 6
+supersedes_spec_components: []
+new_spec_components: [SD-01 editor-store tabs/src 契约改版（去镜像+分块装载+delta 脏态）, SD-02 perf-measurement Q2 中期拓扑（单 iced）与 L2 口径同步, SD-03 strategy 002 补注（Q2 中期裁定原文落账）]
+touched_goals: []
+---
+
+# [PLAN-007] M1 性能线续件：rope 消费——store 去文本化 + Q2 中期裁定落账
+
+> 来源：PLAN-005 归档预告的"上游 rope/delta 供料后的 M1 主计划"
+> （`docs/plans/archived/005-…-mirror.md` 目标外第 2 条）+ PLAN-006 L2
+> 基线锚点（100MB 装载内存 ~480MB 线性放大 = 整串镜像在位，rope 缺口
+> 锚点）。上游供料已齐：**PLAN-673 delivered**（rope 事实源 + 统一 delta
+> + 分块读双轨，消费面见 §4）。
+> 同批裁定：**Q2 中期裁定（用户 2026-09-22 会话原文）**——"RQ 的架构
+> 我们换了，还没实现好，现在的 auto-edit 先只考虑单 iced 应用模式（即
+> 自带 iced/wgpu 渲染底层），和现在的 AutoUI 的 VM 模式一样。"（上游
+> 实证：auto-lang Design rq-remote-renderer 立档 + PLAN-683 远程 renderer
+> 路线重写立项，ce77f58fe/ad0468148。）本计划**顺手把 Q2 裁定做了**：
+> 裁定原文进战略补注（SD-03）、测量面口径同步（SD-02）。
+> 目标态一句话：**文件打开链零 VM 全文驻留（store 无 src 镜像、分块装载
+> 进编辑器 rope），L0/L2 复跑出新内存锚点；Q2 中期拓扑（单 iced 自包含）
+> 落账进战略与测量口径。**
+
+## 0. 变更摘要
+
+1. **store 去文本化**（核心）——`editor_store` 的 `tabs[i].src` 全文镜像
+   退役：文件 tab 只持 `{key, title, path, dirty}`；打开链改分块装载
+   （`File.read_text_range` 循环 + `code_editor_edit` 追加，全文永不进
+   VM 堆）；脏态接线增量面；save 位维持 `code_editor_text` 全文读出
+   （过渡，上游 want 登记）。PLAN-005 删的是"编辑态回写镜像"，本计划
+   删的是"初值驻留镜像"——src 契约（docs/specs/modules/editor-store.md
+   硬契约节）随之改版（SD-01）。
+2. **L2 测量面单 iced 化**（Q2 落账件）——bench `_l2_suite` 从 rqhost
+   预热拓扑改为 release 直拉独立渲染（`--autodesk-render=independent`
+   侧，T-00 钉死旗标），renderer_cold_start 单列在过渡期记 n/a（进程内
+   无分离观测面）；同时使测量面绝缘于上游 RQ 重写（PLAN-683）带来的
+   旗标/协议漂移。
+3. **口径与规范落账**——战略 002 追加补注（Q2 中期裁定原文，SD-03）；
+   `budgets.json` 注记同步（renderer_cold_start/steady_start 的 Q2 关联
+   行）；bench/perf README（SD-02）。
+
+## 1. 目标
+
+1. **打开链零 VM 全文驻留**：文件打开后，VM store 不持有文件全文；
+   编辑器侧经分块装载直达 rope。验证=静态检测器（全量读白名单面收窄
+   审读）+ L0/L2 装载内存锚点复跑。
+2. **内存锚点前后对照**：100MB 装载内存较 PLAN-006 锚点（L2 480MB /
+   L0 521MB）下降，新数字入 JSONL 与基线报告；**残差诚实注记**——
+   上游 S2 视口物化延后（cosmic-text Buffer 布局层仍物化全文），本计划
+   收益=去 store 镜像份，非一步到 idle_mem 预算线。
+3. **脏态与增量面接线**：编辑脏态维护与 delta 面（`code_editor_delta`
+   破坏性读）的关系定形（T-00 勘定：沿既有 on 载荷或迁 delta，二选一
+   落地）；save E2E（矩阵 T6 面）绿。
+4. **Q2 中期裁定落账**：战略补注 + budgets 注记 + 测量面单 iced 化 +
+   README 双侧，一处不漏。
+5. **三轨处置显式化**：vm（L0 日常）+ a2r（L2 测量）为本计划消费面；
+   vue 轨处置按 T-00 勘定裁定（上游 ts_adapter/editorBridge 未发射
+   673 端点——禁本仓补件，2026-09-21 用户裁定）。
+
+### 非目标
+
+- 上游 S2（视口物化/击键 O(n) 快照）的任何实现——KNOWN-DEBT 在册，
+  等上游；本计划只消费 S1 已落面。
+- save 写侧分块/`code_editor_save` 端点——上游 want 登记，本计划 save
+  维持全文读出过渡形态。
+- 任何渲染层工作（RQ/iced 面零改动）；M2 会话恢复；diff（M3）。
+- vue 轨扩端点（上游另立，若裁定需要）。
+- 键入到上屏/滚动帧率实测（帧插桩 blocked-upstream 不变）。
+
+## 2. 架构方案
+
+- **装载链**：ConsumeOpen（既有 AUTO_OPEN_PATH/back.api 树选点）→
+  建 tab（无 src）→ 激活后经 `File.read_text_range(path, offset, limit)`
+  循环读块 + `code_editor_edit(key, pos, pos, chunk)` 追加（块内全文
+  只在 VM 栈上瞬时存在，不落 store 字段）；EOF/错误形状按 673 契约
+  （fs.rs envelope，字段 T-00 钉死）。分块尺寸默认 4MB（T-00 可调），
+  100MB = 25 次内建调用，IO 主导。
+- **模板初值路径**：`content: t.src`（app.at L174）改空种子
+  （`content: ""` + registry 按 key 装载）——`last_external` 差分语义
+  天然兼容（空串初值 + native 装载不踩用户输入）。untitled/演示 tab
+  的预填文本处置（保留 src 种子位或转文件化）T-00 裁。
+- **save 过渡**：ActSave/QuitSaveClose 维持 `code_editor_text` 全文读出
+  + `write_text`（save 时瞬态一份，非驻留）；白名单位不变，检测器
+  继续守门。上游 want：`code_editor_save(key,path)` 直写端点（登记
+  docs/upstream 增量）。
+- **脏态**：现状 dirty 置位点勘定（T-00）后定形——候选 A：沿既有
+  SrcChanged/on_change 载荷零改动；候选 B：Tick 侧 `code_editor_delta`
+  drain 置 dirty（顺带为 M2 会话恢复预埋增量流）。默认 B 若成本可控，
+  否则 A + B 登记后续。
+- **L2 单 iced 化**：`_l2_suite` 去 rq-up/rq-down 与 `--autodesk-rqhost`，
+  改独立渲染旗标（生成物 main.rs L1190-1236 已备 auto/queue/independent
+  三态）；标记行为 store 级（渲染无关），分解语义存活；拓扑有效性门
+  从「daemon window + adopt」改「app 进程 + 窗口存活」等价观测（T-00
+  定观测点）。
+- **数据面边界不变**：分块读走 front 内建还是 back.api 扩端点——T-00
+  勘定（vm/a2r 双轨均需可调；vue=HTTP 面若走 back.api 则天然可达，
+  code_editor_edit 仍是 vue 断点）。
+
+## 3. 技术栈
+
+- .at store 层（editor_store/app 模板）+ 673 内建面（`code_editor_edit`
+  nat#9906 / `code_editor_delta` nat#2939 / `File.read_text_range`
+  nat#1016，UTF-8 字节偏移契约）。
+- bench.py（L0/L2 运行器）+ budgets.json 注记；docs/specs 与 strategy
+  追加节（新惯例：merge 追加+来源注记）。
+- 工具链 ≥1836（含 681；判据前重建 auto.exe + 杀孤儿锁，坑位在册）。
+
+## 4. 需求分析与背景调查
+
+- **授权记录**：用户 2026-09-22 会话指令——"直接 /auto-plan:new 起 rope
+  消费计划(PLAN-007)，顺手把 Q2 裁定做了"，并给出 Q2 裁定原文（见标题
+  引块）。授权=起草；执行另裁。允许动作=auto-edit 仓（src/front、
+  tools/bench、tools/perf README、docs/specs、docs/strategy 追加节、
+  docs/upstream 登记）+ gitignored 产物区。零 auto-lang 改动。
+- **上游 673 供料面（实锚）**：`code_editor_delta(key)`——破坏性读，
+  JSON `{"revision","deltas":[{start,end,replacement}]}`（core/mod.rs
+  :2002，vm/native.rs:677，catalog#2939）；`code_editor_edit(key,start,
+  end,replacement)`——单 API 三形态，非法入参返 false（core/mod.rs
+  :2082，nat#9906）；`File.read_text_range`（nat#1016 + a2r-std fs.rs
+  :129，双轨逐字节一致）；rope 事实源 + COW 快照全链（S1 落地）。
+- **上游诚实约束**：S2 视口物化**延后**（cosmic-text Buffer 无行窗 API，
+  窗移=全量 re-set_text defeat 目的；100MB 单键 25.3s debug 档——
+  KNOWN-DEBT 候选在册）→ 编辑器侧布局层仍物化全文，内存收益=去镜像份；
+  vue/ts_adapter **不发射**分块端点（673 §9 注记：需要时另立计划）。
+- **现状锚点**：editor_store.at 头注 L20-23（src 仅初值/两个 save 位读出
+  的过渡形态自述）；app.at L173-174（`content: t.src`）；L2 锚
+  baseline-L2-20260922.md（100MB→480MB）；规范层
+  docs/specs/modules/editor-store.md「tabs[i].src 数据语义」硬契约节
+  （本计划 SD-01 改版对象）。
+- **a2r 缺口探针（待 T-00 实证）**：trans/rust.rs 未见 code_editor_
+  delta/edit 映射（681 清偿面=select_all/cut/copy 等，不含 673 新对）——
+  L2 侧 store 调用新内建预计红；处置=上游登记（禁补件）+ L2 验证面
+  降级口径（见 §10-2）。
+- **Q2 裁定依据**：auto-lang ce77f58fe（Design rq-remote-renderer 方案 2
+  裁定 + PLAN-683 立项：headless UserInterface + RecordRenderer +
+  DisplayList v2 + daemon 重放）+ ad0468148（2026-09-22 用户裁定 683
+  远程 renderer 路线重写实现面）——RQ 处重写中段，auto-edit 交付拓扑
+  中期收敛单 iced 自包含（同 `auto run -r vm` 单进程原生窗形态）。
+
+## 5. 详细设计
+
+### 5.1 数据结构改版（SD-01 对象）
+
+```
+tabs[i]: {key, title, path, dirty, src?}   // before（src=全文初值驻留）
+tabs[i]: {key, title, path, dirty}         // after（文件 tab 零全文）
+// untitled 种子位处置（保留 src? 字段仅 untitled 用 / 全去+演示 tab 文件化）
+// ——T-00 裁定，SD-01 落账以裁定为准
+```
+
+`src_active`（激活 tab 初值镜像，PLAN-005 降格物）随同退役；状态栏/
+矩阵断言面引用点同步。
+
+### 5.2 打开/装载链（ConsumeOpen 重写）
+
+分块循环（信封字段名以 T-00 实锚为准）：`read_text_range(path, off,
+limit)` → 取 `data` 块 → `code_editor_edit(key, len, len, data)` 追加 →
+`has_more/next_offset` 推进 → EOF 止。装载期产生的 delta 信封处置：
+装载完成前不 drain / 或 drain 即弃（T-00 与 dirty 接线一并定形）。
+BENCH 标记行（bench_open_start/done）保持包夹语义。
+
+### 5.3 测量面（Q2 落账，SD-02 对象）
+
+- `_l2_suite`：去 rqhost 生命周期，独立渲染旗标直拉；`renderer_
+  daemon_build` 字段改记 `topology:"single-iced"`；renderer_cold_start
+  行过渡期 state=arch-blocked-note（"单 iced 进程内无分离冷启面，
+  pending 上游 683 重设计后重估"）。
+- budgets.json 注记（不改 tier/数字）：steady_start.unlock 增注"Q2 中期
+  裁定=单 iced（2026-09-22），预热语义=进程内初始化"；renderer_cold_
+  start.validity 同步；installer.unlock 注记不变（Q2 exe 路径仍待）。
+- 锚点复跑：L0 + L2 各一跑，100MB 装载内存对照 480/521MB，新 JSONL +
+  基线报告增补节（或 baseline-L2-<ts2>.md）。
+
+### 5.4 规范增量
+
+| delta_id | add/modify/retire | target | before/after rule | rationale | AC |
+|---|---|---|---|---|---|
+| SD-01 | modify | docs/specs/modules/editor-store.md | before：tabs[i].src 硬契约（仅初值/两 save 位读出）/ after：文件 tab 零全文契约（分块装载、delta 脏态、save 过渡位、untitled 处置裁定） | src 契约是本计划改版核心，须防散记失联 | AC-01/03 |
+| SD-02 | modify | docs/specs/modules/perf-measurement.md + tools/bench/README.md + tools/perf/README.md + budgets.json 注记 | before：L2 运行器=rqhost 预热拓扑、Q2 待裁 / after：Q2 中期裁定（单 iced）口径 + L2 独立渲染形态 + 锚点对照记录 | Q2 落账与测量面同步 | AC-04/05 |
+| SD-03 | add | docs/strategy/002-north-star-v2.md（追加补注，不回改） | before：补注 7/8 的 Q2 关联条款（RQ 交付拓扑候选）/ after：补注九——Q2 中期裁定原文 + RQ 候选撤回待 683 重设计落定重估 + PLAN-006 RQ 数据保留注记 | 用户裁定原文进战略层（修订走追加惯例） | AC-04 |
+
+## 6. 测试设计
+
+- **静态检测器**：全量读白名单审读——src 退役后 `code_editor_text`
+  允许位仍= 两 save 位（不变则白名单零改动；构造性红证自检照跑）。
+- **矩阵**：desktop_mcp 完成态判绿口径（F-RV6 早崩不计败，README
+  基线条款）；T6 save E2E 必绿（脏态接线回归面）。
+- **L0/L2 双轨**：vm merged 日常绿；L2 单 iced release 直拉跑通 +
+  复跑幂等 + 进程卫生（tasklist 无孤儿）。
+- **大文件**：bench open 计时/内存复跑；`--full`（512MB）档可选加测。
+- **a2r 探针**（T-00）：生成物调 `code_editor_edit/read_text_range`
+  编译面实证（红=上游登记，L2 验证面按 §10-2 降级）。
+- **vue 构建**：按 T-00 裁定执行（绿维持或红登记上游）。
+
+## 7. 验收标准
+
+- **AC-01**：文件 tab 零全文驻留——store 无 src 字段（untitled 裁定位
+  除外）、装载链分块化；静态检测器绿（白名单外零 `code_editor_text`）。
+  验证：代码审读 + `bench.py check`。
+- **AC-02**：内存锚点复跑——L0 与 L2 的 100MB 装载内存均较锚点
+  （480/521MB）下降，数字入 JSONL + 基线报告；S2 残差注记在档。
+  验证：JSONL 字段核对。
+- **AC-03**：脏态/save 回归——编辑置脏、save E2E（T6）绿、退出确认链
+  不回归。验证：矩阵完成态。
+- **AC-04**：Q2 落账四件——strategy 补注九（原文）、budgets.json 注记、
+  perf/bench README、perf-measurement spec。验证：四文件 diff 审读。
+- **AC-05**：L2 单 iced——独立渲染直拉端到端 exit 0、steady 武装数字
+  （单 iced 口径注记）、复跑幂等、无孤儿进程。验证：bench l2 + tasklist。
+- **AC-06**：三轨处置执行——vm+a2r 消费落地；vue 按 T-00 裁定（若需
+  上游则 docs/upstream 登记在档，本仓零补件）。验证：登记文件/构建态。
+- **AC-07**：零 auto-lang 改动、零生成物补件、零 .at 外挂补丁。
+  验证：git diff 范围核对。
+
+## 8. 执行步骤
+
+- **T-00 [✅ 2026-09-22 勘定+裁定完毕]**：四问全实证（探针工程
+  %TEMP%/probe007，跑完即弃；工具链 1836-gdcbda3f71）——
+  ①**vue 破坏面**：基线 `pnpm build` exit 0（绿）；gen 树 grep 无
+  673 发射面（ts_adapter 不发射 code_editor_edit/read_text_range）。
+  **裁定=B（§10-1 默认）**：vm+a2r 落地，vue 断点登记 docs/upstream
+  另立上游计划；T-05 复跑 vue 构建确认破坏面归属。
+  ②**a2r 探针：红确认（三内建全缺）**——code_editor_edit/delta 不在
+  ui_gen/rust.rs `vm_builtin_host_call` 单源表（L9461+，681 清偿面只到
+  select_all/cut/copy/fold 族）；File.read_text_range 不在 trans/rust.rs
+  `File` 模块映射表（L6565：只 read_text/write_text/exists，生成物
+  fsys.rs 实证 std::fs 直映射形态）。**裁定=§10-2 默认降级**：上游
+  登记 + L2 验证面降级（装载链代码审读 + L0 承载内存锚点，AC-05 的
+  L2 装载内存项移 AC-02 L0 侧）；L2 单 iced 拓扑以现存 release exe
+  （旧 store 代码）+ 零旗标直拉实证（"Running with Iced backend" +
+  bench_vm_init/ws_loaded 标记双达、无 daemon、tasklist 干净）。
+  ③**dirty/delta 形状：裁定=A**（沿既有 SrcChanged/on 载荷零改动）
+  + 装载期 delta「完成即 drain-弃」+ B 登记 M2 前置。依据：core.edit
+  不触发 on_change 回调（core/mod.rs 源证 + 探针——装载不踩
+  SrcChanged/edits，A 零成本零回归面）；B 的收益属 M2（非目标），
+  成本=每 Tick 全 tab envelope 解析 + 装载守卫，不"成本可控"。
+  delta 队列无界且 replacement 持全文拷贝（core/mod.rs:739 push_delta
+  无 cap）——25×4MB 装载 delta 必须弃，否则 ~100MB 驻留吃掉镜像
+  节省。**装载协议三件（探针四轮实证的 stale-push 清场机制）**：
+  (a) 存在性探针 `code_editor_edit(key,0,0,"")`→true 才装载（等
+  widget 实化；invalid 形缺席返 false 无副作用）；(b) 装载前
+  `code_editor_set_text(key,"")` 显式对齐 last_external——视图构建序
+  为 set_text(binding) **先于** CodeEditor::new（renderer.rs:24421/25246），
+  首建推送落空、last_external 留 None，装载后首次重建的 stale 推送会
+  清场（探针 rev-4 delete delta + SURVIVE len=0 双证）；对齐动作在
+  空表上无害，此后绑定推送永续 no-op；(c) 块位=文件字节偏移
+  （next_offset 推进；编辑器纯追加态下文件偏移≡编辑器偏移，规避
+  .at str len 的 char/byte 歧义）。顺带证伪 Plan 449 旧约束：
+  code_editor_set_text 在 store handler **不再**坏字节码（探针直调
+  无 panic，1836 工具链）——旧结论登记过时。
+  ④**untitled 裁定=保留 src 字段**：文件 tab 恒空串（零全文驻留，
+  AC-01 "untitled 裁定位除外"落此形），untitled（ActNew）与两个演示
+  tab 保留种子文本（矩阵 T6 cut/undo 初始面零扰动）；**模板
+  content: t.src 零改动**（file tab src="" 即空种子——等价于计划的
+  "content 空种子"路线，diff 最小化，裁定偏差已记录）。**旗标组合
+  实锚**：单 iced = **零旗标直拉**（生成物 gate：带 launcher 无
+  rqhost 走 broker rendezvous 需宿主，非独立形态；零旗标=
+  run_app_devtools 纯独立窗）。信封实锚：{text,total,next_offset}，
+  错误形 total:-1，EOF=next_offset:null（a2r-std fs.rs:129 与 VM shim
+  stdlib.rs:367 双轨同形）；json.to_value+字段访问+?? 回退在 store
+  handler 可用（020-music-player 先例 + 探针实证）。
+  → 全 AC 前置解除。
+- **T-01 [✅ 2026-09-22 实现毕，code a3af186]**：fsys/api 增 read_range/
+  read_text_range 端点；editor_store——文件 tab src 恒空串（untitled/
+  演示 tab 保留种子，模板 content: t.src 零改动）、src_active 退役、
+  OpenPath 公共核（三点合一）、RunPendingLoad 分块装载（协议三件 +
+  set_text 对齐 try/catch——VM shim 对 registry false 无差别抛错，
+  guard-block 正是常见路径）、loaded_bytes 断言面；app.at Tick 接
+  RunPendingLoad + Plan 449 过时注释修正；矩阵 T9.2 改判 loaded_bytes
+  （轮询 6s）。scoped 验证：vm 冒烟（CJK 155B fixture——BENCH
+  open_start/done 包夹到达、零 RuntimeError；未加 try/catch 前实勘
+  set_text shim 误抛修复）+ bench check 绿（检测器红证自检 PASS、
+  工具链 1850-gddf42ec8a-dirty——并行 session 13:59 重建，如实入档）。
+  工作树组 .wt/edit-007/（auto-edit + auto-lang 兄弟树 @ ddf42ec8a
+  供 bps 依赖，plan-004 先例）。
+- **T-02 [✅ 2026-09-22 实现毕，code a3af186]**：bench.py——_l2_suite
+  单 iced 零旗标直拉（rqhost 生命周期/_pipe_up/_rqhost_start/双窗门
+  全退役；BACKEND_READY_LINE 拓扑门；armed-record 位由
+  arch-blocked-note 顶替；mode gate 去 rq-up；BLOCK_L2 归因改 673
+  内建 a2r 映射缺口）；budgets.json Q2 注记（steady 单 iced 口径/
+  renderer_cold_start n/a；tier/数字零改动）；bench/perf README 口径
+  同步（rqhost 机制档案化保留）。sanity：假数据 l2 断言评估绿
+  （armed pass/arch-blocked-note/武装行无缺数检查不误伤）。
+- **T-03 [✅ 2026-09-22 跑数毕，code b7204cf]**：三形状实测（4MB 块
+  超窗未捕获 / 16MB 块 78s/1356MB / 单块 30-84s/729-1315MB）→
+  **定调单块直载**（块上限 2GB；内存与块数无关=机构性全文过载滞留，
+  时长单块最优）；bench open 超时按尺寸缩放（60s+4s/MB 下限 120）；
+  正式 JSONL 20260922-141652 + 形状探针两份 + 基线报告
+  baseline-L0-20260922-plan007.md。**AC-02 反向结果**（100MB 装载
+  729-1356MB vs 锚 521，不降反升；1MB 持平/10MB +83MB）——归因
+  upstream §10 观察 B 三件（假分块全量读盘/edit O(n) 重写/envelope
+  过 VM 池滞留），处置提案 §10-5 待裁。L2 侧 a2r 缺口 blocked，
+  补跑随上游（§10-2）。检测器三跑全绿（白名单零改动）。
+- **T-04 [✅ 2026-09-22 落账毕，code b7204cf]**：SD-01 editor-store.md
+  契约改版（文件 tab 零全文硬契约+装载协议四件+dirty A 裁+save
+  过渡位+数据面边界扩端点+装载时序）；SD-02 perf-measurement.md
+  （阶梯表 L2 单 iced+PLAN-007 追加节+a2r 三缺登记+rqhost 数字档案
+  化）；SD-03 战略 002 补注九（Q2 裁定原文+RQ 候选撤回+测量面随裁）；
+  upstream §10 增量（a2r 三缺/vue 端点/save 端点三 want + 观察 A
+  首建推送落空 + 观察 B 假分块定性）。
+- **T-05 [✅ 2026-09-22 回归收口毕]**：**矩阵 50 passed / 0 failed**
+  （完成态口径 ≥49/0 达标；首跑无 RESULT 行早崩=F-RV6 在册竞态，
+  重跑一次不计败；T9.2 loaded_bytes 新断言过 + T9.4 save round-trip
+  过=装载正确性间接实证；T6/T8/T10/T11 脏态/退出/enabled-if/keymap
+  面全绿）；**L2 归因捕获**：`--mode l2` a2r 段 BLOCKED（生成器缺口
+  特征 + BLOCK_L2 新注记透传，日志在档 tools/perf/logs/a2r-
+  20260922-142913.log）；**vue 构建绿**：`regen_vue.py --build`
+  exit 0（strict 再生成 + 在册 print 遮蔽缓解件覆盖新增 4 处 print；
+  裸 --lenient 生成的 TS2339=已知上游坑 §9 非本计划断面——运行期
+  673 端点未发射维持 B 裁定登记）；**进程卫生**：tasklist 无孤儿；
+  bench check 绿（1850）；**AC-07**：diff 17 文件全在授权面、零
+  auto-lang 改动、零生成物补件（regen_vue.py 未动）、工作树 clean。
+
+依赖：T-00 → T-01/T-02（可并行）→ T-03 → T-04/T-05。
+
+## 9. 复审记录
+
+- 2026-09-22T14:00:00+08:00 · stage: new · PLAN-007 · r1 · 起草完毕，
+  handoff → work。Q2 中期裁定（用户原文）已录入标题引块与 §4，由
+  SD-03 落账。
+  - `stage: new`
+  - `outcome: pass`（可进 work；§10 四项均带默认口径）
+  - `next: work`（建议先裁 §10-1/2 后进执行）
+- 2026-09-22T14:40:00+08:00 · stage: work · PLAN-007 · r1 · **六任务
+  全毕（T-00..T-05），outcome: blocked**（AC-02 反向结果待用户裁定，
+  见 §10-5；其余 AC 全达）。
+  - `stage: work`
+  - `code_commit`: b7204cf（plan-007-dev tip；含 a3af186 两连投：
+    T-01+T-02 实现 / T-03+T-04 跑数落账）
+  - `worktree`: D:/autostack/.wt/edit-007/auto-edit（plan-007-dev，
+    clean）+ 组内 auto-lang 兄弟树 @ ddf42ec8a（bps 依赖供料，
+    plan-004 先例）
+  - `deps`: 工具链 v0.4.2-1850-gddf42ec8a-dirty（多 session 并行机，
+    13:59 被并行 session 重建，1836→1850，如实入档）；auto-lang
+    零改动（AC-07 ✓）
+  - `task_ids`: T-00 ✅（四问全实证+四裁定回填）T-01 ✅ T-02 ✅
+    T-03 ✅ T-04 ✅ T-05 ✅
+  - `evidence`: AC-01 ✓（store 零全文+装载链；检测器三跑绿、白名单
+    零改动；矩阵 50/0）；AC-02 ✗→**待裁**（100MB 装载 729-1356MB
+    vs 521 锚不降反升——归因 upstream §10 观察 B 三件，提案 §10-5，
+    基线报告 baseline-L0-20260922-plan007.md 如实记录）；AC-03 ✓
+    （矩阵 T6/T9 全绿）；AC-04 ✓（四件 diff 审读：strategy 补注九/
+    budgets 注记/perf+bench README/perf-measurement spec）；AC-05
+    部分（单 iced 代码落地+拓扑旧代码探针实证+a2r blocked 归因在档
+    ——端到端新代码 L2 随上游解阻，§10-2 降级口径）；AC-06 ✓
+    （vm+a2r 消费落地=vm 绿+a2r 归因；vue 构建绿+运行期断点登记
+    upstream §10）；AC-07 ✓（diff 17 文件全授权面）。
+  - `blockers`: §10-5 AC-02 处置待用户裁定（(a) 如实记录+收益递延
+    上游 / (b) 回滚装载链——默认倾向 a）。
+  - `next`: 用户裁 §10-5 后 → review（若 a）或 needs_replan 裁定
+    回滚范围（若 b）。
+
+## 10. 待澄清事项
+
+1. **vue 轨处置**（T-00 裁定=B）：vue 基线构建绿（2026-09-22 改前
+   exit 0）；ts_adapter 无 673 发射面（grep 实证）——本计划 vm+a2r
+   落地，vue 断面登记 docs/upstream §10（另立上游计划），构建红期间
+   vue 轨挂起。T-05 复验改后构建态归属。
+2. **a2r 新内建映射缺口**（T-00 实证=红）：三内建全缺（edit/delta
+   不在 ui_gen 单源表；read_text_range 不在 trans File 表）——上游
+   登记 §10 + L2 验证面降级（装载链代码审读 + L0 承载内存锚点；
+   AC-05 的 L2 装载内存项移 AC-02 L0 侧）；L2 锚点补跑随上游解阻
+   另收。单 iced 拓扑以旧代码 release exe 零旗标直拉探针实证。
+3. **steady_start 预算行文案重释**（已按默认落账）：单 iced 口径
+   注记「进程内 iced 初始化含、系统暖机弃首跑」进 budgets.json +
+   spec SD-02；≤80ms 数字维持。
+4. **1GB 探针**：不纳入（默认成立）——rope 锚点由 100MB 承载；
+   另 100MB 单块直载已 30s 级，1GB 无解释力。
+5. **【T-03 新增，待用户裁定】AC-02 内存下降未达成的处置**：实测
+   （工具链 1850，L0/vm，多 session 并行机）——100MB 装载 RSS
+   **729-1356MB（三次实测区间）vs 锚 521MB**（不降反升）；1MB 持平
+   （236 vs 229.5）、10MB +83MB（334 vs 251）。定性（upstream §10
+   观察 B 三件）：edit O(n) 全文重写（块数=时长平方因子：4MB 块超窗/
+   16MB 78s/单块 30-84s，内存无差）；read_text_range 双轨实现=全量
+   读盘假分块（IO 层未分块）；envelope 全文过 VM 池滞留。**修复面
+   全在上游**（真分块 IO/envelope 流式/S2 增量 rewrite）。下游已采
+   单块直载（时限劣化最小）。提案（待裁）：(a) AC-02 文案改为「锚点
+   如实记录（方向反转归因上游 S1 形态）+ 1MB 档持平注记」，内存收益
+   递延到上游分块 IO+S2 解阻后的补跑；或 (b) 回滚装载链保 521 锚
+   （弃 AC-01 去驻留——不推荐，与计划主目标相悖）。默认倾向 (a)。
