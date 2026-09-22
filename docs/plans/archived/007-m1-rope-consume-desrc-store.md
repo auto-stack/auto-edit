@@ -498,5 +498,9 @@ BENCH 标记行（bench_open_start/done）保持包夹语义。
     账本 P007-1 外科 +10 行零扰动）；**landed f6d4d8e ff-only**
     （rebase main 5 提交重放无冲突；主检出烟测绿=check 1871 + app
     双标记达 + 零孤儿——F-1 解除实证）；ledger_refreshed（P007-1
-    回读在位）；archived 本文件；cleaned 随组目录清理补记。
+    回读在位）；archived 本文件；cleaned（双 worktree guard clean + 分支删除 +
+    组目录零残留 + 双仓 prune；deps junction 链接面先行按 guard 指引
+    摘除——pnpm node_modules 与 deps/bps/stylekit 均为 gitignored
+    再生物）。
+
   - stage: merge | outcome: pass | delivery f6d4d8e | next: none
