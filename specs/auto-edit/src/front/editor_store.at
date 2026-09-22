@@ -190,7 +190,7 @@ store EditorStore {
         // PLAN-009 T-03: 全部替换（检测器白名单第三件显式全文操作）。
         ReplaceAllRequest,
         // PLAN-009 T-04: find-in-files 面板开合 + 搜索（back search_files）。
-        FifOpen, FifClose, FifSearch, FifResultClick(str),
+        FifOpen, FifClose, FifSearch, FifResultClick(int),
     }
 
     on {
@@ -771,21 +771,29 @@ store EditorStore {
 
         // 结果条目点击开文件（OpenPath 公共核复用——同路径已开则激活，
         // TreeSelect 同款遍历；pattern 高亮经 find_effective 天然延续到
-        // 新 tab 的 search prop——AC-06）。
-        .FifResultClick(path) -> {
-            var i int = 0
-            var found bool = false
-            while i < .tabs.len() {
-                if .tabs[i].path == path {
-                    found = true
-                    store.TabActivate(i)
-                }
-                i = i + 1
-            }
-            if !found {
-                if exists(path) {
-                    store.OpenPath(path)
-                    console_log("fif: open " + path)
+        // 新 tab 的 search prop——AC-06）。载荷=裸循环索引（TabActivate(i)
+        // 先例——字段访问载荷 r.file 在 MCP 派发面携带字面量不解析，
+        // T-06 实勘）；解码列表索引 + fif_count 门（.len() 规避面）。
+        .FifResultClick(i) -> {
+            if i >= 0 {
+                if i < .fif_count {
+                    let row = .fif_results[i]
+                    let p str = row.file
+                    var j int = 0
+                    var found bool = false
+                    while j < .tabs.len() {
+                        if .tabs[j].path == p {
+                            found = true
+                            store.TabActivate(j)
+                        }
+                        j = j + 1
+                    }
+                    if !found {
+                        if exists(p) {
+                            store.OpenPath(p)
+                            console_log("fif: open " + p)
+                        }
+                    }
                 }
             }
             .console = console_lines()

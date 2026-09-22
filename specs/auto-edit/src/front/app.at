@@ -300,18 +300,19 @@ widget App {
                                     style: "text-[11px] text-muted-foreground ml-auto"
                                 }
                             }
-                            scroll (style: "h-40 w-full bg-muted/10 shrink-0") {
-                                col (style: "p-2") {
-                                    for r in .store.fif_results {
-                                        button (text: "${r.file}:${r.line}: ${r.preview}", variant: "text") {
-                                            onclick: .FifResultClick(r.file)
-                                            style: "h-6 px-1 text-[11px] font-mono text-muted-foreground text-left w-full"
-                                        }
+                            col (style: "p-2 max-h-40 w-full overflow-hidden bg-muted/10 shrink-0") {
+                                // 行点击载荷=裸循环索引（TabActivate(i) 先例；
+                                // 字段访问载荷 r.file 经 MCP 派发面携带字面量
+                                // 不解析——T-06 实勘，见 FifResultClick 注）。
+                                for idx, r in .store.fif_results {
+                                    button (text: "${r.file}:${r.line}: ${r.preview}", variant: "text") {
+                                        onclick: .FifResultClick(idx)
+                                        style: "h-6 px-1 text-[11px] font-mono text-muted-foreground text-left w-full"
                                     }
-                                    if .store.fif_truncated {
-                                        text "…结果已截断（上限 500 条）" {
-                                            style: "text-[11px] text-muted-foreground"
-                                        }
+                                }
+                                if .store.fif_truncated {
+                                    text "…结果已截断（上限 500 条）" {
+                                        style: "text-[11px] text-muted-foreground"
                                     }
                                 }
                             }
@@ -426,7 +427,7 @@ widget App {
         .FifOpen -> { store.FifOpen() }
         .FifClose -> { store.FifClose() }
         .FifSearch -> { store.FifSearch() }
-        .FifResultClick(f) -> { store.FifResultClick(f) }
+        .FifResultClick(i) -> { store.FifResultClick(i) }
         .ReplaceAllRequest -> { store.ReplaceAllRequest() }
         .ActCut -> { store.ActCut() }
         .ActCopy -> { store.ActCopy() }

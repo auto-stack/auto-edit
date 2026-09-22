@@ -1062,6 +1062,19 @@ def run_tests(mcp_url, proc):
             st = t.state("line", "col")
             return state_int(st, "line"), state_int(st, "col")
 
+        def _t13_fif_search(t):
+            """点「搜索」并重试至 console 出现 fif 行（快照-派发间视图重建
+            可致 vnode 失效静默丢失——T13 复跑 flake 卫生）。"""
+            for _ in range(4):
+                el = find_button_by_text(t.snapshot(), "搜索")
+                if el:
+                    t.click(el)
+                for _ in range(10):
+                    if (state_str(t.state("console"), "console") or "").count("fif:") > 0:
+                        return True
+                    time.sleep(0.5)
+            return False
+
         def _t13_open_fif(t):
             """开 find-in-files 面板（Ctrl+Shift+F；修饰序兼容兜底=菜单入口）。"""
             t.call("autoui_keyboard", key="f", modifiers=["ctrl", "shift"])
@@ -1098,6 +1111,17 @@ def run_tests(mcp_url, proc):
             eff = _unesc(state_str(t.state("find_effective"), "find_effective"))
             result.check("T13.1d word anchors: eff \\b(?-i)a.b\\b (regex on, dot raw)",
                          eff == "\\b(?-i)a.b\\b", f"eff={eff!r}")
+            # 13.1e × 关栏：find_open 复位 + effective 清串（内核语义=清搜索态）
+            xbtn = find_button_by_onclick(t.snapshot(), "FindClose")
+            ok_x = xbtn is not None
+            if ok_x:
+                t.click(xbtn)
+                time.sleep(0.5)
+            st = t.state("find_open", "find_effective")
+            result.check("T13.1e close: find_open false + eff cleared",
+                         ok_x and state_bool(st, "find_open") is False
+                         and state_str(st, "find_effective") == "",
+                         f"st={st[:120]!r}")
             _kill_proc_tree(p13)
         except Exception as e:
             result.check("T13.1 find bar + assembly", False, repr(e))
@@ -1237,7 +1261,7 @@ def run_tests(mcp_url, proc):
                          _t13_open_fif(t) is True, t.state("fif_open"))
             _t13_open_find(t)
             _t13_type_query(t, needle)
-            _t13_click_text(t, "搜索")
+            _t13_fif_search(t)
             fc = -1
             for _ in range(60):
                 st = t.state("fif_count", "fif_truncated")
@@ -1249,17 +1273,23 @@ def run_tests(mcp_url, proc):
             result.check("T13.6 fif results: count==3 not truncated",
                          fc == 3 and trunc is False, f"count={fc} trunc={trunc}")
             tc0 = state_int(t.state("tab_count"), "tab_count")
-            m = re.search(r'button #(\w+) "[^"]*two\.txt[^"]*"', t.snapshot())
-            if m:
-                t.click(m.group(1))
-                time.sleep(1.2)
-                st = t.state("tab_count", "title_active")
-                result.check("T13.6 result click opens file tab",
-                             state_int(st, "tab_count") == tc0 + 1
-                             and state_str(st, "title_active") == "two.txt", st)
-            else:
-                result.check("T13.6 result click opens file tab", False,
-                             "two.txt row not in snapshot")
+            opened = False
+            for _ in range(4):
+                m = re.search(r'button #(\w+) "[^"]*two\.txt[^"]*"', t.snapshot())
+                if m:
+                    t.click(m.group(1))
+                    for _ in range(8):
+                        time.sleep(0.3)
+                        if state_int(t.state("tab_count"), "tab_count") == tc0 + 1:
+                            opened = True
+                            break
+                    if opened:
+                        break
+                else:
+                    break
+            st = t.state("tab_count", "title_active")
+            result.check("T13.6 result click opens file tab",
+                         opened and state_str(st, "title_active") == "two.txt", st)
             _kill_proc_tree(p13)
         except Exception as e:
             result.check("T13.6 find-in-files", False, repr(e))
@@ -1274,7 +1304,7 @@ def run_tests(mcp_url, proc):
             _t13_open_fif(t)
             _t13_open_find(t)
             _t13_type_query(t, "hitline009")
-            _t13_click_text(t, "搜索")
+            _t13_fif_search(t)
             fc = -1
             trunc = None
             for _ in range(90):
@@ -1292,6 +1322,39 @@ def run_tests(mcp_url, proc):
         finally:
             if os.path.exists(big):
                 os.unlink(big)
+        # 13.8 >10MB 大小门（11MB 临时件含独一 needle → 门生效=0 命中；
+        # finally 删除）
+        big11 = os.path.join(find_fix, "_t13_big11_tmp.txt")
+        try:
+            needle11 = "skipneedle" + "009"
+            with open(big11, "w", encoding="utf-8", newline="") as f:
+                line = "x" * 128 + "\n"
+                for _ in range(64):
+                    f.write(line * 1024)  # ~8.4MB … 补足 >10MB
+                f.write(needle11 + " present but file exceeds gate\n")
+            if os.path.getsize(big11) <= 10 * 1024 * 1024:
+                with open(big11, "a", encoding="utf-8", newline="") as f:
+                    f.write(("y" * 128 + "\n") * 16384)  # +~2MB 兜底
+            p13, t = _t13_app()
+            _t13_open_fif(t)
+            _t13_open_find(t)
+            _t13_type_query(t, needle11)
+            _t13_fif_search(t)
+            fc = -1
+            for _ in range(60):
+                st = t.state("fif_count", "fif_truncated")
+                fc = state_int(st, "fif_count")
+                if fc >= 0 and (state_str(t.state("console"), "console") or "").count("fif:") > 0:
+                    break
+                time.sleep(0.5)
+            result.check("T13.8 >10MB gate: oversized file skipped (count==0)",
+                         fc == 0, f"count={fc}")
+            _kill_proc_tree(p13)
+        except Exception as e:
+            result.check("T13.8 >10MB gate", False, repr(e))
+        finally:
+            if os.path.exists(big11):
+                os.unlink(big11)
     else:
         print("  NOTE  tests/fixtures/find missing; skipping T13")
 
