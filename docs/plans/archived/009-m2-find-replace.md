@@ -561,4 +561,9 @@ kind + 正则面全在 back；code_editor search prop vue 发射面死分支口�
   ——.autoos/specs.json（tracked）：reviews 段 9 items（P001..P008+
   P009-1）主检出 json 解析+回读验证。`archived`——plain mv（未跟踪
   文件）→docs/plans/archived/009-m2-find-replace.md + status archived
-  + completion_kind **delivered**。`cleaned`——随后行。
+  + completion_kind **delivered**。`cleaned`——孤儿 auto-009 进程零
+  在案；全量摘链 493 junction（deps ×2 + pnpm node_modules，rmdir 链
+  本零穿透）；双 worktree guard clean（auto-edit+auto-lang 兄弟）+
+  全提交落地实证（merge-base ancestor a728d47）后移除；分支
+  plan-009-dev 删（was a728d47）+ 双仓 prune + 钉版 exe 删 + 组目录
+  零残留——五 checkpoint 全闭环 **delivered**。
