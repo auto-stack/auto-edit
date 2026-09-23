@@ -1388,12 +1388,15 @@ def run_tests(mcp_url, proc):
     if sess_fix and os.path.isdir(sess_fix):
 
         def _t14_fix(name):
-            dst = tempfile.NamedTemporaryFile(
-                prefix="auto010_t14_", suffix="_" + name, delete=False)
-            with open(os.path.join(sess_fix, name), "rb") as f:
-                dst.write(f.read())
-            dst.close()
-            return dst.name
+            # 每检查独立目录 + 保留原短名——侧栏条目标题=file_basename，
+            # w-56 窄栏对 30+ 字符随机长名会截断快照标签（间歇精确匹配
+            # 失败实测），短名确定性拷贝根治。
+            dst_dir = tempfile.mkdtemp(prefix="auto010_t14_")
+            dst = os.path.join(dst_dir, name)
+            with open(os.path.join(sess_fix, name), "rb") as f, \
+                 open(dst, "wb") as g:
+                g.write(f.read())
+            return dst
 
         def _t14_app(appdata, open_path=None):
             port = pick_free_port()
