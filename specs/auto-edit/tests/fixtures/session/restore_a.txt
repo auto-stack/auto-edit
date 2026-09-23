@@ -1,0 +1,2 @@
+SESSION A alpha
+restore fixture one

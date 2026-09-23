@@ -499,7 +499,11 @@ def run_tests(mcp_url, proc):
         t9_proc = subprocess.Popen(
             [AUTO_BIN, "run", "-r", "vm"],
             cwd=PROJECT,
-            env={**os.environ, "AUTOUI_MCP_PORT": str(t9_port)},
+            env={**os.environ, "AUTOUI_MCP_PORT": str(t9_port),
+                 # PLAN-010 T-04 基建卫生：每实例独立 APPDATA（会话链恢复
+                 # 隔离——共享 run 级会让前序检查的结构写盘漏进本实例启动
+                 # 恢复，T12.5/T12.6/T13.4 竞态实测）。
+                 "APPDATA": tempfile.mkdtemp(prefix="auto041_t9_ad_")},
             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         t9_url = f"http://127.0.0.1:{t9_port}/mcp"
         if wait_for_server(t9_url, 30):
@@ -635,7 +639,8 @@ def run_tests(mcp_url, proc):
         t10_proc = subprocess.Popen(
             [AUTO_BIN, "run", "-r", "vm"],
             cwd=PROJECT,
-            env={**os.environ, "AUTOUI_MCP_PORT": str(t10_port)},
+            env={**os.environ, "AUTOUI_MCP_PORT": str(t10_port),
+                 "APPDATA": tempfile.mkdtemp(prefix="auto041_t10_ad_")},
             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         # Plan 451: 动作配置 DSL 化——热重载对象改为 app.at 的 actions 块
         config_file = os.path.join(PROJECT, "src", "front", "app.at")
@@ -802,7 +807,11 @@ def run_tests(mcp_url, proc):
                 [AUTO_BIN, "run", "-r", "vm"],
                 cwd=PROJECT,
                 env={**os.environ, "AUTOUI_MCP_PORT": str(port),
-                     "AUTO_OPEN_PATH": path},
+                     "AUTO_OPEN_PATH": path,
+                     # PLAN-010 T-04：每实例独立 APPDATA（会话链恢复隔离，
+                     # T14 惯例推广——共享 appdata 时前序检查的结构写盘会
+                     # 漏进本实例启动恢复，装载竞态实测）。
+                     "APPDATA": tempfile.mkdtemp(prefix="auto041_t12_ad_")},
                 stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             t12_url = f"http://127.0.0.1:{port}/mcp"
             assert wait_for_server(t12_url, 30), "T12 server never up"
@@ -990,7 +999,9 @@ def run_tests(mcp_url, proc):
 
         def _t13_app(path=None):
             port = pick_free_port()
-            env = {**os.environ, "AUTOUI_MCP_PORT": str(port)}
+            env = {**os.environ, "AUTOUI_MCP_PORT": str(port),
+                   # PLAN-010 T-04：每实例独立 APPDATA（会话链恢复隔离）。
+                   "APPDATA": tempfile.mkdtemp(prefix="auto041_t13_ad_")}
             if path:
                 env["AUTO_OPEN_PATH"] = path
             proc = subprocess.Popen(
@@ -1358,6 +1369,348 @@ def run_tests(mcp_url, proc):
     else:
         print("  NOTE  tests/fixtures/find missing; skipping T13")
 
+    # T14: PLAN-010 —— 会话恢复 + 最近文件检查组（T12/T13 形态：每检查
+    # 独立新鲜进程 + 临时 APPDATA 隔离——T11 OS keymap 先例；fixtures/
+    # session/ 拷贝为断言面，仓内 fixture 保持 pristine）。子组：
+    #   14.1 会话写入（字段齐全/untitled 排除/recents 同录）
+    #   14.2 重启恢复（注入会话 → tab 序 + active + 仅 active 装载）
+    #   14.3 激活未装载 tab 触发装载（懒装载协议）
+    #   14.4 ws_dir 不匹配 → 全新启动零回归
+    #   14.5 崩溃恢复（taskkill 强杀 → 重启还原）
+    #   14.6 退出恢复（脏 tab 边界=不保存退出 → 结构在/脏编辑丢）
+    #   14.7 最近文件侧栏（关闭后条目在 + 点击重开懒装载）
+    #   14.8 ActNew untitled 化 → 会话排除
+    #   14.9 损坏 JSON → 静默全新启动（G-3 不匹配语义）
+    # 恢复链检查用 python 侧注入会话文件（全控 tab 集/激活位——UI 只能
+    # 开同一路径的重复 tab，注入是恢复序的可控驱动面）。
+    print("\nT14: PLAN-010 session restore + recent files")
+    sess_fix = os.path.join(fixtures_dir, "session") if os.path.isdir(fixtures_dir) else ""
+    if sess_fix and os.path.isdir(sess_fix):
+
+        def _t14_fix(name):
+            dst = tempfile.NamedTemporaryFile(
+                prefix="auto010_t14_", suffix="_" + name, delete=False)
+            with open(os.path.join(sess_fix, name), "rb") as f:
+                dst.write(f.read())
+            dst.close()
+            return dst.name
+
+        def _t14_app(appdata, open_path=None):
+            port = pick_free_port()
+            env = {**os.environ, "AUTOUI_MCP_PORT": str(port), "APPDATA": appdata}
+            if open_path:
+                env["AUTO_OPEN_PATH"] = open_path
+            proc = subprocess.Popen(
+                [AUTO_BIN, "run", "-r", "vm"],
+                cwd=PROJECT, env=env,
+                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            url = f"http://127.0.0.1:{port}/mcp"
+            assert wait_for_server(url, 30), "T14 server never up"
+            t = McpClient(url)
+            for _ in range(15):
+                s = t.snapshot()
+                if "(rendered)" in s and s.count("onclick") > 0:
+                    break
+                time.sleep(1)
+            time.sleep(1.5)  # 首拍派发竞态窗定驻（009 同款卫生）
+            return proc, t
+
+        def _t14_open_via_plus(t, path):
+            plus = find_button_by_onclick(t.snapshot(), "ActOpen")
+            if plus:
+                t.click(plus)
+            want = len(open(path, "rb").read())
+            for _ in range(48):
+                if state_int(t.state("loaded_bytes"), "loaded_bytes") == want:
+                    return True
+                time.sleep(0.25)
+            return False
+
+        def _t14_close_all(t):
+            for _ in range(4):
+                if state_int(t.state("tab_count"), "tab_count") == 0:
+                    return True
+                xs = find_tab_close_buttons(t.snapshot())
+                if not xs:
+                    time.sleep(0.4)
+                    continue
+                t.click(xs[0])
+                time.sleep(0.6)
+            return state_int(t.state("tab_count"), "tab_count") == 0
+
+        def _t14_sess_path(appdata):
+            return os.path.join(appdata, "auto-edit-session.json")
+
+        def _t14_inject(appdata, ws_dir, tabs, active, open_count, recents):
+            with open(_t14_sess_path(appdata), "w", encoding="utf-8") as f:
+                json.dump({"ws_dir": ws_dir, "open_count": open_count,
+                           "active": active, "tabs": tabs, "recents": recents}, f)
+
+        def _t14_read_sess(appdata):
+            p = _t14_sess_path(appdata)
+            if not os.path.exists(p):
+                return None
+            try:
+                with open(p, encoding="utf-8") as f:
+                    return json.loads(f.read())
+            except Exception:
+                return None
+
+        def _t14_poll_loaded(t, want, extra=None):
+            for _ in range(30):
+                if state_int(t.state("loaded_bytes"), "loaded_bytes") == want:
+                    return True
+                time.sleep(0.3)
+            return False
+
+        def _t14_quit_via_menu(t, proc):
+            snap = t.snapshot()
+            m = find_button_by_text(snap, "文件")
+            if m:
+                t.click(m)
+                time.sleep(1.0)
+            snap = t.snapshot()
+            q = find_button_by_text(snap, "退出")
+            if q:
+                try:
+                    t.click(q)
+                except (requests.ConnectionError, requests.Timeout):
+                    pass
+            for _ in range(6):
+                if proc.poll() is not None:
+                    break
+                try:
+                    snap = t.snapshot()
+                except Exception:
+                    break
+                d = find_button_by_text(snap, "不保存退出")
+                if d:
+                    try:
+                        t.click(d)
+                    except (requests.ConnectionError, requests.Timeout):
+                        pass
+                    break
+                time.sleep(0.4)
+            for _ in range(12):
+                if proc.poll() is not None:
+                    return True
+                time.sleep(0.5)
+            return False
+
+        # 14.1 会话写入：字段齐全 + untitled 排除 + recents 同录
+        ws_norm = os.path.normpath(PROJECT)
+        try:
+            ad = tempfile.mkdtemp(prefix="auto010_t14_ad_")
+            fa = _t14_fix("restore_a.txt")
+            p14, t = _t14_app(ad, open_path=fa)
+            ok_open = _t14_open_via_plus(t, fa)
+            time.sleep(0.5)
+            sess = _t14_read_sess(ad)
+            ok = (ok_open and sess is not None
+                  and len(sess.get("tabs", [])) == 1
+                  and sess["tabs"][0].get("path") == fa
+                  and sess.get("active") == 0
+                  and sess.get("open_count") == 3
+                  and len(sess.get("recents", [])) == 1
+                  and sess["recents"][0].get("path") == fa
+                  and set(sess["tabs"][0].keys()) == {"path", "title", "cline", "ccol"})
+            if sess:
+                ws_norm = sess.get("ws_dir", ws_norm)
+            result.check("T14.1 session write: fields + untitled excluded + recents",
+                         ok, json.dumps(sess, ensure_ascii=False)[:200] if sess else "no file")
+            _kill_proc_tree(p14)
+        except Exception as e:
+            result.check("T14.1 session write", False, repr(e))
+
+        # 14.2 重启恢复（懒装载）：注入 [A,B] active=1 → 序+active+仅 B 装载
+        # 14.3 激活未装载 tab 触发装载（同实例切 A）
+        try:
+            ad = tempfile.mkdtemp(prefix="auto010_t14_ad_")
+            fa = _t14_fix("restore_a.txt")
+            fb = _t14_fix("restore_b.txt")
+            ba = len(open(fa, "rb").read())
+            bb = len(open(fb, "rb").read())
+            _t14_inject(ad, ws_norm, [
+                {"path": fa, "title": os.path.basename(fa), "cline": 1, "ccol": 1},
+                {"path": fb, "title": os.path.basename(fb), "cline": 2, "ccol": 3},
+            ], 1, 2, [])
+            p14, t = _t14_app(ad)
+            st = t.state("tab_count", "tab", "title_active")
+            ok_struct = (state_int(st, "tab_count") == 2 and state_int(st, "tab") == 1
+                         and state_str(st, "title_active") == os.path.basename(fb))
+            lb = -1
+            for _ in range(30):
+                lb = state_int(t.state("loaded_bytes"), "loaded_bytes")
+                if lb == bb:
+                    break
+                time.sleep(0.3)
+            n_ed = t.snapshot().count("textarea")
+            result.check("T14.2 restore: order + active + only-active loaded",
+                         ok_struct and lb == bb and n_ed == 1,
+                         f"st={st[:120]!r} lb={lb} want={bb} editors={n_ed}")
+            btn = find_button_by_text(t.snapshot(), os.path.basename(fa))
+            if btn:
+                t.click(btn)
+            la = -1
+            for _ in range(30):
+                la = state_int(t.state("loaded_bytes"), "loaded_bytes")
+                if la == ba:
+                    break
+                time.sleep(0.3)
+            st = t.state("tab")
+            result.check("T14.3 activate unloaded tab triggers load",
+                         la == ba and state_int(st, "tab") == 0,
+                         f"lb={la} want={ba} st={st[:60]!r}")
+            _kill_proc_tree(p14)
+        except Exception as e:
+            result.check("T14.2/3 restore + lazy load", False, repr(e))
+
+        # 14.4 ws_dir 不匹配 → 全新启动（种子，无恢复行）
+        try:
+            ad = tempfile.mkdtemp(prefix="auto010_t14_ad_")
+            _t14_inject(ad, "D:/nonexistent-ws-plan010", [
+                {"path": "C:/nonexistent.txt", "title": "x.txt", "cline": 1, "ccol": 1},
+            ], 0, 1, [])
+            p14, t = _t14_app(ad)
+            st = t.state("tab_count")
+            console = state_str(t.state("console"), "console") or ""
+            result.check("T14.4 ws mismatch: fresh start (seeds only, no restore line)",
+                         state_int(st, "tab_count") == 2 and "session: restored" not in console,
+                         f"st={st[:80]!r} console={console[-100:]!r}")
+            _kill_proc_tree(p14)
+        except Exception as e:
+            result.check("T14.4 ws mismatch", False, repr(e))
+
+        # 14.5 崩溃恢复：强杀（会话即时落盘在先）→ 重启还原
+        try:
+            ad = tempfile.mkdtemp(prefix="auto010_t14_ad_")
+            fa = _t14_fix("restore_a.txt")
+            ba = len(open(fa, "rb").read())
+            p14, t = _t14_app(ad, open_path=fa)
+            ok_open = _t14_open_via_plus(t, fa)
+            subprocess.run(["taskkill", "/T", "/F", "/PID", str(p14.pid)],
+                           capture_output=True)
+            try:
+                p14.wait(5)
+            except Exception:
+                pass
+            p14b, t2 = _t14_app(ad)
+            st = t2.state("tab_count", "title_active")
+            ok_lb = _t14_poll_loaded(t2, ba)
+            lb = state_int(t2.state("loaded_bytes"), "loaded_bytes")
+            result.check("T14.5 crash recovery: kill → restart restores",
+                         ok_open and state_int(st, "tab_count") == 1
+                         and state_str(st, "title_active") == os.path.basename(fa)
+                         and ok_lb,
+                         f"st={st[:100]!r} lb={lb} want={ba}")
+            _kill_proc_tree(p14b)
+        except Exception as e:
+            result.check("T14.5 crash recovery", False, repr(e))
+
+        # 14.6 退出恢复（脏边界）：cut 脏化 → 不保存退出 → 结构在/脏编辑丢
+        try:
+            ad = tempfile.mkdtemp(prefix="auto010_t14_ad_")
+            fa = _t14_fix("restore_a.txt")
+            orig = open(os.path.join(sess_fix, "restore_a.txt"), "rb").read()
+            ba = len(orig)
+            p14, t = _t14_app(ad, open_path=fa)
+            _t14_open_via_plus(t, fa)
+            cut = find_button_by_icon(t.snapshot(), "scissors")
+            if cut:
+                t.click(cut)
+                time.sleep(0.5)
+            exited = _t14_quit_via_menu(t, p14)
+            sess = _t14_read_sess(ad)
+            p14b, t2 = _t14_app(ad)
+            st = t2.state("tab_count", "title_active")
+            ok_lb = _t14_poll_loaded(t2, ba)
+            got = open(fa, "rb").read()
+            result.check("T14.6 quit-restore: structure kept + dirty edits lost",
+                         exited and sess is not None and len(sess.get("tabs", [])) == 1
+                         and state_int(st, "tab_count") == 1
+                         and state_str(st, "title_active") == os.path.basename(fa)
+                         and ok_lb and got == orig,
+                         f"exited={exited} sess={json.dumps(sess, ensure_ascii=False)[:120] if sess else None} "
+                         f"lb_ok={ok_lb} disk_eq={got == orig}")
+            _kill_proc_tree(p14b)
+        except Exception as e:
+            result.check("T14.6 quit-restore dirty boundary", False, repr(e))
+
+        # 14.7 最近文件侧栏：全关后条目仍在 + 点击重开懒装载
+        try:
+            ad = tempfile.mkdtemp(prefix="auto010_t14_ad_")
+            fa = _t14_fix("restore_a.txt")
+            ba = len(open(fa, "rb").read())
+            p14, t = _t14_app(ad, open_path=fa)
+            ok_open = _t14_open_via_plus(t, fa)
+            ok_vis = find_button_by_text(t.snapshot(), os.path.basename(fa)) is not None
+            ok_closed = _t14_close_all(t)
+            reopened = False
+            # 重试臂（快照-派发间视图重建可致 vnode 失效静默丢失——009
+            # fif 搜索点击同款卫生）：重取快照重点击，直到重开达成。
+            for _ in range(4):
+                item = find_button_by_text(t.snapshot(), os.path.basename(fa))
+                if item:
+                    t.click(item)
+                for _ in range(10):
+                    lb = state_int(t.state("loaded_bytes"), "loaded_bytes")
+                    tc = state_int(t.state("tab_count"), "tab_count")
+                    if lb == ba and tc == 1:  # 全关后重开=1
+                        reopened = True
+                        break
+                    time.sleep(0.3)
+                if reopened:
+                    break
+            result.check("T14.7 recents sidebar: survives close-all + click reopens",
+                         ok_open and ok_vis and ok_closed and item is not None and reopened,
+                         f"open={ok_open} vis={ok_vis} closed={ok_closed} "
+                         f"item={item is not None} reopened={reopened}")
+            _kill_proc_tree(p14)
+        except Exception as e:
+            result.check("T14.7 recents sidebar", False, repr(e))
+
+        # 14.8 ActNew untitled 化 → 会话排除
+        try:
+            ad = tempfile.mkdtemp(prefix="auto010_t14_ad_")
+            fa = _t14_fix("restore_a.txt")
+            p14, t = _t14_app(ad, open_path=fa)
+            _t14_open_via_plus(t, fa)
+            snap = t.snapshot()
+            m = find_button_by_text(snap, "文件")
+            if m:
+                t.click(m)
+                time.sleep(1.0)
+            nbtn = find_button_by_text(t.snapshot(), "新建")
+            if nbtn:
+                t.click(nbtn)
+                time.sleep(0.8)
+            sess = _t14_read_sess(ad)
+            result.check("T14.8 ActNew untitled: file path cleared → excluded",
+                         sess is not None and len(sess.get("tabs", [])) == 0,
+                         json.dumps(sess, ensure_ascii=False)[:160] if sess else "no file")
+            _kill_proc_tree(p14)
+        except Exception as e:
+            result.check("T14.8 ActNew untitled exclusion", False, repr(e))
+
+        # 14.9 损坏 JSON → 静默全新启动（G-3）
+        try:
+            ad = tempfile.mkdtemp(prefix="auto010_t14_ad_")
+            with open(_t14_sess_path(ad), "w", encoding="utf-8") as f:
+                f.write("{corrupted plan010 session!!!")
+            p14, t = _t14_app(ad)
+            st = t.state("tab_count")
+            console = state_str(t.state("console"), "console") or ""
+            result.check("T14.9 corrupted session: silent fresh start",
+                         state_int(st, "tab_count") == 2
+                         and "session: restored" not in console
+                         and p14.poll() is None,
+                         f"st={st[:80]!r} console={console[-100:]!r}")
+            _kill_proc_tree(p14)
+        except Exception as e:
+            result.check("T14.9 corrupted session", False, repr(e))
+    else:
+        print("  NOTE  tests/fixtures/session missing; skipping T14")
+
     print()
     print("T8: ActQuit (menu item)")
     open_menu(mcp, snap_cache, "文件")
@@ -1405,6 +1758,14 @@ def main():
         print("Add auto's directory to PATH, or set AUTO_BIN env var to the binary path.")
         sys.exit(2)
 
+    # PLAN-010 T-04 基建卫生：整跑 APPDATA 隔离（T11 先例推广到主实例）——
+    # 会话链把 auto-edit-session.json 落 APPDATA 根，主实例与全部子实例
+    # 继承本环境；不隔离则 T8 退出写盘污染真实用户会话、下一跑启动恢复
+    # 垃圾 tab（首跑 T3b/T5/T6/T7b/T12.5/T12.6 十失败根因实测）。T11/T14
+    # 各自的显式 APPDATA 覆盖不受影响（env 展开序在后）。
+    run_appdata = tempfile.mkdtemp(prefix="auto041_matrix_appdata_")
+    os.environ["APPDATA"] = run_appdata
+
     mcp_port = pick_free_port()
     mcp_url = f"http://localhost:{mcp_port}/mcp"
     if mcp_port != MCP_PORT_DEFAULT:
@@ -1412,7 +1773,6 @@ def main():
               f"using AUTOUI_MCP_PORT={mcp_port}")
 
     print(f"\nStarting real 041 auto-edit in {PROJECT}...")
-    import tempfile
     app_log = tempfile.NamedTemporaryFile(
         prefix="auto041_mcp_", suffix=".log", delete=False, mode="w",
         encoding="utf-8", errors="replace")
@@ -1463,6 +1823,7 @@ def main():
         for e in result.errors:
             print(f"  - {e}")
     print("=" * 60)
+    shutil.rmtree(run_appdata, ignore_errors=True)
     sys.exit(1 if result.failed else 0)
 
 

@@ -1,0 +1,3 @@
+SESSION B beta
+restore fixture two
+second line

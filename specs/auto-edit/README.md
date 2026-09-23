@@ -194,6 +194,20 @@ PLAN-009 口径更新（2026-09-22，工具链 1914 钉版同版）：矩阵扩 
 T12 复跑条款沿用；find-in-files 搜索对含生成树（gen/ ~11k 路径）的
 workspace 全程 ~9s，T13.6/13.7/13.8 轮询窗已按此放宽。
 
+PLAN-010 口径更新（2026-09-23，工具链 1993 钉版 `auto-010.exe`，
+baseline-check 干净检出 77/0 复验同版零回归）：矩阵扩 T14 会话恢复+
+最近文件检查组（会话写入字段/untitled 排除/recents 同录、注入会话重启
+恢复 tab 序+active+仅 active 装载、激活未装载 tab 触发装载、ws_dir 不
+匹配全新启动、taskkill 强杀崩溃恢复、脏 tab 不保存退出恢复=结构在/
+脏编辑丢、最近文件侧栏关闭后条目在+点击重开、ActNew untitled 化排除、
+损坏 JSON 静默全新启动；每检查独立进程+临时 APPDATA 隔离——T11 先例；
+恢复链检查用 python 侧注入会话文件驱动，fixtures/session/ 两件入仓）
+——完成态 **86/0**（77/0 + 9 新检查），判绿下限随升 **≥85 passed /
+0 failed**（T-00 决策探针 `tests/probe_session.py` 23/0 为前置决策门，
+不入矩阵计数；决策记录=Q-1 registry 存留切回免重装/损坏 JSON 容忍形
+ws 门兜底）。T12/T13 复跑条款沿用；T14 会话链零 `code_editor_text`
+（检测器白名单零变更）。
+
 注：Plan 451 起 T10「热重载」走 DSL 源路径（reload 工具或 mtime 轮询重读
 app.at 重新提取 actions + generation bump → 视图重建），实测 50/0 全绿。
 OS 用户键位层（`%APPDATA%/auto/keymaps/auto-edit.at`）保持外部文件——那是
