@@ -117,12 +117,18 @@ widget App {
                             menubar-item (title: "查找下一个", shortcut: "F3") { onclick: .FindNext }
                             menubar-item (title: "跨文件查找", shortcut: "Ctrl+Shift+F") { onclick: .FifOpen }
                             menubar-separator
-                            // PLAN-008 T-03: 行尾分组（menubar-label；无子
-                            // 菜单能力，平铺三命令）。
-                            menubar-label "行尾"
-                            menubar-item (title: "转为 CRLF (Windows)") { onclick: .ActEolCrlf }
-                            menubar-item (title: "转为 LF (Unix)") { onclick: .ActEolLf }
-                            menubar-item (title: "转为 CR (Mac)") { onclick: .ActEolCr }
+                            // PLAN-695 T-12: 行尾分组升级为 menubar-sub
+                            //（消费 T-06 submenu 能力；原 PLAN-008 T-03
+                            // 平铺三命令 + label 形态退役——label 曾被
+                            // 双臂静默吞，本批已根修）。
+                            menubar-sub {
+                                menubar-sub-trigger (text: "行尾")
+                                menubar-sub-content {
+                                    menubar-item (title: "转为 CRLF (Windows)") { onclick: .ActEolCrlf }
+                                    menubar-item (title: "转为 LF (Unix)") { onclick: .ActEolLf }
+                                    menubar-item (title: "转为 CR (Mac)") { onclick: .ActEolCr }
+                                }
+                            }
                         }
                     }
                     menubar-menu (value: "view") {
@@ -175,7 +181,8 @@ widget App {
                         // 尚不可用于此（Plan 449 调查结论，见 README）。
                         for i, t in .store.tabs {
                             if i == .store.tab {
-                                row (style: "items-center bg-[#1C1D24]") {
+                                // PLAN-695 T-12: 激活 tab 底 #1C1D24 → bg-card（卡片微浮 token，浅色白板）。
+                                row (style: "items-center bg-card") {
                                     button (text: t.title, variant: "text") {
                                         onclick: .TabActivate(i)
                                         style: "h-8 px-3 text-[12px] text-foreground font-medium"

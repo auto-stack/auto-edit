@@ -9,14 +9,15 @@
 
 use editor_store: EditorStore
 
-style menu_item = "h-7 w-full justify-start px-2 text-[12px] text-foreground"   // Phase B: zinc-200 → foreground
+style menu_item = "h-7 w-full justify-start px-2 text-[12px] text-popover-foreground"   // PLAN-695 T-12: popover 前景（面板 token 同源，浅色可读）
 widget EditorCtxMenu {
     msg { Cut, Copy, SelectAll, Dismiss }
 
     view {
-        // Phase B: border-zinc-700 → border-border（#16171B 面板底为编辑器主题深色，豁免保留）
+        // PLAN-695 T-12：面板底/前景消费 popover 语义 token（原 #16171B
+        // 深色豁免退役——浅色主题下黑字深板不可读，随 menubar 族根修同批）。
         popover (open: .store.ctx_open, x: .store.ctx_x, y: .store.ctx_y, ondismiss: .Dismiss,
-                 class: "w-40 bg-[#16171B] border border-border shadow-md py-1") {
+                 class: "w-40 bg-popover text-popover-foreground border border-border shadow-md py-1") {
             button (text: "剪切", variant: "text") {
                 onclick: .Cut
                 style: menu_item
