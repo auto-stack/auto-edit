@@ -1,182 +1,215 @@
 {
- "project": "specs",
- "version": 0,
- "sections": [
-  {
-   "id": "goals",
-   "section_type": "Goals",
-   "title": "🎯 Goals",
-   "items": [],
-   "status": "Empty",
-   "content": "",
-   "depends_on": [],
-   "last_modified": 1788936821,
-   "last_verified": null
-  },
-  {
-   "id": "architecture",
-   "section_type": "Architecture",
-   "title": "🏗️ Architecture",
-   "items": [],
-   "status": "Empty",
-   "content": "",
-   "depends_on": [],
-   "last_modified": 1788936821,
-   "last_verified": null
-  },
-  {
-   "id": "designs",
-   "section_type": "Designs",
-   "title": "🎨 Designs",
-   "items": [],
-   "status": "Empty",
-   "content": "",
-   "depends_on": [],
-   "last_modified": 1788936821,
-   "last_verified": null
-  },
-  {
-   "id": "tests",
-   "section_type": "Tests",
-   "title": "🧪 Tests",
-   "items": [],
-   "status": "Empty",
-   "content": "",
-   "depends_on": [],
-   "last_modified": 1788936821,
-   "last_verified": null
-  },
-  {
-   "id": "reviews",
-   "section_type": "Reviews",
-   "title": "🔍 Reviews",
-   "items": [
+  "project": "specs",
+  "version": 0,
+  "sections": [
     {
-     "id": "P001-1",
-     "section": "reviews",
-     "status": "stable",
-     "title": "PLAN-001 — bootstrap 收据（reviewed pass @ r1 6a3804d：041-auto-edit 拷贝独立运行 + 双路径修正 + 矩阵 39/6 如实验收）",
-     "file": "docs/plans/archived/001-bootstrap-auto-edit.md",
-     "related": [
-      "PLAN-001"
-     ],
-     "superseded_by": null,
-     "content": "- 验收：三树拷贝（auto-edit@92c8013a 源锚 specs/PROVENANCE.md + stylekit + blueprints）+ 双必改点（pac.at dep bps→../blueprints；desktop_mcp.py AUTO_BIN→env||which）+ 041 矩阵如实验收（四次实测 39/6 同类六失败=menubar 展开项快照缺失——上游渲染器回归坐实[机制：MENUBAR_OPEN 条件分支不进 vm vtree；对照：jade desktop 同族 exe menubar 项快照可见]，上游修复后重验预期 ≈48/2；归因/复跑记录见归档计划 Task 4）+ README 本仓化 + .gitignore（含 .autoos 运行时 ignore，specs.json 除外）。\n- 复审 r1 pass：独立复跑四组（py_compile/boot 冒烟零 ERROR/矩阵第四次 39P6F/pac.at 仓内 dep 核对）；findings 三 info（数值全绿按计划自载注记收口+上游重验义务 README 在案；main.at→app.at 笔误勘误；Phase A 结构性例外[零提交仓基线直落 master a61df19]）。\n- 下计划裁定面：specs/blueprints 拷贝 fork 形态的池治理（canonical=auto-lang/blueprints vs 独立池——方向一[dep path 消费，同 jade 惯例]/方向二[池独立成仓]，见 2026-09-20 共享工作对话）。"
+      "id": "goals",
+      "section_type": "Goals",
+      "title": "🎯 Goals",
+      "items": [],
+      "status": "Empty",
+      "content": "",
+      "depends_on": [],
+      "last_modified": 1788936821,
+      "last_verified": null
     },
     {
-     "id": "P002-1",
-     "section": "reviews",
-     "status": "stable",
-     "title": "PLAN-002 — bps 池方向一收据（reviewed pass @ r1 3b9c8a6：specs/blueprints fork 退役，dep path 消费 auto-lang/blueprints canonical）",
-     "file": "docs/plans/archived/002-bps-dep-consume.md",
-     "related": [
-      "PLAN-001",
-      "PLAN-002"
-     ],
-     "superseded_by": null,
-     "content": "- 验收：dep bps ../blueprints→../../../auto-lang/blueprints（cwd 相对解析——主检出 3 级=autostack/auto-lang；worktree 深 2 级落组兄弟位，按 jade 组惯例补组内 auto-lang 兄弟树）+ specs/blueprints 整库 fork 退役（92c8013a 期拷贝，池已演进至 657）+ bootstrap 脚本 COPIES 收敛（重跑不重建 fork）+ README 兄弟仓依赖注记+ PROVENANCE 退役注（SD-01）。\n- 复审 r1 pass：三组独立复跑（fork/dep 状态、boot 零 ERROR、矩阵第六次 39/6 同类 menubar 上游面）；F-R1 quit 项在 39/5↔39/6 逐次波动=上游回归面不稳（上游修单证据）；F-R2 cwd 相对 dep 解析组兄弟惯例。\n- 语义变更：PLAN-001 bootstrap 期约束\"不触碰 auto-lang 仓内路径\"由方向一显式取代（2026-09-20 用户裁定）。池版本锁定协议归上游独立计划治理（方向一裁定附款）。"
+      "id": "architecture",
+      "section_type": "Architecture",
+      "title": "🏗️ Architecture",
+      "items": [],
+      "status": "Empty",
+      "content": "",
+      "depends_on": [],
+      "last_modified": 1788936821,
+      "last_verified": null
     },
     {
-     "id": "P003-1",
-     "section": "reviews",
-     "status": "stable",
-     "title": "PLAN-003 — front/back 拆分 + 双轨化收据（reviewed pass @ r1 7a4ed53：src/back api.at 契约六 fn + fsys.at 收口全部 FS 面 + pac render [vm,vue] + vue regen 链构建绿）",
-     "file": "docs/plans/archived/003-auto-edit-frontback-dualtrack.md",
-     "related": ["PLAN-002", "PLAN-003"],
-     "superseded_by": null,
-     "content": "- 验收：front 经 use back.api 裸直调（013/015 形态）零 fs.*/File.*/Env.get 内建（grep 零代码命中）；merged 矩阵完成态 ≥39/6 口径（双时点工具链基线在档）；split 功能环 11/11（树/open/edit/save/quit-save 经 back HTTP）——上游 auto-lang PLAN-669（#[api] 实参按名绑定）解阻后达成，工具链须含 669 构建；vue 轨 scripts/regen_vue.py 一键链（生成 --lenient + 七类生成器缺口补件）vue-tsc+vite 构建绿；README SD-01/02 + split 注记勘误（「内建空桩」定性作废→实参装配断层，根因重定性三段在档）。\n- 复审 r1：首轮 needs_replan（AC-03 上游卡死）→ 缺陷报告供料 auto-lang 立 669 → 修复落 master 后复验 pass（re-review 全六 AC pass；四跑对照实验裁定矩阵非确定性=工具链竞态 F-RV6 归上游 668 面非本计划回归）。\n- 关键裁定：pac 永不写 api: 字段（引擎=运行期 --server 自由度）；fs.join 出契约（ts_adapter 对象级白名单连纯逻辑一并拦，T-00 P-5）；vue dev=后端独立 serve + vite 直跑两终端配方（auto run -r vue 内置再生成会覆盖补件）；归上游登记=F-R1（a2r E0432+空体桩）/F-RV6（矩阵竞态）/F-RV7（015 :id 遮蔽 /search）。"
+      "id": "designs",
+      "section_type": "Designs",
+      "title": "🎨 Designs",
+      "items": [],
+      "status": "Empty",
+      "content": "",
+      "depends_on": [],
+      "last_modified": 1788936821,
+      "last_verified": null
     },
     {
-     "id": "P004-1",
-     "section": "reviews",
-     "status": "stable",
-     "title": "PLAN-004 — M1 性能轨①+②收据（reviewed pass @ r1 b0b4676 + scoped fdb5e66：功能健康基线 + tools/perf 性能模式一键链七段 0/3/1）",
-     "file": "docs/plans/archived/004-m1-func-baseline-perf-mode.md",
-     "related": ["PLAN-003", "PLAN-004"],
-     "superseded_by": null,
-     "content": "- 验收：矩阵 1631 五连跑定标（测试级失败清零——原 39/6 menubar 债随上游修复消散；早崩 2/5=F-RV6 实例死亡形态，临时口径=完成态 ≥49/0 判绿、早崩重跑不计败）；split 六端点+POST 写读环绿（HTTP 日志 200/0ms）；vue regen_vue.py --build exit 0（复审 F-1 修复：补件⑥在场守卫防 TS1117 + 补件 1b 生成器侧 src/natives.d.ts 追加 Process/Env 治 TS2304——committed/dirty 双依赖世界幂等验证）；tools/perf/perf.py 七段一键链（check/a2r/release/rq-up/rq-down/run/smoke，退出码 0/3/1，rqhost 预热管道探测+按 PID 收）；README SD-01 性能模式节 + SD-02 Tests 定标口径。\n- 复审 r1：首轮 needs_fix（AC-03 vue「blocked-upstream」定性被法证推翻——1631 生成器自 emitting src/natives.d.ts[671 中间态]只漏对象形态内建、TS1117=补件⑥非幂等；探针实证两行声明即消三错，~10 行修复）→ scoped 复审 pass；AC-05 blocker 改判等价裁定（实判 §6 codeeditor 覆盖 vs 预案 F-R1——「登记+矩阵如实+exit3 构造性验证」机制等价）。\n- 关键裁定：L2 性能模式=a2r+release+RQ（auto rqhost 共享合成器 + run -q，wellknown 管道 autodesk-rqhost，末窗退出语义）；上游三登记=§6 RQ 渲染臂 codeeditor 覆盖（native_queue_set 基础集外）/§7 a2r PLAN-027 词汇门（F-R1 只阻 --server rust 不阻 merged 主形态）/§8-收窄「671 natives 吸收需覆盖对象形态内建」；PERF_PROJECT/AUTO_RUST_WORKSPACE 落点锚定=worktree 零重物验证配方。"
+      "id": "tests",
+      "section_type": "Tests",
+      "title": "🧪 Tests",
+      "items": [],
+      "status": "Empty",
+      "content": "",
+      "depends_on": [],
+      "last_modified": 1788936821,
+      "last_verified": null
     },
     {
-     "id": "P005-1",
-     "section": "reviews",
-     "status": "stable",
-     "title": "PLAN-005 — M1 性能轨③收据（reviewed pass @ r1 3123c50：测量体系 tools/bench L0 proxy + 去 src 镜像先行段）",
-     "file": "docs/plans/archived/005-m1-measure-bench-desrc-mirror.md",
-     "related": ["PLAN-004", "PLAN-005"],
-     "superseded_by": null,
-     "content": "- 验收：A 段去镜像——editor_store 五处编辑路径全文回读删净（rg 仅存 ActSave/QuitSaveClose 两 write_text save 位），矩阵 T6 正文断言迁 save E2E（toolbar 保存落盘→saved: 计数轮询→读 AUTO_SAVE_PATH 比对；50/0×2 完成态，1652 工具链实例级 flake 经基线原码对照定谳非回归）；vue regen_vue.py --build exit 0（d845e54 退役链世界：ts_adapter print→console.log 与 store console 字段遮蔽的单行缓解 console.log→globalThis.console.log）。B 段 tools/bench/bench.py 三命令（check/proxy/assert，退出码 0/3/1）：proxy 端到端=启动链 5 跑弃暖机（spawn→init 287-536ms 主导）+打开计时 1/10/100MB（100MB 460ms、内存线性放大至 521MB=整串镜像直接证据）+内存采样（psutil 缺席回退 PowerShell WorkingSet64，方法记入 JSONL）+全量读检测（白名单=save handler 上下文，构造性红证自检）+预算断言；budgets.json=战略 §2.1 全 10 行五类终态（not-armed/arch-blocked/blocked-upstream/pending-feature/ledger，硬门禁仅 L2）；results/ JSONL+baseline-L0-20260921.md 入仓；README SD-01（tabs[i].src 仅初值/外部重置单一语义）+SD-02（测量套件节）+SD-03（Tests T6 save E2E 注）。\n- 复审 r1：直过 pass（同会话内审——独立性受限已声明，全 AC 重跑取证）；AC-04 语义修订追认=BENCH 裸标记行+host 侧毫秒（VM 轨 time 族未接线四探针实证：now_ms 两形态返 0/Instant.elapsed 得 None/实装仅 a2r-std）；矩阵完成态门环境附记（复审窗口分支与基线原码同形早崩=F-RV6 竞态，证据承载=执行期 50/0×2+vm 轨代码与 HEAD 字节同一 diff 证）；findings RV-01..05 全非阻塞（含 vue strict 生成 bps 池校验非确定中止观察、T9/T10 收编非 finally 预存改进项）。\n- 关键裁定：BENCH 观测通道=host 时间戳+AUTO_BENCH=1 门控 app 裸标记行（print→stdout 落文件零常态成本，不进 console 面板矩阵断言零扰动；上游 time 族接线后可升级 app 侧毫秒）；--mode l1/l2 经 perf.py 链取归因 exit 3；上游登记入供料包 §9=首帧钩子勘无（键入/滚动行 blocked-upstream）+VM 轨 time 族未接线+ts_adapter print 遮蔽+code_editor_paste 剪贴板瞬态失败观测缺口；执行期 main 并行前移 d845e54（vue671 补件链退役）已对账合并（8a5ab1c，regen_vue 冲突取退役版，vm 轨零改动）。"
-    },
-    {
-     "id": "P006-1",
-     "section": "reviews",
-     "status": "stable",
-     "title": "PLAN-006 — M1 性能轨④收据（reviewed pass @ r1 9dcb58f：首份 L2 基线 steady 12.7ms pass + 预算武装断言）",
-     "file": "docs/plans/archived/006-m1-l2-baseline-report.md",
-     "related": ["PLAN-004", "PLAN-005"],
-     "superseded_by": null,
-     "content": "- 验收：bench.py L2 数字面——_l2_suite release 产物直拉（旗标组合实锚 --autodesk-launcher --autodesk-rqhost --autodesk-broker=<wellknown> --autodesk-render=queue，client 臂不读 AUTO_RQHOST_WELLKNOWN env 该 env 只被 daemon 读；2ms 轮询）；daemon 生命周期顺设计=单一 rqhost 服务全序列+app keep_alive 累积窗口+suite 末统一收编（末窗退出语义 rqhost.rs D5 下批次重拉两竞态实勘后弃用）；拓扑有效性双门=daemon「window opened」+app 存活逐跑断言（BENCH 标记先于 adopt 结果打印——死 daemon 上标记照达而窗未建）；evaluate_budgets l2 分支（steady_start armed 出均值 vs ≤80ms 显式判定、renderer_cold_start armed-record 单列 pending-Q2、余行附 L2 锚点数字；fail=记录性判定不改退出码）。首基线（tools/bench/results/baseline-L2-20260922.md + JSONL 入仓）：steady 12.7ms pass（L0~362ms 对照——auto.exe 宿主+VM 层被 release 直拉消除）、rqhost 冷启动 16.9ms（debug 构建 renderer_daemon_build 字段在档）+守护稳态 68.9MB 单列、open 100MB 40.6ms（L0 459.8ms ~11×）但内存 480MB 线性放大=rope 前锚点禁调优。README 双侧回填 SD-01/02（bench L2 语义节+探针矩阵 L2 行翻绿；perf 模式矩阵 a2r+RQ 解阻双判据+release 产物路径 T-07 实锚）。回归三连绿：check/proxy l0 零扰动/proxy l2 复跑幂等 exit 0；tasklist 零孤儿。\n- 复审 r1：pass（同会话内审——独立性受限已声明，全 AC 从已提交工件重构断言；两份 l2 JSONL 独立复核 steady 12.7/18.2 双 pass；findings F-01 assert 重放 l2 文件时摘要行用 L0 缺省序打出误导性「缺 not-armed」/F-02 _window_opened_since 字节相同重复定义死代码——均非阻塞）。§10 三项按计划内默认口径执行（steady 代理口径 spawn→ws_loaded 采用+注记/rqhost debug 构建+字段在档/超标只记录不调优——本跑 pass 未触发）。异常在案：执行中共享计划文件 12:01:19 被未识别外部动作翻 archived 移目录，按并发编辑和解移回恢复（计划 §9 留痕）。delivery：主检出并发前移 f25cb38/5c95903（docs/specs 规范层补建，纯 docs 零代码触碰——代码复审不受影响）后 rebase 9dcb58f≡06cb964（git range-diff 全等）+ 规范/账本投影纯增 descendant，ff-only 落 main。"
-    },
-    {
-     "id": "P007-1",
-     "section": "reviews",
-     "status": "stable",
-     "title": "PLAN-007 — M1 rope 消费收据（reviewed pass @ r1 5063e73：store 去文本化 + AC-02 终态 219MB/-58% + L2 单 iced 化）",
-     "file": "docs/plans/archived/007-m1-rope-consume-desrc-store.md",
-     "related": ["PLAN-005", "PLAN-006", "PLAN-004"],
-     "superseded_by": null,
-     "content": "- 交付：editor_store 文件 tab src 恒空串（零全文驻留；untitled/演示 tab 保留种子位）+ src_active 退役（矩阵断言面改 loaded_bytes）；装载链 OpenPath 公共核 + RunPendingLoad（Tick 消费——协议四件：存在性探针 edit(key,0,0,\"\") / set_text(key,\"\") try-catch 对齐 last_external〔VM shim 对 registry false 无差别抛错，guard no-op 也抛〕/ 终态=上游 687 code_editor_load_file 端点一行化〔native std::fs 单趟读+core.set_text 单次重写+delta 即弃+last_external 不触〕/ 错误形静默空 tab）；back 增 read_text_range 端点。L2 单 iced 化（bench _l2_suite 零旗标直拉，rqhost 生命周期退役，renderer_cold_start=arch-blocked-note，拓扑门=后端就绪行+存活）。Q2 中期裁定落账四件（战略补注九原文/budgets 注记/双 README/perf-measurement spec）+ upstream §10（a2r 三缺→687 清偿 + a2r 视图-状态联动新缺口登记 + 假分块/首建推送落空两观察）。\n- 数字：中间形态三形状反例在档（4MB/16MB/单块 729-1356MB——envelope 过 VM 滞留 ~8× 线性+假分块+edit O(n)）；终态 100MB 装载 219MB vs 锚 521（-58%）1/10/100MB 全档 Flat ~219、<25ms（results/20260922-150608.jsonl + baseline-L0-20260922-plan007.md 终态节）。矩阵 50/0（T9.2 loaded_bytes 新断言过）；vue regen --build 绿（natives.d.ts 由新工具链 intrinsics 驱动生成）；L2 首跑 a2r 门通+单 iced 启动链 steady 12.7/12.4ms mem 37MB（open 段败于 a2r 视图联动新缺口，§10-2 降级谱系）。\n- 复审 r1：pass（同会话内审——独立性受限已声明；AC-01..07 从工件与复现命令重建断言；矩阵 45/3 menu-flake→复跑 50/0 双跑在档；findings F-1=落地顺序硬前置〔687 须先落——已按序执行〕F-2=touched_goals 惯例空+flake 谱系记录）。依赖：auto-lang PLAN-687 @ 8360bc583（先落+主检出工具链 1871 重建）。"
-    },
-    {
-     "id": "P008-1",
-     "section": "reviews",
-     "status": "stable",
-     "title": "PLAN-008 — M2-01 字节保真收据（reviewed pass @ r1 c3547e3：BOM/EOL 往返+转换+非法 UTF-8 无损兜底，矩阵 57/0）",
-     "file": "docs/plans/archived/008-m2-utf8-eol-byte-fidelity.md",
-     "related": ["PLAN-007", "PLAN-003"],
-     "superseded_by": null,
-     "content": "- 交付：打开→编辑→保存文件字节保真契约——tabs 增 bom/eol/readonly 三标量；ProbeByteMeta 装载探测（64KB 采样窗 read_text_range 单读〔全文件 census 禁止=envelope 池滞留〕+ BOM 码点 65279 检出 + edit(0,3) rope 剥离 + 前缀字符运行期捕获〔语言面无 unicode 转义、无码点→字符内建〕）；WriteFidelity save 位收口（BOM 前缀回写 + EOL 主形态重写补偿 buffer 编辑即归一 LF〔buffer_text join 丢弃 cosmic LineEnding，T-00 实测〕+ readonly 拦截）；EolConvert 转换链（结构化 edit(0,字节全长)——handler 侧 set_text 触 last_external 被绑定推送清场，实测教训）+ SyncByteMeta 状态栏派生标量；非法 UTF-8 错误形=readonly+标题后缀+save 拦截（旧行为清写原文件 32B→0B 实测危害）。\n- 验收：矩阵完成态 57/0（T12 七检查：BOM 正/负向、CRLF/LF 编辑后字节往返 sha256 等值、CR 无编辑+label、mixed→LF 确认弹层、非法 UTF-8 哈希零变；fixtures 六件 .gitattributes -text 入库〔autocrlf 曾毁伤 CRLF/MIXED blob〕）；检测器白名单扩 WriteFidelity/EolConvert（扫描器带参 handler 头正则修正）+ 构造性红证三腿；vue build exit 0（探测方法双轨映射面路由）。\n- 规范：SD-01 editor-store.md 字节保真节 / SD-02 back-api.md 七端点勘正+IO 字节语义 / SD-03 00-overview M2 开篇+Q1 摘要 / SD-04 战略补注十（Q1 两产品并存裁定原文）。\n- 上游：供料 §11 四件——lossy 读端点 want / EOL LineEnding 漏斗 want / 快照 computed-events 竞态 / 1914-dirty load_file 100MB RSS 219→1014MB 回归（基线对照归因工具链，tools/bench/results/20260922-2012*.jsonl 在档）。"
-    },
-    {
-      "id": "P009-1",
-      "section": "reviews",
-      "status": "stable",
-      "title": "PLAN-009 — M2-02 查找替换收据（reviewed pass @ r1 8d35888：四态拼装+ReplaceAll+find-in-files，矩阵 77/0）",
-      "file": "docs/plans/archived/009-m2-find-replace.md",
-      "related": ["PLAN-008"],
-      "superseded_by": null,
-      "content": "- 交付：查找替换四态（正则/大小写/整词/转义）单一 find_effective 串拼装协议（SyncFindEffective 收口：regex_escape 14 元字符 Str.replace 链反斜杠最先→(?-i) 内联旗标〔覆盖内核 builder case_insensitive，T-00 探针正案〕→\b 锚）驱动高亮/替换/fif 三消费面；查找栏根视图（Ctrl+F/Ctrl+H/菜单三入口+三开关+下一处/×）+ code_editor search prop Ident 绑定（live diff+非空首跳）；input 派发=键入文本 handler 首参（015-notes 形，T-00④ 翻案定案：框架写回仅根级、裸 value 对 store 字段不 mint）；back regex_replace（Rust regex，大小写不敏感默认+旗标透传，marker 算术计数——Regex.match 列表 .len() vm handler 恒 20 弃用）+ ReplaceAll（readonly 拦截+零匹配零动作+「替换 N 处」反馈）；back search_files（fs.list_dir 递归+剥根噪声过滤镜像 tree skip-list+逐行 test+try/catch 兜底+500 上限+10MB 门，count 由 back 交付）+ 根视图内联结果面板（行点击=裸循环索引载荷——字段访问载荷经 MCP 派发携带字面量不解析，实勘收口）。\n- 验收：矩阵完成态 77/0 双跑绿（T13 二十检查：开栏+拼装四组合+×关栏/find_next 推进回绕/ReplaceAll E2E 落盘字节+计数/readonly 哈希零变/空 query/fif 端点+条目点击/500 截断/10MB 门；判绿 ≥65 README 同步）；probe_find.py 23/0（T-00 决策门）；bench check 绿（白名单+ReplaceAllRequest 第五件+红证三腿）；vue regen --build exit 0（to_value 内联形=JSON.parse 吸收面）。\n- 规范：SD-01 editor-store.md 查找替换节 / SD-02 back-api.md 九端点勘正+搜索服务端点节 / SD-03 00-overview M2 第二件行。\n- 上游：供料 §12 九件——四 want（单处替换 code_editor_replace_next/find_prev/match_count/goto 行）+五观察（Regex.match 列表 .len() 恒 20/首拍派发竞态窗口/fs.walk codegen 错名 auto.file.walk File.create 错派/fs.walk_files 2847 白名单缺登记+撞号 Path.to_string/fs.metadata 映射覆盖为 auto.fs.size）。工具链钉版 1914-g56bfaf1fc-dirty（与 PLAN-008 判定基线同构建；兄弟树 5f62ebac5 零改动）。"
-    }
-,
-    {
-      "id": "P010-1",
-      "section": "reviews",
-      "status": "stable",
-      "title": "PLAN-010 — M2-03 会话恢复收据（reviewed pass @ r1 de5cf7a：懒装载+五挂点+最近文件，矩阵 86/0）",
-      "file": "docs/plans/archived/010-m2-session-restore.md",
-      "related": [
-        "PLAN-009",
-        "PLAN-007"
+      "id": "reviews",
+      "section_type": "Reviews",
+      "title": "🔍 Reviews",
+      "items": [
+        {
+          "id": "P001-1",
+          "section": "reviews",
+          "status": "stable",
+          "title": "PLAN-001 — bootstrap 收据（reviewed pass @ r1 6a3804d：041-auto-edit 拷贝独立运行 + 双路径修正 + 矩阵 39/6 如实验收）",
+          "file": "docs/plans/archived/001-bootstrap-auto-edit.md",
+          "related": [
+            "PLAN-001"
+          ],
+          "superseded_by": null,
+          "content": "- 验收：三树拷贝（auto-edit@92c8013a 源锚 specs/PROVENANCE.md + stylekit + blueprints）+ 双必改点（pac.at dep bps→../blueprints；desktop_mcp.py AUTO_BIN→env||which）+ 041 矩阵如实验收（四次实测 39/6 同类六失败=menubar 展开项快照缺失——上游渲染器回归坐实[机制：MENUBAR_OPEN 条件分支不进 vm vtree；对照：jade desktop 同族 exe menubar 项快照可见]，上游修复后重验预期 ≈48/2；归因/复跑记录见归档计划 Task 4）+ README 本仓化 + .gitignore（含 .autoos 运行时 ignore，specs.json 除外）。\n- 复审 r1 pass：独立复跑四组（py_compile/boot 冒烟零 ERROR/矩阵第四次 39P6F/pac.at 仓内 dep 核对）；findings 三 info（数值全绿按计划自载注记收口+上游重验义务 README 在案；main.at→app.at 笔误勘误；Phase A 结构性例外[零提交仓基线直落 master a61df19]）。\n- 下计划裁定面：specs/blueprints 拷贝 fork 形态的池治理（canonical=auto-lang/blueprints vs 独立池——方向一[dep path 消费，同 jade 惯例]/方向二[池独立成仓]，见 2026-09-20 共享工作对话）。"
+        },
+        {
+          "id": "P002-1",
+          "section": "reviews",
+          "status": "stable",
+          "title": "PLAN-002 — bps 池方向一收据（reviewed pass @ r1 3b9c8a6：specs/blueprints fork 退役，dep path 消费 auto-lang/blueprints canonical）",
+          "file": "docs/plans/archived/002-bps-dep-consume.md",
+          "related": [
+            "PLAN-001",
+            "PLAN-002"
+          ],
+          "superseded_by": null,
+          "content": "- 验收：dep bps ../blueprints→../../../auto-lang/blueprints（cwd 相对解析——主检出 3 级=autostack/auto-lang；worktree 深 2 级落组兄弟位，按 jade 组惯例补组内 auto-lang 兄弟树）+ specs/blueprints 整库 fork 退役（92c8013a 期拷贝，池已演进至 657）+ bootstrap 脚本 COPIES 收敛（重跑不重建 fork）+ README 兄弟仓依赖注记+ PROVENANCE 退役注（SD-01）。\n- 复审 r1 pass：三组独立复跑（fork/dep 状态、boot 零 ERROR、矩阵第六次 39/6 同类 menubar 上游面）；F-R1 quit 项在 39/5↔39/6 逐次波动=上游回归面不稳（上游修单证据）；F-R2 cwd 相对 dep 解析组兄弟惯例。\n- 语义变更：PLAN-001 bootstrap 期约束\"不触碰 auto-lang 仓内路径\"由方向一显式取代（2026-09-20 用户裁定）。池版本锁定协议归上游独立计划治理（方向一裁定附款）。"
+        },
+        {
+          "id": "P003-1",
+          "section": "reviews",
+          "status": "stable",
+          "title": "PLAN-003 — front/back 拆分 + 双轨化收据（reviewed pass @ r1 7a4ed53：src/back api.at 契约六 fn + fsys.at 收口全部 FS 面 + pac render [vm,vue] + vue regen 链构建绿）",
+          "file": "docs/plans/archived/003-auto-edit-frontback-dualtrack.md",
+          "related": [
+            "PLAN-002",
+            "PLAN-003"
+          ],
+          "superseded_by": null,
+          "content": "- 验收：front 经 use back.api 裸直调（013/015 形态）零 fs.*/File.*/Env.get 内建（grep 零代码命中）；merged 矩阵完成态 ≥39/6 口径（双时点工具链基线在档）；split 功能环 11/11（树/open/edit/save/quit-save 经 back HTTP）——上游 auto-lang PLAN-669（#[api] 实参按名绑定）解阻后达成，工具链须含 669 构建；vue 轨 scripts/regen_vue.py 一键链（生成 --lenient + 七类生成器缺口补件）vue-tsc+vite 构建绿；README SD-01/02 + split 注记勘误（「内建空桩」定性作废→实参装配断层，根因重定性三段在档）。\n- 复审 r1：首轮 needs_replan（AC-03 上游卡死）→ 缺陷报告供料 auto-lang 立 669 → 修复落 master 后复验 pass（re-review 全六 AC pass；四跑对照实验裁定矩阵非确定性=工具链竞态 F-RV6 归上游 668 面非本计划回归）。\n- 关键裁定：pac 永不写 api: 字段（引擎=运行期 --server 自由度）；fs.join 出契约（ts_adapter 对象级白名单连纯逻辑一并拦，T-00 P-5）；vue dev=后端独立 serve + vite 直跑两终端配方（auto run -r vue 内置再生成会覆盖补件）；归上游登记=F-R1（a2r E0432+空体桩）/F-RV6（矩阵竞态）/F-RV7（015 :id 遮蔽 /search）。"
+        },
+        {
+          "id": "P004-1",
+          "section": "reviews",
+          "status": "stable",
+          "title": "PLAN-004 — M1 性能轨①+②收据（reviewed pass @ r1 b0b4676 + scoped fdb5e66：功能健康基线 + tools/perf 性能模式一键链七段 0/3/1）",
+          "file": "docs/plans/archived/004-m1-func-baseline-perf-mode.md",
+          "related": [
+            "PLAN-003",
+            "PLAN-004"
+          ],
+          "superseded_by": null,
+          "content": "- 验收：矩阵 1631 五连跑定标（测试级失败清零——原 39/6 menubar 债随上游修复消散；早崩 2/5=F-RV6 实例死亡形态，临时口径=完成态 ≥49/0 判绿、早崩重跑不计败）；split 六端点+POST 写读环绿（HTTP 日志 200/0ms）；vue regen_vue.py --build exit 0（复审 F-1 修复：补件⑥在场守卫防 TS1117 + 补件 1b 生成器侧 src/natives.d.ts 追加 Process/Env 治 TS2304——committed/dirty 双依赖世界幂等验证）；tools/perf/perf.py 七段一键链（check/a2r/release/rq-up/rq-down/run/smoke，退出码 0/3/1，rqhost 预热管道探测+按 PID 收）；README SD-01 性能模式节 + SD-02 Tests 定标口径。\n- 复审 r1：首轮 needs_fix（AC-03 vue「blocked-upstream」定性被法证推翻——1631 生成器自 emitting src/natives.d.ts[671 中间态]只漏对象形态内建、TS1117=补件⑥非幂等；探针实证两行声明即消三错，~10 行修复）→ scoped 复审 pass；AC-05 blocker 改判等价裁定（实判 §6 codeeditor 覆盖 vs 预案 F-R1——「登记+矩阵如实+exit3 构造性验证」机制等价）。\n- 关键裁定：L2 性能模式=a2r+release+RQ（auto rqhost 共享合成器 + run -q，wellknown 管道 autodesk-rqhost，末窗退出语义）；上游三登记=§6 RQ 渲染臂 codeeditor 覆盖（native_queue_set 基础集外）/§7 a2r PLAN-027 词汇门（F-R1 只阻 --server rust 不阻 merged 主形态）/§8-收窄「671 natives 吸收需覆盖对象形态内建」；PERF_PROJECT/AUTO_RUST_WORKSPACE 落点锚定=worktree 零重物验证配方。"
+        },
+        {
+          "id": "P005-1",
+          "section": "reviews",
+          "status": "stable",
+          "title": "PLAN-005 — M1 性能轨③收据（reviewed pass @ r1 3123c50：测量体系 tools/bench L0 proxy + 去 src 镜像先行段）",
+          "file": "docs/plans/archived/005-m1-measure-bench-desrc-mirror.md",
+          "related": [
+            "PLAN-004",
+            "PLAN-005"
+          ],
+          "superseded_by": null,
+          "content": "- 验收：A 段去镜像——editor_store 五处编辑路径全文回读删净（rg 仅存 ActSave/QuitSaveClose 两 write_text save 位），矩阵 T6 正文断言迁 save E2E（toolbar 保存落盘→saved: 计数轮询→读 AUTO_SAVE_PATH 比对；50/0×2 完成态，1652 工具链实例级 flake 经基线原码对照定谳非回归）；vue regen_vue.py --build exit 0（d845e54 退役链世界：ts_adapter print→console.log 与 store console 字段遮蔽的单行缓解 console.log→globalThis.console.log）。B 段 tools/bench/bench.py 三命令（check/proxy/assert，退出码 0/3/1）：proxy 端到端=启动链 5 跑弃暖机（spawn→init 287-536ms 主导）+打开计时 1/10/100MB（100MB 460ms、内存线性放大至 521MB=整串镜像直接证据）+内存采样（psutil 缺席回退 PowerShell WorkingSet64，方法记入 JSONL）+全量读检测（白名单=save handler 上下文，构造性红证自检）+预算断言；budgets.json=战略 §2.1 全 10 行五类终态（not-armed/arch-blocked/blocked-upstream/pending-feature/ledger，硬门禁仅 L2）；results/ JSONL+baseline-L0-20260921.md 入仓；README SD-01（tabs[i].src 仅初值/外部重置单一语义）+SD-02（测量套件节）+SD-03（Tests T6 save E2E 注）。\n- 复审 r1：直过 pass（同会话内审——独立性受限已声明，全 AC 重跑取证）；AC-04 语义修订追认=BENCH 裸标记行+host 侧毫秒（VM 轨 time 族未接线四探针实证：now_ms 两形态返 0/Instant.elapsed 得 None/实装仅 a2r-std）；矩阵完成态门环境附记（复审窗口分支与基线原码同形早崩=F-RV6 竞态，证据承载=执行期 50/0×2+vm 轨代码与 HEAD 字节同一 diff 证）；findings RV-01..05 全非阻塞（含 vue strict 生成 bps 池校验非确定中止观察、T9/T10 收编非 finally 预存改进项）。\n- 关键裁定：BENCH 观测通道=host 时间戳+AUTO_BENCH=1 门控 app 裸标记行（print→stdout 落文件零常态成本，不进 console 面板矩阵断言零扰动；上游 time 族接线后可升级 app 侧毫秒）；--mode l1/l2 经 perf.py 链取归因 exit 3；上游登记入供料包 §9=首帧钩子勘无（键入/滚动行 blocked-upstream）+VM 轨 time 族未接线+ts_adapter print 遮蔽+code_editor_paste 剪贴板瞬态失败观测缺口；执行期 main 并行前移 d845e54（vue671 补件链退役）已对账合并（8a5ab1c，regen_vue 冲突取退役版，vm 轨零改动）。"
+        },
+        {
+          "id": "P006-1",
+          "section": "reviews",
+          "status": "stable",
+          "title": "PLAN-006 — M1 性能轨④收据（reviewed pass @ r1 9dcb58f：首份 L2 基线 steady 12.7ms pass + 预算武装断言）",
+          "file": "docs/plans/archived/006-m1-l2-baseline-report.md",
+          "related": [
+            "PLAN-004",
+            "PLAN-005"
+          ],
+          "superseded_by": null,
+          "content": "- 验收：bench.py L2 数字面——_l2_suite release 产物直拉（旗标组合实锚 --autodesk-launcher --autodesk-rqhost --autodesk-broker=<wellknown> --autodesk-render=queue，client 臂不读 AUTO_RQHOST_WELLKNOWN env 该 env 只被 daemon 读；2ms 轮询）；daemon 生命周期顺设计=单一 rqhost 服务全序列+app keep_alive 累积窗口+suite 末统一收编（末窗退出语义 rqhost.rs D5 下批次重拉两竞态实勘后弃用）；拓扑有效性双门=daemon「window opened」+app 存活逐跑断言（BENCH 标记先于 adopt 结果打印——死 daemon 上标记照达而窗未建）；evaluate_budgets l2 分支（steady_start armed 出均值 vs ≤80ms 显式判定、renderer_cold_start armed-record 单列 pending-Q2、余行附 L2 锚点数字；fail=记录性判定不改退出码）。首基线（tools/bench/results/baseline-L2-20260922.md + JSONL 入仓）：steady 12.7ms pass（L0~362ms 对照——auto.exe 宿主+VM 层被 release 直拉消除）、rqhost 冷启动 16.9ms（debug 构建 renderer_daemon_build 字段在档）+守护稳态 68.9MB 单列、open 100MB 40.6ms（L0 459.8ms ~11×）但内存 480MB 线性放大=rope 前锚点禁调优。README 双侧回填 SD-01/02（bench L2 语义节+探针矩阵 L2 行翻绿；perf 模式矩阵 a2r+RQ 解阻双判据+release 产物路径 T-07 实锚）。回归三连绿：check/proxy l0 零扰动/proxy l2 复跑幂等 exit 0；tasklist 零孤儿。\n- 复审 r1：pass（同会话内审——独立性受限已声明，全 AC 从已提交工件重构断言；两份 l2 JSONL 独立复核 steady 12.7/18.2 双 pass；findings F-01 assert 重放 l2 文件时摘要行用 L0 缺省序打出误导性「缺 not-armed」/F-02 _window_opened_since 字节相同重复定义死代码——均非阻塞）。§10 三项按计划内默认口径执行（steady 代理口径 spawn→ws_loaded 采用+注记/rqhost debug 构建+字段在档/超标只记录不调优——本跑 pass 未触发）。异常在案：执行中共享计划文件 12:01:19 被未识别外部动作翻 archived 移目录，按并发编辑和解移回恢复（计划 §9 留痕）。delivery：主检出并发前移 f25cb38/5c95903（docs/specs 规范层补建，纯 docs 零代码触碰——代码复审不受影响）后 rebase 9dcb58f≡06cb964（git range-diff 全等）+ 规范/账本投影纯增 descendant，ff-only 落 main。"
+        },
+        {
+          "id": "P007-1",
+          "section": "reviews",
+          "status": "stable",
+          "title": "PLAN-007 — M1 rope 消费收据（reviewed pass @ r1 5063e73：store 去文本化 + AC-02 终态 219MB/-58% + L2 单 iced 化）",
+          "file": "docs/plans/archived/007-m1-rope-consume-desrc-store.md",
+          "related": [
+            "PLAN-005",
+            "PLAN-006",
+            "PLAN-004"
+          ],
+          "superseded_by": null,
+          "content": "- 交付：editor_store 文件 tab src 恒空串（零全文驻留；untitled/演示 tab 保留种子位）+ src_active 退役（矩阵断言面改 loaded_bytes）；装载链 OpenPath 公共核 + RunPendingLoad（Tick 消费——协议四件：存在性探针 edit(key,0,0,\"\") / set_text(key,\"\") try-catch 对齐 last_external〔VM shim 对 registry false 无差别抛错，guard no-op 也抛〕/ 终态=上游 687 code_editor_load_file 端点一行化〔native std::fs 单趟读+core.set_text 单次重写+delta 即弃+last_external 不触〕/ 错误形静默空 tab）；back 增 read_text_range 端点。L2 单 iced 化（bench _l2_suite 零旗标直拉，rqhost 生命周期退役，renderer_cold_start=arch-blocked-note，拓扑门=后端就绪行+存活）。Q2 中期裁定落账四件（战略补注九原文/budgets 注记/双 README/perf-measurement spec）+ upstream §10（a2r 三缺→687 清偿 + a2r 视图-状态联动新缺口登记 + 假分块/首建推送落空两观察）。\n- 数字：中间形态三形状反例在档（4MB/16MB/单块 729-1356MB——envelope 过 VM 滞留 ~8× 线性+假分块+edit O(n)）；终态 100MB 装载 219MB vs 锚 521（-58%）1/10/100MB 全档 Flat ~219、<25ms（results/20260922-150608.jsonl + baseline-L0-20260922-plan007.md 终态节）。矩阵 50/0（T9.2 loaded_bytes 新断言过）；vue regen --build 绿（natives.d.ts 由新工具链 intrinsics 驱动生成）；L2 首跑 a2r 门通+单 iced 启动链 steady 12.7/12.4ms mem 37MB（open 段败于 a2r 视图联动新缺口，§10-2 降级谱系）。\n- 复审 r1：pass（同会话内审——独立性受限已声明；AC-01..07 从工件与复现命令重建断言；矩阵 45/3 menu-flake→复跑 50/0 双跑在档；findings F-1=落地顺序硬前置〔687 须先落——已按序执行〕F-2=touched_goals 惯例空+flake 谱系记录）。依赖：auto-lang PLAN-687 @ 8360bc583（先落+主检出工具链 1871 重建）。"
+        },
+        {
+          "id": "P008-1",
+          "section": "reviews",
+          "status": "stable",
+          "title": "PLAN-008 — M2-01 字节保真收据（reviewed pass @ r1 c3547e3：BOM/EOL 往返+转换+非法 UTF-8 无损兜底，矩阵 57/0）",
+          "file": "docs/plans/archived/008-m2-utf8-eol-byte-fidelity.md",
+          "related": [
+            "PLAN-007",
+            "PLAN-003"
+          ],
+          "superseded_by": null,
+          "content": "- 交付：打开→编辑→保存文件字节保真契约——tabs 增 bom/eol/readonly 三标量；ProbeByteMeta 装载探测（64KB 采样窗 read_text_range 单读〔全文件 census 禁止=envelope 池滞留〕+ BOM 码点 65279 检出 + edit(0,3) rope 剥离 + 前缀字符运行期捕获〔语言面无 unicode 转义、无码点→字符内建〕）；WriteFidelity save 位收口（BOM 前缀回写 + EOL 主形态重写补偿 buffer 编辑即归一 LF〔buffer_text join 丢弃 cosmic LineEnding，T-00 实测〕+ readonly 拦截）；EolConvert 转换链（结构化 edit(0,字节全长)——handler 侧 set_text 触 last_external 被绑定推送清场，实测教训）+ SyncByteMeta 状态栏派生标量；非法 UTF-8 错误形=readonly+标题后缀+save 拦截（旧行为清写原文件 32B→0B 实测危害）。\n- 验收：矩阵完成态 57/0（T12 七检查：BOM 正/负向、CRLF/LF 编辑后字节往返 sha256 等值、CR 无编辑+label、mixed→LF 确认弹层、非法 UTF-8 哈希零变；fixtures 六件 .gitattributes -text 入库〔autocrlf 曾毁伤 CRLF/MIXED blob〕）；检测器白名单扩 WriteFidelity/EolConvert（扫描器带参 handler 头正则修正）+ 构造性红证三腿；vue build exit 0（探测方法双轨映射面路由）。\n- 规范：SD-01 editor-store.md 字节保真节 / SD-02 back-api.md 七端点勘正+IO 字节语义 / SD-03 00-overview M2 开篇+Q1 摘要 / SD-04 战略补注十（Q1 两产品并存裁定原文）。\n- 上游：供料 §11 四件——lossy 读端点 want / EOL LineEnding 漏斗 want / 快照 computed-events 竞态 / 1914-dirty load_file 100MB RSS 219→1014MB 回归（基线对照归因工具链，tools/bench/results/20260922-2012*.jsonl 在档）。"
+        },
+        {
+          "id": "P009-1",
+          "section": "reviews",
+          "status": "stable",
+          "title": "PLAN-009 — M2-02 查找替换收据（reviewed pass @ r1 8d35888：四态拼装+ReplaceAll+find-in-files，矩阵 77/0）",
+          "file": "docs/plans/archived/009-m2-find-replace.md",
+          "related": [
+            "PLAN-008"
+          ],
+          "superseded_by": null,
+          "content": "- 交付：查找替换四态（正则/大小写/整词/转义）单一 find_effective 串拼装协议（SyncFindEffective 收口：regex_escape 14 元字符 Str.replace 链反斜杠最先→(?-i) 内联旗标〔覆盖内核 builder case_insensitive，T-00 探针正案〕→\b 锚）驱动高亮/替换/fif 三消费面；查找栏根视图（Ctrl+F/Ctrl+H/菜单三入口+三开关+下一处/×）+ code_editor search prop Ident 绑定（live diff+非空首跳）；input 派发=键入文本 handler 首参（015-notes 形，T-00④ 翻案定案：框架写回仅根级、裸 value 对 store 字段不 mint）；back regex_replace（Rust regex，大小写不敏感默认+旗标透传，marker 算术计数——Regex.match 列表 .len() vm handler 恒 20 弃用）+ ReplaceAll（readonly 拦截+零匹配零动作+「替换 N 处」反馈）；back search_files（fs.list_dir 递归+剥根噪声过滤镜像 tree skip-list+逐行 test+try/catch 兜底+500 上限+10MB 门，count 由 back 交付）+ 根视图内联结果面板（行点击=裸循环索引载荷——字段访问载荷经 MCP 派发携带字面量不解析，实勘收口）。\n- 验收：矩阵完成态 77/0 双跑绿（T13 二十检查：开栏+拼装四组合+×关栏/find_next 推进回绕/ReplaceAll E2E 落盘字节+计数/readonly 哈希零变/空 query/fif 端点+条目点击/500 截断/10MB 门；判绿 ≥65 README 同步）；probe_find.py 23/0（T-00 决策门）；bench check 绿（白名单+ReplaceAllRequest 第五件+红证三腿）；vue regen --build exit 0（to_value 内联形=JSON.parse 吸收面）。\n- 规范：SD-01 editor-store.md 查找替换节 / SD-02 back-api.md 九端点勘正+搜索服务端点节 / SD-03 00-overview M2 第二件行。\n- 上游：供料 §12 九件——四 want（单处替换 code_editor_replace_next/find_prev/match_count/goto 行）+五观察（Regex.match 列表 .len() 恒 20/首拍派发竞态窗口/fs.walk codegen 错名 auto.file.walk File.create 错派/fs.walk_files 2847 白名单缺登记+撞号 Path.to_string/fs.metadata 映射覆盖为 auto.fs.size）。工具链钉版 1914-g56bfaf1fc-dirty（与 PLAN-008 判定基线同构建；兄弟树 5f62ebac5 零改动）。"
+        },
+        {
+          "id": "P010-1",
+          "section": "reviews",
+          "status": "stable",
+          "title": "PLAN-010 — M2-03 会话恢复收据（reviewed pass @ r1 de5cf7a：懒装载+五挂点+最近文件，矩阵 86/0）",
+          "file": "docs/plans/archived/010-m2-session-restore.md",
+          "related": [
+            "PLAN-009",
+            "PLAN-007"
+          ],
+          "superseded_by": null,
+          "content": "- 交付：会话持久化（APPDATA 根 auto-edit-session.json，ws_dir 键控+缺席兜底禁用双门；SessionSave 五挂点 OpenPath/RemoveAt/TabActivate/ActNew/CloseRequest 入口〔退出三臂单挂点〕结构变更即时落盘=崩溃恢复底座；JSON 拼装=json_escape 两字符 Str.replace 链〔json.stringify(1918) vue 映射未证不赌，008/009 选型第三次复用〕）+ 懒恢复（LoadWorkspace 尾段三门〔存在→try 解析→ws_dir 匹配〕→tabs 重建零全文 loaded=false→open_count 防撞号→激活位+load_key=active——恢复 N tab 只读 1 文件=视图只实化 active；TabActivate 装载触发〔loaded==false 且 path 非空〕；损坏 JSON 容忍形→ws 门+try 门双保险=静默全新启动；T-00 定案 Q-1=registry 存留切回免重装/写频=即时）+ 最近文件（OpenPath 公共核前段维护，去重前移上限 10；UI=Explorer 侧栏节——menubar-content 四边界〔for/label 不吸收、if 守卫跨重建失真、带参 onclick 实参归零〕设计适配在案 §13 观察）+ tabs.loaded 装载协议增补+cline/ccol 前向兼容位（持久化不应用，§12 set-cursor 消费方）。边界如实成文：脏内容/光标/滚动不恢复（back 版本化=L 线）。- 验收：矩阵完成态 86/0 双跑绿（77 基线+T14 九检查：写入字段+untitled 排除/注入恢复序+active+仅 active 装载/激活触发装载/ws 不匹配全新启动/taskkill 强杀崩溃恢复/脏 tab 不保存退出=结构在脏编辑丢/侧栏全关后条目在+点击重开/ActNew untitled 化排除/损坏 JSON 静默启动；判绿下限 ≥85 README 同步；基建卫生=矩阵整跑+每实例 APPDATA 隔离——会话链落盘 APPDATA 根的污染面）+ probe_session.py 23/0（T-00 决策门：IO 双形往返/恢复序预演/Q-1/退出写盘时序/损坏 JSON 行为）+ 基线 77/0 复验（钉版 1993-g8fecfcf69 vs 009 钉版 1914 零回归，baseline-check 独立干净检出）+ bench 检测器 check 绿（会话链零 code_editor_text，白名单零变更）+ vue regen --build exit 0。- 规范：SD-01 editor-store.md 会话持久化与懒恢复节（文件契约/五挂点/恢复协议/loaded 语义/前向兼容位/侧栏适配边界/recents 契约）/ SD-02 00-overview M2 第三件行；back-api 零端点变更（env_str/read_text/write_text/exists 四件复用）。- 上游：供料 §13 五件——editor scroll 读+写 want（滚动恢复）/§12 set-cursor 消费方注记（cline/ccol 已持久化，端点清偿即得光标恢复）/json.stringify(1918) vue 映射复核/menubar-content 动态子节点四边界观察件/autoui_state-split HTTP 渲染形补记。"
+        },
+        {
+          "id": "P011-1",
+          "section": "reviews",
+          "status": "stable",
+          "title": "PLAN-011 — M3-01 文件 diff v1 收据（reviewed pass @ r1 407b2fc：朴素分层过渡计算层+envelope 替换缝+并排视图+F7 导航，矩阵 97/0）",
+          "file": "docs/plans/archived/011-m3-file-diff-v1.md",
+          "related": [
+            "PLAN-010",
+            "PLAN-009"
+          ],
+          "superseded_by": null,
+          "content": "- 交付：back 第十件 diff_files（fsys.diff_files_json 朴素分层全内联单函数=envelope 替换缝——公共前后缀裁剪/DP-LCS 200²/大中段降级 degraded/索引对齐配对+三段标记 100k 字符预算/ctx 窗切 hunk；上限门 1MB pre-read+10k 行 post-split；CR 容忍）+front 17 状态字段/五 msg/env 旁路 Tick 自开（DiffOpen/Compute/Close/Next/Prev/DiffScrollToHunk）+根视图全幅并排视图（四 for 单 bool 旗标/scroll-pane controller）+F7/Shift+F7 导航（24px/行 float 累加）。\n- 验收：AC-01..06 PASS+AC-07 PARTIAL（vue regen --build exit 0 blocked-on-upstream——生成器 scroll_* helper 族无 TS 类型 strict TS7006，本件转译零错[App.vue 23-28 归因]，跨轨禁补件适用，upstream §14 want）；矩阵 **97/0** EXIT 0（86+T15×11，判绿 ≥96）；探针 probe_diff.py 35/0（golden×六形态逐字段+错误形×3）；烟测 19/0；bench diff 档两轮 JSONL（基线 543/131·1184/358ms+门拒 19-21/42ms）。\n- 复审 r1 pass：同会话复审以工件重建裁决（全门禁受审树重跑）；T-00 五轮定参（DP 200/渲染 600/文件 10k 行·1MB——50k/2MB 预判不成立降参注记）；R-2 上游件/R-3 卫生候选在案。\n- merge 期 rebase ×2（并行 695 landing：5aa8ea9+主检出账目 acdc31b）——range-diff 8/8 全等两轮（f19fa47→5f91e39→722c0ed 交付链），rebased 树 T15 11/11+烟测 19/0 复验绿。\n- R-4（非本件）：695 行尾 submenu 化后 T12.6 mixed→LF MCP 不可达（menubar-sub 子树不进快照，裸 main 5aa8ea9 两级复现）——§14 登记，README 口径注记不计判绿。"
+        }
       ],
-      "superseded_by": null,
-      "content": "- 交付：会话持久化（APPDATA 根 auto-edit-session.json，ws_dir 键控+缺席兜底禁用双门；SessionSave 五挂点 OpenPath/RemoveAt/TabActivate/ActNew/CloseRequest 入口〔退出三臂单挂点〕结构变更即时落盘=崩溃恢复底座；JSON 拼装=json_escape 两字符 Str.replace 链〔json.stringify(1918) vue 映射未证不赌，008/009 选型第三次复用〕）+ 懒恢复（LoadWorkspace 尾段三门〔存在→try 解析→ws_dir 匹配〕→tabs 重建零全文 loaded=false→open_count 防撞号→激活位+load_key=active——恢复 N tab 只读 1 文件=视图只实化 active；TabActivate 装载触发〔loaded==false 且 path 非空〕；损坏 JSON 容忍形→ws 门+try 门双保险=静默全新启动；T-00 定案 Q-1=registry 存留切回免重装/写频=即时）+ 最近文件（OpenPath 公共核前段维护，去重前移上限 10；UI=Explorer 侧栏节——menubar-content 四边界〔for/label 不吸收、if 守卫跨重建失真、带参 onclick 实参归零〕设计适配在案 §13 观察）+ tabs.loaded 装载协议增补+cline/ccol 前向兼容位（持久化不应用，§12 set-cursor 消费方）。边界如实成文：脏内容/光标/滚动不恢复（back 版本化=L 线）。- 验收：矩阵完成态 86/0 双跑绿（77 基线+T14 九检查：写入字段+untitled 排除/注入恢复序+active+仅 active 装载/激活触发装载/ws 不匹配全新启动/taskkill 强杀崩溃恢复/脏 tab 不保存退出=结构在脏编辑丢/侧栏全关后条目在+点击重开/ActNew untitled 化排除/损坏 JSON 静默启动；判绿下限 ≥85 README 同步；基建卫生=矩阵整跑+每实例 APPDATA 隔离——会话链落盘 APPDATA 根的污染面）+ probe_session.py 23/0（T-00 决策门：IO 双形往返/恢复序预演/Q-1/退出写盘时序/损坏 JSON 行为）+ 基线 77/0 复验（钉版 1993-g8fecfcf69 vs 009 钉版 1914 零回归，baseline-check 独立干净检出）+ bench 检测器 check 绿（会话链零 code_editor_text，白名单零变更）+ vue regen --build exit 0。- 规范：SD-01 editor-store.md 会话持久化与懒恢复节（文件契约/五挂点/恢复协议/loaded 语义/前向兼容位/侧栏适配边界/recents 契约）/ SD-02 00-overview M2 第三件行；back-api 零端点变更（env_str/read_text/write_text/exists 四件复用）。- 上游：供料 §13 五件——editor scroll 读+写 want（滚动恢复）/§12 set-cursor 消费方注记（cline/ccol 已持久化，端点清偿即得光标恢复）/json.stringify(1918) vue 映射复核/menubar-content 动态子节点四边界观察件/autoui_state-split HTTP 渲染形补记。"
+      "status": "Empty",
+      "content": "",
+      "depends_on": [],
+      "last_modified": 1788936821,
+      "last_verified": null
+    },
+    {
+      "id": "reports",
+      "section_type": "Reports",
+      "title": "📊 Reports",
+      "items": [],
+      "status": "Empty",
+      "content": "",
+      "depends_on": [],
+      "last_modified": 1788936821,
+      "last_verified": null
     }
-   ],
-   "status": "Empty",
-   "content": "",
-   "depends_on": [],
-   "last_modified": 1788936821,
-   "last_verified": null
-  },
-  {
-   "id": "reports",
-   "section_type": "Reports",
-   "title": "📊 Reports",
-   "items": [],
-   "status": "Empty",
-   "content": "",
-   "depends_on": [],
-   "last_modified": 1788936821,
-   "last_verified": null
-  }
- ]
+  ]
 }
