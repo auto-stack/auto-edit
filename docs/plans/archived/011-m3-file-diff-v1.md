@@ -1,6 +1,7 @@
 ---
 plan_id: PLAN-011
-status: reviewed
+status: archived
+completion_kind: delivered
 feature_name: m3-file-diff-v1（M3-01：文件 diff v1——并排只读视图 + 过渡计算层 + hunk 导航）
 author: [agent]
 created_at: 2026-09-23T13:39:10+08:00
@@ -482,3 +483,27 @@ target/debug 是测量噪声源，判据前必核 --version）。
   行数 198ms，即时性实证）+blocked-on-upstream 注记（全文大文件 diff
   待引擎 diff_snapshots）。AC-06 本质（框架+基线 JSONL+blocked 标注）
   保持达成。
+
+- **2026-09-23 stage: merge | PLAN-011:r1 | outcome: pass | 五检查点全落**
+  - **prepared**：受审基线 f19fa47（+复审证据链至 407b2fc 面）；canonical
+    spec diff=分支 docs/specs 三册（diff-view 新册/back-api 端点节+
+    overview M3 开篇）；投影目标=.autoos/specs.json reviews 段；
+    交付提交=7de0aa2（经两轮 rebase：f19fa47→5f91e39→722c0ed→7de0aa2）。
+  - **rebase ×2 记录（并行 landing 应对）**：main 中途被并行会话推进
+    （695 submenu 化 5aa8ea9+本周期账目 acdc31b）——两轮 rebase 零冲突，
+    **range-diff 8/8 全等 ×2**（safe-rewrite 证明）；rebased 树验证刷新：
+    烟测 19/0+矩阵 96/1（唯一败=R-4 非本件）+T15 11/11。
+  - **landed**：`git merge --ff-only` main tip==7de0aa2（TIP-MATCH ✓，
+    零合并提交）；规范三册+bench JSONL+README 口径全数上 main。
+  - **ledger_refreshed**：.autoos/specs.json reviews 段 **P011-1** 外科
+    插入（11 items；整文件解析+回读+他段零扰动断言 ✓；注：全文件
+    json 重序列化致格式行变动，内容级 insertion-only 已断言证明）。
+    投影中途污染事故一次（并行 stylekit 暂存件被扫入）——soft reset
+    纠正，stylekit WIP 原样退回未暂存区。
+  - **R-4 定性（merge 期新发现，非本件）**：695 行尾 submenu 化后
+    T12.6 mixed→LF MCP 不可达（menubar-sub 整子树不进快照——裸 main
+    5aa8ea9 两级复现）——§14 登记 want+README 口径注记（不计判绿）。
+  - **archived**：本文件 git mv → docs/plans/archived/011-m3-file-diff-v1.md
+    + status: archived + completion_kind: delivered。
+  - **cleaned**：（worktree 移除+branch 删+junction 摘除后补记）。
+  - next: PLAN-012（目录 diff，执行前置=本 merge ✓ 解除）。
