@@ -1798,9 +1798,11 @@ def run_tests(mcp_url, proc):
                                          "diff_hunk_idx"))
             result.check("T15.4 导航推进回绕 [1,2,0,1,0]",
                          seq == [1, 2, 0, 1, 0], str(seq))
+            # 序列尾=上一处（idx 1→0）→ 位次 1/3（T15.4 序列终态对齐）
             pos = (state_str(t15.state("diff_hunk_pos"), "diff_hunk_pos")
                    or "").strip('"')
-            result.check("T15.5 hunk 位次派生 2/3", pos == "2/3", repr(pos))
+            result.check("T15.5 hunk 位次派生 1/3（序列终态对齐）",
+                         pos == "1/3", repr(pos))
             tabs_before = state_int(t15.state("tab_count"), "tab_count")
             b_close = find_button_by_text(snap15, "×")
             if b_close:

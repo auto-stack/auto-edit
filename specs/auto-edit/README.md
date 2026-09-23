@@ -208,6 +208,22 @@ baseline-check 干净检出 77/0 复验同版零回归）：矩阵扩 T14 会话
 ws 门兜底）。T12/T13 复跑条款沿用；T14 会话链零 `code_editor_text`
 （检测器白名单零变更）。
 
+PLAN-011 口径更新（2026-09-23，工具链 2044-dirty——并行会话施工中
+共享 target/debug，判据前必核 `auto --version`）：矩阵扩 T15 文件
+diff 检查组（env 旁路 Tick 自开+计数 state、形状计数 dbg 四件、三段
+标记**分离节点**口径、hunk 导航推进回绕序列、hunk 位次派生、关闭复原
+tab 零扰动、unbalanced 形态 4ctx/1pair/2del、缺文件错误形、行数超限
+拒绝、渲染截断 cap 600+truncated+degraded；每检查独立进程+临时
+APPDATA 隔离——T11/T14 先例；fixtures/diff/ 六形态 golden 入仓）——
+完成态 **97/0**（86/0 + 11 新检查），判绿下限随升 **≥96 passed /
+0 failed**（T-00 决策探针 `tests/probe_diff.py` 26/0 为前置决策门，
+不入矩阵计数）。T12/T13/T14 复跑条款沿用；F-RV6 进程级早崩在
+2044-dirty 复现增补（upstream §14，死亡点逐跑异——无 RESULT 行重跑
+条款继续适用）。diff 链零 `code_editor_text`（检测器白名单零变更）；
+bench 增 `diff` 计时档（tools/bench `bench.py diff`：small/mid 基线+
+尺寸/行数门拒延迟，JSONL 在 results/，档外全文 diff blocked-on-
+upstream 注记——引擎 diff_snapshots 时代清偿）。
+
 注：Plan 451 起 T10「热重载」走 DSL 源路径（reload 工具或 mtime 轮询重读
 app.at 重新提取 actions + generation bump → 视图重建），实测 50/0 全绿。
 OS 用户键位层（`%APPDATA%/auto/keymaps/auto-edit.at`）保持外部文件——那是
