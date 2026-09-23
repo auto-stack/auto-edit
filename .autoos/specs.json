@@ -146,6 +146,20 @@
       "superseded_by": null,
       "content": "- 交付：查找替换四态（正则/大小写/整词/转义）单一 find_effective 串拼装协议（SyncFindEffective 收口：regex_escape 14 元字符 Str.replace 链反斜杠最先→(?-i) 内联旗标〔覆盖内核 builder case_insensitive，T-00 探针正案〕→\b 锚）驱动高亮/替换/fif 三消费面；查找栏根视图（Ctrl+F/Ctrl+H/菜单三入口+三开关+下一处/×）+ code_editor search prop Ident 绑定（live diff+非空首跳）；input 派发=键入文本 handler 首参（015-notes 形，T-00④ 翻案定案：框架写回仅根级、裸 value 对 store 字段不 mint）；back regex_replace（Rust regex，大小写不敏感默认+旗标透传，marker 算术计数——Regex.match 列表 .len() vm handler 恒 20 弃用）+ ReplaceAll（readonly 拦截+零匹配零动作+「替换 N 处」反馈）；back search_files（fs.list_dir 递归+剥根噪声过滤镜像 tree skip-list+逐行 test+try/catch 兜底+500 上限+10MB 门，count 由 back 交付）+ 根视图内联结果面板（行点击=裸循环索引载荷——字段访问载荷经 MCP 派发携带字面量不解析，实勘收口）。\n- 验收：矩阵完成态 77/0 双跑绿（T13 二十检查：开栏+拼装四组合+×关栏/find_next 推进回绕/ReplaceAll E2E 落盘字节+计数/readonly 哈希零变/空 query/fif 端点+条目点击/500 截断/10MB 门；判绿 ≥65 README 同步）；probe_find.py 23/0（T-00 决策门）；bench check 绿（白名单+ReplaceAllRequest 第五件+红证三腿）；vue regen --build exit 0（to_value 内联形=JSON.parse 吸收面）。\n- 规范：SD-01 editor-store.md 查找替换节 / SD-02 back-api.md 九端点勘正+搜索服务端点节 / SD-03 00-overview M2 第二件行。\n- 上游：供料 §12 九件——四 want（单处替换 code_editor_replace_next/find_prev/match_count/goto 行）+五观察（Regex.match 列表 .len() 恒 20/首拍派发竞态窗口/fs.walk codegen 错名 auto.file.walk File.create 错派/fs.walk_files 2847 白名单缺登记+撞号 Path.to_string/fs.metadata 映射覆盖为 auto.fs.size）。工具链钉版 1914-g56bfaf1fc-dirty（与 PLAN-008 判定基线同构建；兄弟树 5f62ebac5 零改动）。"
     }
+,
+    {
+      "id": "P010-1",
+      "section": "reviews",
+      "status": "stable",
+      "title": "PLAN-010 — M2-03 会话恢复收据（reviewed pass @ r1 de5cf7a：懒装载+五挂点+最近文件，矩阵 86/0）",
+      "file": "docs/plans/archived/010-m2-session-restore.md",
+      "related": [
+        "PLAN-009",
+        "PLAN-007"
+      ],
+      "superseded_by": null,
+      "content": "- 交付：会话持久化（APPDATA 根 auto-edit-session.json，ws_dir 键控+缺席兜底禁用双门；SessionSave 五挂点 OpenPath/RemoveAt/TabActivate/ActNew/CloseRequest 入口〔退出三臂单挂点〕结构变更即时落盘=崩溃恢复底座；JSON 拼装=json_escape 两字符 Str.replace 链〔json.stringify(1918) vue 映射未证不赌，008/009 选型第三次复用〕）+ 懒恢复（LoadWorkspace 尾段三门〔存在→try 解析→ws_dir 匹配〕→tabs 重建零全文 loaded=false→open_count 防撞号→激活位+load_key=active——恢复 N tab 只读 1 文件=视图只实化 active；TabActivate 装载触发〔loaded==false 且 path 非空〕；损坏 JSON 容忍形→ws 门+try 门双保险=静默全新启动；T-00 定案 Q-1=registry 存留切回免重装/写频=即时）+ 最近文件（OpenPath 公共核前段维护，去重前移上限 10；UI=Explorer 侧栏节——menubar-content 四边界〔for/label 不吸收、if 守卫跨重建失真、带参 onclick 实参归零〕设计适配在案 §13 观察）+ tabs.loaded 装载协议增补+cline/ccol 前向兼容位（持久化不应用，§12 set-cursor 消费方）。边界如实成文：脏内容/光标/滚动不恢复（back 版本化=L 线）。- 验收：矩阵完成态 86/0 双跑绿（77 基线+T14 九检查：写入字段+untitled 排除/注入恢复序+active+仅 active 装载/激活触发装载/ws 不匹配全新启动/taskkill 强杀崩溃恢复/脏 tab 不保存退出=结构在脏编辑丢/侧栏全关后条目在+点击重开/ActNew untitled 化排除/损坏 JSON 静默启动；判绿下限 ≥85 README 同步；基建卫生=矩阵整跑+每实例 APPDATA 隔离——会话链落盘 APPDATA 根的污染面）+ probe_session.py 23/0（T-00 决策门：IO 双形往返/恢复序预演/Q-1/退出写盘时序/损坏 JSON 行为）+ 基线 77/0 复验（钉版 1993-g8fecfcf69 vs 009 钉版 1914 零回归，baseline-check 独立干净检出）+ bench 检测器 check 绿（会话链零 code_editor_text，白名单零变更）+ vue regen --build exit 0。- 规范：SD-01 editor-store.md 会话持久化与懒恢复节（文件契约/五挂点/恢复协议/loaded 语义/前向兼容位/侧栏适配边界/recents 契约）/ SD-02 00-overview M2 第三件行；back-api 零端点变更（env_str/read_text/write_text/exists 四件复用）。- 上游：供料 §13 五件——editor scroll 读+写 want（滚动恢复）/§12 set-cursor 消费方注记（cline/ccol 已持久化，端点清偿即得光标恢复）/json.stringify(1918) vue 映射复核/menubar-content 动态子节点四边界观察件/autoui_state-split HTTP 渲染形补记。"
+    }
    ],
    "status": "Empty",
    "content": "",
