@@ -482,7 +482,13 @@ exit 0 复验。
   10 items（P001..P009-1+P010-1）主检出 json 解析+回读验证。
   `archived`——plain mv（未跟踪文件）→docs/plans/archived/
   010-m2-session-restore.md + status archived + completion_kind
-  **delivered**。`cleaned`——随后行。
+  **delivered**。`cleaned`——全量摘链 495 junction（deps ×2+pnpm
+  node_modules，rmdir 链接级零穿透；摘前 PowerShell 枚举 495→摘后 0
+  复核）；三树 wt-guard clean（auto-edit+baseline-check+auto-lang
+  兄弟）；三 worktree 移除（auto-edit 末验 tip=e1c2ef8 tracked clean
+  后 --force）+分支 plan-010-dev 删（was e1c2ef8）+双仓 prune+钉版
+  exe（核 1993 后删）+组目录零残留——五 checkpoint 全闭环
+  **delivered**。
 
 ## 10. 待澄清事项
 
