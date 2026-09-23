@@ -37,17 +37,21 @@
     "bigcmp": {
       "same": "verdict=eq,len=2099200",
       "diff": "verdict=uneq,len=2099200",
-      "wall_same_s": 0.185,
-      "wall_diff_s": 0.188,
+      "wall_same_s": 0.203,
+      "wall_diff_s": 0.206,
       "rss_kb": [
-        196624,
-        204844
+        195600,
+        203832
       ]
     },
     "dialog_open_dir": {
       "verdict": "file-only（rfd FileDialog 语义+catalog filter 形参数——live 面不可驱动，静态勘定）",
       "v1_plan": "双路径输入框+env AUTO_DIRDIFF_A/B 旁路",
       "upstream_want": "dialog_pick_folder（目录选择对话框）→ §15 登记"
+    },
+    "align_budget_wall": {
+      "warn_budget_hits": [],
+      "n_hits": 0
     }
   },
   "checks": [
@@ -67,7 +71,7 @@
       "item": "①",
       "name": "env 注入→probe_root 读回",
       "ok": true,
-      "detail": "'C:\\\\\\\\Users\\\\\\\\zhaop\\\\\\\\AppData\\\\\\\\Local\\\\\\\\Temp\\\\\\\\p012_probe_hexm5sja' "
+      "detail": "'C:\\\\\\\\Users\\\\\\\\zhaop\\\\\\\\AppData\\\\\\\\Local\\\\\\\\Temp\\\\\\\\p012_probe_xtl8fhw_' "
     },
     {
       "item": "①",
@@ -146,6 +150,72 @@
       "name": "2MB 同尺寸异内容 Str == → uneq",
       "ok": true,
       "detail": "'verdict=uneq,len=2099200' "
+    },
+    {
+      "item": "⑤′",
+      "name": "diff_dirs×dirdiff golden 逐字段",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "item": "⑤′",
+      "name": "根缺失 err 形（不静默）",
+      "ok": true,
+      "detail": "'目录不存在: Z:/nonexistent_p012'"
+    },
+    {
+      "item": "⑤′",
+      "name": "对齐定标 N=600 同长名（全改对）",
+      "ok": true,
+      "detail": "counts={'added': 0, 'binary': 0, 'deleted': 0, 'modified': 600, 'same': 0} t=0.39s"
+    },
+    {
+      "item": "⑤′",
+      "name": "对齐定标 N=800 同长名（全改对）",
+      "ok": true,
+      "detail": "counts={'added': 0, 'binary': 0, 'deleted': 0, 'modified': 800, 'same': 0} t=0.79s"
+    },
+    {
+      "item": "⑤′",
+      "name": "对齐定标 N=1000 优雅超限（护栏 err 形）",
+      "ok": true,
+      "detail": "code=200 err='对齐超限（同长桶积 >700k——.at 无 sort/hash 原语，VM 步数预算墙，T-01 定标 N=800 过/N=1000 墙）——等待内核 sor' t=0.31s"
+    },
+    {
+      "item": "⑤′",
+      "name": "对齐定标 N=1500 优雅超限（护栏 err 形）",
+      "ok": true,
+      "detail": "code=200 err='对齐超限（同长桶积 >700k——.at 无 sort/hash 原语，VM 步数预算墙，T-01 定标 N=800 过/N=1000 墙）——等待内核 sor' t=0.42s"
+    },
+    {
+      "item": "⑥′",
+      "name": "sync_copy 文件（+磁盘 E2E）",
+      "ok": true,
+      "detail": "code=200 body='1'"
+    },
+    {
+      "item": "⑥′",
+      "name": "sync_delete 文件（+磁盘 E2E）",
+      "ok": true,
+      "detail": "true"
+    },
+    {
+      "item": "⑥′",
+      "name": "sync_delete 空目录（+磁盘 E2E）",
+      "ok": true,
+      "detail": "true"
+    },
+    {
+      "item": "⑥′",
+      "name": "sync_delete 非空目录拒绝（护栏）",
+      "ok": true,
+      "detail": "false"
+    },
+    {
+      "item": "⑥′",
+      "name": "sync_delete 空路径/缺失拒绝",
+      "ok": true,
+      "detail": "'false' 'false'"
     }
   ],
   "pass": true

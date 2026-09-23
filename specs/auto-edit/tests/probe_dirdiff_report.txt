@@ -41,7 +41,7 @@ golden：fixtures/dirdiff 五形态（python 参考实现=规范语义）
        bin 勘定: meta=36,inv=binary,empty0B=not-binary,txt_len=9,rng_total=-98,rng_raw={\"text\":\"\",\"total\":-1,\"next_offset\":null
   PASS  [③] 2MB 同内容 Str == → eq
   PASS  [③] 2MB 同尺寸异内容 Str == → uneq
-       墙钟: same=0.18s diff=0.19s RSS=196624KB→204844KB（Δ8220KB）
+       墙钟: same=0.20s diff=0.21s RSS=195600KB→203832KB（Δ8232KB）
 
 ④ dialog_open 目录能力（静态勘定——rfd 阻塞式矩阵不可驱动）
     人工步骤：菜单「工具 → 比较目录…」→ 双路径输入框手输目录路径
@@ -50,7 +50,19 @@ golden：fixtures/dirdiff 五形态（python 参考实现=规范语义）
 ============================================================
 Phase A：diff_dirs/sync 端点（split back HTTP）
 ============================================================
-  SKIP  diff_dirs/sync 端点未在档——T-01/T-02 落地后重跑本探针全绿（本节不计入 T-00 门）
+  PASS  [⑤′] diff_dirs×dirdiff golden 逐字段
+  PASS  [⑤′] 根缺失 err 形（不静默）
+  PASS  [⑤′] 对齐定标 N=600 同长名（全改对）
+       N=600: 0.39s counts={'added': 0, 'binary': 0, 'deleted': 0, 'modified': 600, 'same': 0}
+  PASS  [⑤′] 对齐定标 N=800 同长名（全改对）
+       N=800: 0.79s counts={'added': 0, 'binary': 0, 'deleted': 0, 'modified': 800, 'same': 0}
+  PASS  [⑤′] 对齐定标 N=1000 优雅超限（护栏 err 形）
+  PASS  [⑤′] 对齐定标 N=1500 优雅超限（护栏 err 形）
+  PASS  [⑥′] sync_copy 文件（+磁盘 E2E）
+  PASS  [⑥′] sync_delete 文件（+磁盘 E2E）
+  PASS  [⑥′] sync_delete 空目录（+磁盘 E2E）
+  PASS  [⑥′] sync_delete 非空目录拒绝（护栏）
+  PASS  [⑥′] sync_delete 空路径/缺失拒绝
 
 ============================================================
 T-00 决策记录（decisions）
@@ -92,18 +104,22 @@ T-00 决策记录（decisions）
   "bigcmp": {
     "same": "verdict=eq,len=2099200",
     "diff": "verdict=uneq,len=2099200",
-    "wall_same_s": 0.185,
-    "wall_diff_s": 0.188,
+    "wall_same_s": 0.203,
+    "wall_diff_s": 0.206,
     "rss_kb": [
-      196624,
-      204844
+      195600,
+      203832
     ]
   },
   "dialog_open_dir": {
     "verdict": "file-only（rfd FileDialog 语义+catalog filter 形参数——live 面不可驱动，静态勘定）",
     "v1_plan": "双路径输入框+env AUTO_DIRDIFF_A/B 旁路",
     "upstream_want": "dialog_pick_folder（目录选择对话框）→ §15 登记"
+  },
+  "align_budget_wall": {
+    "warn_budget_hits": [],
+    "n_hits": 0
   }
 }
 
-RESULT: 16 passed, 0 failed
+RESULT: 27 passed, 0 failed

@@ -3,60 +3,80 @@
     {
       "rel": "nested",
       "status": "same",
+      "note": "",
+      "is_dir": true,
       "size_a": 0,
       "size_b": 0
     },
     {
       "rel": "binary.bin",
       "status": "binary",
+      "note": "",
+      "is_dir": false,
       "size_a": 36,
       "size_b": 36
     },
     {
       "rel": "deleted.txt",
       "status": "deleted",
+      "note": "",
+      "is_dir": false,
       "size_a": 13,
       "size_b": 0
     },
     {
       "rel": "empty.txt",
       "status": "same",
+      "note": "",
+      "is_dir": false,
       "size_a": 0,
       "size_b": 0
     },
     {
       "rel": "modified.txt",
       "status": "modified",
+      "note": "",
+      "is_dir": false,
       "size_a": 9,
       "size_b": 30
     },
     {
       "rel": "same.txt",
       "status": "same",
+      "note": "",
+      "is_dir": false,
       "size_a": 18,
       "size_b": 18
     },
     {
       "rel": "nested/inner.txt",
       "status": "same",
+      "note": "",
+      "is_dir": false,
       "size_a": 9,
       "size_b": 9
     },
     {
       "rel": "nested/old.txt",
       "status": "deleted",
+      "note": "",
+      "is_dir": false,
       "size_a": 9,
       "size_b": 0
     },
     {
       "rel": "added.txt",
       "status": "added",
+      "note": "",
+      "is_dir": false,
       "size_a": 0,
       "size_b": 12
     },
     {
       "rel": "nested/new.txt",
       "status": "added",
+      "note": "",
+      "is_dir": false,
       "size_a": 0,
       "size_b": 9
     }

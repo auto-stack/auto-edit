@@ -754,3 +754,370 @@ pub fn diff_files_json(path_a str, path_b str, ctx int) str {
     }
     return json.from_value({hunks: hunks_out, rows: rows, adds: adds, dels: dels, truncated: false, degraded: degraded, err: ""})
 }
+
+// ═════════════════════════════════════════════════════════════════
+// 目录 diff（PLAN-012 T-01）——递归遍历 + 长度桶对齐 + 五态分类。
+//
+// envelope（SD-01 契约）：{entries:[{rel,status,size_a,size_b,is_dir,
+// note}],counts:{same,added,deleted,modified,binary},truncated,err}——
+// 左=path_a=旧（deleted=只在左）、右=path_b=新（added=只在右，BC 同款）。
+// 分类序（T-00 定案）：存在性 → kind 冲突（dir↔file）→ 二进制启发式
+// （size>0 且 read_text==""——≤2MB 全文域，任一侧命中=binary）→ 尺寸差
+// → ≤2MB 全等（Str ==）→ >2MB 同尺寸=same+note="uncompared"（未比对
+// 注记态——hash want 清偿前形态）。对齐=长度桶：rels 按 len() 直索引
+// 256 桶+桶内等值扫（.at 无 sort/hash 原语的面内解，T-00 定案；同长
+// 巨桶为步数预算上界——Phase A N=600/1500 定标）。条目上限 5000（超限
+// truncated=true，counts 与 entries 同域——AC-03 计数一致性）；skip-list
+// =fif_skipped 同语义（Explorer/find 口径一致）。读域：≤2MB 全文（启发
+// 式读=全等比对读共用，零双读）；>2MB 不读。遍历=fs.list_dir 递归扁平
+// （search_files 先例）；元数据采集 try 包裹（竞态删除跳过条目不炸端
+// 点）；实现=全内联单函数（2044 文件局部 fn 返回值丢失疑回归规避，
+// 011 同款）；record 字面量/调用实参严格单行。
+pub fn diff_dirs_json(path_a str, path_b str) str {
+    // ═══ 门 0：根存在性（err 形不静默——AC-02）═══
+    if !File.exists(path_a) {
+        return json.from_value({entries: [], counts: {same: 0, added: 0, deleted: 0, modified: 0, binary: 0}, truncated: false, err: "目录不存在: " + path_a})
+    }
+    if !File.exists(path_b) {
+        return json.from_value({entries: [], counts: {same: 0, added: 0, deleted: 0, modified: 0, binary: 0}, truncated: false, err: "目录不存在: " + path_b})
+    }
+    var cap int = 5000
+    var ccap int = 2097152
+    // ═══ 根归一（尾分隔符剥除——abs 拼接面）═══
+    var ra0 str = path_a.replace("\\", "/")
+    while ra0.len() > 1 {
+        var lc0 str = ra0.substr(ra0.len() - 1, 1)
+        if lc0 == "/" {
+            ra0 = ra0.substr(0, ra0.len() - 1)
+        } else {
+            break
+        }
+    }
+    var rb0 str = path_b.replace("\\", "/")
+    while rb0.len() > 1 {
+        var lc1 str = rb0.substr(rb0.len() - 1, 1)
+        if lc1 == "/" {
+            rb0 = rb0.substr(0, rb0.len() - 1)
+        } else {
+            break
+        }
+    }
+    // ═══ 双侧遍历（list_dir 递归扁平 JSON——search_files 先例；
+    // json 列表 .len() 规避面：for-in+手工计数）═══
+    var files_a = json.to_value(fs.list_dir(path_a))
+    var rels_a list = []
+    var sizes_a list = []
+    var dirs_a list = []
+    var na int = 0
+    for f in files_a {
+        var rel str = f.replace("\\", "/")
+        if ra0 != "" {
+            var stripped str = rel.replace(ra0 + "/", "")
+            if stripped != rel {
+                rel = stripped
+            } else {
+                if rel.replace(ra0, "") != rel {
+                    rel = rel.replace(ra0, "")
+                }
+            }
+        }
+        if fif_skipped(rel) {
+            continue
+        }
+        var s0 int = 0
+        var d0 bool = false
+        var bad bool = false
+        try {
+            s0 = fs.metadata(f)
+            d0 = fs.is_dir(f)
+        } catch {
+            bad = true
+        }
+        if bad {
+            continue
+        }
+        if d0 {
+            s0 = 0
+        }
+        rels_a.push(rel)
+        sizes_a.push(s0)
+        dirs_a.push(d0)
+        na = na + 1
+    }
+    var files_b = json.to_value(fs.list_dir(path_b))
+    var rels_b list = []
+    var sizes_b list = []
+    var dirs_b list = []
+    var nb int = 0
+    for f in files_b {
+        var rel str = f.replace("\\", "/")
+        if rb0 != "" {
+            var stripped str = rel.replace(rb0 + "/", "")
+            if stripped != rel {
+                rel = stripped
+            } else {
+                if rel.replace(rb0, "") != rel {
+                    rel = rel.replace(rb0, "")
+                }
+            }
+        }
+        if fif_skipped(rel) {
+            continue
+        }
+        var s0 int = 0
+        var d0 bool = false
+        var bad bool = false
+        try {
+            s0 = fs.metadata(f)
+            d0 = fs.is_dir(f)
+        } catch {
+            bad = true
+        }
+        if bad {
+            continue
+        }
+        if d0 {
+            s0 = 0
+        }
+        rels_b.push(rel)
+        sizes_b.push(s0)
+        dirs_b.push(d0)
+        nb = nb + 1
+    }
+    // ═══ 长度桶（256 直索引；B 侧索引入桶 + matched 旗标表）═══
+    // 桶积护栏（Σk² 增量）：同长分布过密 → 对齐扫描超 VM per-handler
+    // 10M 步预算（T-01 定标：N=800 单桶 640k 积=0.65s 过 / N=1000 1M 积
+    // =WARN[budget] 死）→ 700k 护栏，超限 err 形不静默（架构阻塞注记，
+    // 011 上限门同款；正解=sort/hash 原语，§15 want）。
+    var buckets list = []
+    var bk_n list = []
+    var bcap int = 256
+    var bi0 int = 0
+    while bi0 < bcap {
+        buckets.push([])
+        bk_n.push(0)
+        bi0 = bi0 + 1
+    }
+    var matched_b list = []
+    var sumsq int = 0
+    var bi1 int = 0
+    while bi1 < nb {
+        var rb2 str = rels_b[bi1]
+        var lb0 int = rb2.len()
+        if lb0 < bcap {
+            var cur int = bk_n[lb0]
+            sumsq = sumsq + 2 * cur + 1
+            bk_n.set(lb0, cur + 1)
+            var bk0 = buckets[lb0]
+            bk0.push(bi1)
+        }
+        matched_b.push(false)
+        bi1 = bi1 + 1
+    }
+    if sumsq > 700000 {
+        return json.from_value({entries: [], counts: {same: 0, added: 0, deleted: 0, modified: 0, binary: 0}, truncated: false, err: "对齐超限（同长桶积 >700k——.at 无 sort/hash 原语，VM 步数预算墙，T-01 定标 N=800 过/N=1000 墙）——等待内核 sort/hash（架构阻塞）"})
+    }
+    // ═══ 条目构建：A 游走（配对分类/单侧 deleted）→ B 游走（单侧
+    // added）——counts 与 entries 同域（AC-03）═══
+    var entries list = []
+    var c_same int = 0
+    var c_added int = 0
+    var c_deleted int = 0
+    var c_modified int = 0
+    var c_binary int = 0
+    var truncated bool = false
+    var total int = 0
+    var ai int = 0
+    while ai < na {
+        if total >= cap {
+            truncated = true
+            break
+        }
+        var ra str = rels_a[ai]
+        var matched int = -1
+        var lb1 int = ra.len()
+        if lb1 < bcap {
+            var bk1 = buckets[lb1]
+            for bv in bk1 {
+                var rb3 str = rels_b[bv]
+                if rb3 == ra {
+                    matched = bv
+                    break
+                }
+            }
+        }
+        var sa int = sizes_a[ai]
+        var sb int = 0
+        var st str = "deleted"
+        var note str = ""
+        var isd bool = dirs_a[ai]
+        if matched >= 0 {
+            matched_b.set(matched, true)
+            sb = sizes_b[matched]
+            st = "same"
+            if dirs_a[ai] != dirs_b[matched] {
+                st = "modified"
+            } else {
+                if dirs_a[ai] {
+                    st = "same"
+                } else {
+                    var bin bool = false
+                    var ta str = ""
+                    var tb str = ""
+                    if sa > 0 {
+                        if sa <= ccap {
+                            ta = File.read_text(ra0 + "/" + ra)
+                            if ta == "" {
+                                bin = true
+                            }
+                        }
+                    }
+                    if sb > 0 {
+                        if sb <= ccap {
+                            tb = File.read_text(rb0 + "/" + ra)
+                            if tb == "" {
+                                bin = true
+                            }
+                        }
+                    }
+                    if bin {
+                        st = "binary"
+                    } else {
+                        if sa != sb {
+                            st = "modified"
+                        } else {
+                            if sa > ccap {
+                                st = "same"
+                                note = "uncompared"
+                            } else {
+                                if ta == tb {
+                                    st = "same"
+                                } else {
+                                    st = "modified"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if st == "same" {
+            c_same = c_same + 1
+        } else {
+            if st == "deleted" {
+                c_deleted = c_deleted + 1
+            } else {
+                if st == "modified" {
+                    c_modified = c_modified + 1
+                } else {
+                    if st == "binary" {
+                        c_binary = c_binary + 1
+                    }
+                }
+            }
+        }
+        entries.push({rel: ra, status: st, size_a: sa, size_b: sb, is_dir: isd, note: note})
+        total = total + 1
+        ai = ai + 1
+    }
+    var bi2 int = 0
+    while bi2 < nb {
+        if total >= cap {
+            truncated = true
+            break
+        }
+        var mb bool = matched_b[bi2]
+        if !mb {
+            var rb4 str = rels_b[bi2]
+            var sb2 int = sizes_b[bi2]
+            var db1 bool = dirs_b[bi2]
+            entries.push({rel: rb4, status: "added", size_a: 0, size_b: sb2, is_dir: db1, note: ""})
+            c_added = c_added + 1
+            total = total + 1
+        }
+        bi2 = bi2 + 1
+    }
+    return json.from_value({entries: entries, counts: {same: c_same, added: c_added, deleted: c_deleted, modified: c_modified, binary: c_binary}, truncated: truncated, err: ""})
+}
+
+// ═════════════════════════════════════════════════════════════════
+// 同步动作（PLAN-012 T-02）——破坏性动作收口 back（front 零 fs 铁律）。
+//
+// sync_copy：文件=字节往返（read_bytes 1005→write_bytes 1006——fs.copy
+// 1007 表面被 `copy` 保留字阻断，T-00 定案；≤2MB 预算域=内容比对同域，
+// 超限 false[front 注记+§15 want]）；目录=fs.copy_recursive 2862（静默
+// 覆盖=truncate/合并语义，Q-2 定案——front 确认链管目标存在形）。
+// sync_delete：文件=fs.delete 1003；目录=**仅空目录** fs.remove_dir 1014
+// （非空原生失败=T-00 护栏实证；递归删除 v1 不提供——remove_dir_all
+// 1015 在册不暴露，§2 安全注记）。空路径/根路径/缺失源→false（护栏三
+// 条——§2 安全注记）。bool 返回=磁盘 E2E 复核（动作后 exists 终判，
+// T-00 载具同口径）。
+pub fn sync_copy_impl(src str, dst str, is_dir bool) bool {
+    if src == "" {
+        return false
+    }
+    if dst == "" {
+        return false
+    }
+    if !File.exists(src) {
+        return false
+    }
+    if is_dir {
+        try {
+            fs.copy_recursive(src, dst)
+            return File.exists(dst)
+        } catch {
+            return false
+        }
+    }
+    var sz int = 0
+    try {
+        sz = fs.metadata(src)
+    } catch {
+        return false
+    }
+    if sz > 2097152 {
+        return false
+    }
+    try {
+        var data list = File.read_bytes(src)
+        File.write_bytes(dst, data)
+        return File.exists(dst)
+    } catch {
+        return false
+    }
+}
+
+pub fn sync_delete_impl(path str, is_dir bool) bool {
+    if path == "" {
+        return false
+    }
+    if path == "/" {
+        return false
+    }
+    if path == "\\" {
+        return false
+    }
+    if path.len() <= 3 {
+        if path.substr(1, 1) == ":" {
+            return false
+        }
+    }
+    if !File.exists(path) {
+        return false
+    }
+    if is_dir {
+        try {
+            fs.remove_dir(path)
+            return !File.exists(path)
+        } catch {
+            return false
+        }
+    }
+    try {
+        fs.delete(path)
+        return !File.exists(path)
+    } catch {
+        return false
+    }
+}

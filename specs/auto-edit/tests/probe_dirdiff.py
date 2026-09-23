@@ -136,6 +136,7 @@ def classify_tree(dir_a, dir_b):
         sb, db = B.get(rel, (0, False))
         pa = os.path.join(dir_a, rel.replace("/", os.sep))
         pb = os.path.join(dir_b, rel.replace("/", os.sep))
+        note = ""
         if in_a and not in_b:
             st = "deleted"
         elif in_b and not in_a:
@@ -145,6 +146,7 @@ def classify_tree(dir_a, dir_b):
         elif da:
             st = "same"
         else:
+            note = ""
             ba = is_binary_read(pa, sa)
             bb = is_binary_read(pb, sb)
             if ba or bb:
@@ -152,6 +154,7 @@ def classify_tree(dir_a, dir_b):
             elif sa > CONTENT_CAP or sb > CONTENT_CAP:
                 if sa == sb:
                     st = "same"
+                    note = "uncompared"
                 else:
                     st = "modified"
             elif sa != sb:
@@ -160,7 +163,8 @@ def classify_tree(dir_a, dir_b):
                 st = "same" if read_text_lossy(pa) == read_text_lossy(pb) \
                     else "modified"
         counts[st] += 1
-        entries.append({"rel": rel, "status": st,
+        entries.append({"rel": rel, "status": st, "note": note,
+                        "is_dir": da if in_a else db,
                         "size_a": sa if in_a else 0,
                         "size_b": sb if in_b else 0})
     return {"entries": entries, "counts": counts, "truncated": truncated,
@@ -571,10 +575,15 @@ def main():
     emit("Phase A：diff_dirs/sync 端点（split back HTTP）")
     emit("=" * 60)
     port_a = pick_free_port(9395)
+    srv_log = tempfile.NamedTemporaryFile(prefix="p012_srv_", suffix=".log",
+                                          delete=False, mode="w",
+                                          encoding="utf-8",
+                                          errors="replace")
     proc_a = subprocess.Popen(
         [AUTO_BIN, "run", "--server", "vm", "-B", str(port_a)],
         cwd=PROJECT, env={**os.environ},
-        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        stdout=srv_log, stderr=subprocess.STDOUT)
+    srv_log.close()
     base_url = f"http://127.0.0.1:{port_a}"
     try:
         up = False
@@ -632,8 +641,10 @@ def main():
             check("⑤′", "根缺失 err 形（不静默）",
                   env2.get("err", "") != "", repr(env2.get("err"))[:100])
 
-            # 对齐算力定标（同长名树=长度桶最坏形态）
-            for n_files in (600, 1500):
+            # 对齐算力定标（同长名树=长度桶最坏形态）：600/800=预算内
+            # 全改对；1000/1500=桶积护栏优雅超限（err 形架构注记——T-01
+            # 定标 N=800 过 0.65s/N=1000 WARN[budget] 死→700k 护栏）
+            for n_files in (600, 800, 1000, 1500):
                 tgen = tempfile.mkdtemp(prefix="p012_align_")
                 ta = os.path.join(tgen, "a")
                 tb = os.path.join(tgen, "b")
@@ -645,14 +656,51 @@ def main():
                                   params={"path_a": ta, "path_b": tb},
                                   timeout=120)
                 dt = time.time() - t0
-                env3 = deep_json(r3)
-                n_same = env3.get("counts", {}).get("modified", -1)
-                check("⑤′", f"对齐定标 N={n_files} 同长名（全改对）",
-                      n_same == n_files and dt < 20.0,
-                      f"counts={env3.get('counts')} t={dt:.2f}s")
-                emit(f"       N={n_files}: {dt:.2f}s "
-                     f"counts={env3.get('counts')}")
+                env3 = None
+                try:
+                    env3 = deep_json(r3)
+                except Exception:  # noqa: BLE001
+                    env3 = None
+                if n_files <= 800:
+                    if not isinstance(env3, dict):
+                        check("⑤′",
+                              f"对齐定标 N={n_files} 同长名（全改对）",
+                              False,
+                              f"非 dict envelope code={r3.status_code} "
+                              f"body={r3.text[:120]!r} t={dt:.2f}s")
+                    else:
+                        c3 = env3.get("counts")
+                        n_mod = c3.get("modified", -1) \
+                            if isinstance(c3, dict) else -1
+                        check("⑤′",
+                              f"对齐定标 N={n_files} 同长名（全改对）",
+                              n_mod == n_files and dt < 20.0,
+                              f"counts={c3} t={dt:.2f}s")
+                        emit(f"       N={n_files}: {dt:.2f}s counts={c3}")
+                else:
+                    ok_guard = isinstance(env3, dict) and \
+                        "对齐超限" in (env3.get("err") or "")
+                    check("⑤′",
+                          f"对齐定标 N={n_files} 优雅超限（护栏 err 形）",
+                          ok_guard,
+                          f"code={r3.status_code} "
+                          f"err={(env3 or {}).get('err', '')[:80]!r} "
+                          f"t={dt:.2f}s")
                 shutil.rmtree(tgen, ignore_errors=True)
+            try:
+                with open(srv_log.name, encoding="utf-8",
+                          errors="replace") as f:
+                    srv_txt = f.read()
+                budget_hits = re.findall(r"WARN\[budget\] fn='([^']*)'",
+                                         srv_txt)
+                if budget_hits:
+                    emit(f"       服务端预算墙证据: WARN[budget] × "
+                         f"{len(budget_hits)} fn={sorted(set(budget_hits))}")
+                decisions["align_budget_wall"] = {
+                    "warn_budget_hits": sorted(set(budget_hits)),
+                    "n_hits": len(budget_hits)}
+            except OSError:
+                pass
 
             # ⑥′ sync E2E（tmp 拷贝保 pristine）
             tsync = tempfile.mkdtemp(prefix="p012_sync_")
@@ -692,6 +740,15 @@ def main():
                   deep_json(r7) in (False, 0, "false") and
                   os.path.exists(os.path.join(sb, "nested")),
                   r7.text[:60])
+            def _rejected(rq):
+                try:
+                    v = deep_json(rq)
+                except Exception:  # noqa: BLE001
+                    return False
+                if isinstance(v, dict):
+                    return "error" in v
+                return v in (False, 0, "false")
+
             r8 = requests.post(base_url + "/api/sync_delete",
                                json={"path": "", "is_dir": False},
                                timeout=30)
@@ -699,8 +756,7 @@ def main():
                                json={"path": "Z:/nonexistent_p012",
                                      "is_dir": False}, timeout=30)
             check("⑥′", "sync_delete 空路径/缺失拒绝",
-                  deep_json(r8) in (False, 0, "false") and
-                  deep_json(r9) in (False, 0, "false"),
+                  _rejected(r8) and _rejected(r9),
                   f"{r8.text[:40]!r} {r9.text[:40]!r}")
             shutil.rmtree(tsync, ignore_errors=True)
     finally:

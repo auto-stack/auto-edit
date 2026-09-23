@@ -107,3 +107,36 @@ pub fn search_files(path str, pattern str, limit int) str {
 pub fn diff_files(path_a str, path_b str, ctx int) str {
     return fsys.diff_files_json(path_a, path_b, ctx)
 }
+
+/// 目录 diff（PLAN-012 T-01）：递归遍历+长度桶对齐+五态分类。返回
+/// envelope JSON `{entries:[{rel,status,size_a,size_b,is_dir,note}],
+/// counts:{same,added,deleted,modified,binary},truncated,err}`（SD-01
+/// 契约）。左=path_a=旧（deleted=只在左）、右=path_b=新（added=只在
+/// 右，BC 同款）；分类序=存在性→kind 冲突→二进制启发式（≤2MB 全文域，
+/// 任一侧命中=binary）→尺寸差→≤2MB 全等→>2MB 同尺寸=same+note=
+/// uncompared（未比对注记）；条目上限 5000（truncated 注记，counts 与
+/// entries 同域）；skip-list=Explorer/find 同语义；根缺失→err 不静默。
+/// GET /api/diff_dirs?path_a=..&path_b=..
+#[api(method = "GET", path = "/api/diff_dirs")]
+pub fn diff_dirs(path_a str, path_b str) str {
+    return fsys.diff_dirs_json(path_a, path_b)
+}
+
+/// 同步复制（PLAN-012 T-02）：文件=字节往返（read_bytes→write_bytes，
+/// ≤2MB 预算域——fs.copy 被 `copy` 保留字阻断，T-00 定案，超限 false+
+/// front 注记）；目录=fs.copy_recursive（覆盖=truncate/合并语义，Q-2——
+/// front 确认链管目标存在形）。空路径/缺失源→false（护栏）。
+/// POST /api/sync_copy {src, dst, is_dir}
+#[api(method = "POST", path = "/api/sync_copy")]
+pub fn sync_copy(src str, dst str, is_dir bool) bool {
+    return fsys.sync_copy_impl(src, dst, is_dir)
+}
+
+/// 同步删除（PLAN-012 T-02）：文件=fs.delete；目录=**仅空目录**
+/// fs.remove_dir（非空原生失败=T-00 护栏；递归删除 v1 不提供——
+/// §2 安全注记）。空路径/根路径/缺失→false（护栏三条）。
+/// POST /api/sync_delete {path, is_dir}
+#[api(method = "POST", path = "/api/sync_delete")]
+pub fn sync_delete(path str, is_dir bool) bool {
+    return fsys.sync_delete_impl(path, is_dir)
+}
