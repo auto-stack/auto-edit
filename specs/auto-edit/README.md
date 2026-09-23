@@ -228,6 +228,27 @@ upstream 注记——引擎 diff_snapshots 时代清偿）。
 裸 main 两级复现，upstream §14 登记）：该项失败=已知上游缺（子菜单命
 令矩阵不可驱动），非本件回归、不计判绿口径；清偿后自动恢复计数。
 
+PLAN-012 口径更新（2026-09-23，工具链 2046 钉版 /d/tmp/p012_pin_auto.exe）：
+矩阵扩 T16 目录 diff 检查组（env 旁路自开+golden counts 五态、快照形态
+徽标/[目录] 标记、过滤纯 front 态、下钻 011 视图复用+返回目录、复制直
+执行/覆盖复制确认链/删除确认链磁盘 E2E、关闭复原、根缺失错误形、
+>2MB 同尺寸未比对注记；每检查独立进程+临时 APPDATA 隔离；同步动作走
+tmp 生成树 fixtures 保 pristine——008 先例；fixtures/dirdiff/ base+rev
+五形态 golden 入仓）——完成态 **109 检查**（97 + 12 新检查）。实测谱
+（F-RV6 竞态期，五轮 85/5→95/2→104/5→107/2→106/3）：本件 T16 组
+**12/12 首轮全绿**（run3）；最优轮 run4 **107/2**（T12.6=R-4 已知上游
+缺不计判绿+paste 剪贴板竞态 flake——轮换谱 fold/paste/EOL-conn/
+T13.6/T13.8/T14.1 五轮全录，皆非本件路径；无 T16 基线轮 run2 亦 2 败
+=噪声地板预存实证）。**判绿口径=≥107 passed / 0 failed（T12.6 已知败
+不计+轮换 flake 按重跑条款清零）**；决策探针 `tests/probe_dirdiff.py`
+27/0 为前置决策门不入矩阵计数。目录链零 `code_editor_text`（检测器
+白名单零变更）；对齐=长度桶+桶积护栏 700k（同长巨桶超限=优雅 err
+架构注记——.at 无 sort/hash 原语，upstream §15 want）；文件复制=字节
+往返 read_bytes→write_bytes ≤2MB（fs.copy 被 `copy` 保留字阻断——
+T-00 勘定 upstream §15 want）。vue 臂双重 blocked-on-upstream（strict
+gen 红=menubar-sub 族 schema 缺登记[695 预存主干断层]+helper 族
+TS7006[§14]——lenient gen ✓ 34 组件，本件零新增错面）。
+
 注：Plan 451 起 T10「热重载」走 DSL 源路径（reload 工具或 mtime 轮询重读
 app.at 重新提取 actions + generation bump → 视图重建），实测 50/0 全绿。
 OS 用户键位层（`%APPDATA%/auto/keymaps/auto-edit.at`）保持外部文件——那是

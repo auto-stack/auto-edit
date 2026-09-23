@@ -1901,6 +1901,286 @@ def run_tests(mcp_url, proc):
     else:
         print("  NOTE  tests/fixtures/diff missing; skipping T15")
 
+    # T16: PLAN-012 —— 目录 diff 检查组（T15 形态：独立新鲜进程+APPDATA
+    # 隔离；fixtures/dirdiff base/rev 五形态 golden 在档）。驱动面=env
+    # 旁路 Tick 自开（AUTO_DIRDIFF_A/B）。同步动作走 tmp 生成树（fixtures
+    # 保 pristine——008 先例），最小单状态树保证动作按钮唯一
+    # （find_button_by_text 精确正则）。子组：
+    #   16.1 旁路自开+golden counts（4/2/2/1/1）+view 10
+    #   16.2 快照形态（rels+徽标+[目录] 标记）
+    #   16.3 过滤纯 front 态（删过滤 view 2+计数零变；回 all）
+    #   16.4 下钻（改行→file 模式+rows 到达）+返回目录（entries 保留）
+    #   16.5 复制直执行（删过滤唯一 →；磁盘 E2E+重比计数+过滤保持）
+    #   16.6 删除确认链（增过滤唯一 ✕→确认执行；磁盘消失+计数）
+    #   16.7 覆盖复制确认链（改过滤唯一 →→确认；磁盘内容=左侧）
+    #   16.8 关闭复原（dir/diff 全清+tab 零扰动）
+    #   16.9 错误形（根缺失：面板不开+err+console）
+    #   16.10 >2MB 同尺寸=同(未比对)注记（生成式 fixture）
+    print("\nT16: PLAN-012 dir diff")
+    dirdiff_fix = os.path.join(fixtures_dir, "dirdiff")
+
+    def _t16_write(path, data):
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, "w", encoding="utf-8", newline="") as f:
+            f.write(data)
+
+    def _t16_app(extra):
+        port = pick_free_port()
+        env = {**os.environ, "AUTOUI_MCP_PORT": str(port),
+               "APPDATA": tempfile.mkdtemp(prefix="auto012_t16_"), **extra}
+        proc = subprocess.Popen(
+            [AUTO_BIN, "run", "-r", "vm"],
+            cwd=PROJECT, env=env,
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        url = f"http://127.0.0.1:{port}/mcp"
+        assert wait_for_server(url, 30), "T16 server never up"
+        t = McpClient(url)
+        for _ in range(15):
+            s = t.snapshot()
+            if "(rendered)" in s and s.count("onclick") > 0:
+                break
+            time.sleep(1)
+        time.sleep(1.5)
+        return proc, t
+
+    def _t16_wait_open(t, timeout=15):
+        for _ in range(timeout * 2):
+            if state_bool(t.state("dir_mode"), "dir_mode"):
+                return True
+            time.sleep(0.5)
+        return False
+
+    if os.path.isdir(dirdiff_fix):
+        # 16.1-16.3 共享实例（五形态 golden）
+        try:
+            ta = tempfile.mkdtemp(prefix="p012_t16_a_")
+            tb = tempfile.mkdtemp(prefix="p012_t16_b_")
+            shutil.copytree(os.path.join(dirdiff_fix, "base"), ta,
+                            dirs_exist_ok=True)
+            shutil.copytree(os.path.join(dirdiff_fix, "rev"), tb,
+                            dirs_exist_ok=True)
+            p16, t16 = _t16_app({"AUTO_DIRDIFF_A": ta, "AUTO_DIRDIFF_B": tb})
+            ok_open = _t16_wait_open(t16)
+            st = t16.state("dir_mode", "diff_open", "diff_mode", "dir_total",
+                           "dir_n_same", "dir_n_added", "dir_n_deleted",
+                           "dir_n_modified", "dir_n_binary",
+                           "dir_view_count", "dir_truncated", "dir_has_err")
+            result.check("T16.1 env 旁路自开+golden counts（4/2/2/1/1）",
+                         ok_open
+                         and state_bool(st, "dir_mode") is True
+                         and state_bool(st, "diff_open") is True
+                         and (state_str(st, "diff_mode") or "").strip('"') == "dirs"
+                         and state_int(st, "dir_n_same") == 4
+                         and state_int(st, "dir_n_added") == 2
+                         and state_int(st, "dir_n_deleted") == 2
+                         and state_int(st, "dir_n_modified") == 1
+                         and state_int(st, "dir_n_binary") == 1
+                         and state_int(st, "dir_view_count") == 10,
+                         st.replace("\n", " ")[:200])
+            snap16 = t16.snapshot()
+            form_ok = all(x in snap16 for x in
+                          ("same.txt", "modified.txt", "deleted.txt",
+                           "added.txt", "binary.bin", "[目录] nested",
+                           "nested/old.txt", "nested/new.txt", "增", "删",
+                           "改", "二进"))
+            result.check("T16.2 快照形态（rels+徽标+[目录] 标记）", form_ok,
+                         "entries/徽标缺失")
+            del_btn = find_button_by_text(snap16, "删")
+            if del_btn:
+                t16.click(del_btn)
+                time.sleep(0.8)
+            st2 = t16.state("dir_filter", "dir_f_deleted", "dir_view_count",
+                            "dir_n_deleted", "dir_n_added")
+            filt_ok = ((state_str(st2, "dir_filter") or "").strip('"') == "deleted"
+                       and state_bool(st2, "dir_f_deleted") is True
+                       and state_int(st2, "dir_view_count") == 2
+                       and state_int(st2, "dir_n_deleted") == 2
+                       and state_int(st2, "dir_n_added") == 2)
+            snap16b = t16.snapshot()
+            result.check("T16.3 过滤纯 front 态（删过滤 view2+计数零变+快照单态）",
+                         filt_ok and "deleted.txt" in snap16b
+                         and "added.txt" not in snap16b,
+                         st2.replace("\n", " ")[:160])
+            all_btn = find_button_by_text(snap16b, "全部")
+            if all_btn:
+                t16.click(all_btn)
+                time.sleep(0.8)
+            st3 = t16.state("dir_view_count")
+            result.check("T16.3b 回 all（view 10）",
+                         state_int(st3, "dir_view_count") == 10,
+                         str(state_int(st3, "dir_view_count")))
+            _kill_proc_tree(p16)
+        except Exception as e:
+            result.check("T16.1-3 golden 主链", False, repr(e))
+
+        # 16.4 下钻+返回（单状态树）
+        try:
+            ta = tempfile.mkdtemp(prefix="p012_t16_d_")
+            tb = tempfile.mkdtemp(prefix="p012_t16_d2_")
+            _t16_write(os.path.join(ta, "mod.txt"), "aaa\n")
+            _t16_write(os.path.join(tb, "mod.txt"), "bbb-longer\n")
+            p16, t16 = _t16_app({"AUTO_DIRDIFF_A": ta, "AUTO_DIRDIFF_B": tb})
+            ok_open = _t16_wait_open(t16)
+            b_mod = find_button_by_text(t16.snapshot(), "mod.txt")
+            if b_mod:
+                t16.click(b_mod)
+                time.sleep(1.5)
+            st = t16.state("diff_mode", "dir_mode", "diff_open",
+                           "diff_rows_count", "dir_from_dirs")
+            result.check("T16.4 下钻 file 模式+rows 到达（011 视图复用）",
+                         ok_open
+                         and (state_str(st, "diff_mode") or "").strip('"') == "file"
+                         and state_bool(st, "dir_mode") is False
+                         and state_bool(st, "diff_open") is True
+                         and state_int(st, "diff_rows_count") > 0,
+                         st.replace("\n", " ")[:160])
+            back = find_button_by_text(t16.snapshot(), "返回目录")
+            if back:
+                t16.click(back)
+                time.sleep(1.0)
+            st2 = t16.state("diff_mode", "dir_mode", "dir_view_count")
+            result.check("T16.4b 返回目录（entries 保留不重比）",
+                         (state_str(st2, "diff_mode") or "").strip('"') == "dirs"
+                         and state_bool(st2, "dir_mode") is True
+                         and state_int(st2, "dir_view_count") == 1,
+                         st2.replace("\n", " ")[:120])
+            _kill_proc_tree(p16)
+        except Exception as e:
+            result.check("T16.4 下钻+返回", False, repr(e))
+
+        # 16.5-16.8 同步动作 E2E（单状态树：删/增/改各一+same）
+        try:
+            ta = tempfile.mkdtemp(prefix="p012_t16_s_")
+            tb = tempfile.mkdtemp(prefix="p012_t16_s2_")
+            _t16_write(os.path.join(ta, "mod.txt"), "aaa\n")
+            _t16_write(os.path.join(tb, "mod.txt"), "bbb-longer\n")
+            _t16_write(os.path.join(ta, "gone.txt"), "gone\n")
+            _t16_write(os.path.join(tb, "new.txt"), "new\n")
+            _t16_write(os.path.join(ta, "same.txt"), "same\n")
+            _t16_write(os.path.join(tb, "same.txt"), "same\n")
+            p16, t16 = _t16_app({"AUTO_DIRDIFF_A": ta, "AUTO_DIRDIFF_B": tb})
+            ok_open = _t16_wait_open(t16)
+            # 16.5 复制直执行（删过滤唯一 →）
+            del_btn = find_button_by_text(t16.snapshot(), "删")
+            if del_btn:
+                t16.click(del_btn)
+                time.sleep(0.8)
+            cp = find_button_by_text(t16.snapshot(), "→")
+            if cp:
+                t16.click(cp)
+                time.sleep(1.5)
+            st = t16.state("dir_n_deleted", "dir_n_same", "dir_f_deleted",
+                           "dir_confirm_open", "dir_view_count")
+            result.check("T16.5 复制直执行（磁盘 E2E+重比 删0/同2+过滤保持）",
+                         ok_open
+                         and os.path.isfile(os.path.join(tb, "gone.txt"))
+                         and state_int(st, "dir_n_deleted") == 0
+                         and state_int(st, "dir_n_same") == 2
+                         and state_bool(st, "dir_f_deleted") is True
+                         and state_bool(st, "dir_confirm_open") is False,
+                         st.replace("\n", " ")[:160])
+            # 16.6 删除确认链（增过滤唯一 ✕→确认执行）
+            add_btn = find_button_by_text(t16.snapshot(), "增")
+            if add_btn:
+                t16.click(add_btn)
+                time.sleep(0.8)
+            dx = find_button_by_text(t16.snapshot(), "✕")
+            if dx:
+                t16.click(dx)
+                time.sleep(1.0)
+            st2 = t16.state("dir_confirm_open")
+            cf = find_button_by_text(t16.snapshot(), "确认执行")
+            if cf:
+                t16.click(cf)
+                time.sleep(1.5)
+            st3 = t16.state("dir_n_added", "dir_confirm_open")
+            result.check("T16.6 删除确认链（弹层→执行→磁盘消失+增 0）",
+                         state_bool(st2, "dir_confirm_open") is True
+                         and not os.path.exists(os.path.join(tb, "new.txt"))
+                         and state_int(st3, "dir_n_added") == 0
+                         and state_bool(st3, "dir_confirm_open") is False,
+                         st3.replace("\n", " ")[:120])
+            # 16.7 覆盖复制确认链（改过滤唯一 →→确认）
+            mod_btn = find_button_by_text(t16.snapshot(), "改")
+            if mod_btn:
+                t16.click(mod_btn)
+                time.sleep(0.8)
+            cp2 = find_button_by_text(t16.snapshot(), "→")
+            if cp2:
+                t16.click(cp2)
+                time.sleep(1.0)
+            st4 = t16.state("dir_confirm_open")
+            cf2 = find_button_by_text(t16.snapshot(), "确认执行")
+            if cf2:
+                t16.click(cf2)
+                time.sleep(1.5)
+            with open(os.path.join(tb, "mod.txt"), encoding="utf-8") as f:
+                content = f.read()
+            st5 = t16.state("dir_n_modified", "dir_n_same")
+            result.check("T16.7 覆盖复制确认链（双侧恒确认+磁盘内容=左侧+改0/同3）",
+                         state_bool(st4, "dir_confirm_open") is True
+                         and content == "aaa\n"
+                         and state_int(st5, "dir_n_modified") == 0
+                         and state_int(st5, "dir_n_same") == 3,
+                         f"content={content!r}")
+            # 16.8 关闭复原
+            tabs_before = state_int(t16.state("tab_count"), "tab_count")
+            x_btn = find_button_by_text(t16.snapshot(), "×")
+            if x_btn:
+                t16.click(x_btn)
+                time.sleep(0.8)
+            st6 = t16.state("dir_mode", "diff_open", "dir_view_count",
+                            "tab_count")
+            result.check("T16.8 关闭复原（全清+tab 零扰动）",
+                         state_bool(st6, "dir_mode") is False
+                         and state_bool(st6, "diff_open") is False
+                         and state_int(st6, "dir_view_count") == 0
+                         and state_int(st6, "tab_count") == tabs_before,
+                         st6.replace("\n", " ")[:120])
+            _kill_proc_tree(p16)
+        except Exception as e:
+            result.check("T16.5-8 同步动作 E2E", False, repr(e))
+
+        # 16.9 错误形（根缺失）
+        try:
+            p16, t16 = _t16_app({
+                "AUTO_DIRDIFF_A": "Z:/nonexistent_p012_t16",
+                "AUTO_DIRDIFF_B": tempfile.gettempdir()})
+            time.sleep(3)
+            st = t16.state("dir_mode", "diff_open", "dir_has_err", "console",
+                           "dir_err")
+            console = state_str(st, "console") or ""
+            result.check("T16.9 根缺失 err 形（面板不开+err+console）",
+                         state_bool(st, "dir_mode") is False
+                         and state_bool(st, "diff_open") is False
+                         and state_bool(st, "dir_has_err") is True
+                         and "dirdiff:" in console,
+                         f"err={state_str(st, 'dir_err')!r}")
+            _kill_proc_tree(p16)
+        except Exception as e:
+            result.check("T16.9 错误形", False, repr(e))
+
+        # 16.10 >2MB 同尺寸=同(未比对)注记（生成式 fixture）
+        try:
+            ta = tempfile.mkdtemp(prefix="p012_t16_big_")
+            tb = tempfile.mkdtemp(prefix="p012_t16_big2_")
+            blob = ("0123456789abcdef" * 64 + "\n") * 2100  # ≈2.16MB
+            _t16_write(os.path.join(ta, "big.txt"), blob)
+            _t16_write(os.path.join(tb, "big.txt"), blob)
+            p16, t16 = _t16_app({"AUTO_DIRDIFF_A": ta, "AUTO_DIRDIFF_B": tb})
+            ok_open = _t16_wait_open(t16, 25)
+            st = t16.state("dir_n_same", "dir_view_count")
+            snap16 = t16.snapshot()
+            result.check("T16.10 >2MB 同尺寸=同(未比对)注记",
+                         ok_open and state_int(st, "dir_n_same") == 1
+                         and "未比" in snap16,
+                         st.replace("\n", " ")[:120])
+            _kill_proc_tree(p16)
+        except Exception as e:
+            result.check("T16.10 未比对注记", False, repr(e))
+    else:
+        print("  NOTE  tests/fixtures/dirdiff missing; skipping T16")
+
     print()
     print("T8: ActQuit (menu item)")
     open_menu(mcp, snap_cache, "文件")
