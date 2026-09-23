@@ -66,6 +66,15 @@ widget App {
         action (id: "view.switch-tab", handler: .ActSwitchTab,  title: "切换 Tab", shortcut: "Ctrl+D")
         // Plan 428: 代码折叠(切换激活编辑器第 2 行的 fn 块)
         action (id: "view.fold",       handler: .ActFold,       title: "折叠切换")
+        // PLAN-011 T-03/T-04: diff 链四命令（工具菜单同源；F7/Shift+F7
+        // 导航；Esc 关闭——Escape token 解析面烟测裁定，败则摘除注记）。
+        action (id: "diff.compare", handler: .DiffOpen,  title: "比较文件…", icon: "git-compare", shortcut: "Ctrl+Alt+D")
+        action (id: "diff.next",    handler: .DiffNext,  title: "下一处差异", shortcut: "F7",
+                enabled_if: ".store.diff_open")
+        action (id: "diff.prev",    handler: .DiffPrev,  title: "上一处差异", shortcut: "Shift+F7",
+                enabled_if: ".store.diff_open")
+        action (id: "diff.close",   handler: .DiffClose, title: "关闭比较", shortcut: "Escape",
+                enabled_if: ".store.diff_open")
         action (id: "help.about",      handler: .ActAbout,      title: "关于 auto-edit")
 
         toolbar {
@@ -137,6 +146,18 @@ widget App {
                             menubar-checkbox-item (title: "切换 Console", icon: "terminal", checked: .store.console_open, shortcut: "Ctrl+J") { onclick: .ActConsole }
                             menubar-item (title: "切换 Tab", shortcut: "Ctrl+D") { onclick: .ActSwitchTab }
                             menubar-item (title: "折叠切换", icon: "chevrons-down-up") { onclick: .ActFold }
+                        }
+                    }
+                    menubar-menu (value: "tools") {
+                        menubar-trigger "工具"
+                        menubar-content {
+                            // PLAN-011 T-03: diff 入口（静态 menubar item
+                            // ——010 menubar-content 四边界内：静态+无参
+                            // handler 已证面）。
+                            menubar-item (title: "比较文件…", icon: "git-compare", shortcut: "Ctrl+Alt+D") { onclick: .DiffOpen }
+                            menubar-separator
+                            menubar-item (title: "下一处差异", shortcut: "F7") { onclick: .DiffNext }
+                            menubar-item (title: "上一处差异", shortcut: "Shift+F7") { onclick: .DiffPrev }
                         }
                     }
                     menubar-menu (value: "help") {
@@ -280,23 +301,126 @@ widget App {
                         }
                     }
 
-                    for i, t in .store.tabs {
-                        if t.key == .store.active_key {
-                            code_editor (key: t.key, lang: "auto", style: "flex-1 w-full") {
-                                content: t.src
-                                // PLAN-009 T-02: 查找高亮接线（Ident 绑定，
-                                // T-00① 正案；live diff + 非空首跳）。
-                                search: .store.find_effective
-                                oninput: .SrcChanged(i)
-                                oncursor: .CursorMoved(i)
-                                oncontextmenu: .EditorCtx
+                    // PLAN-011 T-03: diff 并排视图（根视图全幅态——
+                    // diff_open 条件替换编辑区，console_open 条件面同款；
+                    // tab 集零扰动，DiffClose 复原）。行形状四分支（pair/
+                    // del-only/add-only/ctx——vm 条件样式仅双分支惯例，
+                    // 相邻同形状 if 互斥）；行内三段 text（pre/mid/post，
+                    // mid 着重色，空段零宽无害——ctx 行 lpre=全文本）；
+                    // 行号=store 预变换字符串（缺席侧空串——视图零条件
+                    // 格式化）；顶部状态条（文件名×2/±计数/hunk 位次/
+                    // 截断/降级注记）+导航按钮+关闭。scroll controller
+                    // 绑定（T-04 跳转句柄，PLAN-656；容器定高包裹——
+                    // T-00③ h-*直挂退化实测）。
+                    if .store.diff_open {
+                        col (style: "flex-1 w-full overflow-hidden") {
+                            row (style: "h-8 items-center bg-muted/30 shrink-0 w-full gap-2 px-2") {
+                                text "DIFF" { style: "text-[11px] font-bold text-muted-foreground shrink-0" }
+                                text "${.store.diff_title_a} ↔ ${.store.diff_title_b}" { style: "text-[11px] text-muted-foreground shrink-0" }
+                                text "+${.store.diff_adds} −${.store.diff_dels}" { style: "text-[11px] text-emerald-400 shrink-0" }
+                                text "hunk ${.store.diff_hunk_pos}" { style: "text-[11px] text-muted-foreground shrink-0" }
+                                if .store.diff_rows_truncated {
+                                    text "渲染截断（600）" { style: "text-[12px] text-amber-400 mr-1 shrink-0" }
+                                }
+                                if .store.diff_degraded {
+                                    text "大段降级" { style: "text-[12px] text-amber-400 mr-1 shrink-0" }
+                                }
+                                button (text: "上一处", variant: "text") { onclick: .DiffPrev
+                                    style: "h-6 px-2 text-[11px] text-muted-foreground" }
+                                button (text: "下一处", variant: "text") { onclick: .DiffNext
+                                    style: "h-6 px-2 text-[11px] text-muted-foreground" }
+                                button (text: "×", variant: "text") { onclick: .DiffClose
+                                    style: "h-6 w-6 px-0 py-0 ml-auto" }
+                            }
+                            container (style: "flex-1 w-full") {
+                                scroll-pane (controller: .store.diff_scroll, style: "h-full w-full") {
+                                    col (style: "gap-0 p-0 w-full") {
+                                        // 四独立 for 循环（每循环单 bool 旗标
+                                        // if——同循环多兄弟 if 对 record 字段
+                                        // 仅首个生效实勘 T-03[ctx 渲染 pair 哑
+                                        // 火，18/3 分裂]；独立循环=结构首位
+                                        // 规避；互斥由 store 侧构造保证）。
+                                        for ri, r in .store.diff_rows {
+                                            if r.sx_pair {
+                                                row (style: "h-6 w-full gap-0 shrink-0") {
+                                                    text "${r.d_lo}" { style: "h-6 w-12 px-1 text-right text-xs font-mono text-red-300 bg-red-100 shrink-0" }
+                                                    text "${r.d_ro}" { style: "h-6 w-12 px-1 text-right text-xs font-mono text-emerald-300 bg-emerald-100 shrink-0" }
+                                                    text "${r.lpre}" { style: "h-6 text-xs font-mono bg-red-100 shrink-0" }
+                                                    text "${r.lmid}" { style: "h-6 text-xs font-mono text-amber-300 bg-red-100 shrink-0" }
+                                                    text "${r.lpost}" { style: "h-6 flex-1 text-xs font-mono bg-red-100 shrink-0" }
+                                                    text "${r.rpre}" { style: "h-6 text-xs font-mono bg-emerald-100 shrink-0" }
+                                                    text "${r.rmid}" { style: "h-6 text-xs font-mono text-amber-300 bg-emerald-100 shrink-0" }
+                                                    text "${r.rpost}" { style: "h-6 flex-1 text-xs font-mono bg-emerald-100 shrink-0" }
+                                                }
+                                            }
+                                        }
+                                        for ri, r in .store.diff_rows {
+                                            if r.sx_ctx {
+                                                row (style: "h-6 w-full gap-0 shrink-0") {
+                                                    text "${r.d_lo}" { style: "h-6 w-12 px-1 text-right text-xs font-mono text-muted-foreground shrink-0" }
+                                                    text "${r.d_ro}" { style: "h-6 w-12 px-1 text-right text-xs font-mono text-muted-foreground shrink-0" }
+                                                    text "${r.lpre}" { style: "h-6 text-xs font-mono shrink-0" }
+                                                    text "${r.lmid}" { style: "h-6 text-xs font-mono shrink-0" }
+                                                    text "${r.lpost}" { style: "h-6 flex-1 text-xs font-mono shrink-0" }
+                                                    text "${r.rpre}" { style: "h-6 text-xs font-mono shrink-0" }
+                                                    text "${r.rmid}" { style: "h-6 text-xs font-mono shrink-0" }
+                                                    text "${r.rpost}" { style: "h-6 flex-1 text-xs font-mono shrink-0" }
+                                                }
+                                            }
+                                        }
+                                        for ri, r in .store.diff_rows {
+                                            if r.sx_del {
+                                                row (style: "h-6 w-full gap-0 shrink-0") {
+                                                    text "${r.d_lo}" { style: "h-6 w-12 px-1 text-right text-xs font-mono text-red-300 bg-red-100 shrink-0" }
+                                                    text "${r.d_ro}" { style: "h-6 w-12 px-1 text-right text-xs font-mono text-muted-foreground shrink-0" }
+                                                    text "${r.lpre}" { style: "h-6 text-xs font-mono bg-red-100 shrink-0" }
+                                                    text "${r.lmid}" { style: "h-6 text-xs font-mono text-amber-300 bg-red-100 shrink-0" }
+                                                    text "${r.lpost}" { style: "h-6 flex-1 text-xs font-mono bg-red-100 shrink-0" }
+                                                    text "" { style: "h-6 flex-1 text-xs font-mono shrink-0" }
+                                                    text "" { style: "h-6 text-xs font-mono shrink-0" }
+                                                    text "" { style: "h-6 flex-1 text-xs font-mono shrink-0" }
+                                                }
+                                            }
+                                        }
+                                        for ri, r in .store.diff_rows {
+                                            if r.sx_add {
+                                                row (style: "h-6 w-full gap-0 shrink-0") {
+                                                    text "${r.d_lo}" { style: "h-6 w-12 px-1 text-right text-xs font-mono text-muted-foreground shrink-0" }
+                                                    text "${r.d_ro}" { style: "h-6 w-12 px-1 text-right text-xs font-mono text-emerald-300 bg-emerald-100 shrink-0" }
+                                                    text "" { style: "h-6 flex-1 text-xs font-mono shrink-0" }
+                                                    text "" { style: "h-6 text-xs font-mono shrink-0" }
+                                                    text "" { style: "h-6 flex-1 text-xs font-mono shrink-0" }
+                                                    text "${r.rpre}" { style: "h-6 text-xs font-mono bg-emerald-100 shrink-0" }
+                                                    text "${r.rmid}" { style: "h-6 text-xs font-mono text-amber-300 bg-emerald-100 shrink-0" }
+                                                    text "${r.rpost}" { style: "h-6 flex-1 text-xs font-mono bg-emerald-100 shrink-0" }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
-                    if .store.tab_count == 0 {
-                        col (style: "flex-1 w-full items-center justify-center") {
-                            text "没有打开的文件 — 点击 + 或「文件 → 打开」" {
-                                style: "text-[13px] text-muted-foreground"
+
+                    if !.store.diff_open {
+                        for i, t in .store.tabs {
+                            if t.key == .store.active_key {
+                                code_editor (key: t.key, lang: "auto", style: "flex-1 w-full") {
+                                    content: t.src
+                                    // PLAN-009 T-02: 查找高亮接线（Ident 绑定，
+                                    // T-00① 正案；live diff + 非空首跳）。
+                                    search: .store.find_effective
+                                    oninput: .SrcChanged(i)
+                                    oncursor: .CursorMoved(i)
+                                    oncontextmenu: .EditorCtx
+                                }
+                            }
+                        }
+                        if .store.tab_count == 0 {
+                            col (style: "flex-1 w-full items-center justify-center") {
+                                text "没有打开的文件 — 点击 + 或「文件 → 打开」" {
+                                    style: "text-[13px] text-muted-foreground"
+                                }
                             }
                         }
                     }
@@ -407,6 +531,9 @@ widget App {
         .Tick -> {
             store.ConsumeOpen()
             store.RunPendingLoad()
+            // PLAN-011 T-02: diff env 旁路自开（首拍消费一次；菜单/快捷键
+            // =人工驱动面）。
+            store.DiffBypassTick()
         }
         .TabActivate(i) -> { store.TabActivate(i) }
         .SrcChanged(i) -> { store.SrcChanged(i) }
@@ -456,6 +583,12 @@ widget App {
         // PLAN-010 T-03: 最近文件点击薄委托（裸循环索引载荷——根视图
         // for 内 button 的已证面，FifResultClick/TabActivate 同款）。
         .RecentOpen(i) -> { store.RecentOpenAt(i) }
+        // PLAN-011 T-02/T-04: diff 链薄委托。
+        .DiffOpen -> { store.DiffOpen() }
+        .DiffCompute -> { store.DiffCompute() }
+        .DiffClose -> { store.DiffClose() }
+        .DiffNext -> { store.DiffNext() }
+        .DiffPrev -> { store.DiffPrev() }
         .ActCut -> { store.ActCut() }
         .ActCopy -> { store.ActCopy() }
         .ActPaste -> { store.ActPaste() }

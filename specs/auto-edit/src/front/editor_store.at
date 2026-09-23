@@ -51,7 +51,7 @@ fn json_escape(s str) str {
 // (vue 轨 ts_adapter 将其拦为 __vmOnly 抛错桩,拆 back 动机);fs.join 亦
 // 在拦截面(T-00 P-5),TreeSelect 改本地字符串拼接。
 // PLAN-010 T-02: read_text 加入（会话文件读取——恢复链）。
-use back.api: ws_root, tree, write_text, exists, env_str, read_text_range, regex_replace, search_files, read_text
+use back.api: ws_root, tree, write_text, exists, env_str, read_text_range, regex_replace, search_files, read_text, diff_files
 
 store EditorStore {
     model {
@@ -181,6 +181,39 @@ store EditorStore {
         // PLAN-010 T-03: recents 计数派生标量（视图 10 槽 if 门读取面——
         // VM view 不能调 .len()，handler 就地重算惯例）。
         var recents_count int = 0
+        // PLAN-011 T-02: diff 视图状态面（SD-01 契约）。diff_open=根视图
+        // 全幅态开关（tabs 编辑区条件替换，tab 集零扰动）；diff_rows=
+        // 渲染就绪显示行（d_lo/d_ro=字符串行号，缺席侧 ""——视图零条件
+        // 格式化）+渲染 cap 600 截断注记（T-00 定参）；diff_hunks=信封
+        // 净形（a1/a2/b1/b2）+导航位；边界态计数/降级注记；diff_scroll=
+        // scroll controller 句柄（T-04 hunk 跳转面，PLAN-656 绑定）。
+        var diff_open bool = false
+        var diff_a str = ""
+        var diff_b str = ""
+        var diff_rows list = []
+        var diff_rows_count int = 0
+        var diff_rows_truncated bool = false
+        var diff_hunks list = []
+        var diff_hunk_count int = 0
+        var diff_hunk_idx int = -1
+        var diff_adds int = 0
+        var diff_dels int = 0
+        var diff_degraded bool = false
+        var diff_err str = ""
+        var diff_scroll str = "diffctl"
+        var diff_title_a str = ""
+        var diff_title_b str = ""
+        // hunk 位次显示串（"i/N"——handler 预计算；视图模板串算术插值
+        // 未证面，T-03 实勘冻结嫌疑）。
+        var diff_hunk_pos str = ""
+        // env 旁路自开防重入（Tick 消费一次——desktop open_with
+        // ConsumeOpen 先例；矩阵确定性驱动面，键盘/菜单=人工面）。
+        var diff_bypass_done bool = false
+        // T-03 诊断计数（形状旗标落位实证；定格后可摘）。
+        var diff_dbg_pair int = 0
+        var diff_dbg_del int = 0
+        var diff_dbg_add int = 0
+        var diff_dbg_ctx int = 0
     }
 
     msg {
@@ -229,6 +262,17 @@ store EditorStore {
         // 载荷=已证面）。共享内部收口。
         RecentOpen(int),
         RecentOpenAt(int),
+        // PLAN-011 T-02: diff 链。DiffOpen=入口（env 旁路优先→dialog×2
+        // 手动路径）；DiffCompute=back diff_files 消费收口（err 形不
+        // 静默）；DiffClose=关闭清态（tab 集零扰动）；DiffNext/DiffPrev=
+        // hunk 导航（T-04 接 scroll_to 跳转）。
+        DiffOpen, DiffCompute, DiffClose, DiffNext, DiffPrev,
+        // PLAN-011 T-04: 导航内部收口（当前 hunk 首渲染行定位+scroll_to）。
+        DiffScrollToHunk,
+        // PLAN-011 T-02: env 旁路 Tick 消费臂（AUTO_DIFF_A 在档时首拍
+        // 自开——矩阵驱动面确定性保障；menubar 展开项不进 vtree 实勘
+        // 2044 复认+键盘路径 AltGr 疑虑，双双不可作矩阵依赖）。
+        DiffBypassTick,
     }
 
     on {
@@ -1094,6 +1138,285 @@ store EditorStore {
                 }
             }
             .console = console_lines()
+        }
+
+        // ---- PLAN-011 T-02: diff 入口链（G-1）。env 旁路优先
+        // （AUTO_DIFF_A/B——矩阵驱动面，AUTO_OPEN_PATH 先例同款 env_str
+        // 消费形）：双 env 齐 → 直达 DiffCompute（零 dialog——rfd 阻塞式
+        // 矩阵不可驱动）；单边残缺 → console 记录零动作（防矩阵悬挂）；
+        // 双缺 → dialog_open×2 手动路径（任一取消=整链零动作）。
+        .DiffOpen -> {
+            var pa str = env_str("AUTO_DIFF_A")
+            var pb str = env_str("AUTO_DIFF_B")
+            if pa != "" {
+                if pb != "" {
+                    .diff_a = pa
+                    .diff_b = pb
+                    store.DiffCompute()
+                } else {
+                    console_log("diff: bypass 残缺（AUTO_DIFF_B 空）")
+                }
+            } else {
+                if pb != "" {
+                    console_log("diff: bypass 残缺（AUTO_DIFF_A 空）")
+                } else {
+                    pa = dialog_open("txt, md, at, rs, py, js, ts, json, toml, yml, log")
+                    if pa != "" {
+                        pb = dialog_open("txt, md, at, rs, py, js, ts, json, toml, yml, log")
+                    }
+                    if pa != "" {
+                        if pb != "" {
+                            .diff_a = pa
+                            .diff_b = pb
+                            store.DiffCompute()
+                        } else {
+                            console_log("diff: cancelled (b)")
+                        }
+                    } else {
+                        console_log("diff: cancelled (a)")
+                    }
+                }
+            }
+            .console = console_lines()
+        }
+
+        // ---- PLAN-011 T-02: diff 计算接线（G-2 消费端）。back
+        // diff_files envelope → json.to_value 内联包裹（vue 吸收面，
+        // FifSearch 同款）→ 显示行预变换（d_lo/d_ro 字符串行号，缺席侧
+        // ""——视图零条件格式化）+渲染 cap 600 截断（T-00 定参）→ hunk
+        // 表+导航位归零 → diff_open。err 形不静默（console 记录，不开
+        // 视图）。计数全手工（json 列表 .len() 规避面，FifResultClick
+        // 同源）。
+        .DiffCompute -> {
+            if .diff_a != "" {
+                if .diff_b != "" {
+                    let v = json.to_value(diff_files(.diff_a, .diff_b, 3))
+                    .diff_err = v.err ?? ""
+                    if .diff_err == "" {
+                        var capped list = []
+                        var nc int = 0
+                        var n int = 0
+                        var dbg_pair int = 0
+                        var dbg_del int = 0
+                        var dbg_add int = 0
+                        var dbg_ctx int = 0
+                        var all = v.rows ?? []
+                        for r in all {
+                            if nc < 600 {
+                                var lov int = r.lo ?? 0
+                                var rov int = r.ro ?? 0
+                                var dlo str = ""
+                                var dro str = ""
+                                if lov > 0 {
+                                    dlo = lov.str()
+                                }
+                                if rov > 0 {
+                                    dro = rov.str()
+                                }
+                                // 形状判别符（视图四平铺分支用——嵌套 if+
+                                // 空串比较在 vm 视图构建有迭代夭折实勘，
+                                // T-03；单条件平铺=已证面）。
+                                var lk0 str = r.lk
+                                var rk0 str = r.rk
+                                var lp0 str = r.lpre
+                                var lm0 str = r.lmid
+                                var lo0 str = r.lpost
+                                var rp0 str = r.rpre
+                                var rm0 str = r.rmid
+                                var ro0 str = r.rpost
+                                // bool 形状旗标×4（视图四平铺分支——record
+                                // 字符串字段==字面量的兄弟 if 仅首个生效实勘
+                                // [T-03：ctx 渲染 pair 哑火]，bool 字段 if=
+                                // tab 条 t.dirty 已证面）。
+                                var sx_ctx bool = false
+                                var sx_pair bool = false
+                                var sx_del bool = false
+                                var sx_add bool = false
+                                if lk0 == "del" {
+                                    if rk0 == "add" {
+                                        sx_pair = true
+                                    } else {
+                                        sx_del = true
+                                    }
+                                } else {
+                                    if rk0 == "add" {
+                                        sx_add = true
+                                    } else {
+                                        sx_ctx = true
+                                    }
+                                }
+                                capped.push({d_lo: dlo, d_ro: dro, lo: lov, ro: rov, sx_ctx: sx_ctx, sx_pair: sx_pair, sx_del: sx_del, sx_add: sx_add, lk: lk0, rk: rk0, lpre: lp0, lmid: lm0, lpost: lo0, rpre: rp0, rmid: rm0, rpost: ro0})
+                                if sx_pair {
+                                    dbg_pair = dbg_pair + 1
+                                }
+                                if sx_del {
+                                    dbg_del = dbg_del + 1
+                                }
+                                if sx_add {
+                                    dbg_add = dbg_add + 1
+                                }
+                                if sx_ctx {
+                                    dbg_ctx = dbg_ctx + 1
+                                }
+                                nc = nc + 1
+                            }
+                            n = n + 1
+                        }
+                        .diff_rows = capped
+                        .diff_rows_count = nc
+                        .diff_dbg_pair = dbg_pair
+                        .diff_dbg_del = dbg_del
+                        .diff_dbg_add = dbg_add
+                        .diff_dbg_ctx = dbg_ctx
+                        .diff_rows_truncated = n > nc
+                        .diff_hunks = v.hunks ?? []
+                        var nh int = 0
+                        for h in .diff_hunks {
+                            nh = nh + 1
+                        }
+                        .diff_hunk_count = nh
+                        if nh > 0 {
+                            .diff_hunk_idx = 0
+                        } else {
+                            .diff_hunk_idx = -1
+                        }
+                        .diff_hunk_pos = "1/" + nh.str()
+                        .diff_adds = v.adds ?? 0
+                        .diff_dels = v.dels ?? 0
+                        .diff_degraded = v.degraded ?? false
+                        .diff_title_a = file_basename(.diff_a)
+                        .diff_title_b = file_basename(.diff_b)
+                        .diff_open = true
+                        var msg0 str = "diff: +" + .diff_adds.str() + "/-" + .diff_dels.str() + " hunks=" + nh.str()
+                        if .diff_rows_truncated {
+                            msg0 = msg0 + "（渲染截断 600）"
+                        }
+                        if .diff_degraded {
+                            msg0 = msg0 + "（大段降级）"
+                        }
+                        console_log(msg0)
+                    } else {
+                        .diff_open = false
+                        console_log("diff: " + .diff_err)
+                    }
+                }
+            }
+            .console = console_lines()
+        }
+
+        // ---- PLAN-011 T-02: diff 关闭清态（tab 集零扰动——编辑区条件
+        // 面复原，tabs/dirty/光标全部不动；导航/边界态一并清零）。
+        .DiffClose -> {
+            .diff_open = false
+            .diff_rows = []
+            .diff_rows_count = 0
+            .diff_rows_truncated = false
+            .diff_hunks = []
+            .diff_hunk_count = 0
+            .diff_hunk_idx = -1
+            .diff_adds = 0
+            .diff_dels = 0
+            .diff_degraded = false
+            .diff_err = ""
+            console_log("diff: closed")
+            .console = console_lines()
+        }
+
+        // ---- PLAN-011 T-04: hunk 导航（G-4）。推进/回绕（F7/Shift+F7
+        // 与按钮同源）+当前 hunk 首渲染行 scroll_to 跳转。空 hunk（无
+        // 差异文件）零动作——AC-04 disabled 语义=无操作（按钮无 enabled
+        // 面，handler 守卫达成）。
+        .DiffNext -> {
+            if .diff_hunk_count > 0 {
+                if .diff_hunk_idx >= .diff_hunk_count - 1 {
+                    .diff_hunk_idx = 0
+                } else {
+                    .diff_hunk_idx = .diff_hunk_idx + 1
+                }
+                store.DiffScrollToHunk()
+                .diff_hunk_pos = (.diff_hunk_idx + 1).str() + "/" + .diff_hunk_count.str()
+                console_log("diff: hunk " + (.diff_hunk_idx + 1).str() + "/" + .diff_hunk_count.str())
+            }
+            .console = console_lines()
+        }
+        .DiffPrev -> {
+            if .diff_hunk_count > 0 {
+                if .diff_hunk_idx <= 0 {
+                    .diff_hunk_idx = .diff_hunk_count - 1
+                } else {
+                    .diff_hunk_idx = .diff_hunk_idx - 1
+                }
+                store.DiffScrollToHunk()
+                .diff_hunk_pos = (.diff_hunk_idx + 1).str() + "/" + .diff_hunk_count.str()
+                console_log("diff: hunk " + (.diff_hunk_idx + 1).str() + "/" + .diff_hunk_count.str())
+            }
+            .console = console_lines()
+        }
+        // 当前 hunk 首渲染行定位（rows 归属判定：lo-1∈[a1,a2) 或 ro-1∈
+        // [b1,b2)——hunks 有序不相交，首命中即目标）+ scroll_to 绝对
+        // 像素跳转（T-00③ 公式：offset=行(0基)×24；float 累加规避
+        // int×float 混合算术面）。
+        .DiffScrollToHunk -> {
+            if .diff_hunk_count > 0 {
+                if .diff_hunk_idx >= 0 {
+                    if .diff_hunk_idx < .diff_hunk_count {
+                        let hk = .diff_hunks[.diff_hunk_idx]
+                        var a1 int = hk.a1 ?? 0
+                        var a2 int = hk.a2 ?? 0
+                        var b1 int = hk.b1 ?? 0
+                        var b2 int = hk.b2 ?? 0
+                        var target int = -1
+                        var ri int = 0
+                        while ri < .diff_rows_count {
+                            if target < 0 {
+                                var r = .diff_rows[ri]
+                                var lov int = r.lo ?? 0
+                                var rov int = r.ro ?? 0
+                                var hit bool = false
+                                if lov > 0 {
+                                    if lov - 1 >= a1 {
+                                        if lov - 1 < a2 {
+                                            hit = true
+                                        }
+                                    }
+                                }
+                                if !hit {
+                                    if rov > 0 {
+                                        if rov - 1 >= b1 {
+                                            if rov - 1 < b2 {
+                                                hit = true
+                                            }
+                                        }
+                                    }
+                                }
+                                if hit {
+                                    target = ri
+                                }
+                            }
+                            ri = ri + 1
+                        }
+                        if target >= 0 {
+                            var off float = 0.0
+                            var k int = 0
+                            while k < target {
+                                off = off + 24.0
+                                k = k + 1
+                            }
+                            let ok = scroll_to(.diff_scroll, "y", off)
+                        }
+                    }
+                }
+            }
+        }
+
+        .DiffBypassTick -> {
+            if !.diff_bypass_done {
+                var pa str = env_str("AUTO_DIFF_A")
+                if pa != "" {
+                    .diff_bypass_done = true
+                    store.DiffOpen()
+                }
+            }
         }
 
         .ActOpen -> {
