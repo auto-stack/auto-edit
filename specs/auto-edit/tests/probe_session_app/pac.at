@@ -1,0 +1,8 @@
+// pac.at — PLAN-010 T-00 决策探针 app（probe_session.py 的载具，vm 轨专用
+// 脚手架，非产品件）。会话 IO 四端点契约 + 懒恢复协议预演 + 退出写盘时序
+// 勘定面。与产品 auto-edit 完全隔离（back 契约两文件为产品 verbatim 拷贝
+// ——探针验证的即真实契约代码）。
+name: "probe-session"
+version: "0.1.0"
+scene: "ui"
+render: "vm"

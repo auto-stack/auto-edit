@@ -1,0 +1,243 @@
+// app.at — PLAN-010 T-00 决策探针（probe_session.py 载具，vm 轨专用脚手架）。
+//
+// 五项勘定面（决策记录落 PLAN-010 §10）：
+//   ① 会话文件 IO 往返：env_str("APPDATA") 定位 + 根级 write_text →
+//     exists → read_text → json.to_value 字节往返（json_escape 双字符
+//     转义——marker 含引号/反斜杠/中文；中文路径 fixture）。
+//   ② 恢复序预演：RestorePreview 注入三文件 tab（loaded=false ×3，
+//     active=1）→ 视图只实化 active（tab-2）→ Tick RunPendingLoad 装载
+//     active（loaded_bytes 断言）→ TabActivate 切未装载 tab → 装载触发
+//     （load_key/path_active 联动——RunPendingLoad 读 .path_active 的
+//     协议假设实证）。
+//   ③ 非激活 tab 编辑器存留：装载 tab-2 → 切 tab-1（装载）→ 切回 tab-2
+//     （loaded==true 不置 load_key）→ readback 读 code_editor_text：
+//     内容在=reistry 存留（loaded=「装载过即免重装」）；内容空/重装
+//     计数推进=视图重建即卸载（loaded 需降级语义）。reload_count 计数
+//     装载次数（切回免重装的判据）。
+//   ④ 退出写盘时序：quitwrite 按钮同产品 CloseRequest 干净臂形态——
+//     write_text 落盘 → print 标记 → Process.exit(0)；python 侧轮询进程
+//     退出后读盘断言（写盘先于退出的可靠性）。
+//   ⑤ 首拍竞态/损坏 JSON：reparse 写入损坏串后 json.to_value——抛异常
+//     （catch 命中=静默全新启动路径成立）or 容忍（返回 null 形——ws 门
+//     兜底），实测定案 T-02 恢复门的防御形态。
+//
+// 与产品差异（脚手架豁免，不进规范）：本 app 直接读 code_editor_text
+// （探针断言面）；产品会话链零全文读。
+
+fn json_escape(s str) str {
+    var out str = s.replace("\\", "\\\\")
+    out = out.replace("\"", "\\\"")
+    return out
+}
+
+use back.api: env_str, read_text, write_text, exists
+
+store ProbeStore {
+    model {
+        // Tick 契约读取面（装载递延消费节奏；产品同款挂 store）。
+        var interval int = 200
+        // 环境定位面（①）。
+        var appdata str = ""
+        var session_path str = ""
+        var ws_dir str = ""
+        var f1 str = ""
+        var f2 str = ""
+        var f3 str = ""
+        // 注入 tab 面（②③）——{key,title,path,loaded,src}。
+        var tabs list = []
+        var tab int = -1
+        var tab_count int = 0
+        var active_key str = ""
+        var path_active str = ""
+        // 装载链面（PLAN-007 协议同款）+ reload_count（③ 判据）。
+        var load_key str = ""
+        var loaded_bytes int = 0
+        var reload_count int = 0
+        var last_load str = ""
+        var init_mark str = ""
+        var back_head str = ""
+        // IO 往返面（①⑤）。
+        var write_ok bool = false
+        var exists_ok bool = false
+        var parse_ok bool = false
+        var parsed_marker str = ""
+        var parsed_ws str = ""
+        var parsed_ccol int = -1
+        var corrupt_parse_ok bool = false
+        var corrupt_marker str = "<not-run>"
+    }
+
+    msg { TabActivate(int), RunPendingLoad, RestorePreview,
+          IoRun, IoReparse, ReadBack, QuitWrite }
+
+    on {
+        // ② 恢复链预演入口：APPDATA 定位 + 三 fixture tab 注入（零全文、
+        // loaded=false ×3）+ 激活位=1 + load_key=active——产品 LoadWorkspace
+        // 尾段的目标形态（T-02 按此落地）。
+        .RestorePreview -> {
+            .appdata = env_str("APPDATA")
+            .session_path = .appdata + "/auto-edit-probe-session.json"
+            .ws_dir = env_str("AUTO_PROBE_WS")
+            .f1 = env_str("AUTO_PROBE_F1")
+            .f2 = env_str("AUTO_PROBE_F2")
+            .f3 = env_str("AUTO_PROBE_F3")
+            .tabs = []
+            .tabs.push({key: "tab-1", title: file_basename(.f1), path: .f1, loaded: false, src: ""})
+            .tabs.push({key: "tab-2", title: file_basename(.f2), path: .f2, loaded: false, src: ""})
+            .tabs.push({key: "tab-3", title: file_basename(.f3), path: .f3, loaded: false, src: ""})
+            .tab_count = 3
+            .tab = 1
+            .active_key = .tabs[1].key
+            .path_active = .tabs[1].path
+            .load_key = .tabs[1].key
+            .init_mark = "injected"
+        }
+
+        // 懒装载触发（计划协议缺口①）：激活 loaded==false 的文件 tab →
+        // 置 load_key（path_active 已由本 handler 写——RunPendingLoad 读
+        // .path_active 的假设在此同构验证）。
+        .TabActivate(i) -> {
+            if i >= 0 {
+                if i < .tab_count {
+                    .tab = i
+                    .active_key = .tabs[i].key
+                    .path_active = .tabs[i].path
+                    if .tabs[i].loaded == false {
+                        if .tabs[i].path != "" {
+                            .load_key = .tabs[i].key
+                        }
+                    }
+                }
+            }
+        }
+
+        // 装载消费（PLAN-007 RunPendingLoad 同款拷贝 + reload_count /
+        // last_load 观测面；成功分支置 loaded=true——计划 T-02 形态）。
+        .RunPendingLoad -> {
+            if .load_key != "" {
+                if code_editor_edit(.load_key, 0, 0, "") {
+                    let key str = .load_key
+                    let path str = .path_active
+                    try {
+                        code_editor_set_text(key, "")
+                    } catch {
+                    }
+                    let total int = code_editor_load_file(key, path)
+                    if total >= 0 {
+                        .loaded_bytes = total
+                        var i int = 0
+                        while i < .tab_count {
+                            if .tabs[i].key == key {
+                                .tabs[i].loaded = true
+                            }
+                            i = i + 1
+                        }
+                    } else {
+                        .loaded_bytes = 0
+                    }
+                    .reload_count = .reload_count + 1
+                    .last_load = path
+                    .load_key = ""
+                }
+            }
+        }
+
+        // ① IO 往返：json_escape 拼装（marker 含引号/反斜杠/中文）→
+        // write → exists → read → json.to_value 解析回读。
+        .IoRun -> {
+            let marker str = "quote\"back\\slash中文"
+            var body str = "{\"ws_dir\":\"" + json_escape(.ws_dir) + "\",\"marker\":\"" + json_escape(marker) + "\""
+            body = body + ",\"tabs\":[{\"path\":\"" + json_escape(.f1) + "\",\"title\":\"你好文件\",\"cline\":3,\"ccol\":7}],\"active\":0,\"open_count\":9,\"recents\":[]}"
+            .write_ok = write_text(.session_path, body)
+            .exists_ok = exists(.session_path)
+            let raw str = read_text(.session_path)
+            try {
+                let v = json.to_value(raw)
+                .parse_ok = true
+                .parsed_marker = v.marker ?? ""
+                .parsed_ws = v.ws_dir ?? ""
+                var t0 = v.tabs[0]
+                .parsed_ccol = t0.ccol ?? -1
+            } catch {
+                .parse_ok = false
+            }
+        }
+
+        // ⑤ 损坏 JSON：写垃圾串后解析——抛（catch 命中）or 容忍，实测定案。
+        .IoReparse -> {
+            write_text(.session_path, "{corrupted json!!! not valid")
+            try {
+                let v = json.to_value(read_text(.session_path))
+                .corrupt_parse_ok = true
+                .corrupt_marker = v.marker ?? "<null>"
+            } catch {
+                .corrupt_parse_ok = false
+            }
+        }
+
+        // ③ 存留勘定读数：active 编辑器全文头 48 字符（探针豁免面）。
+        .ReadBack -> {
+            var h str = code_editor_text(.active_key)
+            if h.len() > 48 {
+                h = h.substr(0, 48)
+            }
+            .back_head = h
+        }
+
+        // ④ 退出写盘时序：写盘 → 标记 → exit(0)——python 轮询进程退出后
+        // 读盘断言（产品 CloseRequest 单挂点同构）。
+        .QuitWrite -> {
+            var body str = "{\"quit\":\"written-before-exit\"}"
+            write_text(.session_path, body)
+            print("PROBE_QUIT_WRITTEN")
+            Process.exit(0)
+        }
+    }
+}
+
+widget App {
+    msg { TabActivate(int), RestorePreview, IoRun, IoReparse, ReadBack, QuitWrite }
+    view {
+        col (style: "h-full w-full p-2 gap-2") {
+            row (style: "gap-2 shrink-0") {
+                button (text: "restore", variant: "outline") { onclick: .RestorePreview }
+                button (text: "io", variant: "outline") { onclick: .IoRun }
+                button (text: "reparse", variant: "outline") { onclick: .IoReparse }
+                button (text: "readback", variant: "outline") { onclick: .ReadBack }
+                button (text: "quitwrite", variant: "outline") { onclick: .QuitWrite }
+            }
+            row (style: "gap-1 shrink-0") {
+                for i, t in .store.tabs {
+                    if i == .store.tab {
+                        button (text: t.title, variant: "outline") { onclick: .TabActivate(i) }
+                    }
+                    if i != .store.tab {
+                        button (text: t.title, variant: "text") { onclick: .TabActivate(i) }
+                    }
+                }
+            }
+            for i, t in .store.tabs {
+                if t.key == .store.active_key {
+                    code_editor (key: t.key, lang: "auto", style: "h-40 w-full") {
+                        content: t.src
+                    }
+                }
+            }
+            text "init=[${.store.init_mark}] appdata_set=${.store.appdata} load=[${.store.last_load}] bytes=${.store.loaded_bytes} reloads=${.store.reload_count} head=[${.store.back_head}]" {
+                style: "text-xs font-mono text-muted-foreground"
+            }
+            text "w=${.store.write_ok} e=${.store.exists_ok} parse=${.store.parse_ok} marker=[${.store.parsed_marker}] ws=[${.store.parsed_ws}] ccol=${.store.parsed_ccol} corrupt=${.store.corrupt_parse_ok} cmarker=[${.store.corrupt_marker}]" {
+                style: "text-xs font-mono text-muted-foreground"
+            }
+        }
+    }
+    on {
+        .TabActivate(i) -> { store.TabActivate(i) }
+        .RestorePreview -> { store.RestorePreview() }
+        .IoRun -> { store.IoRun() }
+        .IoReparse -> { store.IoReparse() }
+        .ReadBack -> { store.ReadBack() }
+        .QuitWrite -> { store.QuitWrite() }
+        .Tick -> { store.RunPendingLoad() }
+    }
+}

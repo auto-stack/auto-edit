@@ -150,6 +150,23 @@ widget App {
                     text "EXPLORER" { style: "text-[11px] text-muted-foreground px-1 pt-1 tracking-wider" }
                     text .store.ws_name { style: "text-[11px] text-muted-foreground px-1 pb-1" }
                     TreeView (nodes: .store.tree_nodes, expanded: .store.tree_expanded, selected: .store.tree_sel, on_toggle: .TreeToggle, on_select: .TreeSelect, directory: true) {}
+                    // PLAN-010 T-03: 最近文件（Explorer 侧栏平铺节——设计
+                    // 适配在案：menubar-content 组件内容模型三边界（探针
+                    // menu2/隔离实验实勘）——for 不吸收、label 不吸收、
+                    // if 守卫动态条目跨重建不可靠（关 tab 即失真，config
+                    // reload 不救）、带参 onclick 实参归零。根视图 for +
+                    // 裸循环索引 onclick=fif 结果面板同款已证面。上限 10
+                    // 与 recents 契约一致）。
+                    text "最近文件" { style: "text-[11px] text-muted-foreground px-1 pt-2 tracking-wider" }
+                    for ri, r in .store.recents {
+                        button (text: r.title, variant: "text") {
+                            onclick: .RecentOpen(ri)
+                            style: "h-6 px-1 text-[11px] text-muted-foreground justify-start w-full"
+                        }
+                    }
+                    if .store.recents_count == 0 {
+                        text "（空）" { style: "text-[11px] text-muted-foreground px-1" }
+                    }
                 }
                 col (style: "flex-1 overflow-hidden") {
                     row (style: "h-8 items-center bg-muted/30 shrink-0 w-full gap-0") {
@@ -429,6 +446,9 @@ widget App {
         .FifSearch -> { store.FifSearch() }
         .FifResultClick(i) -> { store.FifResultClick(i) }
         .ReplaceAllRequest -> { store.ReplaceAllRequest() }
+        // PLAN-010 T-03: 最近文件点击薄委托（裸循环索引载荷——根视图
+        // for 内 button 的已证面，FifResultClick/TabActivate 同款）。
+        .RecentOpen(i) -> { store.RecentOpenAt(i) }
         .ActCut -> { store.ActCut() }
         .ActCopy -> { store.ActCopy() }
         .ActPaste -> { store.ActPaste() }

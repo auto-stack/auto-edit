@@ -36,11 +36,22 @@ fn regex_escape(s str) str {
     return out
 }
 
+// PLAN-010 T-01: 会话 JSON 拼装转义例程——两字符（反斜杠最先，不二次
+// 转义；引号次之）。regex_escape 同款选型（Str.replace 链双轨映射面内，
+// 008/009 双轨先例第三次复用）；解析侧 json.to_value（009 fif 面已证
+// vue 吸收）。路径面 Windows 无引号字符，转义主面=反斜杠路径分隔。
+fn json_escape(s str) str {
+    var out str = s.replace("\\", "\\\\")
+    out = out.replace("\"", "\\\"")
+    return out
+}
+
 // PLAN-003 T-02: 数据面改道 back.api(013/015 裸函数直调形态)——vm merged
 // = 进程内 CALL;vm split / vue = HTTP。fs.*/File.* 内建自此退出 front
 // (vue 轨 ts_adapter 将其拦为 __vmOnly 抛错桩,拆 back 动机);fs.join 亦
 // 在拦截面(T-00 P-5),TreeSelect 改本地字符串拼接。
-use back.api: ws_root, tree, write_text, exists, env_str, read_text_range, regex_replace, search_files
+// PLAN-010 T-02: read_text 加入（会话文件读取——恢复链）。
+use back.api: ws_root, tree, write_text, exists, env_str, read_text_range, regex_replace, search_files, read_text
 
 store EditorStore {
     model {
@@ -53,9 +64,16 @@ store EditorStore {
         // 上游 code_editor_save 直写端点供料后收口,docs/upstream 登记)。
         // PLAN-008 T-01 字节保真元数据:bom/eol/readonly 三标量(探测协议
         // 见 RunPendingLoad/ProbeByteMeta;契约详 editor-store.md SD-01)。
+        // PLAN-010 T-01 装载协议增补:loaded=「装载完成」标量——文件 tab
+        // 创建位 false(RunPendingLoad 成功分支置 true),TabActivate 据此
+        // 触发懒装载(恢复链「建而不装、激活才装」的唯一协议缺口);
+        // cline/ccol=激活 tab 光标位镜像(CursorMoved/SyncCursor 位更新,
+        // 持久化入会话但恢复时不应用——上游 set-cursor 端点清偿后启用的
+        // 前向兼容位,docs/upstream §13)。种子 tab loaded=true(演示 tab
+        // 即装即用,src 绑定承载正文)。
         var tabs list = [
-            {key: "tab-main", title: "main.at", path: "", dirty: false, bom: false, eol: "lf", readonly: false, src: "// 预填文本显示测试 — 如果你看到这行字,说明正文渲染正常\nfn add(a int, b int) int {\n    return a + b\n}\n\n// 中文注释:你好世界\nprint(add(1, 2))\n"},
-            {key: "tab-util", title: "util.at", path: "", dirty: false, bom: false, eol: "lf", readonly: false, src: "// 工具模块 — 每个 tab 的编辑状态独立保存\nfn greet(name str) str {\n    return \"hello \" + name\n}\n\nfn farewell(name str) str {\n    return \"bye \" + name\n}\n"},
+            {key: "tab-main", title: "main.at", path: "", dirty: false, bom: false, eol: "lf", readonly: false, loaded: true, cline: 1, ccol: 1, src: "// 预填文本显示测试 — 如果你看到这行字,说明正文渲染正常\nfn add(a int, b int) int {\n    return a + b\n}\n\n// 中文注释:你好世界\nprint(add(1, 2))\n"},
+            {key: "tab-util", title: "util.at", path: "", dirty: false, bom: false, eol: "lf", readonly: false, loaded: true, cline: 1, ccol: 1, src: "// 工具模块 — 每个 tab 的编辑状态独立保存\nfn greet(name str) str {\n    return \"hello \" + name\n}\n\nfn farewell(name str) str {\n    return \"bye \" + name\n}\n"},
         ]
         var active_key str = "tab-main"
         // 派生标量(索引镜像/空态判断/状态栏与矩阵断言面;结构变化时由
@@ -152,6 +170,17 @@ store EditorStore {
         var fif_count int = 0
         var fif_truncated bool = false
         var fif_open bool = false
+        // PLAN-010 T-01: 会话链状态。session_path = APPDATA 根
+        // auto-edit-session.json(LoadWorkspace 头解析;缺席兜底 ""=会话链
+        // 禁用——APPDATA 缺席的非常态环境零行为差异);recents = 最近文件
+        // (去重前移上限 10,OpenPath 前段维护,持久化入会话)。会话文件
+        // 契约详 editor-store.md SD-01(APPDATA 根落文件——零 mkdir,
+        // fs.create_dir 属 back 面不在 front 拦截面)。
+        var session_path str = ""
+        var recents list = []
+        // PLAN-010 T-03: recents 计数派生标量（视图 10 槽 if 门读取面——
+        // VM view 不能调 .len()，handler 就地重算惯例）。
+        var recents_count int = 0
     }
 
     msg {
@@ -191,6 +220,15 @@ store EditorStore {
         ReplaceAllRequest,
         // PLAN-009 T-04: find-in-files 面板开合 + 搜索（back search_files）。
         FifOpen, FifClose, FifSearch, FifResultClick(int),
+        // PLAN-010 T-01: 会话落盘收口 helper（内部——五挂点 OpenPath/
+        // RemoveAt/TabActivate/ActNew/CloseRequest 入口调用；结构变更
+        // 即时落盘=崩溃恢复底座）。
+        SessionSave,
+        // PLAN-010 T-03: 最近文件点击（Explorer 侧栏条目——设计适配：
+        // menubar-content 动态子节点边界见 app.at 节注；根视图裸索引
+        // 载荷=已证面）。共享内部收口。
+        RecentOpen(int),
+        RecentOpenAt(int),
     }
 
     on {
@@ -206,6 +244,13 @@ store EditorStore {
             if env_str("AUTO_BENCH") == "1" {
                 print("BENCH bench_vm_init")
             }
+            // PLAN-010 T-01: 会话链定位（头段）——APPDATA 根
+            // auto-edit-session.json；缺席兜底 ""=会话链禁用（写入挂点与
+            // 恢复链双重门，非常态环境零行为差异）。
+            var ad str = env_str("APPDATA")
+            if ad != "" {
+                .session_path = ad + "/auto-edit-session.json"
+            }
             // PLAN-003 T-02: ws 根解析入 back(ws_root 兜底 "." 语义不变)。
             .ws_dir = ws_root()
             .ws_name = file_basename(.ws_dir)
@@ -216,13 +261,98 @@ store EditorStore {
             if env_str("AUTO_BENCH") == "1" {
                 print("BENCH bench_ws_loaded")
             }
+            // PLAN-010 T-02: 会话恢复链（尾段——bench 计时标记之后，热启动
+            // 预算行效力在 L2 模式、本件按门禁两档记账不阻塞）。三门：存在
+            // → 解析 → ws_dir 匹配；任一不过=静默全新启动（现状零回归，
+            // bench 实例 ws 键控自隔离同门）。重建=零全文 tab（src 恒空、
+            // loaded=false——仅 active 装载：load_key=active，下轮 Tick
+            // RunPendingLoad 消费=既有协议②③原样）；open_count 推进防撞
+            // 号；recents 同源恢复。损坏 JSON 按 T-00⑤ 定案（try 门=静默
+            // 全新启动）。脏内容/光标/滚动不恢复（§0 边界——cline/ccol 仅
+            // 前向兼容位）。
+            if .session_path != "" {
+                if exists(.session_path) {
+                    try {
+                        let v = json.to_value(read_text(.session_path))
+                        var sws str = v.ws_dir ?? ""
+                        if sws == .ws_dir {
+                            var stabs = v.tabs ?? []
+                            .tabs = []
+                            var seq int = 0
+                            var act int = v.active ?? -1
+                            var want int = 0
+                            for t in stabs {
+                                var p str = t.path ?? ""
+                                if p != "" {
+                                    if exists(p) {
+                                        var knum int = seq + 1
+                                        .tabs.push({key: "tab-" + knum.str(), title: t.title ?? file_basename(p), path: p, dirty: false, bom: false, eol: "lf", readonly: false, loaded: false, cline: t.cline ?? 1, ccol: t.ccol ?? 1, src: ""})
+                                        if act == seq {
+                                            want = seq
+                                        }
+                                        seq = seq + 1
+                                    }
+                                }
+                            }
+                            // open_count 推进防撞号（重建 key=tab-1..seq，
+                            // 下次 OpenPath 自 seq+1 续号）。
+                            .open_count = seq
+                            .tab_count = seq
+                            if seq > 0 {
+                                if want >= seq {
+                                    want = 0
+                                }
+                                .tab = want
+                                .active_key = .tabs[want].key
+                                .title_active = .tabs[want].title
+                                .path_active = .tabs[want].path
+                                .line = 1
+                                .col = 1
+                                .sel = 0
+                                // 仅 active 装载（文件 tab 恒 loaded=false，
+                                // 视图实化后下轮 Tick 装载）。
+                                .load_key = .tabs[want].key
+                                store.SyncByteMeta()
+                            } else {
+                                .tab = -1
+                                .active_key = ""
+                                .title_active = ""
+                                .path_active = ""
+                            }
+                            // recents 同源恢复（元素级防御重建——畸形条目
+                            // 丢弃，不携进入后续 SessionSave）。
+                            var srecs = v.recents ?? []
+                            .recents = []
+                            for r in srecs {
+                                var rp str = r.path ?? ""
+                                if rp != "" {
+                                    .recents.push({path: rp, title: r.title ?? file_basename(rp)})
+                                }
+                            }
+                            .recents_count = .recents.len()
+                            console_log("session: restored " + seq.str() + " tabs")
+                        }
+                    } catch {
+                        console_log("session: parse failed — fresh start")
+                    }
+                }
+            }
         }
 
         // ---- 内部 helper：光标三元组读回 ----
+        // PLAN-010 T-01: cline/ccol 写入 active tab（调用面恒对 active——
+        // TabActivate/RemoveAt/CursorMoved/ActSelectAll/FindNext 全部以
+        // active key 调用；持久化入会话、恢复时不应用=前向兼容位）。
         .SyncCursor(key) -> {
             .line = code_editor_cursor_line(key) + 1
             .col = code_editor_cursor_col(key) + 1
             .sel = code_editor_selection_len(key)
+            if .tab >= 0 {
+                if .tab < .tab_count {
+                    .tabs[.tab].cline = .line
+                    .tabs[.tab].ccol = .col
+                }
+            }
         }
 
         // ---- PLAN-008 T-03 内部 helper：状态栏字节保真三元组重算 ----
@@ -258,8 +388,20 @@ store EditorStore {
             .active_key = .tabs[i].key
             .title_active = .tabs[i].title
             .path_active = .tabs[i].path
+            // PLAN-010 T-02: 懒装载触发——激活未装载的文件 tab → 置
+            // load_key（path_active 已由上行写，RunPendingLoad 读
+            // .path_active 的假设天然满足；编辑器实化前探针 edit 失败
+            // 静默递延=协议①原样）。已装载 tab 零动作（Q-1 语义按
+            // T-00③ 定案——registry 存留则切回免重装）。
+            if .tabs[i].loaded == false {
+                if .tabs[i].path != "" {
+                    .load_key = .tabs[i].key
+                }
+            }
             store.SyncCursor(.tabs[i].key)
             store.SyncByteMeta()
+            // PLAN-010 T-01: 会话挂点（激活位变更=结构变更）。
+            store.SessionSave()
             .console = console_lines()
         }
         // Plan 428: 切换激活编辑器第 2 行 fn 块的折叠态并读回隐藏行数。
@@ -307,6 +449,9 @@ store EditorStore {
                 .sel = 0
                 store.SyncByteMeta()
             }
+            // PLAN-010 T-01: 会话挂点（关闭=结构变更；末 tab 关闭后
+            // tabs 空=空会话，文件照写——恢复门按空集重建零 tab）。
+            store.SessionSave()
         }
         .CloseTab(i) -> {
             if .tabs[i].dirty {
@@ -394,6 +539,9 @@ store EditorStore {
                 store.SyncByteMeta()
             }
             console_log("new: cleared active tab")
+            // PLAN-010 T-01: 会话挂点（新建=untitled 化=结构变更——untitled
+            // tab 不入会话，SessionSave 按排除语义落盘）。
+            store.SessionSave()
             .console = console_lines()
         }
         // PLAN-016 T-08：open_with 接收消费——与 ActOpen 同构，路径来自
@@ -426,8 +574,27 @@ store EditorStore {
         // 器 widget 实化（视图重建）先于装载，分块链直达 rope，全文
         // 永不进 VM 堆。
         .OpenPath(p) -> {
+            // PLAN-010 T-03: recents 维护（前段——去重前移，上限 10 淘尾；
+            // OpenPath 是全部打开入口的公共核，菜单/树/fif 点击/最近文件
+            // 四路同源）。会话恢复链的 recents 重建亦经此语义。
+            var ridx int = -1
+            var ri int = 0
+            while ri < .recents.len() {
+                if .recents[ri].path == p {
+                    ridx = ri
+                }
+                ri = ri + 1
+            }
+            if ridx >= 0 {
+                .recents.remove(ridx)
+            }
+            .recents.push({path: p, title: file_basename(p)})
+            while .recents.len() > 10 {
+                .recents.remove(0)
+            }
+            .recents_count = .recents.len()
             .open_count = .open_count + 1
-            .tabs.push({key: "tab-" + .open_count.str(), title: file_basename(p), path: p, dirty: false, bom: false, eol: "lf", readonly: false, src: ""})
+            .tabs.push({key: "tab-" + .open_count.str(), title: file_basename(p), path: p, dirty: false, bom: false, eol: "lf", readonly: false, loaded: false, cline: 1, ccol: 1, src: ""})
             .tab = .tab_count
             .tab_count = .tab_count + 1
             .active_key = .tabs[.tab].key
@@ -438,6 +605,9 @@ store EditorStore {
             .sel = 0
             .load_key = .tabs[.tab].key
             store.SyncByteMeta()
+            // PLAN-010 T-01: 会话挂点（打开=结构变更；recents 维护前置于
+            // 本调用——同一落盘携带）。
+            store.SessionSave()
         }
 
         // PLAN-007 T-01: 装载（Tick 消费 load_key）。上游 PLAN-687 供料
@@ -468,6 +638,20 @@ store EditorStore {
                         // PLAN-008 T-01: 字节元数据探测（BOM/EOL/采样窗，
                         // 协议见 ProbeByteMeta 头注；错误形分支 T-04）
                         store.ProbeByteMeta(key, path)
+                        // PLAN-010 T-02: 装载完成位置位（TabActivate 触发
+                        // 门的关闭侧——此后激活免重装载；错误形不置位，
+                        // 文件修复后可重试）。
+                        var lidx int = -1
+                        var li int = 0
+                        while li < .tabs.len() {
+                            if .tabs[li].key == key {
+                                lidx = li
+                            }
+                            li = li + 1
+                        }
+                        if lidx >= 0 {
+                            .tabs[lidx].loaded = true
+                        }
                     } else {
                         .loaded_bytes = 0
                         // PLAN-008 T-04: 非法 UTF-8 无损兜底——错误提示
@@ -836,6 +1020,82 @@ store EditorStore {
             .console = console_lines()
         }
 
+        // ---- PLAN-010 T-01: 会话落盘收口（五挂点共用的内部 helper）----
+        // APPDATA 根 auto-edit-session.json，结构变更即时落盘（Q-2 v1
+        // 预判——用户节奏低频、文件 KB 级；退出时序 T-00④ 背书）。
+        // 契约（SD-01）：ws_dir 键控 + tabs 仅文件 tab（untitled 排除，
+        // 脏标记与正文不入）+ active=持久化数组内索引（激活 tab 为
+        // untitled 时 -1——恢复按 0 兜底）+ open_count 防撞号推进 +
+        // recents。拼装=json_escape 两字符转义 + .str() 整数化（双轨
+        // 映射面内；json.stringify(1918) 在册但 vue 映射面未证——拼装
+        // 侧不赌，双轨铁律）。session_path 为空（APPDATA 缺席）整链禁用。
+        .SessionSave -> {
+            if .session_path != "" {
+                var body str = "{\"ws_dir\":\"" + json_escape(.ws_dir) + "\",\"open_count\":" + .open_count.str()
+                var arr str = ""
+                var act int = -1
+                var n int = 0
+                var i int = 0
+                while i < .tabs.len() {
+                    if .tabs[i].path != "" {
+                        if arr != "" {
+                            arr = arr + ","
+                        }
+                        arr = arr + "{\"path\":\"" + json_escape(.tabs[i].path) + "\",\"title\":\"" + json_escape(.tabs[i].title) + "\",\"cline\":" + .tabs[i].cline.str() + ",\"ccol\":" + .tabs[i].ccol.str() + "}"
+                        if i == .tab {
+                            act = n
+                        }
+                        n = n + 1
+                    }
+                    i = i + 1
+                }
+                body = body + ",\"active\":" + act.str()
+                body = body + ",\"tabs\":[" + arr + "]"
+                var rarr str = ""
+                var j int = 0
+                while j < .recents.len() {
+                    var r = .recents[j]
+                    if rarr != "" {
+                        rarr = rarr + ","
+                    }
+                    rarr = rarr + "{\"path\":\"" + json_escape(r.path) + "\",\"title\":\"" + json_escape(r.title) + "\"}"
+                    j = j + 1
+                }
+                body = body + ",\"recents\":[" + rarr + "]}"
+                write_text(.session_path, body)
+            }
+        }
+
+        // ---- PLAN-010 T-03: 最近文件点击（Explorer 侧栏条目）----
+        // App 薄委托（裸索引载荷）→ 本收口。语义：已开同路径 tab →
+        // TabActivate 激活；未开 → OpenPath（公共核——recents 维护随
+        // OpenPath 前段自带，本 handler 零重复）。
+        .RecentOpen(i) -> { store.RecentOpenAt(i) }
+        .RecentOpenAt(i) -> {
+            if i >= 0 {
+                if i < .recents.len() {
+                    let row = .recents[i]
+                    let p str = row.path
+                    var j int = 0
+                    var found bool = false
+                    while j < .tabs.len() {
+                        if .tabs[j].path == p {
+                            found = true
+                            store.TabActivate(j)
+                        }
+                        j = j + 1
+                    }
+                    if !found {
+                        if exists(p) {
+                            store.OpenPath(p)
+                            console_log("recent: open " + p)
+                        }
+                    }
+                }
+            }
+            .console = console_lines()
+        }
+
         .ActOpen -> {
             // Plan 420 P2: AUTO_OPEN_PATH 环境变量旁路(测试构建语义,prod
             // 忽略)—— 阻塞式 rfd 对话框无法被 MCP 驱动的盲区由此打通。
@@ -1010,7 +1270,12 @@ store EditorStore {
         // ---- Plan 626 T-06: 退出/关窗确认(有脏 tab 先弹 alert-dialog)----
         // CloseRequest = 窗口 X(渲染器拦截分派)与菜单「退出」共用入口;
         // 无路径脏 tab(untitled)无从自动保存——落盘有路径的,其余放弃。
+        // PLAN-010 T-01: 会话挂点=本入口单点（三臂共用——干净臂直接退出、
+        // 弹层两臂自确认层退出，结构在挂点时已定型；弹层臂的 WriteFidelity
+        // 落盘不改 tab 集，会话保持准确）。写盘先于 Process.exit 的时序
+        // 由 T-00④/矩阵 T14 背书。
         .CloseRequest -> {
+            store.SessionSave()
             var any bool = false
             var i int = 0
             while i < .tabs.len() {

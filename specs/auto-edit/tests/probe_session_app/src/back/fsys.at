@@ -1,0 +1,204 @@
+// back/fsys.at — fs 后端实现本体（PLAN-003 T-01；T-03 改名 fs→fsys：
+// 模块名与内建 fs 对象同名有遮蔽风险，且 split 扁平化只吃整模块导入）。
+//
+// 全部文件系统 IO 收口于此（front 零 fs.*/File.* 内建——AC-01；vue 轨
+// ts_adapter 将二者拦为 __vmOnly 抛错桩，T-00 P-5 实证，此即拆 back 的
+// 动机）。AutoVM 解释服役（merged 进程内 / split 为 HTTP 服务侧模块）。
+// 函数名与 api.at 契约名刻意错开（root_dir↔ws_root 等）——013-todo 形态：
+// 契约 fn 与实现 fn 同名会在导入处遮蔽冲突。
+
+/// 工作区根：AUTO_PROJECT_DIR（auto-man 注入），缺席兜底 "."
+pub fn root_dir() str {
+    var root str = Env.get("AUTO_PROJECT_DIR")
+    if root == "" {
+        root = "."
+    }
+    return root
+}
+
+/// 目录树 JSON（front 侧 json.to_value 解析；该内建 vue 转译吸收）
+pub fn tree_json(path str, depth int) str {
+    return fs.tree(path, depth)
+}
+
+/// 读文本（直通 File.read_text——现 store 行为保真，无 Option 分支）
+pub fn read_all(path str) str {
+    return File.read_text(path)
+}
+
+/// 分块读（PLAN-007 装载链）：read_text_range envelope 直通——
+/// {"text":..,"total":<文件字节数>,"next_offset":<字节>|null}；错误形
+/// total:-1；EOF=next_offset null（仅真 EOF）；块边界不切多字节字符。
+/// 调用方（editor_store RunPendingLoad）只把 text 块送编辑器，全文
+/// 永不进 VM 堆。
+pub fn read_range(path str, offset int, limit int) str {
+    return File.read_text_range(path, offset, limit)
+}
+
+/// 写文本 + exists 复核（成功信号；对齐 TreeSelect 前置判存的 IO 惯例）
+pub fn write_all(path str, content str) bool {
+    File.write_text(path, content)
+    return File.exists(path)
+}
+
+/// 路径存在性（目录节点不命中 → TreeSelect 静默忽略语义保持）
+pub fn path_exists(path str) bool {
+    return File.exists(path)
+}
+
+/// 环境变量读（未设 = ""；AUTO_OPEN_PATH/AUTO_SAVE_PATH 矩阵旁路）
+pub fn env_lookup(name str) str {
+    return Env.get(name)
+}
+
+/// 正则替换（PLAN-009 T-03）：Regex.replace（Rust regex）+ marker 算术
+/// 计数。计数不用 Regex.match 列表（vm handler 字节码 .len() 恒 20，
+/// T-00⑤ 勘定）——sentinel 串替换后按 len 差商计数（Str.replace/len
+/// 双轨映射内，PLAN-008 EOL 计数同款选型）；count=真实替换数，无列表帽。
+pub fn regex_replace_json(text str, pattern str, replacement str, global bool) str {
+    var flags str = ""
+    if global {
+        flags = "g"
+    }
+    // 大小写不敏感默认（SD-02 契约：与查找面内核 builder
+    // case_insensitive(true) 同默认；pattern 自带旗标前缀——`(` 开头，
+    // 如查找面 `(?-i)` 直通形态——则透传）。裸 Regex.replace 是
+    // case-sensitive（shim 直编 Regex::new 无旗标），不补齐会与高亮面
+    // 劈叉（T13.3 实勘：query=alpha 仅替换小写 1 处，高亮 4 处）。
+    var pat str = pattern
+    if pat.substr(0, 1) != "(" {
+        pat = "(?i)" + pat
+    }
+    let m str = "~~AM09REPLMARK~~"
+    let probe str = Regex.replace(text, pat, m, flags)
+    let count int = (probe.len() - probe.replace(m, "").len()) / m.len()
+    let out str = Regex.replace(text, pat, replacement, flags)
+    return json.from_value({out: out, count: count})
+}
+
+/// fif 路径噪声过滤（镜像 fs.tree 的 skip-list 语义——Explorer 与
+/// find-in-files 口径一致）：隐藏段/VCS/构建产物/依赖树跳过。入参为
+/// **剥根后的相对路径**（根前缀剥离在 search_files_json——根路径自身
+/// 合法含点段如 .wt 组目录，全路径匹配会误杀全部条目，实勘教训）；
+/// 段命中用 replace 等值判定（Str.replace 双轨映射内，find 的 vm 面
+/// 签名不依赖）。
+fn fif_skipped(rel str) bool {
+    // 前导 / 归一：使首段（如工作区顶层的 gen/、node_modules/——vue 轨
+    // build 产物树 11k+ 文件，T-06 实勘）与中段同样命中段检查。
+    var np str = "/" + rel.replace("\\", "/")
+    if np.len() <= 1 {
+        return false
+    }
+    var skipped bool = false
+    if np.replace("/.", "") != np {
+        skipped = true
+    }
+    if np.replace("/target/", "") != np {
+        skipped = true
+    }
+    if np.replace("/node_modules/", "") != np {
+        skipped = true
+    }
+    if np.replace("/gen/", "") != np {
+        skipped = true
+    }
+    if np.replace("/dist/", "") != np {
+        skipped = true
+    }
+    if np.replace("/build/", "") != np {
+        skipped = true
+    }
+    if np.replace("/__pycache__/", "") != np {
+        skipped = true
+    }
+    return skipped
+}
+
+/// 跨文件查找（PLAN-009 T-04）：fs.walk 递归（walk_files 2847 未入
+/// bigvm 白名单且撞号 Path.to_string——VM 模式 .at 调用 Undefined
+/// symbol，read_dir 2843→2866 同症先例；fs.walk 2860 双表齐=等价递归
+/// 面，本仓零 auto-lang 改动约束下的仓内可解路径，upstream §12 登记
+/// walk_files 白名单补件 want）+ fs.metadata 大小门（>10MB 跳过）+
+/// try/catch 读（非法 UTF-8/锁定/竞态删除静默跳过——不中断整体搜索）
+/// + 逐行 Regex.test（split("\n") 行号天然；跨行不匹配=内核 find 逐行
+/// 同口径；CRLF 尾 \r 随行参与匹配——显示语义可接受）。
+/// pattern 大小写不敏感默认（`(?i)` 前缀追加），pattern 自带旗标前缀
+/// （`(` 开头，如查找面 `(?-i)` 直通形态）则原样透传——与查找面
+/// effective 串同约定。preview=行文本截断 200 字符；条数达 limit 置
+/// truncated。计数用手工计数器（列表 .len() 规避面，同上）。
+pub fn search_files_json(path str, pattern str, limit int) str {
+    var items list = []
+    var n int = 0
+    var truncated bool = false
+    var maxn int = limit
+    if maxn <= 0 {
+        maxn = 500
+    }
+    var re_case str = "(?i)" + pattern
+    if pattern.substr(0, 1) == "(" {
+        re_case = pattern
+    }
+    // 递归枚举 = fs.list_dir（codegen 映射 auto.fs.walk=递归扁平 JSON，
+    // 反斜杠分隔符；`fs.walk` 的 codegen 映射错名 auto.file.walk——
+    // 实勘 File.create 错派 500，upstream §12 登记；`fs.walk_files`
+    // 2847 未入 bigvm 白名单且撞号 Path.to_string，同节登记）。
+    let files = json.to_value(fs.list_dir(path))
+    var root_norm str = path.replace("\\", "/")
+    for f in files {
+        if n >= maxn {
+            truncated = true
+            break
+        }
+        // 剥根前缀后过滤（fif_skipped 入参=相对路径——根自身点段如
+        // .wt 组目录不可触发隐藏段匹配，实勘教训见 fif_skipped 注）。
+        var fpath str = f
+        var rel str = f.replace("\\", "/")
+        if root_norm != "" {
+            var stripped str = rel.replace(root_norm + "/", "")
+            if stripped != rel {
+                rel = stripped
+            } else {
+                if rel.replace(root_norm, "") != rel {
+                    rel = rel.replace(root_norm, "")
+                }
+            }
+        }
+        if fif_skipped(rel) {
+            continue
+        }
+        // 大小门：fs.metadata 实测返回 int 字节长（codegen 映射
+        // auto.fs.size——metadata JSON 形态被该映射覆盖，is_dir/len
+        // 字段访问不可用，upstream §12 同节登记）；>10MB 跳过。
+        var fsize int = fs.metadata(fpath)
+        if fsize > 10485760 {
+            continue
+        }
+        if fs.is_dir(fpath) {
+            continue
+        }
+        // 读失败（非法 UTF-8/锁定/竞态删除/目录误入）静默跳过——不中断
+        // 整体搜索（兜底语义对齐 load_file 错误路径）。
+        try {
+            let content str = File.read_text(fpath)
+            let lines = content.split("\n")
+            var lineno int = 0
+            for ln in lines {
+                lineno = lineno + 1
+                if n >= maxn {
+                    truncated = true
+                    break
+                }
+                if Regex.test(ln, re_case) {
+                    var preview str = ln
+                    if preview.len() > 200 {
+                        preview = preview.substr(0, 200)
+                    }
+                    items.push({file: fpath, line: lineno, preview: preview})
+                    n = n + 1
+                }
+            }
+        } catch {
+        }
+    }
+    return json.from_value({results: items, count: n, truncated: truncated})
+}

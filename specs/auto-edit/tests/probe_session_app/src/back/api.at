@@ -1,0 +1,97 @@
+// back/api.at — auto-edit 后端契约（PLAN-003 T-01；013-todo 形态先例）。
+//
+// 边界语义（计划 §2 / T-00 P-8 实证）：
+//   vm merged（默认）      use back.api = 进程内 CALL 直调，无 HTTP；
+//   vm split（--server vm）front VM 经 HTTP 调本契约（AutoVM HTTP 服务，
+//                          run_file 本文件 + 整模块 use 扁平化——具名导入
+//                          不在扁平面，故契约内走 `use fsys` 整模块限定
+//                          调用，013 `use db` 同款；T-03 实勘修正）；
+//   vue 轨                ts_adapter 据此生成 HTTP client（vite 代理
+//                          /api → AUTO_HTTP_PORT，`auto run -r vue --server vm`）。
+//
+// 路由前缀 /api；GET 带参走 query string（015-notes search_notes 先例）。
+// 返回面全部为标量（str/int/bool）：规避 a2ts 已知缺口（List<T>/JsonAny/
+// 通配路由，jade-edit PLAN-081 T-06 D-4 四缺口登记）——tree 以 JSON 字符串
+// 交付，front 侧 json.to_value 解析（该内建 vue 转译吸收，T-00 P-6）。
+// read_text 直通 File.read_text（现行为保真：调用点均前置 exists/来源可信，
+// 不引入 ?str Option 分支——T-00 P-10① 裁定）。
+//
+// ⚠ pac 纪律：不写 api: 字段——服务引擎（AutoVM HTTP / a2r rust）留运行期
+// --server 切换，默认 AutoVM + merged 直调（pac api:"rust" 会杀 merged）。
+// 实现模块名 fsys（非 fs）：与内建 fs 对象同名会在限定调用处遮蔽冲突。
+
+use fsys
+
+/// 工作区根（AUTO_PROJECT_DIR，缺席兜底 "."）
+/// GET /api/ws_root
+#[api(method = "GET", path = "/api/ws_root")]
+pub fn ws_root() str {
+    return fsys.root_dir()
+}
+
+/// 目录树（JSON 字符串，depth 层）
+/// GET /api/tree?path=..&depth=..
+#[api(method = "GET", path = "/api/tree")]
+pub fn tree(path str, depth int) str {
+    return fsys.tree_json(path, depth)
+}
+
+/// 读文本文件（直通；调用点前置 exists）
+/// GET /api/read_text?path=..
+#[api(method = "GET", path = "/api/read_text")]
+pub fn read_text(path str) str {
+    return fsys.read_all(path)
+}
+
+/// 分块读文本（PLAN-007 装载链；envelope 直通，见 fsys.read_range）
+/// GET /api/read_text_range?path=..&offset=..&limit=..
+#[api(method = "GET", path = "/api/read_text_range")]
+pub fn read_text_range(path str, offset int, limit int) str {
+    return fsys.read_range(path, offset, limit)
+}
+
+/// 写文本文件（落盘后 exists 复核）
+/// POST /api/write_text
+#[api(method = "POST", path = "/api/write_text")]
+pub fn write_text(path str, content str) bool {
+    return fsys.write_all(path, content)
+}
+
+/// 路径存在性
+/// GET /api/exists?path=..
+#[api(method = "GET", path = "/api/exists")]
+pub fn exists(path str) bool {
+    return fsys.path_exists(path)
+}
+
+/// 环境变量读（未设 = ""；AUTO_OPEN_PATH/AUTO_SAVE_PATH 测试旁路通道）
+/// GET /api/env_str?name=..
+#[api(method = "GET", path = "/api/env_str")]
+pub fn env_str(name str) str {
+    return fsys.env_lookup(name)
+}
+
+/// 正则替换（PLAN-009 T-03）：Rust regex（AutoVM shim Regex.replace），
+/// 与内核查找链双轨同语义。pattern 支持 `(?i)`/`(?-i)` 内联旗标前缀
+/// （与查找面 find_effective 同约定，T-00② 正案）；global=true 走
+/// "g" 全局替换，false 仅首处。
+/// 返回 JSON `{"out":<替换后全文>,"count":<真实替换数>}`——count 用
+/// marker 算术（替换结果上 len+replace 商；Regex.match 列表 .len() 在
+/// vm handler 字节码恒 20 已弃用——T-00⑤ 勘定，upstream §12 观察）。
+/// front 零 Regex.* 调用（ts_adapter find_all/is_match 无 vue 映射的坑
+/// 绕开；跨轨禁补件裁定不破）。
+/// POST /api/regex_replace {text, pattern, replacement, global}
+#[api(method = "POST", path = "/api/regex_replace")]
+pub fn regex_replace(text str, pattern str, replacement str, global bool) str {
+    return fsys.regex_replace_json(text, pattern, replacement, global)
+}
+
+/// 跨文件查找（PLAN-009 T-04）：工作区递归、逐行匹配、条目上限。
+/// 返回 JSON `{"results":[{"file","line","preview"}…],"count":<条数>,
+/// "truncated":bool}`——count 由 back 计数交付（front 侧列表 .len() 在
+/// vm handler 字节码不可靠，T-00⑤ 同源规避）；limit<=0 兜底 500。
+/// GET /api/search_files?path=..&pattern=..&limit=..
+#[api(method = "GET", path = "/api/search_files")]
+pub fn search_files(path str, pattern str, limit int) str {
+    return fsys.search_files_json(path, pattern, limit)
+}
