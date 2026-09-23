@@ -51,7 +51,7 @@ fn json_escape(s str) str {
 // (vue 轨 ts_adapter 将其拦为 __vmOnly 抛错桩,拆 back 动机);fs.join 亦
 // 在拦截面(T-00 P-5),TreeSelect 改本地字符串拼接。
 // PLAN-010 T-02: read_text 加入（会话文件读取——恢复链）。
-use back.api: ws_root, tree, write_text, exists, env_str, read_text_range, regex_replace, search_files, read_text, diff_files
+use back.api: ws_root, tree, write_text, exists, env_str, read_text_range, regex_replace, search_files, read_text, diff_files, diff_dirs, sync_copy, sync_delete
 
 store EditorStore {
     model {
@@ -214,6 +214,47 @@ store EditorStore {
         var diff_dbg_del int = 0
         var diff_dbg_add int = 0
         var diff_dbg_ctx int = 0
+        // PLAN-012 T-03: 目录 diff 状态面（SD-01 契约扩展）。diff_mode=
+        // 契约字段（"file"/"dirs"，矩阵断言面）；dir_mode=视图旗标
+        // （dirs 面板条件——bool 已证面，diff_open 保持 011 语义=任意
+        // diff 视图开态，dir_mode ⟺ diff_open 由 handler 组维护）；
+        // dir_entries=envelope 全量（过滤纯 front 态零重比——AC-03）；
+        // dir_view=过滤投影渲染就绪行（cap 600；徽标/尺寸/目录标记/
+        // 未比对注记全 store 预变换——视图零条件格式化）；五个过滤钮
+        // bool 旗标（双分支 variant 惯例）。
+        var diff_mode str = ""
+        var dir_mode bool = false
+        var dir_from_dirs bool = false
+        var dir_a str = ""
+        var dir_b str = ""
+        var dir_entries list = []
+        var dir_total int = 0
+        var dir_n_same int = 0
+        var dir_n_added int = 0
+        var dir_n_deleted int = 0
+        var dir_n_modified int = 0
+        var dir_n_binary int = 0
+        var dir_truncated bool = false
+        var dir_err str = ""
+        var dir_has_err bool = false
+        var dir_filter str = "all"
+        var dir_f_all bool = true
+        var dir_f_added bool = false
+        var dir_f_deleted bool = false
+        var dir_f_modified bool = false
+        var dir_f_binary bool = false
+        var dir_view list = []
+        var dir_view_count int = 0
+        var dir_view_truncated bool = false
+        // env 旁路自开防重入（DiffBypassTick 同款；AUTO_DIRDIFF_A/B）。
+        var dir_bypass_done bool = false
+        // PLAN-012 T-04: 同步动作确认链（alert-dialog 先例；pending 三元
+        // 组=确认弹层期间冻结的动作意图——op ∈ copy_r/copy_l/del_a/del_b）。
+        var dir_confirm_open bool = false
+        var dir_confirm_text str = ""
+        var dir_pending_op str = ""
+        var dir_pending_rel str = ""
+        var dir_pending_dir bool = false
     }
 
     msg {
@@ -273,6 +314,26 @@ store EditorStore {
         // 自开——矩阵驱动面确定性保障；menubar 展开项不进 vtree 实勘
         // 2044 复认+键盘路径 AltGr 疑虑，双双不可作矩阵依赖）。
         DiffBypassTick,
+        // PLAN-012 T-03: 目录 diff 链。DirDiffOpen=入口（env 旁路优先→
+        // 手动开输入面板——folder picker 无[T-00④]，v1 路径输入框）；
+        // DirAInput/DirBInput=输入行（handler 首参形）；DirDiffCompute=
+        // back diff_dirs 消费收口（err 形不静默）；五 DirFilter*=过滤
+        // 切换（front 纯态零重比——AC-03）；DirApplyFilter=投影重建
+        // 内部收口；DirDiffClose=全清；DirDiffRefresh=动作后重比（过滤
+        // 态保持）；DirBypassTick=env 旁路 Tick 消费臂（AUTO_DIRDIFF_A）。
+        DirDiffOpen, DirAInput(str), DirBInput(str), DirDiffCompute,
+        DirFilterAll, DirFilterAdded, DirFilterDeleted, DirFilterModified,
+        DirFilterBinary, DirApplyFilter, DirDiffClose, DirDiffRefresh,
+        DirBypassTick,
+        // PLAN-012 T-04: 下钻+同步动作。DirRowClick=条目主点击（改→
+        // DiffDrillIn 下钻复用 011 视图；其余→OpenPath fif 先例）；
+        // DirCopyRight/DirCopyLeft=单向复制（A→B/B→A——目标存在恒确认
+        // [Q-2 静默覆盖]，单侧=恢复语义直执行）；DirDeleteA/DirDeleteB=
+        // 单侧删除（恒确认；仅单侧条目渲染——双侧删除不提供）；确认链
+        // DirConfirmGo/DirConfirmCancel；DirBackToDirs=下钻返回目录态。
+        DirRowClick(int), DirCopyRight(int), DirCopyLeft(int),
+        DirDeleteA(int), DirDeleteB(int), DirConfirmGo, DirConfirmCancel,
+        DirBackToDirs,
     }
 
     on {
@@ -1298,6 +1359,13 @@ store EditorStore {
                     } else {
                         .diff_open = false
                         console_log("diff: " + .diff_err)
+                        // PLAN-012: 下钻失败归位目录面板（dir_from_dirs
+                        // 门——011 直用路径零扰动）。
+                        if .dir_from_dirs {
+                            .diff_open = true
+                            .dir_mode = true
+                            .diff_mode = "dirs"
+                        }
                     }
                 }
             }
@@ -1319,6 +1387,19 @@ store EditorStore {
             .diff_degraded = false
             .diff_err = ""
             console_log("diff: closed")
+            // PLAN-012: 下钻来源归位目录面板；目录态 Esc=整个 dirdiff
+            // 出口（dir_from_dirs 门——011 直用路径零扰动）。
+            if .dir_from_dirs {
+                .diff_open = true
+                .dir_mode = true
+                .diff_mode = "dirs"
+                .dir_from_dirs = false
+                console_log("dirdiff: 返回目录面板")
+            } else {
+                if .dir_mode {
+                    store.DirDiffClose()
+                }
+            }
             .console = console_lines()
         }
 
@@ -1417,6 +1498,512 @@ store EditorStore {
                     store.DiffOpen()
                 }
             }
+        }
+
+        // ---- PLAN-012 T-03: 目录 diff 入口链（G-1）。env 旁路优先
+        // （AUTO_DIRDIFF_A/B——矩阵驱动面，DiffOpen 同款消费形）：双 env
+        // 齐 → 直达 DirDiffCompute；单边残缺 → console 记录零动作；双缺
+        // → 开输入面板（v1 路径输入框——folder picker 无，T-00④ 定案）。
+        .DirDiffOpen -> {
+            var pa str = env_str("AUTO_DIRDIFF_A")
+            var pb str = env_str("AUTO_DIRDIFF_B")
+            if pa != "" {
+                if pb != "" {
+                    .dir_a = pa
+                    .dir_b = pb
+                    store.DirDiffCompute()
+                } else {
+                    console_log("dirdiff: bypass 残缺（AUTO_DIRDIFF_B 空）")
+                }
+            } else {
+                if pb != "" {
+                    console_log("dirdiff: bypass 残缺（AUTO_DIRDIFF_A 空）")
+                } else {
+                    .dir_from_dirs = false
+                    .diff_open = true
+                    .dir_mode = true
+                    .diff_mode = "dirs"
+                    console_log("dirdiff: 输入双路径后点比较")
+                }
+            }
+            .console = console_lines()
+        }
+
+        .DirAInput(v) -> {
+            .dir_a = v
+        }
+        .DirBInput(v) -> {
+            .dir_b = v
+        }
+
+        // ---- PLAN-012 T-03: 目录 diff 计算接线（G-2 消费端）。back
+        // diff_dirs envelope → json.to_value 内联包裹（DiffCompute 同款）
+        // → counts 五标量解包 + DirApplyFilter 投影重建 → dir_mode 开。
+        // err 形不静默（console 记录；手动面板保持显示 err 行）。计数全
+        // 手工（json 列表 .len() 规避面）。
+        .DirDiffCompute -> {
+            if .dir_a != "" {
+                if .dir_b != "" {
+                    let v = json.to_value(diff_dirs(.dir_a, .dir_b))
+                    .dir_err = v.err ?? ""
+                    .dir_has_err = .dir_err != ""
+                    if .dir_err == "" {
+                        .dir_entries = v.entries ?? []
+                        var n int = 0
+                        for e in .dir_entries {
+                            n = n + 1
+                        }
+                        .dir_total = n
+                        .dir_truncated = v.truncated ?? false
+                        var c = v.counts
+                        .dir_n_same = c.same ?? 0
+                        .dir_n_added = c.added ?? 0
+                        .dir_n_deleted = c.deleted ?? 0
+                        .dir_n_modified = c.modified ?? 0
+                        .dir_n_binary = c.binary ?? 0
+                        store.DirApplyFilter()
+                        .dir_from_dirs = false
+                        .diff_open = true
+                        .dir_mode = true
+                        .diff_mode = "dirs"
+                        var msg0 str = "dirdiff: 同 " + .dir_n_same.str() + " 增 " + .dir_n_added.str() + " 删 " + .dir_n_deleted.str() + " 改 " + .dir_n_modified.str() + " 二进 " + .dir_n_binary.str()
+                        if .dir_truncated {
+                            msg0 = msg0 + "（截断）"
+                        }
+                        console_log(msg0)
+                    } else {
+                        console_log("dirdiff: " + .dir_err)
+                    }
+                } else {
+                    console_log("dirdiff: 目录 B 为空")
+                }
+            } else {
+                console_log("dirdiff: 目录 A 为空")
+            }
+            .console = console_lines()
+        }
+
+        // ---- PLAN-012 T-03: 过滤切换（G-3）。front 纯态——零重比
+        // （dir_entries 不动，DirApplyFilter 重放投影；AC-03 断言面）。
+        // 五 msg 拆分（视图静态钮零字面量实参——带参 onclick 边界规避）。
+        .DirFilterAll -> {
+            .dir_filter = "all"
+            .dir_f_all = true
+            .dir_f_added = false
+            .dir_f_deleted = false
+            .dir_f_modified = false
+            .dir_f_binary = false
+            store.DirApplyFilter()
+            .console = console_lines()
+        }
+        .DirFilterAdded -> {
+            .dir_filter = "added"
+            .dir_f_all = false
+            .dir_f_added = true
+            .dir_f_deleted = false
+            .dir_f_modified = false
+            .dir_f_binary = false
+            store.DirApplyFilter()
+            .console = console_lines()
+        }
+        .DirFilterDeleted -> {
+            .dir_filter = "deleted"
+            .dir_f_all = false
+            .dir_f_added = false
+            .dir_f_deleted = true
+            .dir_f_modified = false
+            .dir_f_binary = false
+            store.DirApplyFilter()
+            .console = console_lines()
+        }
+        .DirFilterModified -> {
+            .dir_filter = "modified"
+            .dir_f_all = false
+            .dir_f_added = false
+            .dir_f_deleted = false
+            .dir_f_modified = true
+            .dir_f_binary = false
+            store.DirApplyFilter()
+            .console = console_lines()
+        }
+        .DirFilterBinary -> {
+            .dir_filter = "binary"
+            .dir_f_all = false
+            .dir_f_added = false
+            .dir_f_deleted = false
+            .dir_f_modified = false
+            .dir_f_binary = true
+            store.DirApplyFilter()
+            .console = console_lines()
+        }
+
+        // ---- PLAN-012 T-03: 过滤投影重建（内部收口）。渲染就绪行全
+        // store 预变换（徽标/尺寸串/目录标记/未比对注记/动作可用性——
+        // 视图零条件格式化；011 rows 同款）；cap 600（011 渲染 cap 同参，
+        // 超限截断注记）。动作可用性：copy 单侧=恢复语义直执行/双侧
+        // （改/二进）恒确认；删除仅单侧条目（双侧删除不提供——SD-01）。
+        .DirApplyFilter -> {
+            var capped list = []
+            var vc int = 0
+            var vt int = 0
+            var f str = .dir_filter
+            for e in .dir_entries {
+                var st str = e.status
+                var hit bool = false
+                if f == "all" {
+                    hit = true
+                }
+                if f == "added" {
+                    if st == "added" {
+                        hit = true
+                    }
+                }
+                if f == "deleted" {
+                    if st == "deleted" {
+                        hit = true
+                    }
+                }
+                if f == "modified" {
+                    if st == "modified" {
+                        hit = true
+                    }
+                }
+                if f == "binary" {
+                    if st == "binary" {
+                        hit = true
+                    }
+                }
+                if hit {
+                    if vc < 600 {
+                        var e_same bool = false
+                        var e_added bool = false
+                        var e_deleted bool = false
+                        var e_modified bool = false
+                        var e_binary bool = false
+                        if st == "same" {
+                            e_same = true
+                        }
+                        if st == "added" {
+                            e_added = true
+                        }
+                        if st == "deleted" {
+                            e_deleted = true
+                        }
+                        if st == "modified" {
+                            e_modified = true
+                        }
+                        if st == "binary" {
+                            e_binary = true
+                        }
+                        var sa int = e.size_a ?? 0
+                        var sb int = e.size_b ?? 0
+                        var isd bool = e.is_dir ?? false
+                        var nt str = e.note ?? ""
+                        var badge str = "同"
+                        if e_added {
+                            badge = "增"
+                        }
+                        if e_deleted {
+                            badge = "删"
+                        }
+                        if e_modified {
+                            badge = "改"
+                        }
+                        if e_binary {
+                            badge = "二进"
+                        }
+                        if e_same {
+                            if nt != "" {
+                                badge = "未比"
+                            }
+                        }
+                        var drel str = e.rel
+                        if isd {
+                            drel = "[目录] " + e.rel
+                        }
+                        var dsa str = sa.str()
+                        var dsb str = sb.str()
+                        if e_added {
+                            dsa = ""
+                        }
+                        if e_deleted {
+                            dsb = ""
+                        }
+                        if isd {
+                            dsa = ""
+                            dsb = ""
+                        }
+                        var can_l bool = false
+                        var can_r bool = false
+                        var can_del bool = false
+                        if e_added {
+                            can_l = true
+                            can_del = true
+                        }
+                        if e_deleted {
+                            can_r = true
+                            can_del = true
+                        }
+                        if e_modified {
+                            can_l = true
+                            can_r = true
+                        }
+                        if e_binary {
+                            can_l = true
+                            can_r = true
+                        }
+                        capped.push({rel: e.rel, d_rel: drel, badge: badge, d_sa: dsa, d_sb: dsb, has_note: e_same, e_same: e_same, e_added: e_added, e_deleted: e_deleted, e_modified: e_modified, e_binary: e_binary, is_dir: isd, can_l: can_l, can_r: can_r, can_del: can_del})
+                        vc = vc + 1
+                    } else {
+                        vt = vt + 1
+                    }
+                }
+            }
+            .dir_view = capped
+            .dir_view_count = vc
+            .dir_view_truncated = vt > 0
+        }
+
+        // ---- PLAN-012 T-03: 目录 diff 全清（编辑区复原；diff 文件态
+        // 一并清零——面板 ×=整个 diff 工作流出口）。
+        .DirDiffClose -> {
+            .dir_from_dirs = false
+            .dir_mode = false
+            .diff_mode = ""
+            .dir_entries = []
+            .dir_total = 0
+            .dir_n_same = 0
+            .dir_n_added = 0
+            .dir_n_deleted = 0
+            .dir_n_modified = 0
+            .dir_n_binary = 0
+            .dir_truncated = false
+            .dir_err = ""
+            .dir_has_err = false
+            .dir_filter = "all"
+            .dir_f_all = true
+            .dir_f_added = false
+            .dir_f_deleted = false
+            .dir_f_modified = false
+            .dir_f_binary = false
+            .dir_view = []
+            .dir_view_count = 0
+            .dir_view_truncated = false
+            .dir_confirm_open = false
+            .dir_confirm_text = ""
+            .dir_pending_op = ""
+            .dir_pending_rel = ""
+            .dir_pending_dir = false
+            .diff_open = false
+            .diff_rows = []
+            .diff_rows_count = 0
+            .diff_rows_truncated = false
+            .diff_hunks = []
+            .diff_hunk_count = 0
+            .diff_hunk_idx = -1
+            .diff_adds = 0
+            .diff_dels = 0
+            .diff_degraded = false
+            .diff_err = ""
+            console_log("dirdiff: closed")
+            .console = console_lines()
+        }
+
+        // ---- PLAN-012 T-04: 动作后重比（G-5）。同路径重调 diff_dirs；
+        // 过滤态保持（dir_filter 不动——ApplyFilter 重放）。
+        .DirDiffRefresh -> {
+            if .dir_a != "" {
+                if .dir_b != "" {
+                    store.DirDiffCompute()
+                }
+            }
+            .console = console_lines()
+        }
+
+        .DirBypassTick -> {
+            if !.dir_bypass_done {
+                var pa str = env_str("AUTO_DIRDIFF_A")
+                if pa != "" {
+                    .dir_bypass_done = true
+                    store.DirDiffOpen()
+                }
+            }
+        }
+
+        // ---- PLAN-012 T-04: 条目主点击（G-4 下钻）。「改」→ 拼双 abs →
+        // 011 DiffCompute 复用（diff_mode 切 file；dir_from_dirs 门=失败
+        // /关闭归位目录面板）；其余 → OpenPath（fif 点击先例）。
+        .DirRowClick(vi) -> {
+            if vi >= 0 {
+                if .dir_view_count > vi {
+                    var r = .dir_view[vi]
+                    if r.e_modified {
+                        .dir_from_dirs = true
+                        .diff_a = .dir_a + "/" + r.rel
+                        .diff_b = .dir_b + "/" + r.rel
+                        .dir_mode = false
+                        .diff_mode = "file"
+                        store.DiffCompute()
+                    } else {
+                        store.OpenPath(.dir_a + "/" + r.rel)
+                        console_log("dirdiff: open " + r.rel)
+                    }
+                }
+            }
+            .console = console_lines()
+        }
+
+        // ---- PLAN-012 T-04: 单向复制（G-5）。双侧条目（改/二进）=目标
+        // 存在恒确认（Q-2 静默覆盖——确认链纪律）；单侧条目=恢复语义直
+        // 执行。目录条目走 copy_recursive（is_dir 传递 back 分派）。
+        .DirCopyRight(vi) -> {
+            if vi >= 0 {
+                if .dir_view_count > vi {
+                    var r = .dir_view[vi]
+                    if r.can_r {
+                        var both bool = false
+                        if r.e_modified {
+                            both = true
+                        }
+                        if r.e_binary {
+                            both = true
+                        }
+                        if both {
+                            .dir_pending_op = "copy_r"
+                            .dir_pending_rel = r.rel
+                            .dir_pending_dir = r.is_dir
+                            .dir_confirm_text = "覆盖右侧？ " + r.rel
+                            .dir_confirm_open = true
+                        } else {
+                            var ok bool = sync_copy(.dir_a + "/" + r.rel, .dir_b + "/" + r.rel, r.is_dir)
+                            if ok {
+                                console_log("dirdiff: 已复制 →右 " + r.rel)
+                                store.DirDiffRefresh()
+                            } else {
+                                console_log("dirdiff: 复制失败（>2MB 或 IO）—— " + r.rel)
+                            }
+                        }
+                    }
+                }
+            }
+            .console = console_lines()
+        }
+        .DirCopyLeft(vi) -> {
+            if vi >= 0 {
+                if .dir_view_count > vi {
+                    var r = .dir_view[vi]
+                    if r.can_l {
+                        var both bool = false
+                        if r.e_modified {
+                            both = true
+                        }
+                        if r.e_binary {
+                            both = true
+                        }
+                        if both {
+                            .dir_pending_op = "copy_l"
+                            .dir_pending_rel = r.rel
+                            .dir_pending_dir = r.is_dir
+                            .dir_confirm_text = "覆盖左侧？ " + r.rel
+                            .dir_confirm_open = true
+                        } else {
+                            var ok bool = sync_copy(.dir_b + "/" + r.rel, .dir_a + "/" + r.rel, r.is_dir)
+                            if ok {
+                                console_log("dirdiff: 已复制 →左 " + r.rel)
+                                store.DirDiffRefresh()
+                            } else {
+                                console_log("dirdiff: 复制失败（>2MB 或 IO）—— " + r.rel)
+                            }
+                        }
+                    }
+                }
+            }
+            .console = console_lines()
+        }
+
+        // ---- PLAN-012 T-04: 单侧删除（G-5）。恒确认链；back 仅空目录
+        // 可删（非空 remove_dir 原生拒——T-00 护栏）。
+        .DirDeleteA(vi) -> {
+            if vi >= 0 {
+                if .dir_view_count > vi {
+                    var r = .dir_view[vi]
+                    if r.can_del {
+                        .dir_pending_op = "del_a"
+                        .dir_pending_rel = r.rel
+                        .dir_pending_dir = r.is_dir
+                        .dir_confirm_text = "确认删除左侧？ " + r.rel
+                        .dir_confirm_open = true
+                    }
+                }
+            }
+            .console = console_lines()
+        }
+        .DirDeleteB(vi) -> {
+            if vi >= 0 {
+                if .dir_view_count > vi {
+                    var r = .dir_view[vi]
+                    if r.can_del {
+                        .dir_pending_op = "del_b"
+                        .dir_pending_rel = r.rel
+                        .dir_pending_dir = r.is_dir
+                        .dir_confirm_text = "确认删除右侧？ " + r.rel
+                        .dir_confirm_open = true
+                    }
+                }
+            }
+            .console = console_lines()
+        }
+
+        // ---- PLAN-012 T-04: 确认链执行/取消（alert-dialog 先例——
+        // EolConvert/quit 同款）。执行后 DirDiffRefresh 重比（磁盘 E2E
+        // 由矩阵断言）。
+        .DirConfirmGo -> {
+            .dir_confirm_open = false
+            var op str = .dir_pending_op
+            var rel str = .dir_pending_rel
+            var ok bool = false
+            if op == "copy_r" {
+                ok = sync_copy(.dir_a + "/" + rel, .dir_b + "/" + rel, .dir_pending_dir)
+            }
+            if op == "copy_l" {
+                ok = sync_copy(.dir_b + "/" + rel, .dir_a + "/" + rel, .dir_pending_dir)
+            }
+            if op == "del_a" {
+                ok = sync_delete(.dir_a + "/" + rel, .dir_pending_dir)
+            }
+            if op == "del_b" {
+                ok = sync_delete(.dir_b + "/" + rel, .dir_pending_dir)
+            }
+            if ok {
+                console_log("dirdiff: 已执行 " + op + " " + rel)
+                store.DirDiffRefresh()
+            } else {
+                console_log("dirdiff: 动作失败—— " + rel)
+            }
+            .dir_pending_op = ""
+            .dir_pending_rel = ""
+            .dir_pending_dir = false
+            .console = console_lines()
+        }
+        .DirConfirmCancel -> {
+            .dir_confirm_open = false
+            .dir_pending_op = ""
+            .dir_pending_rel = ""
+            .dir_pending_dir = false
+            console_log("dirdiff: 动作已取消")
+            .console = console_lines()
+        }
+
+        // ---- PLAN-012 T-04: 下钻返回目录态（entries 保留不重比——
+        // G-4/AC-04）。
+        .DirBackToDirs -> {
+            if .dir_from_dirs {
+                .dir_mode = true
+                .diff_mode = "dirs"
+                .dir_from_dirs = false
+                console_log("dirdiff: 返回目录面板")
+            }
+            .console = console_lines()
         }
 
         .ActOpen -> {

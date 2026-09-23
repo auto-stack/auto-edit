@@ -155,6 +155,9 @@ widget App {
                             // ——010 menubar-content 四边界内：静态+无参
                             // handler 已证面）。
                             menubar-item (title: "比较文件…", icon: "git-compare", shortcut: "Ctrl+Alt+D") { onclick: .DiffOpen }
+                            // PLAN-012 T-03: 目录 diff 入口（静态 item 同款
+                            // ——v1 路径输入框路径，folder picker=§15 want）。
+                            menubar-item (title: "比较目录…", icon: "git-compare") { onclick: .DirDiffOpen }
                             menubar-separator
                             menubar-item (title: "下一处差异", shortcut: "F7") { onclick: .DiffNext }
                             menubar-item (title: "上一处差异", shortcut: "Shift+F7") { onclick: .DiffPrev }
@@ -301,6 +304,172 @@ widget App {
                         }
                     }
 
+                    // PLAN-012 T-03/T-04: 目录 diff 面板（根视图全幅态；
+                    // dir_mode ⟺ diff_open 由 handler 组维护——dir_mode
+                    // 顶层面板条件+文件视图内卫，编辑区条件 !diff_open
+                    // 零改动）。行渲染=五状态五独立 for（011 四循环同款
+                    // ——同循环兄弟 if 对 record 字段仅首个生效实勘规避）；
+                    // 徽标/尺寸串/目录标记/未比对注记全 store 预变换。
+                    // 同步动作钮=恢复语义直执行/双侧恒确认（Q-2）；删除
+                    // 仅单侧条目（SD-01）。
+                    if .store.dir_mode {
+                        col (style: "flex-1 w-full overflow-hidden") {
+                            row (style: "h-9 items-center bg-muted/30 shrink-0 w-full gap-1 px-2") {
+                                text "DIRDIFF" { style: "text-[11px] font-bold text-muted-foreground shrink-0" }
+                                input {
+                                    value: .store.dir_a
+                                    oninput: .DirAInput
+                                    placeholder: "目录 A（左/旧）"
+                                    style: "h-7 flex-1 min-w-0 px-2 text-[12px]"
+                                }
+                                input {
+                                    value: .store.dir_b
+                                    oninput: .DirBInput
+                                    placeholder: "目录 B（右/新）"
+                                    style: "h-7 flex-1 min-w-0 px-2 text-[12px]"
+                                }
+                                button (text: "比较", variant: "outline") { onclick: .DirDiffCompute
+                                    style: "h-7 px-2 text-[11px] shrink-0" }
+                                button (text: "×", variant: "text") { onclick: .DirDiffClose
+                                    style: "h-7 w-6 px-0 py-0 shrink-0" }
+                            }
+                            row (style: "h-7 items-center bg-muted/30 shrink-0 w-full gap-2 px-2") {
+                                text "同 ${.store.dir_n_same} 增 ${.store.dir_n_added} 删 ${.store.dir_n_deleted} 改 ${.store.dir_n_modified} 二进 ${.store.dir_n_binary}" { style: "text-[11px] text-muted-foreground shrink-0" }
+                                if .store.dir_truncated {
+                                    text "（条目截断）" { style: "text-[12px] text-amber-400 mr-1 shrink-0" }
+                                }
+                                if .store.dir_view_truncated {
+                                    text "（渲染截断 600）" { style: "text-[12px] text-amber-400 mr-1 shrink-0" }
+                                }
+                                if .store.dir_has_err {
+                                    text .store.dir_err { style: "text-[12px] text-red-400 mr-1 shrink-0" }
+                                }
+                            }
+                            row (style: "h-7 items-center bg-muted/30 shrink-0 w-full gap-1 px-2") {
+                                if .store.dir_f_all {
+                                    button (text: "全部", variant: "outline") { onclick: .DirFilterAll
+                                        style: "h-6 px-2 text-[11px]" }
+                                }
+                                if !.store.dir_f_all {
+                                    button (text: "全部", variant: "text") { onclick: .DirFilterAll
+                                        style: "h-6 px-2 text-[11px]" }
+                                }
+                                if .store.dir_f_added {
+                                    button (text: "增", variant: "outline") { onclick: .DirFilterAdded
+                                        style: "h-6 px-2 text-[11px]" }
+                                }
+                                if !.store.dir_f_added {
+                                    button (text: "增", variant: "text") { onclick: .DirFilterAdded
+                                        style: "h-6 px-2 text-[11px]" }
+                                }
+                                if .store.dir_f_deleted {
+                                    button (text: "删", variant: "outline") { onclick: .DirFilterDeleted
+                                        style: "h-6 px-2 text-[11px]" }
+                                }
+                                if !.store.dir_f_deleted {
+                                    button (text: "删", variant: "text") { onclick: .DirFilterDeleted
+                                        style: "h-6 px-2 text-[11px]" }
+                                }
+                                if .store.dir_f_modified {
+                                    button (text: "改", variant: "outline") { onclick: .DirFilterModified
+                                        style: "h-6 px-2 text-[11px]" }
+                                }
+                                if !.store.dir_f_modified {
+                                    button (text: "改", variant: "text") { onclick: .DirFilterModified
+                                        style: "h-6 px-2 text-[11px]" }
+                                }
+                                if .store.dir_f_binary {
+                                    button (text: "二进", variant: "outline") { onclick: .DirFilterBinary
+                                        style: "h-6 px-2 text-[11px]" }
+                                }
+                                if !.store.dir_f_binary {
+                                    button (text: "二进", variant: "text") { onclick: .DirFilterBinary
+                                        style: "h-6 px-2 text-[11px]" }
+                                }
+                            }
+                            container (style: "flex-1 w-full") {
+                                scroll-pane (style: "h-full w-full") {
+                                    col (style: "gap-0 p-0 w-full") {
+                                        for vi, r in .store.dir_view {
+                                            if r.e_same {
+                                                row (style: "h-6 w-full gap-1 shrink-0 items-center px-2") {
+                                                    button (text: r.d_rel, variant: "text") { onclick: .DirRowClick(vi)
+                                                        style: "h-6 flex-1 min-w-0 justify-start text-left text-[12px] font-mono text-muted-foreground" }
+                                                    text r.badge { style: "h-6 w-8 text-[11px] text-muted-foreground shrink-0" }
+                                                    text r.d_sa { style: "h-6 w-16 text-right text-[11px] font-mono text-muted-foreground shrink-0" }
+                                                    text r.d_sb { style: "h-6 w-16 text-right text-[11px] font-mono text-muted-foreground shrink-0" }
+                                                    if r.has_note {
+                                                        text "未比对" { style: "h-6 text-[11px] text-amber-400 shrink-0" }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        for vi, r in .store.dir_view {
+                                            if r.e_added {
+                                                row (style: "h-6 w-full gap-1 shrink-0 items-center px-2") {
+                                                    button (text: r.d_rel, variant: "text") { onclick: .DirRowClick(vi)
+                                                        style: "h-6 flex-1 min-w-0 justify-start text-left text-[12px] font-mono text-emerald-400" }
+                                                    text r.badge { style: "h-6 w-8 text-[11px] text-emerald-400 shrink-0" }
+                                                    text r.d_sa { style: "h-6 w-16 text-right text-[11px] font-mono text-muted-foreground shrink-0" }
+                                                    text r.d_sb { style: "h-6 w-16 text-right text-[11px] font-mono text-emerald-400 shrink-0" }
+                                                    button (text: "←", variant: "text") { onclick: .DirCopyLeft(vi)
+                                                        style: "h-6 w-6 px-0 py-0 text-[11px] shrink-0" }
+                                                    button (text: "✕", variant: "text") { onclick: .DirDeleteB(vi)
+                                                        style: "h-6 w-6 px-0 py-0 text-[11px] text-red-400 shrink-0" }
+                                                }
+                                            }
+                                        }
+                                        for vi, r in .store.dir_view {
+                                            if r.e_deleted {
+                                                row (style: "h-6 w-full gap-1 shrink-0 items-center px-2") {
+                                                    button (text: r.d_rel, variant: "text") { onclick: .DirRowClick(vi)
+                                                        style: "h-6 flex-1 min-w-0 justify-start text-left text-[12px] font-mono text-red-400 line-through" }
+                                                    text r.badge { style: "h-6 w-8 text-[11px] text-red-400 shrink-0" }
+                                                    text r.d_sa { style: "h-6 w-16 text-right text-[11px] font-mono text-red-400 shrink-0" }
+                                                    text r.d_sb { style: "h-6 w-16 text-right text-[11px] font-mono text-muted-foreground shrink-0" }
+                                                    button (text: "→", variant: "text") { onclick: .DirCopyRight(vi)
+                                                        style: "h-6 w-6 px-0 py-0 text-[11px] shrink-0" }
+                                                    button (text: "✕", variant: "text") { onclick: .DirDeleteA(vi)
+                                                        style: "h-6 w-6 px-0 py-0 text-[11px] text-red-400 shrink-0" }
+                                                }
+                                            }
+                                        }
+                                        for vi, r in .store.dir_view {
+                                            if r.e_modified {
+                                                row (style: "h-6 w-full gap-1 shrink-0 items-center px-2") {
+                                                    button (text: r.d_rel, variant: "text") { onclick: .DirRowClick(vi)
+                                                        style: "h-6 flex-1 min-w-0 justify-start text-left text-[12px] font-mono text-amber-400" }
+                                                    text r.badge { style: "h-6 w-8 text-[11px] text-amber-400 shrink-0" }
+                                                    text r.d_sa { style: "h-6 w-16 text-right text-[11px] font-mono text-muted-foreground shrink-0" }
+                                                    text r.d_sb { style: "h-6 w-16 text-right text-[11px] font-mono text-muted-foreground shrink-0" }
+                                                    button (text: "→", variant: "text") { onclick: .DirCopyRight(vi)
+                                                        style: "h-6 w-6 px-0 py-0 text-[11px] shrink-0" }
+                                                    button (text: "←", variant: "text") { onclick: .DirCopyLeft(vi)
+                                                        style: "h-6 w-6 px-0 py-0 text-[11px] shrink-0" }
+                                                }
+                                            }
+                                        }
+                                        for vi, r in .store.dir_view {
+                                            if r.e_binary {
+                                                row (style: "h-6 w-full gap-1 shrink-0 items-center px-2") {
+                                                    button (text: r.d_rel, variant: "text") { onclick: .DirRowClick(vi)
+                                                        style: "h-6 flex-1 min-w-0 justify-start text-left text-[12px] font-mono text-violet-400" }
+                                                    text r.badge { style: "h-6 w-8 text-[11px] text-violet-400 shrink-0" }
+                                                    text r.d_sa { style: "h-6 w-16 text-right text-[11px] font-mono text-muted-foreground shrink-0" }
+                                                    text r.d_sb { style: "h-6 w-16 text-right text-[11px] font-mono text-muted-foreground shrink-0" }
+                                                    button (text: "→", variant: "text") { onclick: .DirCopyRight(vi)
+                                                        style: "h-6 w-6 px-0 py-0 text-[11px] shrink-0" }
+                                                    button (text: "←", variant: "text") { onclick: .DirCopyLeft(vi)
+                                                        style: "h-6 w-6 px-0 py-0 text-[11px] shrink-0" }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
                     // PLAN-011 T-03: diff 并排视图（根视图全幅态——
                     // diff_open 条件替换编辑区，console_open 条件面同款；
                     // tab 集零扰动，DiffClose 复原）。行形状四分支（pair/
@@ -311,8 +480,10 @@ widget App {
                     // 格式化）；顶部状态条（文件名×2/±计数/hunk 位次/
                     // 截断/降级注记）+导航按钮+关闭。scroll controller
                     // 绑定（T-04 跳转句柄，PLAN-656；容器定高包裹——
-                    // T-00③ h-*直挂退化实测）。
+                    // T-00③ h-*直挂退化实测）。PLAN-012: dir_mode 内卫
+                    // （下钻/面板互斥——dirs 面板显示时文件视图不进）。
                     if .store.diff_open {
+                        if !.store.dir_mode {
                         col (style: "flex-1 w-full overflow-hidden") {
                             row (style: "h-8 items-center bg-muted/30 shrink-0 w-full gap-2 px-2") {
                                 text "DIFF" { style: "text-[11px] font-bold text-muted-foreground shrink-0" }
@@ -329,6 +500,10 @@ widget App {
                                     style: "h-6 px-2 text-[11px] text-muted-foreground" }
                                 button (text: "下一处", variant: "text") { onclick: .DiffNext
                                     style: "h-6 px-2 text-[11px] text-muted-foreground" }
+                                if .store.dir_from_dirs {
+                                    button (text: "返回目录", variant: "text") { onclick: .DirBackToDirs
+                                        style: "h-6 px-2 text-[11px] text-muted-foreground" }
+                                }
                                 button (text: "×", variant: "text") { onclick: .DiffClose
                                     style: "h-6 w-6 px-0 py-0 ml-auto" }
                             }
@@ -399,6 +574,7 @@ widget App {
                                     }
                                 }
                             }
+                        }
                         }
                     }
 
@@ -518,6 +694,21 @@ widget App {
                 }
             }
 
+            // PLAN-012 T-04: 目录同步动作确认链（覆盖复制/单侧删除——
+            // 破坏性动作纪律；pending 意图冻结在 store，Go 执行+重比）。
+            alert-dialog (open: .store.dir_confirm_open) {
+                alert-dialog-content {
+                    alert-dialog-header {
+                        alert-dialog-title "确认同步动作"
+                        alert-dialog-description .store.dir_confirm_text
+                    }
+                    alert-dialog-footer {
+                        alert-dialog-cancel "取消" { onclick: .DirConfirmCancel }
+                        alert-dialog-action "确认执行" { onclick: .DirConfirmGo }
+                    }
+                }
+            }
+
             StatusBar()
         }
     }
@@ -534,6 +725,9 @@ widget App {
             // PLAN-011 T-02: diff env 旁路自开（首拍消费一次；菜单/快捷键
             // =人工驱动面）。
             store.DiffBypassTick()
+            // PLAN-012 T-03: 目录 diff env 旁路自开（AUTO_DIRDIFF_A/B——
+            // 同款消费形）。
+            store.DirBypassTick()
         }
         .TabActivate(i) -> { store.TabActivate(i) }
         .SrcChanged(i) -> { store.SrcChanged(i) }
@@ -589,6 +783,26 @@ widget App {
         .DiffClose -> { store.DiffClose() }
         .DiffNext -> { store.DiffNext() }
         .DiffPrev -> { store.DiffPrev() }
+        // PLAN-012 T-03/T-04: 目录 diff 链薄委托。
+        .DirDiffOpen -> { store.DirDiffOpen() }
+        .DirAInput(v) -> { store.DirAInput(v) }
+        .DirBInput(v) -> { store.DirBInput(v) }
+        .DirDiffCompute -> { store.DirDiffCompute() }
+        .DirFilterAll -> { store.DirFilterAll() }
+        .DirFilterAdded -> { store.DirFilterAdded() }
+        .DirFilterDeleted -> { store.DirFilterDeleted() }
+        .DirFilterModified -> { store.DirFilterModified() }
+        .DirFilterBinary -> { store.DirFilterBinary() }
+        .DirDiffClose -> { store.DirDiffClose() }
+        .DirDiffRefresh -> { store.DirDiffRefresh() }
+        .DirRowClick(i) -> { store.DirRowClick(i) }
+        .DirCopyRight(i) -> { store.DirCopyRight(i) }
+        .DirCopyLeft(i) -> { store.DirCopyLeft(i) }
+        .DirDeleteA(i) -> { store.DirDeleteA(i) }
+        .DirDeleteB(i) -> { store.DirDeleteB(i) }
+        .DirConfirmGo -> { store.DirConfirmGo() }
+        .DirConfirmCancel -> { store.DirConfirmCancel() }
+        .DirBackToDirs -> { store.DirBackToDirs() }
         .ActCut -> { store.ActCut() }
         .ActCopy -> { store.ActCopy() }
         .ActPaste -> { store.ActPaste() }
