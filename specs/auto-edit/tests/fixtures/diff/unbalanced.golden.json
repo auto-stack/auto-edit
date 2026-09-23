@@ -1,0 +1,115 @@
+{
+  "hunks": [
+    {
+      "a1": 3,
+      "a2": 10,
+      "b1": 3,
+      "b2": 8
+    }
+  ],
+  "rows": [
+    {
+      "lo": 4,
+      "ro": 4,
+      "ln": "L4",
+      "rn": "L4",
+      "lk": "ctx",
+      "rk": "ctx",
+      "lpre": "L4",
+      "lmid": "",
+      "lpost": "",
+      "rpre": "L4",
+      "rmid": "",
+      "rpost": ""
+    },
+    {
+      "lo": 5,
+      "ro": 5,
+      "ln": "L5",
+      "rn": "L5",
+      "lk": "ctx",
+      "rk": "ctx",
+      "lpre": "L5",
+      "lmid": "",
+      "lpost": "",
+      "rpre": "L5",
+      "rmid": "",
+      "rpost": ""
+    },
+    {
+      "lo": 6,
+      "ro": 6,
+      "ln": "L6",
+      "rn": "L6",
+      "lk": "ctx",
+      "rk": "ctx",
+      "lpre": "L6",
+      "lmid": "",
+      "lpost": "",
+      "rpre": "L6",
+      "rmid": "",
+      "rpost": ""
+    },
+    {
+      "lo": 7,
+      "ro": 7,
+      "ln": "L7",
+      "rn": "NEW",
+      "lk": "del",
+      "rk": "add",
+      "lpre": "",
+      "lmid": "L7",
+      "lpost": "",
+      "rpre": "",
+      "rmid": "NEW",
+      "rpost": ""
+    },
+    {
+      "lo": 8,
+      "ro": 0,
+      "ln": "L8",
+      "rn": "",
+      "lk": "del",
+      "rk": "",
+      "lpre": "",
+      "lmid": "L8",
+      "lpost": "",
+      "rpre": "",
+      "rmid": "",
+      "rpost": ""
+    },
+    {
+      "lo": 9,
+      "ro": 0,
+      "ln": "L9",
+      "rn": "",
+      "lk": "del",
+      "rk": "",
+      "lpre": "",
+      "lmid": "L9",
+      "lpost": "",
+      "rpre": "",
+      "rmid": "",
+      "rpost": ""
+    },
+    {
+      "lo": 10,
+      "ro": 8,
+      "ln": "L10",
+      "rn": "L10",
+      "lk": "ctx",
+      "rk": "ctx",
+      "lpre": "L10",
+      "lmid": "",
+      "lpost": "",
+      "rpre": "L10",
+      "rmid": "",
+      "rpost": ""
+    }
+  ],
+  "adds": 1,
+  "dels": 3,
+  "truncated": false,
+  "degraded": false,
+  "err": null
+}

@@ -1,0 +1,454 @@
+// app.at — PLAN-011 T-00 决策探针（probe_diff.py 载具，vm 轨专用脚手架）。
+//
+// 五项勘定面（决策记录落 PLAN-011 §10）：
+//   ① AutoVM 算力微基准：list push/get、str 比较、空循环吞吐（10⁴/10⁵/10⁶
+//     三档）+ 401×401 二维表填+扫（DP-LCS 上限 400 行的最坏单元形态）
+//     + 600 行 rows 记录构建（渲染 cap 形态）+ 5k 行 split。
+//     计时口径=python 墙钟（click→bench_out 增量耗时；UI app 轨
+//     Instant.elapsed() 不解析——tnow 通/tel 默杀实证，故弃 .at 侧时钟）。
+//     完成以 "name=done;" 形态拼进 .bench_out，acc 校验和防循环被优化。
+//   ③ scroll 定标：container 定高包装 + scroll-pane(controller) h-full
+//     （直接给 scroll-pane 挂 h-* 样式的形态 content 测量退化
+//     content=viewport 实证——p656 示例 container 形为正形）+
+//     scroll_to(handle,"y",px) 绝对像素语义 + scroll_state 读回
+//     （offset_y/viewport_h/content_h）→ 行高 = content_h/行数。
+//   ④ 双栏同步：第二个 scroll-pane 绑 onscroll: .ScObserved（8 位置 float
+//     实参：offset_x..progress_y，PLAN-656 v1 执行裁定形）——MCP scroll
+//     action（operation::scroll_to 直落）试驱动，观察回声有无。
+//
+// 测量口径注记：墙钟含消息派发/渲染延迟（ms 级，相对秒级测量可忽略）；
+// str 比较用同长异内容串（最差逐字节扫描形）；分档按钮隔离步数预算风险。
+
+// ① DP-LCS 内环模拟：k×k 表填充（str 比较 + 双邻 max + set）+ 全表扫——
+// 真实 DP-LCS 的每单元成本形态（T-01 实现同构），预算/时安定标依据。
+fn dp_sim(k int) int {
+    var tab list = []
+    var i int = 0
+    while i <= k {
+        var r list = []
+        var j int = 0
+        while j <= k {
+            r.push(0)
+            j = j + 1
+        }
+        tab.push(r)
+        i = i + 1
+    }
+    var sa str = "line of text alpha"
+    var sb str = "line of TEXT alpha"
+    var acc int = 0
+    i = 1
+    while i <= k {
+        var prev list = tab[i - 1]
+        var rr list = tab[i]
+        var j2 int = 1
+        while j2 <= k {
+            var v int = 0
+            if sa == sb {
+                v = 1
+            }
+            var m int = prev[j2]
+            var jm int = j2 - 1
+            var r2 int = rr[jm]
+            if r2 > m {
+                m = r2
+            }
+            rr.set(j2, m + v)
+            acc = acc + m
+            j2 = j2 + 1
+        }
+        i = i + 1
+    }
+    var sc int = 0
+    i = 0
+    while i <= k {
+        var rr2 list = tab[i]
+        var j3 int = 0
+        while j3 <= k {
+            sc = sc + rr2[j3]
+            j3 = j3 + 1
+        }
+        i = i + 1
+    }
+    return acc + sc
+}
+
+store DiffProbeStore {
+    model {
+        var bench_out str = ""
+        // 启动即 200 行（生成字面量）——scroll 测量静态路径正形；
+        // rows200/BenchRows 按钮为动态重建路径实验面。
+        var rows list = [{lo: 1, ro: 1, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 2, ro: 2, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 3, ro: 3, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 4, ro: 4, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 5, ro: 5, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 6, ro: 6, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 7, ro: 7, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 8, ro: 8, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 9, ro: 9, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 10, ro: 10, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 11, ro: 11, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 12, ro: 12, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 13, ro: 13, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 14, ro: 14, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 15, ro: 15, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 16, ro: 16, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 17, ro: 17, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 18, ro: 18, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 19, ro: 19, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 20, ro: 20, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 21, ro: 21, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 22, ro: 22, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 23, ro: 23, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 24, ro: 24, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 25, ro: 25, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 26, ro: 26, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 27, ro: 27, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 28, ro: 28, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 29, ro: 29, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 30, ro: 30, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 31, ro: 31, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 32, ro: 32, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 33, ro: 33, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 34, ro: 34, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 35, ro: 35, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 36, ro: 36, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 37, ro: 37, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 38, ro: 38, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 39, ro: 39, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 40, ro: 40, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 41, ro: 41, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 42, ro: 42, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 43, ro: 43, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 44, ro: 44, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 45, ro: 45, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 46, ro: 46, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 47, ro: 47, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 48, ro: 48, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 49, ro: 49, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 50, ro: 50, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 51, ro: 51, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 52, ro: 52, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 53, ro: 53, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 54, ro: 54, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 55, ro: 55, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 56, ro: 56, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 57, ro: 57, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 58, ro: 58, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 59, ro: 59, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 60, ro: 60, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 61, ro: 61, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 62, ro: 62, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 63, ro: 63, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 64, ro: 64, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 65, ro: 65, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 66, ro: 66, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 67, ro: 67, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 68, ro: 68, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 69, ro: 69, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 70, ro: 70, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 71, ro: 71, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 72, ro: 72, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 73, ro: 73, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 74, ro: 74, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 75, ro: 75, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 76, ro: 76, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 77, ro: 77, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 78, ro: 78, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 79, ro: 79, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 80, ro: 80, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 81, ro: 81, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 82, ro: 82, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 83, ro: 83, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 84, ro: 84, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 85, ro: 85, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 86, ro: 86, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 87, ro: 87, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 88, ro: 88, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 89, ro: 89, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 90, ro: 90, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 91, ro: 91, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 92, ro: 92, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 93, ro: 93, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 94, ro: 94, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 95, ro: 95, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 96, ro: 96, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 97, ro: 97, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 98, ro: 98, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 99, ro: 99, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 100, ro: 100, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 101, ro: 101, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 102, ro: 102, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 103, ro: 103, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 104, ro: 104, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 105, ro: 105, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 106, ro: 106, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 107, ro: 107, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 108, ro: 108, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 109, ro: 109, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 110, ro: 110, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 111, ro: 111, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 112, ro: 112, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 113, ro: 113, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 114, ro: 114, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 115, ro: 115, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 116, ro: 116, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 117, ro: 117, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 118, ro: 118, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 119, ro: 119, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 120, ro: 120, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 121, ro: 121, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 122, ro: 122, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 123, ro: 123, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 124, ro: 124, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 125, ro: 125, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 126, ro: 126, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 127, ro: 127, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 128, ro: 128, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 129, ro: 129, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 130, ro: 130, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 131, ro: 131, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 132, ro: 132, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 133, ro: 133, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 134, ro: 134, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 135, ro: 135, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 136, ro: 136, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 137, ro: 137, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 138, ro: 138, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 139, ro: 139, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 140, ro: 140, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 141, ro: 141, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 142, ro: 142, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 143, ro: 143, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 144, ro: 144, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 145, ro: 145, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 146, ro: 146, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 147, ro: 147, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 148, ro: 148, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 149, ro: 149, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 150, ro: 150, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 151, ro: 151, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 152, ro: 152, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 153, ro: 153, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 154, ro: 154, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 155, ro: 155, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 156, ro: 156, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 157, ro: 157, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 158, ro: 158, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 159, ro: 159, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 160, ro: 160, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 161, ro: 161, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 162, ro: 162, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 163, ro: 163, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 164, ro: 164, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 165, ro: 165, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 166, ro: 166, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 167, ro: 167, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 168, ro: 168, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 169, ro: 169, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 170, ro: 170, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 171, ro: 171, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 172, ro: 172, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 173, ro: 173, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 174, ro: 174, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 175, ro: 175, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 176, ro: 176, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 177, ro: 177, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 178, ro: 178, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 179, ro: 179, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 180, ro: 180, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 181, ro: 181, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 182, ro: 182, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 183, ro: 183, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 184, ro: 184, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 185, ro: 185, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 186, ro: 186, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 187, ro: 187, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 188, ro: 188, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 189, ro: 189, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 190, ro: 190, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 191, ro: 191, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 192, ro: 192, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 193, ro: 193, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 194, ro: 194, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 195, ro: 195, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 196, ro: 196, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 197, ro: 197, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 198, ro: 198, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 199, ro: 199, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}, {lo: 200, ro: 200, ln: "row-content", rn: "row-content", lk: "ctx", rk: "ctx", lpre: "row-content", lmid: "", lpost: "", rpre: "row-content", rmid: "", rpost: ""}]
+        var n_rows int = 200
+        var body str = ""
+        var dp_k int = 0
+        var pane2 bool = false
+        var sc2_oy float = -1.0
+        var sc2_vh float = -1.0
+        var sc2_ch float = -1.0
+        var sc_handle str = "diffctl"
+        var sc_oy float = -1.0
+        var sc_vh float = -1.0
+        var sc_ch float = -1.0
+        var obs_n int = 0
+        var obs_oy float = -999.0
+        var obs_vh float = -1.0
+        var obs_cw float = -1.0
+        var obs_ch float = -1.0
+    }
+    msg { BenchPush4, BenchPush5, BenchPush6,
+          BenchGet5, BenchGet6,
+          BenchStr5, BenchStr6,
+          BenchLoop4, BenchLoop5, BenchLoop6,
+          BldBody, BenchDp200, BenchDp300, BenchDp400, BenchSplit, BenchRows,
+          Rows200, Pane2On, Sc2Probe,
+          ScProbe, ScTo40, ScBy100, ScToEnd,
+          ScObserved(float, float, float, float, float, float, float, float),
+          ObsClear }
+
+    on {
+        // ---- ① 微基准：list push 三档 ----
+        .BenchPush4 -> {
+            var l list = []
+            var i int = 0
+            while i < 10000 {
+                l.push(i)
+                i = i + 1
+            }
+            .bench_out = .bench_out + "push1e4=done;"
+        }
+        .BenchPush5 -> {
+            var l list = []
+            var i int = 0
+            while i < 100000 {
+                l.push(i)
+                i = i + 1
+            }
+            .bench_out = .bench_out + "push1e5=done;"
+        }
+        .BenchPush6 -> {
+            var l list = []
+            var i int = 0
+            while i < 1000000 {
+                l.push(i)
+                i = i + 1
+            }
+            .bench_out = .bench_out + "push1e6=done;"
+        }
+        // ---- ① list get（先建表再扫，两段分别计时）----
+        .BenchGet5 -> {
+            var l list = []
+            var i int = 0
+            while i < 100000 {
+                l.push(i)
+                i = i + 1
+            }
+            var acc int = 0
+            i = 0
+            while i < 100000 {
+                acc = acc + l[i]
+                i = i + 1
+            }
+            .bench_out = .bench_out + "get1e5=done,acc=" + acc.str() + ";"
+        }
+        .BenchGet6 -> {
+            var l list = []
+            var i int = 0
+            while i < 1000000 {
+                l.push(i)
+                i = i + 1
+            }
+            var acc int = 0
+            i = 0
+            while i < 1000000 {
+                acc = acc + l[i]
+                i = i + 1
+            }
+            .bench_out = .bench_out + "get1e6=done,acc=" + acc.str() + ";"
+        }
+        // ---- ① str 比较（同长异内容，逐字节最差形）----
+        .BenchStr5 -> {
+            var s1 str = "line of text alpha"
+            var s2 str = "line of TEXT alpha"
+            var c int = 0
+            var i int = 0
+            while i < 100000 {
+                if s1 == s2 {
+                    c = c + 1
+                } else {
+                    c = c - 1
+                }
+                i = i + 1
+            }
+            .bench_out = .bench_out + "str1e5=done,c=" + c.str() + ";"
+        }
+        .BenchStr6 -> {
+            var s1 str = "line of text alpha"
+            var s2 str = "line of TEXT alpha"
+            var c int = 0
+            var i int = 0
+            while i < 1000000 {
+                if s1 == s2 {
+                    c = c + 1
+                } else {
+                    c = c - 1
+                }
+                i = i + 1
+            }
+            .bench_out = .bench_out + "str1e6=done,c=" + c.str() + ";"
+        }
+        // ---- ① 空循环基线 ----
+        .BenchLoop4 -> {
+            var i int = 0
+            while i < 10000 {
+                i = i + 1
+            }
+            .bench_out = .bench_out + "loop1e4=done;"
+        }
+        .BenchLoop5 -> {
+            var i int = 0
+            while i < 100000 {
+                i = i + 1
+            }
+            .bench_out = .bench_out + "loop1e5=done;"
+        }
+        .BenchLoop6 -> {
+            var i int = 0
+            while i < 1000000 {
+                i = i + 1
+            }
+            .bench_out = .bench_out + "loop1e6=done;"
+        }
+        // ---- ① DP-LCS 内环模拟三档（200/300/400——预算/时安定标）----
+        .BenchDp200 -> {
+            var acc int = dp_sim(200)
+            .bench_out = .bench_out + "dp200=done,acc=" + acc.str() + ";"
+        }
+        .BenchDp300 -> {
+            var acc int = dp_sim(300)
+            .bench_out = .bench_out + "dp300=done,acc=" + acc.str() + ";"
+        }
+        .BenchDp400 -> {
+            var acc int = dp_sim(400)
+            .bench_out = .bench_out + "dp400=done,acc=" + acc.str() + ";"
+        }
+        .BldBody -> {
+            var bdy str = ""
+            var i int = 0
+            while i < 5000 {
+                bdy = bdy + "line xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+"
+                i = i + 1
+            }
+            .body = bdy
+            .bench_out = .bench_out + "bld=done;"
+        }
+        // ---- ① str split 定标（body 预建于 .store.body——BldBody 先行的
+        // 两段式；本 handler 只计 split，剔除 O(n²) 拼接构建成本）----
+        .BenchSplit -> {
+            var lines list = .body.split("
+")
+            var nl int = lines.len()
+            .bench_out = .bench_out + "split5k_lines=" + nl.str() + ",split5k=done;"
+        }
+        // ---- ① 渲染 cap 形态：600 行渲染就绪 rows 记录构建 ----
+        .BenchRows -> {
+            var rl list = []
+            var k int = 0
+            while k < 600 {
+                rl.push({lo: k + 1, ro: k + 1, ln: "line of row content",
+                         rn: "line of row content", lk: "ctx", rk: "ctx",
+                         lpre: "line of row content", lmid: "", lpost: "",
+                         rpre: "line of row content", rmid: "", rpost: ""})
+                k = k + 1
+            }
+            .rows = rl
+            .n_rows = 600
+            .bench_out = .bench_out + "rows600=done;"
+        }
+        // ---- ③ scroll 视图行集（200 行，h-6 固定行高）----
+        .Rows200 -> {
+            var rl list = []
+            var k int = 0
+            while k < 200 {
+                rl.push({lo: k + 1, ro: k + 1, ln: "row-content",
+                         rn: "row-content", lk: "ctx", rk: "ctx",
+                         lpre: "row-content", lmid: "", lpost: "",
+                         rpre: "row-content", rmid: "", rpost: ""})
+                k = k + 1
+            }
+            .rows = rl
+            .n_rows = 200
+        }
+        // ---- ③ scroll_state 读回 ----
+        .ScProbe -> {
+            let s = scroll_state(.sc_handle)
+            .sc_oy = s.offset_y
+            .sc_vh = s.viewport_h
+            .sc_ch = s.content_h
+        }
+        // ---- ③ 绝对像素跳转（40 × 24px = 960；行高实测后复核）----
+        .ScTo40 -> {
+            let ok = scroll_to(.sc_handle, "y", 960.0)
+        }
+        .ScBy100 -> {
+            let ok = scroll_by(.sc_handle, 100.0)
+        }
+        .ScToEnd -> {
+            let ok = scroll_to_end(.sc_handle)
+        }
+        // ---- ④ onscroll 观察面（8 位置实参：offset_x..progress_y）----
+        .ScObserved(ox, oy2, vw, vh, cw, ch, px, p2) -> {
+            .obs_n = .obs_n + 1
+            .obs_oy = oy2
+            .obs_vh = vh
+            .obs_cw = cw
+            .obs_ch = ch
+        }
+        .ObsClear -> {
+            .obs_n = 0
+            .obs_oy = -999.0
+        }
+        // ---- ③ 延期挂载形态（产品 diff_open 同款：pane 后挂载+for 行集）----
+        .Pane2On -> {
+            .pane2 = true
+        }
+        .Sc2Probe -> {
+            let s2 = scroll_state("diffctl2")
+            .sc2_oy = s2.offset_y
+            .sc2_vh = s2.viewport_h
+            .sc2_ch = s2.content_h
+        }
+    }
+}
+
+widget App {
+    msg { BenchPush4, BenchPush5, BenchPush6,
+          BenchGet5, BenchGet6,
+          BenchStr5, BenchStr6,
+          BenchLoop4, BenchLoop5, BenchLoop6,
+          BldBody, BenchDp200, BenchDp300, BenchDp400, BenchSplit, BenchRows,
+          Rows200, Pane2On, Sc2Probe,
+          ScProbe, ScTo40, ScBy100, ScToEnd,
+          ScObserved(float, float, float, float, float, float, float, float),
+          ObsClear }
+    view {
+        col (style: "h-full w-full p-2 gap-2") {
+            row (style: "gap-1 shrink-0 flex-wrap") {
+                button (text: "bp4", variant: "outline") { onclick: .BenchPush4 }
+                button (text: "bp5", variant: "outline") { onclick: .BenchPush5 }
+                button (text: "bp6", variant: "outline") { onclick: .BenchPush6 }
+                button (text: "bg5", variant: "outline") { onclick: .BenchGet5 }
+                button (text: "bg6", variant: "outline") { onclick: .BenchGet6 }
+                button (text: "bs5", variant: "outline") { onclick: .BenchStr5 }
+                button (text: "bs6", variant: "outline") { onclick: .BenchStr6 }
+                button (text: "bl4", variant: "outline") { onclick: .BenchLoop4 }
+                button (text: "bl5", variant: "outline") { onclick: .BenchLoop5 }
+                button (text: "bl6", variant: "outline") { onclick: .BenchLoop6 }
+                button (text: "bld", variant: "outline") { onclick: .BldBody }
+                button (text: "dp200", variant: "outline") { onclick: .BenchDp200 }
+                button (text: "dp300", variant: "outline") { onclick: .BenchDp300 }
+                button (text: "dp400", variant: "outline") { onclick: .BenchDp400 }
+                button (text: "bspl", variant: "outline") { onclick: .BenchSplit }
+                button (text: "brows", variant: "outline") { onclick: .BenchRows }
+            }
+            row (style: "gap-1 shrink-0 flex-wrap") {
+                button (text: "rows200", variant: "outline") { onclick: .Rows200 }
+                button (text: "sc-probe", variant: "outline") { onclick: .ScProbe }
+                button (text: "sc-to40", variant: "outline") { onclick: .ScTo40 }
+                button (text: "sc-by100", variant: "outline") { onclick: .ScBy100 }
+                button (text: "sc-to-end", variant: "outline") { onclick: .ScToEnd }
+                button (text: "obs-clear", variant: "outline") { onclick: .ObsClear }
+                button (text: "pane2on", variant: "outline") { onclick: .Pane2On }
+                button (text: "sc2-probe", variant: "outline") { onclick: .Sc2Probe }
+            }
+            // ③ 定标面：controller 绑定 scroll-pane（固定行高 h-6 行集）。
+            container (style: "h-64") {
+                scroll-pane (controller: .store.sc_handle, style: "h-full w-full border") {
+                col (style: "gap-0 p-0") {
+                    for r in .store.rows {
+                        row (style: "h-6 w-full gap-0") {
+                            text "${r.lo}" { style: "h-6 w-16 text-xs font-mono" }
+                            text "${r.ln}" { style: "h-6 flex-1 text-xs font-mono" }
+                        }
+                    }
+                }
+                }
+            }
+            // ④ 观察面：onscroll 绑定的第二个 scroll-pane。
+            container (style: "h-24") {
+                scroll-pane (style: "h-full w-full border", onscroll: .ScObserved) {
+                col (style: "gap-0 p-0") {
+                    text "obs-01" { style: "h-6 text-xs font-mono" }
+                    text "obs-02" { style: "h-6 text-xs font-mono" }
+                    text "obs-03" { style: "h-6 text-xs font-mono" }
+                    text "obs-04" { style: "h-6 text-xs font-mono" }
+                    text "obs-05" { style: "h-6 text-xs font-mono" }
+                    text "obs-06" { style: "h-6 text-xs font-mono" }
+                    text "obs-07" { style: "h-6 text-xs font-mono" }
+                    text "obs-08" { style: "h-6 text-xs font-mono" }
+                    text "obs-09" { style: "h-6 text-xs font-mono" }
+                    text "obs-10" { style: "h-6 text-xs font-mono" }
+                    text "obs-11" { style: "h-6 text-xs font-mono" }
+                    text "obs-12" { style: "h-6 text-xs font-mono" }
+                    text "obs-13" { style: "h-6 text-xs font-mono" }
+                    text "obs-14" { style: "h-6 text-xs font-mono" }
+                    text "obs-15" { style: "h-6 text-xs font-mono" }
+                    text "obs-16" { style: "h-6 text-xs font-mono" }
+                    text "obs-17" { style: "h-6 text-xs font-mono" }
+                    text "obs-18" { style: "h-6 text-xs font-mono" }
+                    text "obs-19" { style: "h-6 text-xs font-mono" }
+                    text "obs-20" { style: "h-6 text-xs font-mono" }
+                }
+                }
+            }
+            if .store.pane2 {
+                container (style: "h-64") {
+                    scroll-pane (controller: "diffctl2", style: "h-full w-full border") {
+                    col (style: "gap-0 p-0") {
+                        for r in .store.rows {
+                            row (style: "h-6 w-full gap-0") {
+                                text "${r.lo}" { style: "h-6 w-16 text-xs font-mono" }
+                                text "${r.ln}" { style: "h-6 flex-1 text-xs font-mono" }
+                            }
+                        }
+                    }
+                    }
+                }
+            }
+            text "oy=${.store.sc_oy} vh=${.store.sc_vh} ch=${.store.sc_ch} n=${.store.n_rows} obs=${.store.obs_n}/${.store.obs_oy} p2=${.store.sc2_vh}/${.store.sc2_ch}" {
+                style: "text-xs font-mono text-muted-foreground shrink-0"
+            }
+            text .store.bench_out {
+                style: "text-xs font-mono text-muted-foreground shrink-0"
+            }
+        }
+    }
+    on {
+        .BenchPush4 -> { store.BenchPush4() }
+        .BenchPush5 -> { store.BenchPush5() }
+        .BenchPush6 -> { store.BenchPush6() }
+        .BenchGet5 -> { store.BenchGet5() }
+        .BenchGet6 -> { store.BenchGet6() }
+        .BenchStr5 -> { store.BenchStr5() }
+        .BenchStr6 -> { store.BenchStr6() }
+        .BenchLoop4 -> { store.BenchLoop4() }
+        .BenchLoop5 -> { store.BenchLoop5() }
+        .BenchLoop6 -> { store.BenchLoop6() }
+        .BldBody -> { store.BldBody() }
+        .BenchDp200 -> { store.BenchDp200() }
+        .BenchDp300 -> { store.BenchDp300() }
+        .BenchDp400 -> { store.BenchDp400() }
+        .BenchSplit -> { store.BenchSplit() }
+        .BenchRows -> { store.BenchRows() }
+        .Rows200 -> { store.Rows200() }
+        .ScProbe -> { store.ScProbe() }
+        .ScTo40 -> { store.ScTo40() }
+        .ScBy100 -> { store.ScBy100() }
+        .ScToEnd -> { store.ScToEnd() }
+        .ScObserved(a, b, c, d, e, f, g, h) -> { store.ScObserved(a, b, c, d, e, f, g, h) }
+        .ObsClear -> { store.ObsClear() }
+        .Pane2On -> { store.Pane2On() }
+        .Sc2Probe -> { store.Sc2Probe() }
+    }
+}

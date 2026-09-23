@@ -1,0 +1,10 @@
+L1
+L2
+L3
+let x = 1
+let y = call(1)
+let z = 3;
+L7
+L8
+L9
+L10

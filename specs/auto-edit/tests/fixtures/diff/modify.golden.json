@@ -1,0 +1,143 @@
+{
+  "hunks": [
+    {
+      "a1": 0,
+      "a2": 9,
+      "b1": 0,
+      "b2": 9
+    }
+  ],
+  "rows": [
+    {
+      "lo": 1,
+      "ro": 1,
+      "ln": "L1",
+      "rn": "L1",
+      "lk": "ctx",
+      "rk": "ctx",
+      "lpre": "L1",
+      "lmid": "",
+      "lpost": "",
+      "rpre": "L1",
+      "rmid": "",
+      "rpost": ""
+    },
+    {
+      "lo": 2,
+      "ro": 2,
+      "ln": "L2",
+      "rn": "L2",
+      "lk": "ctx",
+      "rk": "ctx",
+      "lpre": "L2",
+      "lmid": "",
+      "lpost": "",
+      "rpre": "L2",
+      "rmid": "",
+      "rpost": ""
+    },
+    {
+      "lo": 3,
+      "ro": 3,
+      "ln": "L3",
+      "rn": "L3",
+      "lk": "ctx",
+      "rk": "ctx",
+      "lpre": "L3",
+      "lmid": "",
+      "lpost": "",
+      "rpre": "L3",
+      "rmid": "",
+      "rpost": ""
+    },
+    {
+      "lo": 4,
+      "ro": 4,
+      "ln": "let x = 1",
+      "rn": "let x = 2",
+      "lk": "del",
+      "rk": "add",
+      "lpre": "let x = ",
+      "lmid": "1",
+      "lpost": "",
+      "rpre": "let x = ",
+      "rmid": "2",
+      "rpost": ""
+    },
+    {
+      "lo": 5,
+      "ro": 5,
+      "ln": "let y = call(1)",
+      "rn": "let y = call(2)",
+      "lk": "del",
+      "rk": "add",
+      "lpre": "let y = call(",
+      "lmid": "1",
+      "lpost": ")",
+      "rpre": "let y = call(",
+      "rmid": "2",
+      "rpost": ")"
+    },
+    {
+      "lo": 6,
+      "ro": 6,
+      "ln": "let z = 3;",
+      "rn": "let z = 3",
+      "lk": "del",
+      "rk": "add",
+      "lpre": "let z = 3",
+      "lmid": ";",
+      "lpost": "",
+      "rpre": "let z = 3",
+      "rmid": "",
+      "rpost": ""
+    },
+    {
+      "lo": 7,
+      "ro": 7,
+      "ln": "L7",
+      "rn": "L7",
+      "lk": "ctx",
+      "rk": "ctx",
+      "lpre": "L7",
+      "lmid": "",
+      "lpost": "",
+      "rpre": "L7",
+      "rmid": "",
+      "rpost": ""
+    },
+    {
+      "lo": 8,
+      "ro": 8,
+      "ln": "L8",
+      "rn": "L8",
+      "lk": "ctx",
+      "rk": "ctx",
+      "lpre": "L8",
+      "lmid": "",
+      "lpost": "",
+      "rpre": "L8",
+      "rmid": "",
+      "rpost": ""
+    },
+    {
+      "lo": 9,
+      "ro": 9,
+      "ln": "L9",
+      "rn": "L9",
+      "lk": "ctx",
+      "rk": "ctx",
+      "lpre": "L9",
+      "lmid": "",
+      "lpost": "",
+      "rpre": "L9",
+      "rmid": "",
+      "rpost": ""
+    }
+  ],
+  "adds": 3,
+  "dels": 3,
+  "truncated": false,
+  "degraded": false,
+  "err": null
+}

@@ -1,0 +1,133 @@
+toolchain: auto 0.1.0+v0.4.2-2044-g7183ca386-dirty
+
+============================================================
+② 朴素分层原型对拍（python 参考实现 × fixtures golden 逐字段）
+============================================================
+  PASS  [②] golden 逐字段对照: add_only
+       add_only: hunks=1 rows=9 +3/-0
+  PASS  [②] golden 逐字段对照: del_only
+       del_only: hunks=1 rows=9 +0/-3
+  PASS  [②] golden 逐字段对照: modify
+       modify: hunks=1 rows=9 +3/-3
+  PASS  [②] golden 逐字段对照: scattered
+       scattered: hunks=3 rows=21 +3/-3
+  PASS  [②] golden 逐字段对照: big_reorder
+       big_reorder: hunks=1 rows=616 +610/-610
+  PASS  [②] golden 逐字段对照: unbalanced
+       unbalanced: hunks=1 rows=7 +1/-3
+  PASS  [②] modify 配对行三段标记（let x = <1>/<2>）
+  PASS  [②] scattered 三处远距改动 → 独立 hunk
+  PASS  [②] big_reorder 中段>上限 → 单 replace hunk 降级
+
+Q-4 删多增少形态渲染示意（配对行 <mid> 高亮；不成对行整行 mid）：
+--- unbalanced: 1 hunks, +1/-3, rows=7 ---
+  4|L4<>  ‖    4|L4<>
+  5|L5<>  ‖    5|L5<>
+  6|L6<>  ‖    6|L6<>
+  7|<L7>  ‖    7|<NEW>
+  8|<L8>  ‖  
+  9|<L9>  ‖  
+ 10|L10<>  ‖    8|L10<>
+  PASS  [②] unbalanced 不成对行存在（Q-4 判据面）
+
+============================================================
+⑤ 入口链预演：env 旁路 AUTO_DIFF_A/B 消费形态（Phase A back HTTP）
+============================================================
+  PASS  [⑤] env 注入→env_str 读回: AUTO_DIFF_A
+  PASS  [⑤] env 注入→env_str 读回: AUTO_DIFF_B
+  PASS  [⑤] AUTO_DIFF_A 路径 exists 复核
+  PASS  [⑤] 未设 AUTO_DIFF_C = 空串（取消语义面）
+  dialog_open×2 手动路径（rfd 阻塞式，矩阵不可驱动——人工步骤）：
+    1) 菜单「工具 → 比较文件…」（T-03 静态 menubar item）
+    2) dialog_open 选文件 A（取消 → 整链零动作，console 记 cancelled）
+    3) dialog_open 选文件 B（取消 → 同上）
+    4) 双路径齐备 → DiffCompute（T-02 接线，AUTO_OPEN_PATH 先例 editor_store.at:1099-1106 同款 env_str 消费形）
+
+============================================================
+Phase B: probe_diff_app（B1 微基准 / B2 scroll+onscroll——双会话）
+============================================================
+
+① AutoVM 算力微基准（秒；python 墙钟口径 click→完成）
+       bl4: {'loop1e4': '69.3ms'}
+       bl5: {'loop1e5': '64.1ms'}
+       bp4: {'push1e4': '67.2ms'}
+       bp5: {'push1e5': '67.4ms'}
+       bg5: {'get1e5': '154.5ms', 'acc': '704982704'}
+       bs5: {'str1e5': '52.6ms', 'c': '-100000'}
+       dp200: {'dp200': '247.6ms', 'dp200_acc': '0'}
+       dp300: {'dp300': '1074.6ms', 'dp300_acc': '0'}
+       bld: {'bld': '2523.6ms'}
+       bspl: {'split5k_lines': '5001', 'split5k': '52.7ms'}
+       brows: {'rows600': '52.7ms'}
+  PASS  [①] 微基准 dp400
+  PASS  [①] 吞吐健全性 loop1e4≤1e5（墙钟口径）
+  PASS  [①] 单消息算力墙勘定（10M steps/源码+首轮实证双锚）
+  PASS  [①] DP-LCS 中间区上限定参 = 258
+  PASS  [①] 全览渲染 cap 定参 = 600
+  PASS  [①] split 定标前置：5000 行 body 构建在档
+  PASS  [①] 文件上限复核 = 50k 行/2MB
+
+③ scroll 定标（controller 绑定 + scroll_to 像素语义 + 行高）
+       measured: viewport_h=256.0 content_h=4800.00 → row_h=24.000px (h-6 样式=24px 预期)
+  PASS  [③] scroll_state 读回 content_h（200 行溢出）
+  PASS  [③] scroll_to(handle,'y',960) → offset_y≈960（绝对像素）
+  PASS  [③] 跳转公式 offset=行号(0基)×行高 成立
+  PASS  [③] scroll_by(+100) 相对推进
+
+④ 双栏同步：onscroll 事件面（MCP scroll action 试驱动）
+       snapshot scroll 节点: [('scrollable', 'vnode_4335675647607256639'), ('scrollable', 'vnode_4320370445748425494')]
+       MCP scroll(48px) 后 obs: {'obs_n': 1, 'raw': 'State:   obs_n: 1 (int)   obs_oy: 48.00 (float)   obs_vh: 96.00 (float) ', 'mcp_reply': 'Scrolled vnode_4320370445748425494 to y=48 px (status: ok)'}
+  PASS  [④] onscroll 事件面勘定（有/无+实证记录）
+
+============================================================
+三参数定值（T-00 决策）
+============================================================
+{
+  "step_budget": {
+    "per_handler_steps": 10000000,
+    "source": "auto-lang engine.rs:2145 let budget = 10_000_000（VM 源码读）",
+    "evidence": "T-00 首轮实证：1e6 四档 120s 无回声 + WARN[budget]×4（BenchLoop6/BenchPush6/BenchGet6/BenchStr6），app 存活后续基准正常；二轮 push1e6/三轮 dp400 触发 app 硬崩（无 panic 无 budget 告警=原生层静默死，大分配突发）——默认不重演",
+    "live_rerun": "off（PROBE_DIFF_1E6=1 复验）",
+    "design_rule": "diff_files 单 handler 全链（split+DP+rows 构建+JSON 拼装）总步数 <10M——T-01 实现约束"
+  },
+  "dp_cap": {
+    "value": 258,
+    "measured_tier": 300,
+    "measured_dp_fill_scan_s": 1.0745701789855957,
+    "budget_s": 0.8,
+    "rule": "fill+scan≤0.8s 维持 400，超则 cap=档×√(0.8/t)"
+  },
+  "render_cap": {
+    "value": 600,
+    "measured_rows600_build_s": 0.052733659744262695,
+    "budget_s": 0.2,
+    "rule": "rows 构建≤0.2s 维持 600（渲染侧成本不含，口径注记）"
+  },
+  "file_cap": {
+    "value": "50k 行 / 2MB",
+    "measured_split5k_s": 0.0526883602142334,
+    "split50k_est_s": 0.526883602142334,
+    "rule": "split 线性外推 ≤1.5s → 维持预判上限"
+  },
+  "scroll": {
+    "unit": "px（auto.scroll.to shim_scroll_to 源码裁定+实测）",
+    "measured_row_h_px": 24.0,
+    "row_h_source": "content_h÷行数（scroll_state 读回；vh 依赖面见注记）",
+    "style": "h-6（24px）固定行高",
+    "formula": "scroll_to(handle, \"y\", target_row_0based × row_h)（row_h = scroll_state(handle).content_h ÷ 行数）",
+    "readback": "scroll_state(handle) → offset_y/viewport_h/content_h"
+  },
+  "q3_onscroll": {
+    "event_surface": "有（schema.rs scroll 元素 onscroll: Closure；aura_view_builder.rs scroll_pane_semantics——8 位置 float 实参 offset_x..progress_y）",
+    "programmatic_echo": "MCP operation::scroll_to 驱动后 obs_n=1（controller.rs:239-242 注记：程序化 scroll_to 不回声 onscroll）",
+    "dual_pane_v1": "事件面在册 → 双栏同步 v1 可做（左栏 onscroll → scroll_to 右栏）；矩阵驱动面=用户滚动不可合成，T15 仅状态断言，视觉同步走人工复验"
+  },
+  "q4_pairing": {
+    "strategy": "replace 区索引对齐配对（i-th del 对 i-th add）",
+    "unpaired_visual": "不成对行整行 mid 染色（整行红/绿），ASCII 见上",
+    "judgment": "可接受——不成对行语义=整段删除/新增，整行染色与 VS Code/BC 同款形态；三段数据保留在 envelope 供引擎时代 refine"
+  },
+  "toolchain": "auto 0.1.0+v0.4.2-2044-g7183ca386-dirty"
+}
+
+RESULT: 26 passed, 0 failed

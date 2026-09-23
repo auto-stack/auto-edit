@@ -1,0 +1,209 @@
+{
+  "toolchain": "auto 0.1.0+v0.4.2-2044-g7183ca386-dirty",
+  "decisions": {
+    "step_budget": {
+      "per_handler_steps": 10000000,
+      "source": "auto-lang engine.rs:2145 let budget = 10_000_000（VM 源码读）",
+      "evidence": "T-00 首轮实证：1e6 四档 120s 无回声 + WARN[budget]×4（BenchLoop6/BenchPush6/BenchGet6/BenchStr6），app 存活后续基准正常；二轮 push1e6/三轮 dp400 触发 app 硬崩（无 panic 无 budget 告警=原生层静默死，大分配突发）——默认不重演",
+      "live_rerun": "off（PROBE_DIFF_1E6=1 复验）",
+      "design_rule": "diff_files 单 handler 全链（split+DP+rows 构建+JSON 拼装）总步数 <10M——T-01 实现约束"
+    },
+    "dp_cap": {
+      "value": 258,
+      "measured_tier": 300,
+      "measured_dp_fill_scan_s": 1.0745701789855957,
+      "budget_s": 0.8,
+      "rule": "fill+scan≤0.8s 维持 400，超则 cap=档×√(0.8/t)"
+    },
+    "render_cap": {
+      "value": 600,
+      "measured_rows600_build_s": 0.052733659744262695,
+      "budget_s": 0.2,
+      "rule": "rows 构建≤0.2s 维持 600（渲染侧成本不含，口径注记）"
+    },
+    "file_cap": {
+      "value": "50k 行 / 2MB",
+      "measured_split5k_s": 0.0526883602142334,
+      "split50k_est_s": 0.526883602142334,
+      "rule": "split 线性外推 ≤1.5s → 维持预判上限"
+    },
+    "scroll": {
+      "unit": "px（auto.scroll.to shim_scroll_to 源码裁定+实测）",
+      "measured_row_h_px": 24.0,
+      "row_h_source": "content_h÷行数（scroll_state 读回；vh 依赖面见注记）",
+      "style": "h-6（24px）固定行高",
+      "formula": "scroll_to(handle, \"y\", target_row_0based × row_h)（row_h = scroll_state(handle).content_h ÷ 行数）",
+      "readback": "scroll_state(handle) → offset_y/viewport_h/content_h"
+    },
+    "q3_onscroll": {
+      "event_surface": "有（schema.rs scroll 元素 onscroll: Closure；aura_view_builder.rs scroll_pane_semantics——8 位置 float 实参 offset_x..progress_y）",
+      "programmatic_echo": "MCP operation::scroll_to 驱动后 obs_n=1（controller.rs:239-242 注记：程序化 scroll_to 不回声 onscroll）",
+      "dual_pane_v1": "事件面在册 → 双栏同步 v1 可做（左栏 onscroll → scroll_to 右栏）；矩阵驱动面=用户滚动不可合成，T15 仅状态断言，视觉同步走人工复验"
+    },
+    "q4_pairing": {
+      "strategy": "replace 区索引对齐配对（i-th del 对 i-th add）",
+      "unpaired_visual": "不成对行整行 mid 染色（整行红/绿），ASCII 见上",
+      "judgment": "可接受——不成对行语义=整段删除/新增，整行染色与 VS Code/BC 同款形态；三段数据保留在 envelope 供引擎时代 refine"
+    },
+    "toolchain": "auto 0.1.0+v0.4.2-2044-g7183ca386-dirty"
+  },
+  "checks": [
+    {
+      "item": "②",
+      "name": "golden 逐字段对照: add_only",
+      "ok": true,
+      "detail": "hunks=1 rows=9 +3/-0"
+    },
+    {
+      "item": "②",
+      "name": "golden 逐字段对照: del_only",
+      "ok": true,
+      "detail": "hunks=1 rows=9 +0/-3"
+    },
+    {
+      "item": "②",
+      "name": "golden 逐字段对照: modify",
+      "ok": true,
+      "detail": "hunks=1 rows=9 +3/-3"
+    },
+    {
+      "item": "②",
+      "name": "golden 逐字段对照: scattered",
+      "ok": true,
+      "detail": "hunks=3 rows=21 +3/-3"
+    },
+    {
+      "item": "②",
+      "name": "golden 逐字段对照: big_reorder",
+      "ok": true,
+      "detail": "hunks=1 rows=616 +610/-610"
+    },
+    {
+      "item": "②",
+      "name": "golden 逐字段对照: unbalanced",
+      "ok": true,
+      "detail": "hunks=1 rows=7 +1/-3"
+    },
+    {
+      "item": "②",
+      "name": "modify 配对行三段标记（let x = <1>/<2>）",
+      "ok": true,
+      "detail": "[{'lo': 4, 'ro': 4, 'ln': 'let x = 1', 'rn': 'let x = 2', 'lk': 'del', 'rk': 'add', 'lpre': 'let x = ', 'lmid': '1', 'lpost': '', 'rpre': 'let x = ', 'rmid': '2', 'rpost': ''}]"
+    },
+    {
+      "item": "②",
+      "name": "scattered 三处远距改动 → 独立 hunk",
+      "ok": true,
+      "detail": "hunks=3"
+    },
+    {
+      "item": "②",
+      "name": "big_reorder 中段>上限 → 单 replace hunk 降级",
+      "ok": true,
+      "detail": "hunks=1 +610/-610"
+    },
+    {
+      "item": "②",
+      "name": "unbalanced 不成对行存在（Q-4 判据面）",
+      "ok": true,
+      "detail": "unpaired=[(8, 0), (9, 0)]"
+    },
+    {
+      "item": "⑤",
+      "name": "env 注入→env_str 读回: AUTO_DIFF_A",
+      "ok": true,
+      "detail": "got='\"D:\\\\\\\\autostack\\\\\\\\.wt\\\\\\\\plan-011\\\\\\\\auto-edit\\\\\\\\specs\\\\\\\\auto-edit\\\\\\\\tests\\\\\\\\fixtures\\\\\\\\diff\\\\\\\\modify.a.txt\"'"
+    },
+    {
+      "item": "⑤",
+      "name": "env 注入→env_str 读回: AUTO_DIFF_B",
+      "ok": true,
+      "detail": "got='\"D:\\\\\\\\autostack\\\\\\\\.wt\\\\\\\\plan-011\\\\\\\\auto-edit\\\\\\\\specs\\\\\\\\auto-edit\\\\\\\\tests\\\\\\\\fixtures\\\\\\\\diff\\\\\\\\modify.b.txt\"'"
+    },
+    {
+      "item": "⑤",
+      "name": "AUTO_DIFF_A 路径 exists 复核",
+      "ok": true,
+      "detail": "1"
+    },
+    {
+      "item": "⑤",
+      "name": "未设 AUTO_DIFF_C = 空串（取消语义面）",
+      "ok": true,
+      "detail": "'\"\"'"
+    },
+    {
+      "item": "①",
+      "name": "微基准 dp400",
+      "ok": true,
+      "detail": "no-result 30s"
+    },
+    {
+      "item": "①",
+      "name": "吞吐健全性 loop1e4≤1e5（墙钟口径）",
+      "ok": true,
+      "detail": "{'loop1e4': 0.06928706169128418, 'loop1e5': 0.0641012191772461}"
+    },
+    {
+      "item": "①",
+      "name": "单消息算力墙勘定（10M steps/源码+首轮实证双锚）",
+      "ok": true,
+      "detail": "budget_fn=[]"
+    },
+    {
+      "item": "①",
+      "name": "DP-LCS 中间区上限定参 = 258",
+      "ok": true,
+      "detail": "dp300 fill+scan=1.075s"
+    },
+    {
+      "item": "①",
+      "name": "全览渲染 cap 定参 = 600",
+      "ok": true,
+      "detail": "rows600_build=0.053s"
+    },
+    {
+      "item": "①",
+      "name": "split 定标前置：5000 行 body 构建在档",
+      "ok": true,
+      "detail": "lines=5001"
+    },
+    {
+      "item": "①",
+      "name": "文件上限复核 = 50k 行/2MB",
+      "ok": true,
+      "detail": "split5k=0.053s → 50k 估 0.53s"
+    },
+    {
+      "item": "③",
+      "name": "scroll_state 读回 content_h（200 行溢出）",
+      "ok": true,
+      "detail": "row_h=24.000"
+    },
+    {
+      "item": "③",
+      "name": "scroll_to(handle,'y',960) → offset_y≈960（绝对像素）",
+      "ok": true,
+      "detail": "oy=960.0"
+    },
+    {
+      "item": "③",
+      "name": "跳转公式 offset=行号(0基)×行高 成立",
+      "ok": true,
+      "detail": "oy=960.0 vs 40×24.000=960.0"
+    },
+    {
+      "item": "③",
+      "name": "scroll_by(+100) 相对推进",
+      "ok": true,
+      "detail": "Δ=100.0"
+    },
+    {
+      "item": "④",
+      "name": "onscroll 事件面勘定（有/无+实证记录）",
+      "ok": true,
+      "detail": "obs_n=1"
+    }
+  ],
+  "pass": true
+}

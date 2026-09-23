@@ -1,0 +1,143 @@
+{
+  "hunks": [
+    {
+      "a1": 1,
+      "a2": 10,
+      "b1": 1,
+      "b2": 7
+    }
+  ],
+  "rows": [
+    {
+      "lo": 2,
+      "ro": 2,
+      "ln": "L2",
+      "rn": "L2",
+      "lk": "ctx",
+      "rk": "ctx",
+      "lpre": "L2",
+      "lmid": "",
+      "lpost": "",
+      "rpre": "L2",
+      "rmid": "",
+      "rpost": ""
+    },
+    {
+      "lo": 3,
+      "ro": 3,
+      "ln": "L3",
+      "rn": "L3",
+      "lk": "ctx",
+      "rk": "ctx",
+      "lpre": "L3",
+      "lmid": "",
+      "lpost": "",
+      "rpre": "L3",
+      "rmid": "",
+      "rpost": ""
+    },
+    {
+      "lo": 4,
+      "ro": 4,
+      "ln": "L4",
+      "rn": "L4",
+      "lk": "ctx",
+      "rk": "ctx",
+      "lpre": "L4",
+      "lmid": "",
+      "lpost": "",
+      "rpre": "L4",
+      "rmid": "",
+      "rpost": ""
+    },
+    {
+      "lo": 5,
+      "ro": 0,
+      "ln": "L5",
+      "rn": "",
+      "lk": "del",
+      "rk": "",
+      "lpre": "",
+      "lmid": "L5",
+      "lpost": "",
+      "rpre": "",
+      "rmid": "",
+      "rpost": ""
+    },
+    {
+      "lo": 6,
+      "ro": 0,
+      "ln": "L6",
+      "rn": "",
+      "lk": "del",
+      "rk": "",
+      "lpre": "",
+      "lmid": "L6",
+      "lpost": "",
+      "rpre": "",
+      "rmid": "",
+      "rpost": ""
+    },
+    {
+      "lo": 7,
+      "ro": 0,
+      "ln": "L7",
+      "rn": "",
+      "lk": "del",
+      "rk": "",
+      "lpre": "",
+      "lmid": "L7",
+      "lpost": "",
+      "rpre": "",
+      "rmid": "",
+      "rpost": ""
+    },
+    {
+      "lo": 8,
+      "ro": 5,
+      "ln": "L8",
+      "rn": "L8",
+      "lk": "ctx",
+      "rk": "ctx",
+      "lpre": "L8",
+      "lmid": "",
+      "lpost": "",
+      "rpre": "L8",
+      "rmid": "",
+      "rpost": ""
+    },
+    {
+      "lo": 9,
+      "ro": 6,
+      "ln": "L9",
+      "rn": "L9",
+      "lk": "ctx",
+      "rk": "ctx",
+      "lpre": "L9",
+      "lmid": "",
+      "lpost": "",
+      "rpre": "L9",
+      "rmid": "",
+      "rpost": ""
+    },
+    {
+      "lo": 10,
+      "ro": 7,
+      "ln": "L10",
+      "rn": "L10",
+      "lk": "ctx",
+      "rk": "ctx",
+      "lpre": "L10",
+      "lmid": "",
+      "lpost": "",
+      "rpre": "L10",
+      "rmid": "",
+      "rpost": ""
+    }
+  ],
+  "adds": 0,
+  "dels": 3,
+  "truncated": false,
+  "degraded": false,
+  "err": null
+}

@@ -1,0 +1,7 @@
+// pac.at — PLAN-011 T-00 决策探针 app（probe_diff.py 的载具，vm 轨专用
+// 脚手架，非产品件）。零依赖、单视图：AutoVM 算力微基准 + scroll
+// controller 定标 + onscroll 事件面勘定。与产品 auto-edit 完全隔离。
+name: "probe-diff"
+version: "0.1.0"
+scene: "ui"
+render: "vm"
