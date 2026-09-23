@@ -89,6 +89,28 @@ menubar-content 动态子节点边界适配在案）。边界如实成文：脏�
 节；**back-api 零端点变更**（env_str/read_text/write_text/exists 四件
 既有复用）；矩阵扩 T14 检查组（完成态 86/0）+ fixtures/session/ 两件。
 
+## M3 面开篇注记（PLAN-011，2026-09-23）
+
+M3（diff 对打 Beyond Compare，战略 §2.3）首件已落：**文件 diff v1——
+并排只读视图 + 过渡计算层 + hunk 导航**（补注十一提前开工口径：
+M2/M3 交错，大文件模式压后）。核心形态：**引擎无关编排层先行**——
+back 端点 `diff_files`（第十件 #[api]）落朴素分层过渡计算（公共前后缀
+裁剪 → ≤200 行 DP-LCS → 大中段降级 replace → 索引对齐配对+行内三段
+标记 → ctx 窗切 hunk），**envelope 契约=替换缝**（内核 diff 引擎落地
+仅换 back 实现体，视图/矩阵零改动）；根视图全幅并排视图（行号×2/
+种类着色/三段 mid 着重/±计数/hunk 位次）+ F7/Shift+F7 hunk 导航
+（scroll_to 24px/行，T-00 实测定参）。边界如实成文：**双文件磁盘态
+比较**（与编辑中缓冲区比较需全文读出撞零全文 tab 铁律——引擎
+diff_snapshots 端点直读 rope 才是正解，供料 §5）；文件上限 10k 行/
+1MB（T-00 保守定参，50k/2MB 预判不成立已注记）；100MB ≤2s 预算
+blocked-on-upstream 记账（bench `diff` 档门拒延迟+基线 JSONL）。
+规范详 [modules/diff-view.md](modules/diff-view.md)（新册）+
+[modules/back-api.md](modules/back-api.md) 文件 diff 端点节（计数勘正
+9→10）；矩阵扩 T15 检查组 + tests/fixtures/diff/ 六形态 golden；
+决策探针 tests/probe_diff.py（26/0）为前置决策门不入矩阵计数。上游件
+（函数返回值丢失疑回归 P1/嵌套大表挂死崩/onscroll 回声漂移/性能漂移
+对测/F-RV6 复现增补）登记 docs/upstream 2026-09 供料 §14。
+
 **兄弟仓 Q1 裁定摘要（2026-09-22，战略补注十收口）**：jade-edit 与
 auto-edit **两产品长期并存**（auto=原生旗舰轻量编辑器、jade=web 轻量
 版并向知识库发展），组件尽量共用（未来插件级共用）。jade 侧战略文档

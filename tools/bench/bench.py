@@ -784,9 +784,152 @@ def stage_assert(results: str | None) -> int:
     return EXIT_OK
 
 
+
+# ═════════════════════════════════════════════════════════════════════
+# PLAN-011 T-05: diff 计时档（G-5/AC-06）。
+#
+# 档位（T-00 §10 校准重定形——file_cap 10k 行/1MB 下原计划预判的
+# 1/10/100MB 档全落上限外；AC-06 本质=计时框架+基线+blocked 标注，
+# 档位按定参重铸，SD-02/§10 同步）：
+#   diff_small      1000 行对·散点改（档内现实态）→ 基线墙钟
+#   diff_mid        2500 行对·散点改（近上限）→ 基线墙钟
+#   diff_over_size  1.2MB 对 → 尺寸门即时拒墙钟 + blocked-on-upstream
+#   diff_over_lines 10500 行对 → 行数门拒墙钟 + blocked-on-upstream
+# blocked 口径：档外全文大文件 diff=架构阻塞（AutoVM str split 上限，
+# T-00 实测 0.01-0.52ms/行随工具链漂移）——引擎 diff_snapshots
+# （docs/upstream/2026-09-diff-engine-supply.md §5）时代清偿；门拒
+# 延迟证明上限门即时性（防长等语义，fsys.at 尺寸门 pre-read）。
+# 退出码 0=记录性基线锚点（无硬预算行——过渡计算层，引擎时代作废）。
+
+def _diff_fixture_pair(d: Path, name: str, n_lines: int, variant: str) -> dict:
+    """生成 a/b fixture 对。variant=scatter（每 37 行改一处，行数同）/
+    size（1.2MB 长行）/lines（10500 短行，仅 a 侧足量，b 短——门拒在
+    读前，形态无关）。"""
+    d.mkdir(parents=True, exist_ok=True)
+    pa, pb = d / f"{name}.a.txt", d / f"{name}.b.txt"
+    if variant == "size":
+        blob = ("x" * 120 + chr(10)) * 10486  # ≈1.2MB
+        pa.write_text(blob, encoding="utf-8")
+        pb.write_text(blob, encoding="utf-8")
+    elif variant == "lines":
+        pa.write_text(chr(10).join(f"L{i}" for i in range(10500)), encoding="utf-8")
+        pb.write_text("short" + chr(10), encoding="utf-8")
+    else:
+        a = [f"line {i:05d} of {name} content" for i in range(n_lines)]
+        b = list(a)
+        for i in range(0, n_lines, 37):
+            b[i] = f"line {i:05d} CHANGED payload"
+        pa.write_text(chr(10).join(a) + chr(10), encoding="utf-8")
+        pb.write_text(chr(10).join(b) + chr(10), encoding="utf-8")
+    return {"a": str(pa), "b": str(pb)}
+
+
+def stage_diff() -> int:
+    import urllib.request
+    import urllib.parse
+    import socket as _socket
+
+    exe = _auto_exe()
+    fp = _fingerprint()
+    _log(f"diff 档（PLAN-011 T-05）toolchain: {fp.get('version', '?')}")
+
+    fixdir = FIXTURES / "diff"
+    tiers = [
+        {"id": "diff_small", "fx": _diff_fixture_pair(fixdir, "small", 1000, "scatter"),
+         "kind": "baseline"},
+        {"id": "diff_mid", "fx": _diff_fixture_pair(fixdir, "mid", 2500, "scatter"),
+         "kind": "baseline"},
+        {"id": "diff_over_size", "fx": _diff_fixture_pair(fixdir, "oversize", 0, "size"),
+         "kind": "gate-reject"},
+        {"id": "diff_over_lines", "fx": _diff_fixture_pair(fixdir, "overlines", 0, "lines"),
+         "kind": "gate-reject"},
+    ]
+
+    port = None
+    for cand in range(9460, 9560):
+        with _socket.socket(_socket.AF_INET, _socket.SOCK_STREAM) as s:
+            if s.connect_ex(("127.0.0.1", cand)) != 0:
+                port = cand
+                break
+    env = {**os.environ, "AUTO_PROJECT_DIR": str(PROJECT)}
+    proc = subprocess.Popen(
+        [exe, "run", "--server", "vm", "-B", str(port)],
+        cwd=PROJECT, env=env,
+        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    base = f"http://127.0.0.1:{port}"
+    try:
+        up = False
+        for _ in range(40):
+            try:
+                urllib.request.urlopen(base + "/api/ws_root", timeout=2)
+                up = True
+                break
+            except Exception:  # noqa: BLE001
+                time.sleep(1)
+        if not up:
+            _log("FATAL: diff 档 app 未起（--server vm）")
+            return EXIT_FAIL
+
+        rows = []
+        for t in tiers:
+            q = urllib.parse.urlencode({"path_a": t["fx"]["a"],
+                                        "path_b": t["fx"]["b"], "ctx": 3})
+            url = f"{base}/api/diff_files?{q}"
+            walls = []
+            err_seen = ""
+            adds = dels = -1
+            degraded = False
+            for attempt in range(4):  # 首跑暖机弃
+                t0 = time.perf_counter()
+                try:
+                    with urllib.request.urlopen(url, timeout=60) as resp:
+                        import json as _json
+                        env_obj = _json.loads(resp.read().decode("utf-8"))
+                        if isinstance(env_obj, str):
+                            env_obj = _json.loads(env_obj)
+                    wall = (time.perf_counter() - t0) * 1000.0
+                    err_seen = env_obj.get("err", "") or ""
+                    adds, dels = env_obj.get("adds", -1), env_obj.get("dels", -1)
+                    degraded = bool(env_obj.get("degraded", False))
+                except Exception as e:  # noqa: BLE001
+                    wall = (time.perf_counter() - t0) * 1000.0
+                    err_seen = f"<http {e}>"
+                if attempt > 0:
+                    walls.append(round(wall, 1))
+                time.sleep(0.2)
+            med = sorted(walls)[len(walls) // 2] if walls else None
+            verdict = ("baseline" if t["kind"] == "baseline"
+                       else "gate-reject (blocked-on-upstream: 全文大文件 "
+                            "diff 待引擎 diff_snapshots，供料 §5)")
+            rows.append({"id": t["id"], "kind": t["kind"],
+                         "wall_ms_runs": walls, "wall_ms_median": med,
+                         "adds": adds, "dels": dels, "degraded": degraded,
+                         "err": err_seen[:120], "verdict": verdict})
+            _log(f"  {t['id']}: median={med}ms kind={t['kind']} "
+                 f"+{adds}/-{dels} err={err_seen[:40]!r}")
+
+        outfile = RESULTS / f"diff-{_ts()}.jsonl"
+        with open(outfile, "w", encoding="utf-8", newline=chr(10)) as f:
+            f.write(json.dumps({"type": "diff_timing", "toolchain": fp}, ensure_ascii=False) + chr(10))
+            for r in rows:
+                f.write(json.dumps(r, ensure_ascii=False) + chr(10))
+        _log(f"结果 JSONL → {outfile}")
+        bad = [r for r in rows if r["kind"] == "baseline"
+               and r["wall_ms_median"] is None]
+        if bad:
+            _log(f"FATAL: 基线档无数字：{[r['id'] for r in bad]}")
+            return EXIT_FAIL
+        return EXIT_OK
+    finally:
+        if proc.poll() is None:
+            proc.kill()
+        subprocess.run(["taskkill", "/T", "/F", "/PID", str(proc.pid)],
+                       capture_output=True)
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description="auto-edit 测量套件（PLAN-005 B 段）")
-    ap.add_argument("cmd", choices=["check", "proxy", "assert"])
+    ap.add_argument("cmd", choices=["check", "proxy", "assert", "diff"])
     ap.add_argument("--runs", type=int, default=DEFAULT_RUNS,
                     help=f"启动分解跑数（默认 {DEFAULT_RUNS}，首跑弃暖机）")
     ap.add_argument("--full", action="store_true",
@@ -797,6 +940,8 @@ def main() -> int:
     args = ap.parse_args()
     if args.cmd == "check":
         return stage_check()
+    if args.cmd == "diff":
+        return stage_diff()
     if args.cmd == "proxy":
         return stage_proxy(args.runs, args.full, args.mode)
     return stage_assert(args.results)

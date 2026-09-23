@@ -3,11 +3,11 @@
 > 来源：PLAN-003 交付 + src/back/{api.at,fsys.at}；计数勘正与 IO 字节
 > 语义节=PLAN-008 SD-02；搜索服务端点节=PLAN-009 SD-02。
 
-## 契约（src/back/api.at，九 #[api]——PLAN-009 勘正：PLAN-008 计数
-「七」未含 PLAN-009 增 regex_replace/search_files）
+## 契约（src/back/api.at，**十 #[api]**——PLAN-011 勘正：PLAN-009
+九件基础上增 diff_files）
 
 `ws_root / tree / read_text / read_text_range / write_text / exists /
-env_str / regex_replace / search_files`——路由前缀 /api，GET 走 query、
+env_str / regex_replace / search_files / diff_files`——路由前缀 /api，GET 走 query、
 POST 走 body。消费形态：`use back.api: <fns>` 裸函数直调（013-todo/
 015-notes 形态）：
 
@@ -83,3 +83,23 @@ a2r server 生成器模板假设 api::Db 状态注入 + 契约 fn 转译为空�
   撞号 `Path.to_string`、`fs.metadata` 被 codegen 映射覆盖为
   `auto.fs.size`（int 字节长；metadata JSON 的 is_dir/len 字段访问不可
   用）——三件登记 upstream §12 供料。is_dir 用 `fs.is_dir`(1009)。
+
+## 文件 diff 端点（PLAN-011 SD-02，M3-01）
+
+- **`diff_files(path_a, path_b, ctx) str`**（GET `/api/diff_files`）：
+  朴素分层过渡计算层（envelope 契约=替换缝——内核引擎落地仅换
+  `fsys.diff_files_json` 实现体，front/矩阵零改动）。返回 JSON
+  `{hunks:[{a1,a2,b1,b2}],rows:[{lo,ro,ln,rn,lk,rk,lpre,lmid,lpost,
+  rpre,rmid,rpost}],adds,dels,truncated,degraded,err}`——hunk 区间
+  0 基半开；rows.lo/ro 1 基缺席侧 0；三段标记=配对行公共前后缀裁剪；
+  CR 容忍（
+≡
+）；`ctx<=0` 兜底 3。上限门：尺寸 **1MB pre-read**
+  （fs.metadata 即时拒）+ 行数 **10k** post-split——错误形 err 含
+  「等待内核引擎 diff_snapshots（架构阻塞）」注记，hunks/rows 空数组。
+  实现约束：单 handler ≤10M VM steps（engine.rs:2145；全链 ~2.2M 实
+  测），重计算全内联单函数（2044 文件局部 fn 返回值丢失疑回归缓解，
+  upstream §14）；三段标记全局字符预算 100k（超预算行整行 mid）。
+  **rows 预计算归 back 的理由**：VM view 不能调函数（Plan 402）——
+  front 拿到即渲染。完整契约（含渲染就绪形与视图断言口径）见
+  modules/diff-view.md（SD-01 主册）。

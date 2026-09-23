@@ -1714,6 +1714,191 @@ def run_tests(mcp_url, proc):
     else:
         print("  NOTE  tests/fixtures/session missing; skipping T14")
 
+    # T15: PLAN-011 —— 文件 diff 检查组（T14 形态：独立新鲜进程+APPDATA
+    # 隔离；fixtures/diff 六形态 golden 在档）。驱动面=env 旁路 Tick 自开
+    # （AUTO_DIFF_A/B；menubar 展开项 2044 不进 vtree+键盘 AltGr 疑虑，
+    # 双双不可作矩阵依赖——T-02 实勘）。子组：
+    #   15.1 旁路自开+计数 state（scattered：3 hunks/21 rows/+3/-3）
+    #   15.2 形状计数 dbg 断言（ctx/pair/del/add=18/3/0/0——golden 对齐）
+    #   15.3 行内三段标记（pair 段节点分离口径——拼接串探针=假阳性
+    #        教训 T-03）
+    #   15.4 hunk 导航推进+回绕（idx 序列 [1,2,0,1,0]）
+    #   15.5 hunk 位次派生（diff_hunk_pos）
+    #   15.6 关闭复原（tab 集零扰动+状态清零）
+    #   15.7 unbalanced 形态（del-only/add-only 行+dbg 4/1/2/0）
+    #   15.8 错误形（缺文件 → err 态零视图+console 记录）
+    #   15.9 超限拒绝（>10000 行 fixture → err 形架构阻塞注记）
+    #   15.10 渲染截断（700 行全换 → cap 600+truncated+degraded）
+    print("\nT15: PLAN-011 file diff")
+    diff_fix = os.path.join(fixtures_dir, "diff")
+    if os.path.isdir(diff_fix):
+
+        def _t15_app(extra):
+            port = pick_free_port()
+            env = {**os.environ, "AUTOUI_MCP_PORT": str(port),
+                   "APPDATA": tempfile.mkdtemp(prefix="auto011_t15_"), **extra}
+            proc = subprocess.Popen(
+                [AUTO_BIN, "run", "-r", "vm"],
+                cwd=PROJECT, env=env,
+                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            url = f"http://127.0.0.1:{port}/mcp"
+            assert wait_for_server(url, 30), "T15 server never up"
+            t = McpClient(url)
+            for _ in range(15):
+                s = t.snapshot()
+                if "(rendered)" in s and s.count("onclick") > 0:
+                    break
+                time.sleep(1)
+            time.sleep(1.5)
+            return proc, t
+
+        def _t15_wait_open(t, timeout=15):
+            for _ in range(timeout * 2):
+                if state_bool(t.state("diff_open"), "diff_open"):
+                    return True
+                time.sleep(0.5)
+            return False
+
+        # 15.1-15.6 共享实例（scattered 三 hunk 形态）
+        try:
+            p15, t15 = _t15_app({
+                "AUTO_DIFF_A": os.path.join(diff_fix, "scattered.a.txt"),
+                "AUTO_DIFF_B": os.path.join(diff_fix, "scattered.b.txt")})
+            ok_open = _t15_wait_open(t15)
+            st = t15.state("diff_rows_count", "diff_hunk_count", "diff_hunk_idx",
+                           "diff_adds", "diff_dels", "diff_rows_truncated",
+                           "diff_degraded", "diff_err", "diff_dbg_ctx",
+                           "diff_dbg_pair", "diff_dbg_del", "diff_dbg_add")
+            result.check("T15.1 env 旁路自开+计数（3 hunks/21 rows/+3/-3）",
+                         ok_open and state_int(st, "diff_hunk_count") == 3
+                         and state_int(st, "diff_rows_count") == 21
+                         and state_int(st, "diff_adds") == 3
+                         and state_int(st, "diff_dels") == 3,
+                         st.replace("\n", " ")[:200])
+            result.check("T15.2 形状计数（ctx18/pair3/del0/add0）",
+                         state_int(st, "diff_dbg_ctx") == 18
+                         and state_int(st, "diff_dbg_pair") == 3
+                         and state_int(st, "diff_dbg_del") == 0
+                         and state_int(st, "diff_dbg_add") == 0,
+                         st.replace("\n", " ")[:160])
+            snap15 = t15.snapshot()
+            result.check("T15.3 三段标记节点（4-changed/19-changed 分离节点）",
+                         '"4-changed"' in snap15 and '"19-changed"' in snap15,
+                         "pair 段节点缺失")
+            result.check("T15.3b 状态条（DIFF 标+hunk 位次 1/3）",
+                         "DIFF" in snap15 and "hunk 1/3" in snap15, "")
+            seq = []
+            b_next = find_button_by_text(snap15, "下一处")
+            b_prev = find_button_by_text(snap15, "上一处")
+            for el in [b_next, b_next, b_next, b_next, b_prev]:
+                if el:
+                    t15.click(el)
+                    time.sleep(0.5)
+                    seq.append(state_int(t15.state("diff_hunk_idx"),
+                                         "diff_hunk_idx"))
+            result.check("T15.4 导航推进回绕 [1,2,0,1,0]",
+                         seq == [1, 2, 0, 1, 0], str(seq))
+            pos = (state_str(t15.state("diff_hunk_pos"), "diff_hunk_pos")
+                   or "").strip('"')
+            result.check("T15.5 hunk 位次派生 2/3", pos == "2/3", repr(pos))
+            tabs_before = state_int(t15.state("tab_count"), "tab_count")
+            b_close = find_button_by_text(snap15, "×")
+            if b_close:
+                t15.click(b_close)
+                time.sleep(0.8)
+            st2 = t15.state("diff_open", "tab_count", "diff_rows_count",
+                            "diff_hunk_count")
+            result.check("T15.6 关闭复原（tab 零扰动+态清零）",
+                         state_bool(st2, "diff_open") is False
+                         and state_int(st2, "tab_count") == tabs_before
+                         and state_int(st2, "diff_rows_count") == 0,
+                         st2.replace("\n", " ")[:160])
+            _kill_proc_tree(p15)
+        except Exception as e:
+            result.check("T15.1-6 scattered 主链", False, repr(e))
+
+        # 15.7 unbalanced 形态（删多增少）
+        try:
+            p15, t15 = _t15_app({
+                "AUTO_DIFF_A": os.path.join(diff_fix, "unbalanced.a.txt"),
+                "AUTO_DIFF_B": os.path.join(diff_fix, "unbalanced.b.txt")})
+            ok_open = _t15_wait_open(t15)
+            st = t15.state("diff_rows_count", "diff_dbg_ctx", "diff_dbg_pair",
+                           "diff_dbg_del", "diff_dbg_add")
+            snap15 = t15.snapshot()
+            result.check("T15.7 unbalanced（7 行=4ctx/1pair/2del+NEW 节点）",
+                         ok_open and state_int(st, "diff_rows_count") == 7
+                         and state_int(st, "diff_dbg_del") == 2
+                         and state_int(st, "diff_dbg_pair") == 1
+                         and '"NEW"' in snap15,
+                         st.replace("\n", " ")[:160])
+            _kill_proc_tree(p15)
+        except Exception as e:
+            result.check("T15.7 unbalanced", False, repr(e))
+
+        # 15.8 错误形（缺文件不静默）
+        try:
+            p15, t15 = _t15_app({
+                "AUTO_DIFF_A": os.path.join(diff_fix, "nonexistent_p011.txt"),
+                "AUTO_DIFF_B": os.path.join(diff_fix, "modify.b.txt")})
+            time.sleep(3)
+            st = t15.state("diff_open", "diff_err")
+            err = (state_str(st, "diff_err") or "").strip('"')
+            console = state_str(t15.state("console"), "console") or ""
+            result.check("T15.8 缺文件错误形（err 记录+零视图）",
+                         state_bool(st, "diff_open") is False
+                         and "不存在" in err and "diff:" in console,
+                         f"err={err[:80]!r}")
+            _kill_proc_tree(p15)
+        except Exception as e:
+            result.check("T15.8 错误形", False, repr(e))
+
+        # 15.9 超限拒绝（>10000 行）
+        try:
+            over = os.path.join(tempfile.mkdtemp(prefix="auto011_t15_over_"),
+                                "over.txt")
+            with open(over, "w", encoding="utf-8") as f:
+                f.write("\n".join(f"L{i}" for i in range(10500)))
+            p15, t15 = _t15_app({
+                "AUTO_DIFF_A": over,
+                "AUTO_DIFF_B": os.path.join(diff_fix, "modify.b.txt")})
+            time.sleep(3)
+            st = t15.state("diff_open", "diff_err")
+            err = (state_str(st, "diff_err") or "").strip('"')
+            result.check("T15.9 行数超限拒绝（>10000 行架构阻塞注记）",
+                         state_bool(st, "diff_open") is False
+                         and "超限" in err,
+                         f"err={err[:80]!r}")
+            _kill_proc_tree(p15)
+        except Exception as e:
+            result.check("T15.9 超限拒绝", False, repr(e))
+
+        # 15.10 渲染截断（700 行全换 → cap 600+truncated+degraded）
+        try:
+            d15 = tempfile.mkdtemp(prefix="auto011_t15_big_")
+            pa = os.path.join(d15, "big.a.txt")
+            pb = os.path.join(d15, "big.b.txt")
+            with open(pa, "w", encoding="utf-8") as f:
+                f.write("\n".join(f"old line {i} content"
+                                  for i in range(700)))
+            with open(pb, "w", encoding="utf-8") as f:
+                f.write("\n".join(f"new line {i} content"
+                                  for i in range(700)))
+            p15, t15 = _t15_app({"AUTO_DIFF_A": pa, "AUTO_DIFF_B": pb})
+            ok_open = _t15_wait_open(t15, 25)
+            st = t15.state("diff_rows_count", "diff_rows_truncated",
+                           "diff_hunk_count", "diff_degraded")
+            result.check("T15.10 渲染截断（cap 600+truncated+degraded）",
+                         ok_open and state_int(st, "diff_rows_count") == 600
+                         and state_bool(st, "diff_rows_truncated") is True
+                         and state_bool(st, "diff_degraded") is True,
+                         st.replace("\n", " ")[:200])
+            _kill_proc_tree(p15)
+        except Exception as e:
+            result.check("T15.10 渲染截断", False, repr(e))
+    else:
+        print("  NOTE  tests/fixtures/diff missing; skipping T15")
+
     print()
     print("T8: ActQuit (menu item)")
     open_menu(mcp, snap_cache, "文件")
