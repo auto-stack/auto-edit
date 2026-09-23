@@ -1,0 +1,108 @@
+// app.at — PLAN-012 T-00 决策探针（probe_dirdiff.py 载具，vm 轨专用
+// 脚手架）。front 零 fs/Env 内建（铁律在脚手架同样不破）——全部勘定
+// 逻辑在 back/papi.at，front 只拼 verdict 串进 .store.out（MCP state
+// 读出面）。分按钮隔离步数预算/崩溃风险（probe_diff_app 惯例）。
+
+use back.papi: probe_root, probe_cp_bytes_small, probe_cp_bytes_over, probe_cp_bytes_big, probe_cp_bytes_bin, probe_del_file, probe_rmdir_empty, probe_rmdir_nonempty, probe_cp_rec, probe_cp_rec_over, probe_rmdir_all, probe_bin, probe_bigcmp_same, probe_bigcmp_diff
+
+store DirProbeStore {
+    model {
+        var out str = ""
+    }
+    msg { PRoot, PcPBytes, PcPBytesOver, PcPBytesBig, PcPBytesBin, PDelFile, PRmDirEmpty, PRmDirNonEmpty,
+          PcPRec, PcPRecOver, PRmDirAll, PBin, PBigSame, PBigDiff, PClear }
+    on {
+        .PRoot -> {
+            .out = .out + "root{" + probe_root() + "};"
+        }
+        .PcPBytes -> {
+            .out = .out + "cp_bytes_small{" + probe_cp_bytes_small() + "};"
+        }
+        .PcPBytesOver -> {
+            .out = .out + "cp_bytes_over{" + probe_cp_bytes_over() + "};"
+        }
+        .PcPBytesBig -> {
+            .out = .out + "cp_bytes_big{" + probe_cp_bytes_big() + "};"
+        }
+        .PcPBytesBin -> {
+            .out = .out + "cp_bytes_bin{" + probe_cp_bytes_bin() + "};"
+        }
+        .PDelFile -> {
+            .out = .out + "del_file{" + probe_del_file() + "};"
+        }
+        .PRmDirEmpty -> {
+            .out = .out + "rmdir_empty{" + probe_rmdir_empty() + "};"
+        }
+        .PRmDirNonEmpty -> {
+            .out = .out + "rmdir_nonempty{" + probe_rmdir_nonempty() + "};"
+        }
+        .PcPRec -> {
+            .out = .out + "cp_rec{" + probe_cp_rec() + "};"
+        }
+        .PcPRecOver -> {
+            .out = .out + "cp_rec_over{" + probe_cp_rec_over() + "};"
+        }
+        .PRmDirAll -> {
+            .out = .out + "rmdir_all{" + probe_rmdir_all() + "};"
+        }
+        .PBin -> {
+            .out = .out + "bin{" + probe_bin() + "};"
+        }
+        .PBigSame -> {
+            .out = .out + "big_same{" + probe_bigcmp_same() + "};"
+        }
+        .PBigDiff -> {
+            .out = .out + "big_diff{" + probe_bigcmp_diff() + "};"
+        }
+        .PClear -> {
+            .out = ""
+        }
+    }
+}
+
+widget App {
+    msg { PRoot, PcPBytes, PcPBytesOver, PcPBytesBig, PcPBytesBin, PDelFile, PRmDirEmpty, PRmDirNonEmpty,
+          PcPRec, PcPRecOver, PRmDirAll, PBin, PBigSame, PBigDiff, PClear }
+    view {
+        col (style: "h-full w-full p-2 gap-2") {
+            row (style: "gap-1 shrink-0 flex-wrap") {
+                button (text: "root", variant: "outline") { onclick: .PRoot }
+                button (text: "cp_bytes_small", variant: "outline") { onclick: .PcPBytes }
+                button (text: "cp_bytes_over", variant: "outline") { onclick: .PcPBytesOver }
+                button (text: "cp_bytes_big", variant: "outline") { onclick: .PcPBytesBig }
+                button (text: "cp_bytes_bin", variant: "outline") { onclick: .PcPBytesBin }
+                button (text: "del_file", variant: "outline") { onclick: .PDelFile }
+                button (text: "rmdir_empty", variant: "outline") { onclick: .PRmDirEmpty }
+            }
+            row (style: "gap-1 shrink-0 flex-wrap") {
+                button (text: "rmdir_nonempty", variant: "outline") { onclick: .PRmDirNonEmpty }
+                button (text: "cp_rec", variant: "outline") { onclick: .PcPRec }
+                button (text: "cp_rec_over", variant: "outline") { onclick: .PcPRecOver }
+                button (text: "rmdir_all", variant: "outline") { onclick: .PRmDirAll }
+                button (text: "bin", variant: "outline") { onclick: .PBin }
+                button (text: "big_same", variant: "outline") { onclick: .PBigSame }
+                button (text: "big_diff", variant: "outline") { onclick: .PBigDiff }
+                button (text: "clear", variant: "outline") { onclick: .PClear }
+            }
+            text "PLAN-012 T-00 probe" { style: "text-xs font-mono text-muted-foreground shrink-0" }
+            text .store.out { style: "text-xs font-mono text-muted-foreground shrink-0" }
+        }
+    }
+    on {
+        .PRoot -> { store.PRoot() }
+        .PcPBytes -> { store.PcPBytes() }
+        .PcPBytesOver -> { store.PcPBytesOver() }
+        .PcPBytesBig -> { store.PcPBytesBig() }
+        .PcPBytesBin -> { store.PcPBytesBin() }
+        .PDelFile -> { store.PDelFile() }
+        .PRmDirEmpty -> { store.PRmDirEmpty() }
+        .PRmDirNonEmpty -> { store.PRmDirNonEmpty() }
+        .PcPRec -> { store.PcPRec() }
+        .PcPRecOver -> { store.PcPRecOver() }
+        .PRmDirAll -> { store.PRmDirAll() }
+        .PBin -> { store.PBin() }
+        .PBigSame -> { store.PBigSame() }
+        .PBigDiff -> { store.PBigDiff() }
+        .PClear -> { store.PClear() }
+    }
+}

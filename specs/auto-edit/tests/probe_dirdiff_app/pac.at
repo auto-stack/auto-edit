@@ -1,0 +1,8 @@
+// pac.at — PLAN-012 T-00 决策探针 app（probe_dirdiff.py 的载具，vm 轨
+// 专用脚手架，非产品件）。零依赖、单视图：fs 同步五内建映射可用性实测
+// （009 三案教训：catalog 在册≠codegen 映射正确）+ 二进制启发式 + 2MB
+// 内容比对上限 + read_text_range 前缀窗形态。与产品 auto-edit 完全隔离。
+name: "probe-dirdiff"
+version: "0.1.0"
+scene: "ui"
+render: "vm"

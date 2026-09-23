@@ -1,0 +1,152 @@
+{
+  "toolchain": "auto 0.1.0+v0.4.2-2046-g02ae0ac1c-dirty",
+  "decisions": {
+    "toolchain": "auto 0.1.0+v0.4.2-2046-g02ae0ac1c-dirty",
+    "fs_copy_keyword_block": {
+      "verdict": "unwritable",
+      "token": "copy=TokenKind::Copy（token.rs:397，Plan 122 deprecated）",
+      "evidence": "迷你 app 复现 rc!=0 + 'got Copy'"
+    },
+    "fs_builtins": {
+      "file_copy_1007": "keyword-blocked（①a 迷你 app 复现——copy=保留字）",
+      "file_copy_bytes_roundtrip": {
+        "small": "ok",
+        "overwrite_2mb": "overwritten",
+        "big_2mb": "ok-eq",
+        "binary": "ok"
+      },
+      "delete_1003": "ok",
+      "remove_dir_empty_1014": "ok",
+      "remove_dir_nonempty_guard": "kept",
+      "copy_recursive_2862": "ok",
+      "copy_recursive_overwrite": "overwritten",
+      "remove_dir_all_1015": "ok"
+    },
+    "binary_heuristic": {
+      "meta": "36",
+      "inv": "binary",
+      "empty0B": "not-binary",
+      "txt_len": "9",
+      "rng_total": "-98",
+      "rng_raw": "{\\\"text\\\":\\\"\\\""
+    },
+    "read_range_prefix_form": {
+      "total": "-98",
+      "raw60": "{\\\"text\\\":\\\"\\\""
+    },
+    "bigcmp": {
+      "same": "verdict=eq,len=2099200",
+      "diff": "verdict=uneq,len=2099200",
+      "wall_same_s": 0.185,
+      "wall_diff_s": 0.188,
+      "rss_kb": [
+        196624,
+        204844
+      ]
+    },
+    "dialog_open_dir": {
+      "verdict": "file-only（rfd FileDialog 语义+catalog filter 形参数——live 面不可驱动，静态勘定）",
+      "v1_plan": "双路径输入框+env AUTO_DIRDIFF_A/B 旁路",
+      "upstream_want": "dialog_pick_folder（目录选择对话框）→ §15 登记"
+    }
+  },
+  "checks": [
+    {
+      "item": "golden",
+      "name": "dirdiff golden 自洽（五形态+嵌套+空文件）",
+      "ok": true,
+      "detail": "counts={'same': 4, 'added': 2, 'deleted': 2, 'modified': 1, 'binary': 1} n=10"
+    },
+    {
+      "item": "①a",
+      "name": "fs.copy 词法阻断复现（非零退出+parser got Copy）",
+      "ok": true,
+      "detail": "rc=1 out=\"copy in\\n  │ module App\\n\\nError:   × VM UI error: DynamicComponent init failed: VmBridge init failed for 'App':\\n  │ invalid state: link failed for 'App': Undefined symbol: kw.kw_copy in\\n  │ module App\\n\\n\""
+    },
+    {
+      "item": "①",
+      "name": "env 注入→probe_root 读回",
+      "ok": true,
+      "detail": "'C:\\\\\\\\Users\\\\\\\\zhaop\\\\\\\\AppData\\\\\\\\Local\\\\\\\\Temp\\\\\\\\p012_probe_hexm5sja' "
+    },
+    {
+      "item": "①",
+      "name": "cp_bytes_small: verdict+磁盘 E2E",
+      "ok": true,
+      "detail": "verdict='ok'"
+    },
+    {
+      "item": "①",
+      "name": "cp_bytes_over: verdict+磁盘 E2E",
+      "ok": true,
+      "detail": "verdict='overwritten'"
+    },
+    {
+      "item": "①",
+      "name": "cp_bytes_big: verdict+磁盘 E2E",
+      "ok": true,
+      "detail": "verdict='ok-eq'"
+    },
+    {
+      "item": "①",
+      "name": "cp_bytes_bin: verdict+磁盘 E2E",
+      "ok": true,
+      "detail": "verdict='ok'"
+    },
+    {
+      "item": "①",
+      "name": "del_file: verdict+磁盘 E2E",
+      "ok": true,
+      "detail": "verdict='ok'"
+    },
+    {
+      "item": "①",
+      "name": "rmdir_empty: verdict+磁盘 E2E",
+      "ok": true,
+      "detail": "verdict='ok'"
+    },
+    {
+      "item": "①",
+      "name": "rmdir_nonempty: verdict+磁盘 E2E",
+      "ok": true,
+      "detail": "verdict='kept'"
+    },
+    {
+      "item": "①",
+      "name": "cp_rec: verdict+磁盘 E2E",
+      "ok": true,
+      "detail": "verdict='ok'"
+    },
+    {
+      "item": "①",
+      "name": "cp_rec_over: verdict+磁盘 E2E",
+      "ok": true,
+      "detail": "verdict='overwritten'"
+    },
+    {
+      "item": "①",
+      "name": "rmdir_all: verdict+磁盘 E2E",
+      "ok": true,
+      "detail": "verdict='ok'"
+    },
+    {
+      "item": "②",
+      "name": "二进制启发式（invalid→binary/0B 不误判/text 读出非空）",
+      "ok": true,
+      "detail": "'meta=36,inv=binary,empty0B=not-binary,txt_len=9,rng_total=-98,rng_raw={\\\\\"text\\\\\":\\\\\"\\\\\",\\\\\"total\\\\\":-1,\\\\\"next_offset\\\\\":null' "
+    },
+    {
+      "item": "③",
+      "name": "2MB 同内容 Str == → eq",
+      "ok": true,
+      "detail": "'verdict=eq,len=2099200' "
+    },
+    {
+      "item": "③",
+      "name": "2MB 同尺寸异内容 Str == → uneq",
+      "ok": true,
+      "detail": "'verdict=uneq,len=2099200' "
+    }
+  ],
+  "pass": true
+}

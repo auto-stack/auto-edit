@@ -1,0 +1,319 @@
+// back/papi.at — PLAN-012 T-00 决策探针 back 面（probe_dirdiff.py 载具，
+// vm 轨专用脚手架，非产品件）。
+//
+// 勘定面（决策记录落 PLAN-012 §10）：
+//   ① fs 同步五内建映射可用性（Q-1）：fs.copy/fs.delete/fs.remove_dir/
+//     fs.copy_recursive/fs.remove_dir_all 逐个独立 fn 实测——009 三案
+//     教训（错名/撞号/覆盖映射）：catalog 在册≠codegen 映射正确。
+//     判定一律磁盘 E2E（File.exists 复核/读回内容比对）+ verdict 串，
+//     返回值形态不预设（裸调用+事后复核）。
+//   ② 二进制启发式（Q-2 附带）：size>0 且 read_text==""（非法 UTF-8 即
+//     二进制近似）；空文件（0B）不误判（size 门）；read_text_range 前缀
+//     窗形态（total 字段）同勘——T-01 大文件启发式预算域的备选面。
+//   ③ 内容比对上限：2MB 同尺寸对 Str == 全等比对（同/异内容双形态）——
+//     墙钟由 python 侧采样，RSS 观察注记口径。
+//   ④ dialog_open 目录能力：rfd 阻塞式矩阵不可驱动——静态勘定（源码
+//     语义），不以 live 面登记（人工步骤注记由 python 侧落报告）。
+
+/// 探针根（python 注入 env AUTO_DIRDIFF_PROBE；front 零 Env 铁律不破）
+pub fn probe_root() str {
+    return Env.get("AUTO_DIRDIFF_PROBE")
+}
+
+/// ① fs.copy（1007）勘定补记：`copy` 为 .at 保留字 token（Plan 122 废弃
+/// ParamMode，词法全局收编）——`fs.copy`/`File.copy` 均不可写（探针 r1
+/// 实证：parser "Expected identifier…after dot, got Copy"；复现节见
+/// probe_dirdiff.py ①a）。文件复制改走字节往返面（下三 fn）。
+///
+/// ① 字节往返复制（1005/1006 shim=原生 Vec<i32>↔VM list，零 VM 步循环）：
+/// read_bytes→write_bytes，磁盘 E2E 读回比对。
+pub fn probe_cp_bytes_small() str {
+    var root str = Env.get("AUTO_DIRDIFF_PROBE")
+    var src str = root + "\\a\\f.txt"
+    var dst str = root + "\\b\\f_copy.txt"
+    var verdict str = "throw"
+    try {
+        var data list = File.read_bytes(src)
+        File.write_bytes(dst, data)
+        if File.exists(dst) {
+            var d str = File.read_text(dst)
+            if d == "alpha-content-v1" {
+                verdict = "ok"
+            } else {
+                verdict = "copied-wrong-content"
+            }
+        } else {
+            verdict = "no-effect"
+        }
+    } catch {
+        verdict = "throw"
+    }
+    return verdict
+}
+
+/// ① 字节往返覆盖语义（Q-2）：dst 事先存在（OLD-CONTENT）——write_bytes
+/// 走 fs::write（truncate 语义）——overwritten=覆盖 / target-kept=拒
+pub fn probe_cp_bytes_over() str {
+    var root str = Env.get("AUTO_DIRDIFF_PROBE")
+    var src str = root + "\\a\\f.txt"
+    var dst str = root + "\\b\\f_exists.txt"
+    var verdict str = "throw"
+    try {
+        var data list = File.read_bytes(src)
+        File.write_bytes(dst, data)
+        if File.exists(dst) {
+            var d str = File.read_text(dst)
+            if d == "alpha-content-v1" {
+                verdict = "overwritten"
+            } else {
+                verdict = "target-kept"
+            }
+        } else {
+            verdict = "no-effect"
+        }
+    } catch {
+        verdict = "throw"
+    }
+    return verdict
+}
+
+/// ① 字节往返 2MB 大文件：roundtrip 完整性（读回全文 ==）+ 堆/墙钟
+/// 由 python 侧采样
+pub fn probe_cp_bytes_big() str {
+    var root str = Env.get("AUTO_DIRDIFF_PROBE")
+    var src str = root + "\\big\\same_a.txt"
+    var dst str = root + "\\b\\f_bytes_big.txt"
+    var verdict str = "throw"
+    try {
+        var data list = File.read_bytes(src)
+        File.write_bytes(dst, data)
+        if File.exists(dst) {
+            var d1 str = File.read_text(src)
+            var d2 str = File.read_text(dst)
+            if d1 == d2 {
+                verdict = "ok-eq"
+            } else {
+                verdict = "copied-neq"
+            }
+        } else {
+            verdict = "no-effect"
+        }
+    } catch {
+        verdict = "throw"
+    }
+    return verdict
+}
+
+/// ① 字节往返二进制文件（invalid UTF-8）：read_text 面=="" 的文件字节级
+/// 保真复制——磁盘字节比对由 python 侧做（.at 无字节读出面）
+pub fn probe_cp_bytes_bin() str {
+    var root str = Env.get("AUTO_DIRDIFF_PROBE")
+    var src str = root + "\\bin\\invalid.bin"
+    var dst str = root + "\\b\\f_bytes_bin.txt"
+    var verdict str = "throw"
+    try {
+        var data list = File.read_bytes(src)
+        File.write_bytes(dst, data)
+        if File.exists(dst) {
+            verdict = "ok"
+        } else {
+            verdict = "no-effect"
+        }
+    } catch {
+        verdict = "throw"
+    }
+    return verdict
+}
+
+/// ① fs.delete：文件删除可用性 + 磁盘 E2E
+pub fn probe_del_file() str {
+    var root str = Env.get("AUTO_DIRDIFF_PROBE")
+    var p str = root + "\\b\\f_del.txt"
+    var verdict str = "throw"
+    try {
+        fs.delete(p)
+        if File.exists(p) {
+            verdict = "no-effect"
+        } else {
+            verdict = "ok"
+        }
+    } catch {
+        verdict = "throw"
+    }
+    return verdict
+}
+
+/// ① fs.remove_dir：空目录删除可用性 + 磁盘 E2E
+pub fn probe_rmdir_empty() str {
+    var root str = Env.get("AUTO_DIRDIFF_PROBE")
+    var p str = root + "\\b\\empty_dir"
+    var verdict str = "throw"
+    try {
+        fs.remove_dir(p)
+        if File.exists(p) {
+            verdict = "no-effect"
+        } else {
+            verdict = "ok"
+        }
+    } catch {
+        verdict = "throw"
+    }
+    return verdict
+}
+
+/// ① fs.remove_dir 对非空目录（护栏语义勘定）：期待保留或抛错——
+/// 若连非空树一并删除即危险映射（降级依据）
+pub fn probe_rmdir_nonempty() str {
+    var root str = Env.get("AUTO_DIRDIFF_PROBE")
+    var p str = root + "\\b_nonempty"
+    var verdict str = "throw"
+    try {
+        fs.remove_dir(p)
+        if File.exists(p) {
+            verdict = "kept"
+        } else {
+            verdict = "deleted-nonempty"
+        }
+    } catch {
+        verdict = "throw"
+    }
+    return verdict
+}
+
+/// ① fs.copy_recursive：目录递归复制可用性（dst 事先不存在）+ 嵌套 E2E
+pub fn probe_cp_rec() str {
+    var root str = Env.get("AUTO_DIRDIFF_PROBE")
+    var src str = root + "\\a_tree"
+    var dst str = root + "\\b_tree_new"
+    var nested str = root + "\\b_tree_new\\inner\\nested.txt"
+    var verdict str = "throw"
+    try {
+        fs.copy_recursive(src, dst)
+        if File.exists(nested) {
+            var d str = File.read_text(nested)
+            if d == "nested-v1" {
+                verdict = "ok"
+            } else {
+                verdict = "copied-wrong-content"
+            }
+        } else {
+            verdict = "no-effect"
+        }
+    } catch {
+        verdict = "throw"
+    }
+    return verdict
+}
+
+/// ① fs.copy_recursive 覆盖语义（Q-2b）：dst 事先存在（top.txt=OLD-TOP）
+pub fn probe_cp_rec_over() str {
+    var root str = Env.get("AUTO_DIRDIFF_PROBE")
+    var src str = root + "\\a_tree"
+    var dst str = root + "\\b_tree_exists"
+    var top str = root + "\\b_tree_exists\\top.txt"
+    var verdict str = "throw"
+    try {
+        fs.copy_recursive(src, dst)
+        if File.exists(top) {
+            var d str = File.read_text(top)
+            if d == "top-v1" {
+                verdict = "overwritten"
+            } else {
+                verdict = "target-kept"
+            }
+        } else {
+            verdict = "no-effect"
+        }
+    } catch {
+        verdict = "throw"
+    }
+    return verdict
+}
+
+/// ① fs.remove_dir_all：递归删除可用性 + 磁盘 E2E（两层树全消）
+pub fn probe_rmdir_all() str {
+    var root str = Env.get("AUTO_DIRDIFF_PROBE")
+    var p str = root + "\\b_tree_del"
+    var verdict str = "throw"
+    try {
+        fs.remove_dir_all(p)
+        if File.exists(p) {
+            verdict = "no-effect"
+        } else {
+            verdict = "ok"
+        }
+    } catch {
+        verdict = "throw"
+    }
+    return verdict
+}
+
+/// ② 二进制启发式勘定：invalid.bin（非法 UTF-8）→ size>0 且 read_text==
+/// ""→ binary；empty.txt（0B）→ read_text=="" 但 size 门拦住（不误判）；
+/// valid.txt → 读出非空。read_text_range 前缀窗 total 字段同勘（错误形
+/// total:-1 预期）。
+pub fn probe_bin() str {
+    var root str = Env.get("AUTO_DIRDIFF_PROBE")
+    var pbin str = root + "\\bin\\invalid.bin"
+    var pemp str = root + "\\bin\\empty.txt"
+    var ptxt str = root + "\\bin\\valid.txt"
+    var sbin int = fs.metadata(pbin)
+    var semp int = fs.metadata(pemp)
+    var tbin str = File.read_text(pbin)
+    var temp str = File.read_text(pemp)
+    var ttxt str = File.read_text(ptxt)
+    var rng str = File.read_text_range(pbin, 0, 8192)
+    var tot int = -99
+    var v = json.to_value(rng)
+    tot = v.total ?? -98
+    var verdict str = "text"
+    if sbin > 0 {
+        if tbin == "" {
+            verdict = "binary"
+        }
+    }
+    var emp_ok str = "misjudge"
+    if temp == "" {
+        if semp > 0 {
+            emp_ok = "misjudge"
+        } else {
+            emp_ok = "not-binary"
+        }
+    }
+    var rng_raw str = rng
+    if rng_raw.len() > 60 {
+        rng_raw = rng_raw.substr(0, 60)
+    }
+    return "meta=" + sbin.str() + ",inv=" + verdict + ",empty0B=" + emp_ok + ",txt_len=" + ttxt.len().str() + ",rng_total=" + tot.str() + ",rng_raw=" + rng_raw
+}
+
+/// ③ 2MB 同尺寸内容全等比对：same 对=同内容（期待 eq）/ diff 对=同尺寸
+/// 异内容（期待 uneq）——Str == 语义+堆驻留勘定。两 fn 自包含（非 pub
+/// 文件局部 fn 返回值丢失疑回归 2044 观察件①——不抽公共体）。
+pub fn probe_bigcmp_same() str {
+    var root str = Env.get("AUTO_DIRDIFF_PROBE")
+    var pa str = root + "\\big\\same_a.txt"
+    var pb str = root + "\\big\\same_b.txt"
+    var t1 str = File.read_text(pa)
+    var t2 str = File.read_text(pb)
+    var verdict str = "uneq"
+    if t1 == t2 {
+        verdict = "eq"
+    }
+    var l1 int = t1.len()
+    return "verdict=" + verdict + ",len=" + l1.str()
+}
+
+pub fn probe_bigcmp_diff() str {
+    var root str = Env.get("AUTO_DIRDIFF_PROBE")
+    var pa str = root + "\\big\\diff_a.txt"
+    var pb str = root + "\\big\\diff_b.txt"
+    var t1 str = File.read_text(pa)
+    var t2 str = File.read_text(pb)
+    var verdict str = "uneq"
+    if t1 == t2 {
+        verdict = "eq"
+    }
+    var l1 int = t1.len()
+    return "verdict=" + verdict + ",len=" + l1.str()
+}

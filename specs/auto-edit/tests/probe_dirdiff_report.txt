@@ -1,0 +1,109 @@
+toolchain: auto 0.1.0+v0.4.2-2046-g02ae0ac1c-dirty
+
+============================================================
+golden：fixtures/dirdiff 五形态（python 参考实现=规范语义）
+============================================================
+  PASS  [golden] dirdiff golden 自洽（五形态+嵌套+空文件）
+       counts={'same': 4, 'added': 2, 'deleted': 2, 'modified': 1, 'binary': 1} entries=10
+       nested:same, binary.bin:binary, deleted.txt:deleted, empty.txt:same, modified.txt:modified, same.txt:same, nested/inner.txt:same, nested/old.txt:deleted, added.txt:added, nested/new.txt:added
+
+============================================================
+①a fs.copy 表面可达性：copy=保留字 token（Plan 122 废弃 ParamMode）
+============================================================
+  PASS  [①a] fs.copy 词法阻断复现（非零退出+parser got Copy）
+       证据：parser 'Expected identifier, @, *, number, or boolean after dot, got Copy'——fs.copy/File.copy 表面不可写
+
+============================================================
+①②③ 载具会话：fs 五内建映射 + 二进制启发式 + 2MB 比对
+============================================================
+  PASS  [①] env 注入→probe_root 读回
+       cp_bytes_small = 'ok'
+       cp_bytes_over = 'overwritten'
+       cp_bytes_big = 'ok-eq'
+       cp_bytes_bin = 'ok'
+       del_file = 'ok'
+       rmdir_empty = 'ok'
+       rmdir_nonempty = 'kept'
+       cp_rec = 'ok'
+       cp_rec_over = 'overwritten'
+       rmdir_all = 'ok'
+  PASS  [①] cp_bytes_small: verdict+磁盘 E2E
+  PASS  [①] cp_bytes_over: verdict+磁盘 E2E
+  PASS  [①] cp_bytes_big: verdict+磁盘 E2E
+  PASS  [①] cp_bytes_bin: verdict+磁盘 E2E
+  PASS  [①] del_file: verdict+磁盘 E2E
+  PASS  [①] rmdir_empty: verdict+磁盘 E2E
+  PASS  [①] rmdir_nonempty: verdict+磁盘 E2E
+  PASS  [①] cp_rec: verdict+磁盘 E2E
+  PASS  [①] cp_rec_over: verdict+磁盘 E2E
+  PASS  [①] rmdir_all: verdict+磁盘 E2E
+  PASS  [②] 二进制启发式（invalid→binary/0B 不误判/text 读出非空）
+       bin 勘定: meta=36,inv=binary,empty0B=not-binary,txt_len=9,rng_total=-98,rng_raw={\"text\":\"\",\"total\":-1,\"next_offset\":null
+  PASS  [③] 2MB 同内容 Str == → eq
+  PASS  [③] 2MB 同尺寸异内容 Str == → uneq
+       墙钟: same=0.18s diff=0.19s RSS=196624KB→204844KB（Δ8220KB）
+
+④ dialog_open 目录能力（静态勘定——rfd 阻塞式矩阵不可驱动）
+    人工步骤：菜单「工具 → 比较目录…」→ 双路径输入框手输目录路径
+    （v1 方案冻结：路径输入框+env 旁路；folder picker=upstream want）
+
+============================================================
+Phase A：diff_dirs/sync 端点（split back HTTP）
+============================================================
+  SKIP  diff_dirs/sync 端点未在档——T-01/T-02 落地后重跑本探针全绿（本节不计入 T-00 门）
+
+============================================================
+T-00 决策记录（decisions）
+============================================================
+{
+  "toolchain": "auto 0.1.0+v0.4.2-2046-g02ae0ac1c-dirty",
+  "fs_copy_keyword_block": {
+    "verdict": "unwritable",
+    "token": "copy=TokenKind::Copy（token.rs:397，Plan 122 deprecated）",
+    "evidence": "迷你 app 复现 rc!=0 + 'got Copy'"
+  },
+  "fs_builtins": {
+    "file_copy_1007": "keyword-blocked（①a 迷你 app 复现——copy=保留字）",
+    "file_copy_bytes_roundtrip": {
+      "small": "ok",
+      "overwrite_2mb": "overwritten",
+      "big_2mb": "ok-eq",
+      "binary": "ok"
+    },
+    "delete_1003": "ok",
+    "remove_dir_empty_1014": "ok",
+    "remove_dir_nonempty_guard": "kept",
+    "copy_recursive_2862": "ok",
+    "copy_recursive_overwrite": "overwritten",
+    "remove_dir_all_1015": "ok"
+  },
+  "binary_heuristic": {
+    "meta": "36",
+    "inv": "binary",
+    "empty0B": "not-binary",
+    "txt_len": "9",
+    "rng_total": "-98",
+    "rng_raw": "{\\\"text\\\":\\\"\\\""
+  },
+  "read_range_prefix_form": {
+    "total": "-98",
+    "raw60": "{\\\"text\\\":\\\"\\\""
+  },
+  "bigcmp": {
+    "same": "verdict=eq,len=2099200",
+    "diff": "verdict=uneq,len=2099200",
+    "wall_same_s": 0.185,
+    "wall_diff_s": 0.188,
+    "rss_kb": [
+      196624,
+      204844
+    ]
+  },
+  "dialog_open_dir": {
+    "verdict": "file-only（rfd FileDialog 语义+catalog filter 形参数——live 面不可驱动，静态勘定）",
+    "v1_plan": "双路径输入框+env AUTO_DIRDIFF_A/B 旁路",
+    "upstream_want": "dialog_pick_folder（目录选择对话框）→ §15 登记"
+  }
+}
+
+RESULT: 16 passed, 0 failed
