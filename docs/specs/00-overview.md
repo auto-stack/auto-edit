@@ -79,6 +79,16 @@ find_effective 串拼装协议驱动高亮/替换/fif 三消费面（editor-stor
 （第三件显式全文操作）。上游件（单处替换/find_prev/匹配计数/goto 行
 + T-00 衍生观察件）登记 docs/upstream 2026-09 供料 §12。
 
+**第三件已落（PLAN-010，2026-09-23）**：**会话恢复（懒装载）+ 最近文件**
+——退出/崩溃后重启还原 tab 集+激活位，恢复 N tab 只读 1 个文件（懒装载
+复用 PLAN-007 装载链现件）；APPDATA 根会话文件+SessionSave 五挂点即时
+落盘=崩溃恢复底座；最近文件去重前移上限 10（Explorer 侧栏节——
+menubar-content 动态子节点边界适配在案）。边界如实成文：脏内容不恢复
+（back 版本化=L 线）、光标/滚动持久化但不应用（上游 set-cursor/scroll
+端点 want 登记 docs/upstream §13）。editor-store.md 会话持久化与懒恢复
+节；**back-api 零端点变更**（env_str/read_text/write_text/exists 四件
+既有复用）；矩阵扩 T14 检查组（完成态 86/0）+ fixtures/session/ 两件。
+
 **兄弟仓 Q1 裁定摘要（2026-09-22，战略补注十收口）**：jade-edit 与
 auto-edit **两产品长期并存**（auto=原生旗舰轻量编辑器、jade=web 轻量
 版并向知识库发展），组件尽量共用（未来插件级共用）。jade 侧战略文档

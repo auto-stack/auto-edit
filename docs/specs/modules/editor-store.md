@@ -190,3 +190,70 @@ EolConvert 复用面（禁 handler 侧 set_text 重写，防 last_external 清�
 **已知边界**：单处替换/上一处/匹配计数 n/m/goto 行=上游 want
 （docs/upstream 2026-09 供料 §12）；Esc 关栏未接（input widget 无
 keydown 面，× 按钮为关闭路径）；跨行正则不匹配（内核逐行 find 同口径）。
+
+## 会话持久化与懒恢复（PLAN-010 SD-01，M2-03）
+
+> 来源：PLAN-010 T-01..T-03 交付；恢复协议与 loaded 语义=T-00 决策记录
+> （probe_session.py 23/0 实证）。会话=跨进程状态契约；back-api 零端点
+> 变更（env_str/read_text/write_text/exists 四件既有复用）。
+
+**会话文件契约**：APPDATA 根 `auto-edit-session.json`（`env_str("APPDATA")`
+定位 + 根级落文件——零 mkdir，fs.create_dir 属 back 面；APPDATA 缺席兜底
+""=会话链整体禁用，写入挂点与恢复链双重门）。JSON 字段：`ws_dir`（键控
+——不匹配即全新启动）/`tabs[]`（仅文件 tab：path/title/cline/ccol；
+**untitled 排除**，脏标记与正文永不入会话）/`active`（持久化数组内索引，
+-1=激活 tab 为 untitled，恢复按 0 兜底）/`open_count`（防撞号推进）/
+`recents[]`（{path,title}）。拼装=front `json_escape` 两字符转义（反斜杠
+最先防二次转义）+ `.str()` 整数化（`json.stringify`(1918) 在册但 vue
+映射面未证——拼装侧不赌，双轨铁律）；解析=try 门 + `json.to_value` +
+`??` 逐字段兜底（损坏 JSON 实测**容忍形**→ws 门/try 门双保险=静默全新
+启动，T14.9 回归锚）。
+
+**SessionSave 五挂点（结构变更即时落盘=崩溃恢复底座）**：OpenPath /
+RemoveAt / TabActivate / ActNew / **CloseRequest 入口**（退出链三臂——
+干净臂直接退出、弹层两臂经确认层退出——共用此单挂点，结构在挂点时已
+定型；弹层臂的 WriteFidelity 落盘不改 tab 集，会话保持准确）。写盘先于
+Process.exit 的时序由 T-00④/矩阵 T14.5/T14.6 背书。写入频率=结构变更
+即时（Q-2 v1 裁定：用户节奏低频、文件 KB 级）。边界如实成文：ActSave
+把 untitled tab 升格文件 tab 的路径变更不在五挂点清单（v1 契约面——该
+结构变更在下次挂点动作时随写落盘）。
+
+**恢复协议（LoadWorkspace 尾段，bench 标记之后）**：存在门 → try 解析门
+→ ws_dir 匹配门（任一不过=静默全新启动，现状零回归）→ tabs 重建（key=
+tab-N 顺序推号、title=basename、src 恒空、**loaded=false**、bom/eol/
+readonly 默认值——装载时 ProbeByteMeta 重探；缺席/不存在文件条目丢弃）
+→ open_count 推进防撞号 → 激活位 + `load_key=active 文件 tab`（仅当
+存在；下轮 Tick RunPendingLoad 消费=装载协议②③原样——视图只实化
+active 编辑器，**恢复 N tab 只读 1 个文件**）。recents 同源恢复（元素级
+防御重建，畸形条目丢弃）。bench 实例 ws 键控自隔离（AUTO_PROJECT_DIR≠
+session.ws_dir → 不恢复，steady_start 面零扰动）。
+
+**懒装载协议增补（tabs.loaded 标量）**：`loaded`=「装载完成」——文件 tab
+创建位 false（OpenPath）/恢复链位 false；RunPendingLoad 成功分支置 true
+（错误形不置位——文件修复后激活可重试）；**TabActivate 触发**：激活
+loaded==false 的文件 tab → 置 load_key（path_active 由 TabActivate 联动
+写——RunPendingLoad 读 `.path_active` 的协议假设天然满足；编辑器实化前
+探针 edit 失败静默递延=协议①）。切回语义=T-00③ 定案 **registry 存留、
+切回免重装**（内容留存于编辑器 registry，loaded=true 激活零动作）。
+cline/ccol=激活 tab 光标位镜像（SyncCursor 位更新；**持久化但不应用**
+——前向兼容位，上游 set-cursor 端点清偿后启用即得光标恢复）。
+
+**recents 契约（最近文件）**：OpenPath 前段维护（去重前移，上限 10 淘尾
+）——OpenPath 是全部打开入口的公共核（菜单/树/fif 点击/最近文件四路
+同源）；持久化入会话。UI 面=**Explorer 侧栏「最近文件」节**（设计适配
+在案：menubar-content 组件内容模型边界——for 不吸收/menubar-label 不
+吸收/if 守卫动态条目跨重建不可靠/带参 onclick 实参归零，探针 menu2+
+隔离实验实勘，upstream §13 观察；根视图 for+裸循环索引 onclick=fif
+结果面板同款已证面）。点击=RecentOpen→RecentOpenAt：已开同路径 tab
+激活 / 未开 OpenPath（recents 维护随公共核自带，零重复）。
+
+**检测器口径**：会话链零 `code_editor_text`（结构态/元数据序列化，正文
+永不出编辑器）——检测器白名单零变更（对照：009 ReplaceAll=第五件登记）。
+
+**边界（非目标，如实成文）**：脏内容/未保存编辑不恢复（自动存盘/
+checkpoint 依赖 back 文件版本化，战略 §3.2 L 线审阅面件）；光标/滚动
+恢复应用不启用（无 set-cursor/editor-scroll 端点——docs/upstream §13
+want 消费方）；会话恢复开关无 config-as-data 配置面（v1 恒开，配置项列
+未来件）；多 workspace 并行会话（v1 单文件 last-wins，ws_dir 键控判匹配
+）；tree 展开态/滚动位/fif 结果/查找栏开合等瞬态不恢复（v1 只恢复
+tab 集与激活位）。
