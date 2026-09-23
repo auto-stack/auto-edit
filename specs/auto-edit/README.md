@@ -223,6 +223,10 @@ APPDATA 隔离——T11/T14 先例；fixtures/diff/ 六形态 golden 入仓）�
 bench 增 `diff` 计时档（tools/bench `bench.py diff`：small/mid 基线+
 尺寸/行数门拒延迟，JSONL 在 results/，档外全文 diff blocked-on-
 upstream 注记——引擎 diff_snapshots 时代清偿）。
+**PLAN-695 交互注记（2026-09-23 merge 期实勘）**：行尾分组 submenu 化
+后 T12.6 mixed→LF 的菜单项对 MCP 失明（menubar-sub 子树不进快照——
+裸 main 两级复现，upstream §14 登记）：该项失败=已知上游缺（子菜单命
+令矩阵不可驱动），非本件回归、不计判绿口径；清偿后自动恢复计数。
 
 注：Plan 451 起 T10「热重载」走 DSL 源路径（reload 工具或 mtime 轮询重读
 app.at 重新提取 actions + generation bump → 视图重建），实测 50/0 全绿。
