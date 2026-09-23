@@ -95,3 +95,15 @@ pub fn regex_replace(text str, pattern str, replacement str, global bool) str {
 pub fn search_files(path str, pattern str, limit int) str {
     return fsys.search_files_json(path, pattern, limit)
 }
+
+/// 文件 diff（PLAN-011 T-01）：朴素分层过渡计算层。返回 envelope JSON
+/// `{hunks:[{a1,a2,b1,b2}],rows:[{lo,ro,ln,rn,lk,rk,lpre,lmid,lpost,
+/// rpre,rmid,rpost}],adds,dels,truncated,degraded,err}`（SD-01 契约=
+/// 计算层↔视图层唯一接口/替换缝——内核引擎落地仅换 fsys 实现体）。
+/// hunk 区间 0 基半开；rows.lo/ro 1 基（缺席侧 0）；上限门 >10k 行或
+/// >1MB→err 形（架构阻塞注记）；ctx<=0 兜底 3。CRLF 容忍（尾 \r 剥除）。
+/// GET /api/diff_files?path_a=..&path_b=..&ctx=..
+#[api(method = "GET", path = "/api/diff_files")]
+pub fn diff_files(path_a str, path_b str, ctx int) str {
+    return fsys.diff_files_json(path_a, path_b, ctx)
+}

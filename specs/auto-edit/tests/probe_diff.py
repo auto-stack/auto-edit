@@ -492,6 +492,94 @@ def main():
                          timeout=10)
         check("⑤", "未设 AUTO_DIFF_C = 空串（取消语义面）",
               http_scalar(r) == "", repr(r.text))
+
+        # ---- ①′ T-01 验证：back diff_files × golden 逐字段（AC-02）----
+        emit("\n①′ back diff_files 端点（朴素分层 golden 对照+上限门/错误形）")
+        for name, (ta, tb) in fx.items():
+            r = requests.get(
+                base + "/api/diff_files",
+                params={"path_a": os.path.join(FIXDIR, f"{name}.a.txt"),
+                        "path_b": os.path.join(FIXDIR, f"{name}.b.txt"),
+                        "ctx": 3}, timeout=60)
+            ok_env = False
+            hint = ""
+            try:
+                env = json.loads(r.text)
+                if isinstance(env, str):
+                    env = json.loads(env)  # 标量返回铁律：HTTP 层再包一层
+                with open(os.path.join(FIXDIR, f"{name}.golden.json"),
+                          encoding="utf-8") as f:
+                    gold = json.load(f)
+                if gold.get("err") is None:
+                    gold["err"] = ""
+                ok_env = (env == gold)
+                if not ok_env:
+                    hint = (f"hunks {len(env.get('hunks', []))} vs "
+                            f"{len(gold.get('hunks', []))} / rows "
+                            f"{len(env.get('rows', []))} vs "
+                            f"{len(gold.get('rows', []))} / adds "
+                            f"{env.get('adds')} vs {gold.get('adds')} / "
+                            f"err={env.get('err', '')[:40]!r}")
+                    if hint.count("0 vs 0") >= 2:
+                        for ri, (er, gr) in enumerate(
+                                zip(env.get("rows", []), gold.get("rows", []))):
+                            if er != gr:
+                                hint += f" first-row-diff@{ri}: {er} vs {gr}"
+                                break
+            except Exception as e:  # noqa: BLE001
+                hint = f"decode fail: {e!r} text={r.text[:120]!r}"
+            check("①′", f"diff_files×golden: {name}", ok_env, hint)
+        # 错误形：缺文件
+        r = requests.get(
+            base + "/api/diff_files",
+            params={"path_a": "Z:/nonexistent_p011_a.txt",
+                    "path_b": os.path.join(FIXDIR, "modify.b.txt"),
+                    "ctx": 3}, timeout=30)
+        try:
+            env = json.loads(r.text)
+            if isinstance(env, str):
+                env = json.loads(env)
+            check("①′", "缺文件 err 形（不静默）",
+                  env.get("err", "") != "" and env.get("hunks") == [],
+                  repr(env.get("err"))[:100])
+        except Exception as e:  # noqa: BLE001
+            check("①′", "缺文件 err 形（不静默）", False, repr(e))
+        # 行数超限（>10000 行且 <1MB——行数门专属路径）
+        over = os.path.join(tempfile.gettempdir(), "p011_over_lines.txt")
+        with open(over, "w", encoding="utf-8") as f:
+            f.write("\n".join(f"L{i}" for i in range(10500)))
+        r = requests.get(base + "/api/diff_files",
+                         params={"path_a": over,
+                                 "path_b": os.path.join(FIXDIR,
+                                                        "modify.b.txt"),
+                                 "ctx": 3}, timeout=60)
+        try:
+            env = json.loads(r.text)
+            if isinstance(env, str):
+                env = json.loads(env)
+            check("①′", "行数超限拒绝（>10000 行，架构阻塞注记）",
+                  "超限" in env.get("err", ""), repr(env.get("err"))[:100])
+        except Exception as e:  # noqa: BLE001
+            check("①′", "行数超限拒绝", False, repr(e))
+        # 尺寸超限（>1MB——pre-read 即时拒）
+        big = os.path.join(tempfile.gettempdir(), "p011_over_size.txt")
+        with open(big, "w", encoding="utf-8") as f:
+            f.write("x" * 1048577)
+        r = requests.get(base + "/api/diff_files",
+                         params={"path_a": big,
+                                 "path_b": os.path.join(FIXDIR,
+                                                        "modify.b.txt"),
+                                 "ctx": 3}, timeout=60)
+        try:
+            env = json.loads(r.text)
+            if isinstance(env, str):
+                env = json.loads(env)
+            check("①′", "尺寸超限拒绝（>1MB pre-read 即时拒）",
+                  "超限" in env.get("err", ""), repr(env.get("err"))[:100])
+        except Exception as e:  # noqa: BLE001
+            check("①′", "尺寸超限拒绝", False, repr(e))
+        os.remove(over)
+        os.remove(big)
     finally:
         _kill_proc_tree(proc_a)
     emit("  dialog_open×2 手动路径（rfd 阻塞式，矩阵不可驱动——人工步骤）：")

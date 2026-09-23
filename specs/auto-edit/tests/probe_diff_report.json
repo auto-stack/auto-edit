@@ -9,22 +9,22 @@
       "design_rule": "diff_files 单 handler 全链（split+DP+rows 构建+JSON 拼装）总步数 <10M——T-01 实现约束"
     },
     "dp_cap": {
-      "value": 258,
+      "value": 250,
       "measured_tier": 300,
-      "measured_dp_fill_scan_s": 1.0745701789855957,
+      "measured_dp_fill_scan_s": 1.147946834564209,
       "budget_s": 0.8,
       "rule": "fill+scan≤0.8s 维持 400，超则 cap=档×√(0.8/t)"
     },
     "render_cap": {
       "value": 600,
-      "measured_rows600_build_s": 0.052733659744262695,
+      "measured_rows600_build_s": 0.06859827041625977,
       "budget_s": 0.2,
       "rule": "rows 构建≤0.2s 维持 600（渲染侧成本不含，口径注记）"
     },
     "file_cap": {
       "value": "50k 行 / 2MB",
-      "measured_split5k_s": 0.0526883602142334,
-      "split50k_est_s": 0.526883602142334,
+      "measured_split5k_s": 0.05347299575805664,
+      "split50k_est_s": 0.5347299575805664,
       "rule": "split 线性外推 ≤1.5s → 维持预判上限"
     },
     "scroll": {
@@ -133,6 +133,60 @@
       "detail": "'\"\"'"
     },
     {
+      "item": "①′",
+      "name": "diff_files×golden: add_only",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "item": "①′",
+      "name": "diff_files×golden: del_only",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "item": "①′",
+      "name": "diff_files×golden: modify",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "item": "①′",
+      "name": "diff_files×golden: scattered",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "item": "①′",
+      "name": "diff_files×golden: big_reorder",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "item": "①′",
+      "name": "diff_files×golden: unbalanced",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "item": "①′",
+      "name": "缺文件 err 形（不静默）",
+      "ok": true,
+      "detail": "'文件不存在: Z:/nonexistent_p011_a.txt'"
+    },
+    {
+      "item": "①′",
+      "name": "行数超限拒绝（>10000 行，架构阻塞注记）",
+      "ok": true,
+      "detail": "'文件超限（A 10500 行 >10000）——等待内核引擎 diff_snapshots（架构阻塞）'"
+    },
+    {
+      "item": "①′",
+      "name": "尺寸超限拒绝（>1MB pre-read 即时拒）",
+      "ok": true,
+      "detail": "'文件超限（A 1048577B >1MB）——等待内核引擎 diff_snapshots（架构阻塞）'"
+    },
+    {
       "item": "①",
       "name": "微基准 dp400",
       "ok": true,
@@ -142,7 +196,7 @@
       "item": "①",
       "name": "吞吐健全性 loop1e4≤1e5（墙钟口径）",
       "ok": true,
-      "detail": "{'loop1e4': 0.06928706169128418, 'loop1e5': 0.0641012191772461}"
+      "detail": "{'loop1e4': 0.053009033203125, 'loop1e5': 0.07852697372436523}"
     },
     {
       "item": "①",
@@ -152,15 +206,15 @@
     },
     {
       "item": "①",
-      "name": "DP-LCS 中间区上限定参 = 258",
+      "name": "DP-LCS 中间区上限定参 = 250",
       "ok": true,
-      "detail": "dp300 fill+scan=1.075s"
+      "detail": "dp300 fill+scan=1.148s"
     },
     {
       "item": "①",
       "name": "全览渲染 cap 定参 = 600",
       "ok": true,
-      "detail": "rows600_build=0.053s"
+      "detail": "rows600_build=0.069s"
     },
     {
       "item": "①",

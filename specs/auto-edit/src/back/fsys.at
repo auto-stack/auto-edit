@@ -202,3 +202,555 @@ pub fn search_files_json(path str, pattern str, limit int) str {
     }
     return json.from_value({results: items, count: n, truncated: truncated})
 }
+
+// ═════════════════════════════════════════════════════════════════
+// 文件 diff（PLAN-011 T-01）——朴素分层过渡计算层（envelope=替换缝契约）。
+//
+// 算法（§2/探针②同款，python 参考实现=tests/fixtures/diff/*.golden）：
+// ① 公共前后缀行裁剪 → ② 中间区 ≤200 行/侧 DP-LCS（O(N·M) 行级，del
+// 优先确定性回溯）→ ③ 大中段降级整块 replace（degraded=true）→ ④
+// replace 区索引对齐配对+公共前后缀三段标记 → ⑤ ctx 上下文窗切 hunk
+// （间距 ≤2·ctx 归组）+ rows 逐 hunk 展开（流切片摊销 O(n)）。
+//
+// envelope（SD-01 契约）：{hunks:[{a1,a2,b1,b2}](0 基半开),rows:[{lo,ro,
+// ln,rn,lk,rk,lpre,lmid,lpost,rpre,rmid,rpost}](lo/ro=1 基,缺席侧 0；
+// lk/rk ∈ ctx/del/add/""),adds,dels,truncated,degraded,err}——truncated
+// v1 恒 false（保留字段）；err 无错=""。
+//
+// 上限门（T-00 §10 定参，保守跨工具链）：尺寸 pre-read（fs.metadata，
+// 即时拒防长等）+ 行数 post-split；10k 行 / 1MB。
+//
+// 实现注记（T-00 实勘约束）：
+// · 全内联单函数——2044 工具链文件局部 fn 返回值丢失疑回归（dp_sim
+//   return→0，upstream 观察件①；模块级 fn 返回经 api 链已证可靠）。
+// · 单 handler ≤10M steps（engine.rs:2145）——全链估算 ~2.2M ✓。
+// · 三段标记全局字符预算 100k（超预算行退化整行 mid=Q-4 已接受形态）
+//   ——逐字符 substr 最坏 20k 配对行的墙钟保护。
+// · CR 容忍：CRLF 行剥尾 \r（与 golden 的 universal-newlines 参考
+//   实现对齐；SD-02 成文）。
+// · 语法纪律：record 字面量/调用实参严格单行（.at 解析器不接受跨行）。
+// · 已知偏差（golden 集不覆盖 corner）：相邻 hunk 仅因 b 侧间距分组而
+//   b 窗交叠时，前组 add 行参考实现双渲染、本实现单渲染（SD-01 注记；
+//   视觉=同行只画一次）。
+pub fn diff_files_json(path_a str, path_b str, ctx int) str {
+    var ctxn int = ctx
+    if ctxn <= 0 {
+        ctxn = 3
+    }
+    // ═══ 门 0：存在性（缺失→err 形，不静默——AC-02）═══
+    if !File.exists(path_a) {
+        return json.from_value({hunks: [], rows: [], adds: 0, dels: 0, truncated: false, degraded: false, err: "文件不存在: " + path_a})
+    }
+    if !File.exists(path_b) {
+        return json.from_value({hunks: [], rows: [], adds: 0, dels: 0, truncated: false, degraded: false, err: "文件不存在: " + path_b})
+    }
+    // ═══ 门 1：尺寸 pre-read（fs.metadata 字节长——即时拒，§10）═══
+    var sa int = fs.metadata(path_a)
+    var sb int = fs.metadata(path_b)
+    if sa > 1048576 {
+        return json.from_value({hunks: [], rows: [], adds: 0, dels: 0, truncated: false, degraded: false, err: "文件超限（A " + sa.str() + "B >1MB）——等待内核引擎 diff_snapshots（架构阻塞）"})
+    }
+    if sb > 1048576 {
+        return json.from_value({hunks: [], rows: [], adds: 0, dels: 0, truncated: false, degraded: false, err: "文件超限（B " + sb.str() + "B >1MB）——等待内核引擎 diff_snapshots（架构阻塞）"})
+    }
+    // ═══ 读 + 行切分（尾空元素吸收=python split_lines 等价）═══
+    var ta str = File.read_text(path_a)
+    var tb str = File.read_text(path_b)
+    var a list = ta.split("\n")
+    var b list = tb.split("\n")
+    // CR 容忍：CRLF 行剥尾 \r（SD-02：\r\n 与 \n 等价）
+    var ci0 int = 0
+    while ci0 < a.len() {
+        var ln0 str = a[ci0]
+        if ln0.len() > 0 {
+            if ln0.substr(ln0.len() - 1, 1) == "\r" {
+                a.set(ci0, ln0.substr(0, ln0.len() - 1))
+            }
+        }
+        ci0 = ci0 + 1
+    }
+    ci0 = 0
+    while ci0 < b.len() {
+        var ln1 str = b[ci0]
+        if ln1.len() > 0 {
+            if ln1.substr(ln1.len() - 1, 1) == "\r" {
+                b.set(ci0, ln1.substr(0, ln1.len() - 1))
+            }
+        }
+        ci0 = ci0 + 1
+    }
+    var la int = a.len()
+    if la > 0 {
+        var lasta str = a[la - 1]
+        if lasta == "" {
+            la = la - 1
+        }
+    }
+    var lb int = b.len()
+    if lb > 0 {
+        var lastb str = b[lb - 1]
+        if lastb == "" {
+            lb = lb - 1
+        }
+    }
+    // ═══ 门 2：行数 post-split（>10k→err，§10 定参）═══
+    if la > 10000 {
+        return json.from_value({hunks: [], rows: [], adds: 0, dels: 0, truncated: false, degraded: false, err: "文件超限（A " + la.str() + " 行 >10000）——等待内核引擎 diff_snapshots（架构阻塞）"})
+    }
+    if lb > 10000 {
+        return json.from_value({hunks: [], rows: [], adds: 0, dels: 0, truncated: false, degraded: false, err: "文件超限（B " + lb.str() + " 行 >10000）——等待内核引擎 diff_snapshots（架构阻塞）"})
+    }
+    // ═══ ① 公共前后缀行裁剪 ═══
+    var p int = 0
+    var walk bool = true
+    while walk {
+        if p >= la {
+            walk = false
+        }
+        if p >= lb {
+            walk = false
+        }
+        if walk {
+            if a[p] == b[p] {
+                p = p + 1
+            } else {
+                walk = false
+            }
+        }
+    }
+    var s int = 0
+    walk = true
+    while walk {
+        if s >= la - p {
+            walk = false
+        }
+        if s >= lb - p {
+            walk = false
+        }
+        if walk {
+            if a[la - 1 - s] == b[lb - 1 - s] {
+                s = s + 1
+            } else {
+                walk = false
+            }
+        }
+    }
+    var na int = la - p - s
+    var nb int = lb - p - s
+    // ═══ 绝对坐标流（keep/del/add；changes=非 keep 子流带流位 si——
+    // 分组与 rows 切片共用；计数全手工——push 列表 .len() 未证面）═══
+    var stream list = []
+    var changes list = []
+    var adds int = 0
+    var dels int = 0
+    var degraded bool = false
+    var k0 int = 0
+    while k0 < p {
+        stream.push({k: "keep", i: k0, j: k0, si: k0})
+        k0 = k0 + 1
+    }
+    var si int = p
+    if na == 0 {
+        var j0 int = 0
+        while j0 < nb {
+            stream.push({k: "add", i: p, j: p + j0, si: si})
+            changes.push({k: "add", i: p, j: p + j0, si: si})
+            adds = adds + 1
+            si = si + 1
+            j0 = j0 + 1
+        }
+    } else {
+        if nb == 0 {
+            var i0 int = 0
+            while i0 < na {
+                stream.push({k: "del", i: p + i0, j: p, si: si})
+                changes.push({k: "del", i: p + i0, j: p, si: si})
+                dels = dels + 1
+                si = si + 1
+                i0 = i0 + 1
+            }
+        } else {
+            if na <= 200 {
+                if nb <= 200 {
+                    // ═══ ② DP-LCS（(na+1)×(nb+1) 表；del 优先回溯）═══
+                    var tab list = []
+                    var r0 int = 0
+                    while r0 <= na {
+                        var row list = []
+                        var c0 int = 0
+                        while c0 <= nb {
+                            row.push(0)
+                            c0 = c0 + 1
+                        }
+                        tab.push(row)
+                        r0 = r0 + 1
+                    }
+                    var i5 int = na - 1
+                    while i5 >= 0 {
+                        var prev list = tab[i5 + 1]
+                        var rr list = tab[i5]
+                        var ai str = a[p + i5]
+                        var j5 int = nb - 1
+                        while j5 >= 0 {
+                            var v int = 0
+                            if ai == b[p + j5] {
+                                var vv int = prev[j5 + 1]
+                                v = vv + 1
+                            } else {
+                                var v1 int = prev[j5]
+                                var v2 int = rr[j5 + 1]
+                                v = v1
+                                if v2 > v {
+                                    v = v2
+                                }
+                            }
+                            rr.set(j5, v)
+                            j5 = j5 - 1
+                        }
+                        i5 = i5 - 1
+                    }
+                    // 回溯：keep/del/add → 流（绝对坐标；add 携 a 游标）
+                    var bi int = 0
+                    var bj int = 0
+                    var ii int = p
+                    var jj int = p
+                    var walking bool = true
+                    while walking {
+                        if bi >= na {
+                            walking = false
+                        }
+                        if bj >= nb {
+                            walking = false
+                        }
+                        if walking {
+                            if a[p + bi] == b[p + bj] {
+                                stream.push({k: "keep", i: p + bi, j: p + bj, si: si})
+                                bi = bi + 1
+                                bj = bj + 1
+                                ii = ii + 1
+                                jj = jj + 1
+                            } else {
+                                var r1 list = tab[bi + 1]
+                                var f1 int = r1[bj]
+                                var r2 list = tab[bi]
+                                var f2 int = r2[bj + 1]
+                                if f1 >= f2 {
+                                    stream.push({k: "del", i: p + bi, j: jj, si: si})
+                                    changes.push({k: "del", i: p + bi, j: jj, si: si})
+                                    dels = dels + 1
+                                    bi = bi + 1
+                                    ii = ii + 1
+                                } else {
+                                    stream.push({k: "add", i: ii, j: p + bj, si: si})
+                                    changes.push({k: "add", i: ii, j: p + bj, si: si})
+                                    adds = adds + 1
+                                    bj = bj + 1
+                                    jj = jj + 1
+                                }
+                            }
+                            si = si + 1
+                        }
+                    }
+                    while bi < na {
+                        stream.push({k: "del", i: p + bi, j: jj, si: si})
+                        changes.push({k: "del", i: p + bi, j: jj, si: si})
+                        dels = dels + 1
+                        bi = bi + 1
+                        ii = ii + 1
+                        si = si + 1
+                    }
+                    while bj < nb {
+                        stream.push({k: "add", i: ii, j: p + bj, si: si})
+                        changes.push({k: "add", i: ii, j: p + bj, si: si})
+                        adds = adds + 1
+                        bj = bj + 1
+                        jj = jj + 1
+                        si = si + 1
+                    }
+                } else {
+                    degraded = true
+                }
+            } else {
+                degraded = true
+            }
+            // ═══ ③ 降级：整块 del + 整块 add（单 replace hunk 注记）═══
+            if degraded {
+                var i6 int = 0
+                while i6 < na {
+                    stream.push({k: "del", i: p + i6, j: p, si: si})
+                    changes.push({k: "del", i: p + i6, j: p, si: si})
+                    dels = dels + 1
+                    si = si + 1
+                    i6 = i6 + 1
+                }
+                var j6 int = 0
+                while j6 < nb {
+                    stream.push({k: "add", i: p + na, j: p + j6, si: si})
+                    changes.push({k: "add", i: p + na, j: p + j6, si: si})
+                    adds = adds + 1
+                    si = si + 1
+                    j6 = j6 + 1
+                }
+            }
+        }
+    }
+    var k1 int = 0
+    while k1 < s {
+        stream.push({k: "keep", i: la - s + k1, j: lb - s + k1, si: si})
+        k1 = k1 + 1
+        si = si + 1
+    }
+    // ═══ ⑤ hunk 切分（非 keep 间距 ≤2·ctxn 归组；ctx 扩张钳位；fc/lc=
+    // 流位、fi=首变更 a 索引、ah=a 侧消费水位——rows 切片用内部字段）═══
+    var hunks list = []
+    var nch int = adds + dels
+    var nh int = 0
+    if nch > 0 {
+        var g_open bool = false
+        var g_a1 int = 0
+        var g_a2 int = 0
+        var g_b1 int = 0
+        var g_b2 int = 0
+        var g_fi int = 0
+        var g_ah int = 0
+        var g_fc int = 0
+        var g_lc int = 0
+        var last_i int = 0
+        var last_j int = 0
+        var ci1 int = 0
+        while ci1 < nch {
+            var ch = changes[ci1]
+            var flush bool = false
+            if g_open {
+                var gi int = ch.i - last_i
+                var gj int = ch.j - last_j
+                var same bool = false
+                if gi <= 2 * ctxn {
+                    if gj <= 2 * ctxn {
+                        same = true
+                    }
+                }
+                if !same {
+                    flush = true
+                }
+            }
+            if flush {
+                var h1 int = g_a1 - ctxn
+                if h1 < 0 {
+                    h1 = 0
+                }
+                var h2 int = g_a2 + ctxn
+                if h2 > la {
+                    h2 = la
+                }
+                var h3 int = g_b1 - ctxn
+                if h3 < 0 {
+                    h3 = 0
+                }
+                var h4 int = g_b2 + ctxn
+                if h4 > lb {
+                    h4 = lb
+                }
+                hunks.push({a1: h1, a2: h2, b1: h3, b2: h4, fc: g_fc, lc: g_lc, fi: g_fi, ah: g_ah})
+                nh = nh + 1
+                g_open = false
+            }
+            if !g_open {
+                g_open = true
+                g_a1 = ch.i
+                g_a2 = ch.i
+                g_b1 = ch.j
+                g_b2 = ch.j
+                g_fi = ch.i
+                g_ah = ch.i
+                g_fc = ch.si
+                g_lc = ch.si
+            } else {
+                if ch.i < g_a1 {
+                    g_a1 = ch.i
+                }
+                if ch.j < g_b1 {
+                    g_b1 = ch.j
+                }
+            }
+            var ca2 int = ch.i
+            if ch.k == "del" {
+                ca2 = ch.i + 1
+            }
+            if ca2 > g_a2 {
+                g_a2 = ca2
+            }
+            var cb2 int = ch.j
+            if ch.k == "add" {
+                cb2 = ch.j + 1
+            }
+            if cb2 > g_b2 {
+                g_b2 = cb2
+            }
+            if ca2 > g_ah {
+                g_ah = ca2
+            }
+            g_lc = ch.si
+            last_i = ch.i
+            last_j = ch.j
+            ci1 = ci1 + 1
+        }
+        if g_open {
+            var h1 int = g_a1 - ctxn
+            if h1 < 0 {
+                h1 = 0
+            }
+            var h2 int = g_a2 + ctxn
+            if h2 > la {
+                h2 = la
+            }
+            var h3 int = g_b1 - ctxn
+            if h3 < 0 {
+                h3 = 0
+            }
+            var h4 int = g_b2 + ctxn
+            if h4 > lb {
+                h4 = lb
+            }
+            hunks.push({a1: h1, a2: h2, b1: h3, b2: h4, fc: g_fc, lc: g_lc, fi: g_fi, ah: g_ah})
+            nh = nh + 1
+        }
+    }
+    // ═══ rows 预计算（逐 hunk 流切片展开——切片=[fc-(fi-a1), lc+(a2-ah))
+    // 纯 keep 翼+变更块，摊销 O(stream)；块内索引对齐配对+公共前后缀
+    // 三段标记（全局字符预算 100k——超预算行整行 mid=Q-4 形态）═══
+    var rows list = []
+    var seg_budget int = 100000
+    var hi2 int = 0
+    while hi2 < nh {
+        var hk = hunks[hi2]
+        var lo int = hk.fc - (hk.fi - hk.a1)
+        var hi3 int = hk.lc + (hk.a2 - hk.ah) + 1
+        var oi int = lo
+        while oi < hi3 {
+            var op = stream[oi]
+            if op.k == "keep" {
+                var t0 str = a[op.i]
+                rows.push({lo: op.i + 1, ro: op.j + 1, ln: t0, rn: t0, lk: "ctx", rk: "ctx", lpre: t0, lmid: "", lpost: "", rpre: t0, rmid: "", rpost: ""})
+                oi = oi + 1
+            } else {
+                // 变更块：连续非 keep 段 [oi, be)——break 定界（本文件
+                // search 循环同款已证面）
+                var be int = oi
+                while be < hi3 {
+                    var o1 = stream[be]
+                    if o1.k == "keep" {
+                        break
+                    }
+                    be = be + 1
+                }
+                var ds list = []
+                var ad list = []
+                var nd int = 0
+                var na2 int = 0
+                var oj int = oi
+                while oj < be {
+                    var o2 = stream[oj]
+                    if o2.k == "del" {
+                        ds.push(o2.i)
+                        nd = nd + 1
+                    } else {
+                        ad.push(o2.j)
+                        na2 = na2 + 1
+                    }
+                    oj = oj + 1
+                }
+                oi = be
+                // 块内索引对齐配对（i-th del 对 i-th add）
+                var kk int = 0
+                while kk < nd {
+                    if kk < na2 {
+                        // ④ 配对行：公共前后缀三段标记（预算内）
+                        var di int = ds[kk]
+                        var aj int = ad[kk]
+                        var x str = a[di]
+                        var y str = b[aj]
+                        var lx int = x.len()
+                        var ly int = y.len()
+                        var lpre str = ""
+                        var lmid str = x
+                        var lpost str = ""
+                        var rpre str = ""
+                        var rmid str = y
+                        var rpost str = ""
+                        var cost int = lx + ly
+                        if cost <= seg_budget {
+                            seg_budget = seg_budget - cost
+                            var pp int = 0
+                            var top int = lx
+                            if ly < top {
+                                top = ly
+                            }
+                            var g3 bool = true
+                            while g3 {
+                                if pp >= top {
+                                    g3 = false
+                                }
+                                if g3 {
+                                    if x.substr(pp, 1) == y.substr(pp, 1) {
+                                        pp = pp + 1
+                                    } else {
+                                        g3 = false
+                                    }
+                                }
+                            }
+                            var ss int = 0
+                            g3 = true
+                            while g3 {
+                                if ss >= lx - pp {
+                                    g3 = false
+                                }
+                                if ss >= ly - pp {
+                                    g3 = false
+                                }
+                                if g3 {
+                                    if x.substr(lx - 1 - ss, 1) == y.substr(ly - 1 - ss, 1) {
+                                        ss = ss + 1
+                                    } else {
+                                        g3 = false
+                                    }
+                                }
+                            }
+                            lpre = x.substr(0, pp)
+                            lmid = x.substr(pp, lx - ss - pp)
+                            lpost = x.substr(lx - ss, ss)
+                            rpre = y.substr(0, pp)
+                            rmid = y.substr(pp, ly - ss - pp)
+                            rpost = y.substr(ly - ss, ss)
+                        }
+                        rows.push({lo: di + 1, ro: aj + 1, ln: x, rn: y, lk: "del", rk: "add", lpre: lpre, lmid: lmid, lpost: lpost, rpre: rpre, rmid: rmid, rpost: rpost})
+                    } else {
+                        // 不成对 del 行：整行 mid（Q-4 裁定形）
+                        var di2 int = ds[kk]
+                        var x2 str = a[di2]
+                        rows.push({lo: di2 + 1, ro: 0, ln: x2, rn: "", lk: "del", rk: "", lpre: "", lmid: x2, lpost: "", rpre: "", rmid: "", rpost: ""})
+                    }
+                    kk = kk + 1
+                }
+                var kk2 int = nd
+                while kk2 < na2 {
+                    // 不成对 add 行：整行 mid（Q-4 裁定形）
+                    var aj2 int = ad[kk2]
+                    var y2 str = b[aj2]
+                    rows.push({lo: 0, ro: aj2 + 1, ln: "", rn: y2, lk: "", rk: "add", lpre: "", lmid: "", lpost: "", rpre: "", rmid: y2, rpost: ""})
+                    kk2 = kk2 + 1
+                }
+            }
+        }
+        hi2 = hi2 + 1
+    }
+    // 信封 hunks 净形（内部 fc/lc/fi/ah 不出契约——SD-01 四字段）
+    var hunks_out list = []
+    var q2 int = 0
+    while q2 < nh {
+        var hk2 = hunks[q2]
+        hunks_out.push({a1: hk2.a1, a2: hk2.a2, b1: hk2.b1, b2: hk2.b2})
+        q2 = q2 + 1
+    }
+    return json.from_value({hunks: hunks_out, rows: rows, adds: adds, dels: dels, truncated: false, degraded: degraded, err: ""})
+}

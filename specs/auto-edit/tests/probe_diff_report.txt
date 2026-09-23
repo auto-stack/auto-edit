@@ -37,6 +37,17 @@ Q-4 删多增少形态渲染示意（配对行 <mid> 高亮；不成对行整行
   PASS  [⑤] env 注入→env_str 读回: AUTO_DIFF_B
   PASS  [⑤] AUTO_DIFF_A 路径 exists 复核
   PASS  [⑤] 未设 AUTO_DIFF_C = 空串（取消语义面）
+
+①′ back diff_files 端点（朴素分层 golden 对照+上限门/错误形）
+  PASS  [①′] diff_files×golden: add_only
+  PASS  [①′] diff_files×golden: del_only
+  PASS  [①′] diff_files×golden: modify
+  PASS  [①′] diff_files×golden: scattered
+  PASS  [①′] diff_files×golden: big_reorder
+  PASS  [①′] diff_files×golden: unbalanced
+  PASS  [①′] 缺文件 err 形（不静默）
+  PASS  [①′] 行数超限拒绝（>10000 行，架构阻塞注记）
+  PASS  [①′] 尺寸超限拒绝（>1MB pre-read 即时拒）
   dialog_open×2 手动路径（rfd 阻塞式，矩阵不可驱动——人工步骤）：
     1) 菜单「工具 → 比较文件…」（T-03 静态 menubar item）
     2) dialog_open 选文件 A（取消 → 整链零动作，console 记 cancelled）
@@ -48,21 +59,21 @@ Phase B: probe_diff_app（B1 微基准 / B2 scroll+onscroll——双会话）
 ============================================================
 
 ① AutoVM 算力微基准（秒；python 墙钟口径 click→完成）
-       bl4: {'loop1e4': '69.3ms'}
-       bl5: {'loop1e5': '64.1ms'}
-       bp4: {'push1e4': '67.2ms'}
-       bp5: {'push1e5': '67.4ms'}
-       bg5: {'get1e5': '154.5ms', 'acc': '704982704'}
-       bs5: {'str1e5': '52.6ms', 'c': '-100000'}
-       dp200: {'dp200': '247.6ms', 'dp200_acc': '0'}
-       dp300: {'dp300': '1074.6ms', 'dp300_acc': '0'}
-       bld: {'bld': '2523.6ms'}
-       bspl: {'split5k_lines': '5001', 'split5k': '52.7ms'}
-       brows: {'rows600': '52.7ms'}
+       bl4: {'loop1e4': '53.0ms'}
+       bl5: {'loop1e5': '78.5ms'}
+       bp4: {'push1e4': '73.7ms'}
+       bp5: {'push1e5': '53.1ms'}
+       bg5: {'get1e5': '184.2ms', 'acc': '704982704'}
+       bs5: {'str1e5': '52.9ms', 'c': '-100000'}
+       dp200: {'dp200': '241.3ms', 'dp200_acc': '0'}
+       dp300: {'dp300': '1147.9ms', 'dp300_acc': '0'}
+       bld: {'bld': '2503.9ms'}
+       bspl: {'split5k_lines': '5001', 'split5k': '53.5ms'}
+       brows: {'rows600': '68.6ms'}
   PASS  [①] 微基准 dp400
   PASS  [①] 吞吐健全性 loop1e4≤1e5（墙钟口径）
   PASS  [①] 单消息算力墙勘定（10M steps/源码+首轮实证双锚）
-  PASS  [①] DP-LCS 中间区上限定参 = 258
+  PASS  [①] DP-LCS 中间区上限定参 = 250
   PASS  [①] 全览渲染 cap 定参 = 600
   PASS  [①] split 定标前置：5000 行 body 构建在档
   PASS  [①] 文件上限复核 = 50k 行/2MB
@@ -91,22 +102,22 @@ Phase B: probe_diff_app（B1 微基准 / B2 scroll+onscroll——双会话）
     "design_rule": "diff_files 单 handler 全链（split+DP+rows 构建+JSON 拼装）总步数 <10M——T-01 实现约束"
   },
   "dp_cap": {
-    "value": 258,
+    "value": 250,
     "measured_tier": 300,
-    "measured_dp_fill_scan_s": 1.0745701789855957,
+    "measured_dp_fill_scan_s": 1.147946834564209,
     "budget_s": 0.8,
     "rule": "fill+scan≤0.8s 维持 400，超则 cap=档×√(0.8/t)"
   },
   "render_cap": {
     "value": 600,
-    "measured_rows600_build_s": 0.052733659744262695,
+    "measured_rows600_build_s": 0.06859827041625977,
     "budget_s": 0.2,
     "rule": "rows 构建≤0.2s 维持 600（渲染侧成本不含，口径注记）"
   },
   "file_cap": {
     "value": "50k 行 / 2MB",
-    "measured_split5k_s": 0.0526883602142334,
-    "split50k_est_s": 0.526883602142334,
+    "measured_split5k_s": 0.05347299575805664,
+    "split50k_est_s": 0.5347299575805664,
     "rule": "split 线性外推 ≤1.5s → 维持预判上限"
   },
   "scroll": {
@@ -130,4 +141,4 @@ Phase B: probe_diff_app（B1 微基准 / B2 scroll+onscroll——双会话）
   "toolchain": "auto 0.1.0+v0.4.2-2044-g7183ca386-dirty"
 }
 
-RESULT: 26 passed, 0 failed
+RESULT: 35 passed, 0 failed
