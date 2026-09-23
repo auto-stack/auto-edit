@@ -111,6 +111,27 @@ blocked-on-upstream 记账（bench `diff` 档门拒延迟+基线 JSONL）。
 （函数返回值丢失疑回归 P1/嵌套大表挂死崩/onscroll 回声漂移/性能漂移
 对测/F-RV6 复现增补）登记 docs/upstream 2026-09 供料 §14。
 
+## M3 第二件注记（PLAN-012，2026-09-23）
+
+M3 第二件已落：**目录 diff v1——递归比对 + 状态过滤 + 基础同步 +
+文件 diff 下钻**（战略 §2.3；BC 工作流闭环=目录比对→双击改项→并排
+diff）。核心形态：**引擎无关**（元数据递归遍历走 009 search_files
+现役集 list_dir/is_dir/size）+ **五态分类**（同/改/删[只在左]/增
+[只在右]/二进制启发式[非法 UTF-8≈read_text==""，≤2MB 全文域]）+
+**基础同步**（单向复制/单侧删除，破坏性动作 alert-dialog 确认链；
+文件复制=字节往返 read_bytes→write_bytes——fs.copy 被 `copy` 保留字
+阻断，T-00 勘定 upstream §15 want）+ 下钻复用 011 文件 diff 视图
+（dir_from_dirs 归位门，零新视图件）。边界如实成文：>2MB 同尺寸=
+「同(未比对)」注记态（hash want）；对齐=长度桶+桶积护栏 700k（同长
+巨桶超 VM 步数预算=优雅 err——sort/hash 原语 want）；folder picker
+无（v1 路径输入框+env 旁路）；递归删除不提供（仅空目录）。
+规范详 [modules/diff-view.md](modules/diff-view.md) 目录节（SD-01
+追加）+ [modules/back-api.md](modules/back-api.md) 目录 diff 与同步
+端点节（计数勘正 10→13）；矩阵扩 T16 检查组 + tests/fixtures/dirdiff/
+五形态 golden；决策探针 tests/probe_dirdiff.py（27/0）为前置决策门
+不入矩阵计数。上游件（copy 保留字阻断/folder picker want/file-hash
+比对 want/sort-hash 原语 want）登记 docs/upstream 2026-09 供料 §15。
+
 **兄弟仓 Q1 裁定摘要（2026-09-22，战略补注十收口）**：jade-edit 与
 auto-edit **两产品长期并存**（auto=原生旗舰轻量编辑器、jade=web 轻量
 版并向知识库发展），组件尽量共用（未来插件级共用）。jade 侧战略文档

@@ -1,13 +1,15 @@
 # front/back 边界契约（modules/back-api）
 
 > 来源：PLAN-003 交付 + src/back/{api.at,fsys.at}；计数勘正与 IO 字节
-> 语义节=PLAN-008 SD-02；搜索服务端点节=PLAN-009 SD-02。
+> 语义节=PLAN-008 SD-02；搜索服务端点节=PLAN-009 SD-02；目录 diff 与
+> 同步端点节=PLAN-012 SD-02。
 
-## 契约（src/back/api.at，**十 #[api]**——PLAN-011 勘正：PLAN-009
-九件基础上增 diff_files）
+## 契约（src/back/api.at，**十三 #[api]**——PLAN-012 勘正：PLAN-011
+十件基础上增 diff_dirs/sync_copy/sync_delete）
 
 `ws_root / tree / read_text / read_text_range / write_text / exists /
-env_str / regex_replace / search_files / diff_files`——路由前缀 /api，GET 走 query、
+env_str / regex_replace / search_files / diff_files / diff_dirs /
+sync_copy / sync_delete`——路由前缀 /api，GET 走 query、
 POST 走 body。消费形态：`use back.api: <fns>` 裸函数直调（013-todo/
 015-notes 形态）：
 
@@ -103,3 +105,31 @@ a2r server 生成器模板假设 api::Db 状态注入 + 契约 fn 转译为空�
   **rows 预计算归 back 的理由**：VM view 不能调函数（Plan 402）——
   front 拿到即渲染。完整契约（含渲染就绪形与视图断言口径）见
   modules/diff-view.md（SD-01 主册）。
+
+## 目录 diff 与同步端点（PLAN-012 SD-02，M3-02）
+
+- **`diff_dirs(path_a, path_b) str`**（GET `/api/diff_dirs`）：递归
+  遍历+五态分类。返回 JSON `{entries:[{rel,status,size_a,size_b,
+  is_dir,note}],counts:{same,added,deleted,modified,binary},truncated,
+  err}`——左=旧（deleted=只在左）右=新（added=只在右，BC 同款）；
+  分类序=存在性→kind 冲突→二进制启发式（size>0 且 read_text==""，
+  ≤2MB 全文域，任一侧命中=binary）→尺寸差→≤2MB 全等→>2MB 同尺寸=
+  same+note=uncompared（未比对注记）。条目上限 **5000**（truncated
+  注记，counts 与 entries 同域）；skip-list=Explorer/find 同语义；
+  **对齐=长度桶+桶积护栏 Σk²≤700k**（同长巨桶超 VM 10M steps 墙——
+  定标 N=800 单桶 0.94s ✓/N=1000 WARN[budget] 死——超限 err 形架构
+  注记；正解=sort/hash 原语 upstream §15 want）。根缺失→err 不静默。
+- **`sync_copy(src, dst, is_dir) bool`**（POST `/api/sync_copy`）：
+  文件=字节往返 read_bytes(1005)→write_bytes(1006)（**fs.copy(1007)
+  表面被 `copy` 保留字阻断**[Plan 122 废弃 token 词法收编]——T-00①a
+  复现，upstream §15 want；字节面=原生 shim 零 VM 步循环）；≤2MB
+  预算域（超限 false）；目录=fs.copy_recursive（静默覆盖，Q-2——
+  front 确认链管目标存在形）。空路径/缺失源→false。
+- **`sync_delete(path, is_dir) bool`**（POST `/api/sync_delete`）：
+  文件=fs.delete；目录=**仅空目录** fs.remove_dir（非空原生失败=T-00
+  护栏；递归删除 v1 不提供——remove_dir_all 在册不暴露）。空路径/
+  根路径（`/`、`\`、盘根）/缺失→false（空串在 HTTP 层即 missing-param
+  错误包）。bool 返回=动作后 exists 磁盘 E2E 终判。
+- 安全注记（破坏性动作纪律）：动作仅对已完成一次比对的 entries 态
+  开放；覆盖复制/删除=front alert-dialog 确认链；back 空路径拒绝。
+  完整契约见 modules/diff-view.md 目录节（SD-01 主册）。

@@ -7,6 +7,9 @@
 > （供料包 docs/upstream/2026-09-diff-engine-supply.md）落地后仅换
 > `fsys.diff_files_json` 实现体（Rust 直调或端点转发），envelope/
 > 视图/矩阵零改动。
+> PLAN-012 追加「目录 diff」节（M3-02——同一视图态族同册归口；
+> 来源=PLAN-012 交付 + `diff_dirs_json` + editor_store/app dirs 段 +
+> probe_dirdiff.py 27/0 决策，T-00 定案见 §10）。
 
 ## envelope 契约（back `diff_files(path_a, path_b, ctx) str`）
 
@@ -108,3 +111,100 @@ T-00③ 实测行高 24.0=content_h÷行数；float 累加规避 int×float 混�
   人工视觉门（T-15 口径）。
 - 模板插值：纯字段已证（`${r.x}`/`${.store.f}`）；**算术插值未证面**
   （曾致视图冻结嫌疑）——位次显示走 store 预计算 `diff_hunk_pos`。
+
+## 目录 diff（PLAN-012 SD-01 追加，M3-02）
+
+### envelope 契约（back `diff_dirs(path_a, path_b) str`）
+
+GET `/api/diff_dirs?path_a=..&path_b=..` → JSON 字符串（标量返回铁律
+同上）：
+
+```json
+{"entries":[{"rel,str status,size_a,size_b,is_dir,note}],
+ "counts":{"same,added,deleted,modified,binary"}, "truncated":bool,
+ "err":str}
+```
+
+- **左右语义（BC 同款）**：左=path_a=旧（`deleted`=只在左）、右=
+  path_b=新（`added`=只在右）。
+- **五态分类序**：①存在性（单侧→deleted/added）→②kind 冲突
+  （dir↔file→modified）→③**二进制启发式**（size>0 且
+  `File.read_text==""`——非法 UTF-8 即二进制近似；**判定域=≤2MB
+  全文读**，启发式读与全等比对读共用零双读；>2MB 不读）→④尺寸差
+  →⑤≤2MB 全等（`Str ==`）→>2MB 同尺寸=`same`+`note="uncompared"`
+  （「同(未比对)」注记态——字节级 hash=上游 want 清偿前形态）。任一
+  侧二进制命中→整条 `binary`（尺寸差在 size 列可见；双侧同尺寸二进
+  制亦归 binary，未比对语义）。
+- `counts` 与 `entries` **同域**（截断后计数=已处理域——AC-03 计数
+  一致性）；条目上限 **5000**（超限 `truncated=true` 不静默）。
+- 遍历=`fs.list_dir` 递归扁平（search_files 先例）；**skip-list=
+  fif_skipped 同语义**（隐藏段/target/node_modules/gen/dist/build/
+  __pycache__——Explorer 与 find 口径一致）；rel 统一 `/` 分隔剥根；
+  元数据采集 try 包裹（竞态删除跳过条目不炸端点）。**边界：空目录不
+  产生条目**（仅经 `is_dir` 条目参与同步；deep 空树不可见——v1 口径）。
+- **对齐=长度桶**：rels 按 `len()` 直索引 256 桶+桶内等值扫（.at 无
+  sort/hash 原语的面内解）。**桶积护栏 Σk²≤700k**：同长分布过密超
+  VM per-handler 10M steps 墙（定标 N=600 单桶 0.40s ✓/N=800 0.94s ✓
+  /N=1000 WARN[budget] 死）→ 超限 err 形「对齐超限（同长桶积 >700k
+  ……）——等待内核 sort/hash（架构阻塞）」（011 上限门同款；正解=
+  sort/hash 原语，upstream §15 want）。
+- **错误形**：根缺失 → err 不静默（entries 空数组）；读竞态/锁定
+  →端点错误响应（响亮失败，v1 不吞）。
+
+### 同步动作端点（back，PLAN-012 T-02）
+
+- **`sync_copy(src, dst, is_dir) bool`**（POST）：文件=**字节往返**
+  `File.read_bytes`→`File.write_bytes`（1005/1006 原生 shim
+  Vec<i32>↔VM list 零 VM 步循环）——**fs.copy(1007) 表面被 `copy`
+  保留字阻断**（Plan 122 废弃 ParamMode token 词法全局收编，T-00①a
+  迷你 app 复现）的替代面；**≤2MB 预算域**（与内容比对同域，超限
+  false+front 注记）；目录=`fs.copy_recursive`（嵌套 E2E 实证）。
+  **覆盖语义=静默覆盖**（fs::write truncate / copy_recursive 合并
+  覆盖，Q-2 定案）——front 确认链管目标存在形。
+- **`sync_delete(path, is_dir) bool`**（POST）：文件=`fs.delete`；
+  目录=**仅空目录** `fs.remove_dir`（非空原生失败=T-00 护栏实证；
+  **递归删除 v1 不提供**——remove_dir_all 在册不暴露）。空路径/
+  根路径（`/`、`\`、盘根）/缺失→false（护栏三条；空串在 HTTP 层即
+  missing-param 错误包）。bool 返回=动作后 `exists` 磁盘 E2E 终判。
+- **安全注记**：①动作仅对已完成一次比对的 entries 态开放（无比对
+  无动作）；②破坏性动作（覆盖复制/删除）alert-dialog 确认链；③back
+  端点空路径拒绝。**删除域=单侧条目**（deleted 删 A 侧/added 删 B 侧
+  ——双侧条目删除不提供，copy 已覆盖同步意图）。
+
+### front 状态面（SD-01 字段追加）
+
+`diff_mode`（契约字段 "file"/"dirs"，矩阵断言面）+ `dir_mode`
+（视图旗标——**dir_mode ⟺ diff_open 由 handler 组维护**：dirs 面板
+=顶层面板条件、文件 diff 视图增 `!dir_mode` 内卫、编辑区 `!diff_open`
+条件零改动）、`dir_from_dirs`（下钻来源门——DiffCompute err/DiffClose
+双外科归位点，011 路径零扰动）、`dir_a/dir_b`（输入绑定）、
+`dir_entries`（envelope 全量在 store——**过滤=front 纯态零重比**，
+AC-03）、五 `dir_n_*` 计数、`dir_truncated/dir_err/dir_has_err`
+（err 行视图条件走 bool 旗标——空串比较禁面）、五 `dir_f_*` 过滤钮
+旗标、`dir_view/dir_view_count/dir_view_truncated`（过滤投影渲染
+就绪行 cap 600：徽标/尺寸串/`[目录]` 标记/未比对注记全 store 预变换）、
+`dir_confirm_*`+`dir_pending_*`（确认链冻结意图，op ∈
+copy_r/copy_l/del_a/del_b）、`dir_bypass_done`。
+
+### 入口/下钻/刷新协议
+
+- **入口**：「工具 → 比较目录…」静态 menubar item → 双路径输入框+
+  比较钮（**v1 无 folder picker**——dialog_open=rfd pick_file 文件
+  专用，T-00④ 静态勘定；输入路径=人工面）；矩阵旁路 env
+  `AUTO_DIRDIFF_A/B`（Tick 自开臂，011 同款）。
+- **下钻（BC 工作流闭环）**：「改」条目点击 → 拼 abs → 011
+  `DiffCompute` 复用（diff_mode 切 "file"+并排视图+hunk 导航全套）；
+  「返回目录」钮/Esc（dir_from_dirs 门）→ 回目录态 **entries 保留
+  不重比**；下钻失败（>1MB 超限/错误形）自动归位目录面板。其余条目
+  点击 → OpenPath（fif 先例）。
+- **刷新**：同步动作成功 → `DirDiffRefresh` 重调 diff_dirs（磁盘
+  E2E 断言面）；过滤态保持（dir_filter 不动，DirApplyFilter 重放）。
+
+### 视图断言口径（T16 实证）
+
+- 行渲染=**五状态五独立 for 循环×单 bool 旗标 if**（011 四循环同款
+  规避）；同步动作钮按行形状分布（改/二进=→←、增=←✕、删=→✕、
+  同=无钮）。矩阵动作定位=**过滤先行走最小单状态树**（单状态=按钮
+  find 唯一）。
+- 同步动作走 tmp 生成树（fixtures 保 pristine——008 先例）；
+  >2MB 未比对注记=生成式 fixture+快照「未比」断言。
