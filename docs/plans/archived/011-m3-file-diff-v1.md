@@ -505,5 +505,13 @@ target/debug 是测量噪声源，判据前必核 --version）。
     5aa8ea9 两级复现）——§14 登记 want+README 口径注记（不计判绿）。
   - **archived**：本文件 git mv → docs/plans/archived/011-m3-file-diff-v1.md
     + status: archived + completion_kind: delivered。
-  - **cleaned**：（worktree 移除+branch 删+junction 摘除后补记）。
+  - **cleaned**：git 侧全净实证——worktree 注销 ✓（git worktree list
+    零 plan-011 条目）/ branch plan-011-dev 删 ✓（was 7de0aa2）/
+    worktree 内 junction 摘除 443 枚（pnpm 晶格迭代+deps×2，wt-guard
+    clean 后移除）/ 组级 auto-lang junction 摘除 ✓（blueprints 目标
+    完好 ✓）/ 组目录 rmdir ✓。**残壳挂账**：`.wt/plan-011/auto-edit/
+    specs/auto-edit/src/front` 目录壳被活进程句柄占用（WinError 32，
+    疑本会话文件监视器；无 reparse point、纯孤儿文件壳）——句柄释放
+    （会话结束）后 `rmdir /s /q D:utostack\.wt\plan-011` 即净，
+    已验 guard clean 无 reparse 风险。
   - next: PLAN-012（目录 diff，执行前置=本 merge ✓ 解除）。
