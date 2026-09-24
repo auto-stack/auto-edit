@@ -289,9 +289,13 @@ SD-01..03 落 docs/specs（追加节+来源注记——SD-02 按 T-00② 裁定�
   外科插入（13 items；整文件解析+roundtrip 字节等价先证+回读断言前
   12 项零扰动+他五段零扰动；file 指归档路径本件）commit 6678954 |
   archived：git mv docs/plans/archived/013-m2-largefile-mode-v1.md+
-  status: archived+completion_kind: delivered | cleaned：随后行
-  （wt-guard clean 493 链接级摘除[deps×2+pnpm 晶格 491]目标完好复核
-  在案）。
+  status: archived+completion_kind: delivered | cleaned：git 侧全净——**wt-guard clean** ✓（493 枚 reparse point 链接
+  级摘除[deps bps/stylekit×2+pnpm 晶格 491——python 枚举+os.rmdir
+  链接级，blueprints/主检出 stylekit/pristine 目标完好三重复核]）；
+  worktree 注销 ✓（git worktree list 零 plan-013 条目）/branch
+  plan-013-dev 删 ✓（was 027346e）/组目录 .wt/plan-013 rmdir ✓
+  （组级 auto-lang junction+pristine stylekit 真目录+复审日志四件
+  随组摘除）。011 期残壳 .wt/plan-011/auto-edit=既有挂账非本件面。
 
 - **2026-09-24 stage: review | plan_id: PLAN-013 | plan_revision: 1 |
   outcome: pass | reviewed_commit: f45da264（worktree plan-013-dev tip，
