@@ -433,8 +433,14 @@ SD-01..03 落 docs/specs（追加节+来源注记）；upstream m1-supply 增
   - **archived**：本文件（主检出未跟踪件）mv →
     docs/plans/archived/012-m3-dir-diff-v1.md + status: archived +
     completion_kind: delivered。
-  - **cleaned**：随后行（junction 摘除+wt-guard+worktree/branch 删+
-    组目录 rmdir）。
+  - **cleaned**：git 侧全净实证——reparse 清点 **494 枚全摘**
+    （组级 auto-lang junction+deps bps/stylekit×2+pnpm 晶格 491——
+    cmd rmdir 链接级迭代 removed=494 failed=0，目标完好复核：
+    blueprints 文件树在/主检出 stylekit WIP 态零扰动/钉版
+    /d/tmp/p012_pin_auto.exe 留档）；真实残留清（gen node_modules+
+    stylekit-pristine 导出）；**wt-guard clean** ✓；worktree 注销 ✓
+    （git worktree list 零 plan-012 条目）/ branch plan-012-dev 删 ✓
+    （was fe4dde6）/ 组目录 .wt/plan-012 rmdir ✓。
   - next: 无（M3 第三件候选=大文件模式 013 或按战略裁定；013 草案
     并行会话在途）。
 
