@@ -1,12 +1,12 @@
 ---
 plan_id: PLAN-013
-status: executing
+status: execution_done
 feature_name: m2-largefile-mode-v1（M2-04：大文件模式 v1——50MB 档探测/关折行/平文本/全文本命令护栏）
 author: [agent]
 created_at: 2026-09-23T23:06:15+08:00
-updated_at: 2026-09-23T23:06:15+08:00
+updated_at: 2026-09-24T12:20:00+08:00
 plan_revision: 1
-current_step: 0
+current_step: 6
 total_steps: 6
 supersedes_spec_components: []
 new_spec_components:
@@ -277,6 +277,48 @@ SD-01..03 落 docs/specs（追加节+来源注记——SD-02 按 T-00② 裁定�
 
 ## 9. 复审记录
 
+- **2026-09-24 stage: work | plan_id: PLAN-013 | plan_revision: 1 |
+  outcome: pass | code_commit: f45da26（plan-013-dev tip；基 84c2ef6，
+  三提交 eb451ca[实施]/9741d1e[矩阵+bench]/f45da26[规范]） |
+  task_ids: T-00..T-05 全落（current_step 6/6） |
+  evidence: ①矩阵完成态 **117 检查**（109+8），run3 114/3→run4
+  **116/1**（唯一败=T12.6 menubar-sub 已知上游缺不计）——判绿口径
+  ≥115/0 达成，T17 全组 8/8（run3 起 T17 全绿）；②探针
+  probe_bigfile **8/8 exit 0**（终修订绑定：fsys 零-try 形+front
+  try 门后）——Phase A 端点三形 ✓/B2 ReplaceAll 拦截 0.44s/B3 save
+  拦截+磁盘零变/50·100·200MB 装载 loaded_bytes 全对；③bench
+  bigfile 档 exit 0（JSONL results/bigfile-20260924-120827.jsonl：
+  49MB auto 臂 179ms/579MB·50MB plain 204ms/655MB·100MB 382ms/
+  941MB——尺寸杠杆代理对照，L0 无预算效力口径在档）；④bench check
+  exit 0（检测器白名单零变更+红证自检 PASS）；⑤vue 臂：strict gen
+  红=695 menubar-sub 预存断层 / lenient gen ✓ exit 0（34 组件）/
+  pnpm build 红=**12×TS7006 全在 §14 helper 行（012 预存面）**
+  +fsys.rs 转译警告=009 期 search_files try 形（预存）——**本件
+  零新增错面**；print 遮蔽缓解（globalThis 改写）已清 TS2339×4 |
+  blockers: 无（vue AC-06「build exit 0」未达=预存上游断层继承
+  ——strict gen 挡在 menubar-sub schema[695]/helper 族 TS7006
+  [§14]，012 同款 blocked-on-upstream 定性+零新增错面即本件域绿
+  ——复审独立裁定面） | next: review |
+
+  执行要点（对 §10 决策的落地核对）：Q-1 pre-load 形落 RunPendingLoad
+  装载前门（file_size envelope→json.to_value 内联+try 门→big 置位
+  先于 load_file）；Q-2 wrap 恒 false 勘定+显式绑定防漂移；Q-3 拒绝
+  位 512MB（拒绝形 readonly+ro_reason:"big"+标题后缀+loaded=true 终
+  结装载链——**拒绝形 readonly 保留=空 rope 无栏清写盘防线**[008
+  同根]；readonly_label 派生两形态分立）；Q-4 护栏=结构性/战略线定
+  位（50MB 活体可完成[2.5s]+200MB 峰 RSS ~1.55GB+漂移在案）。工程
+  实录：①矩阵 run1 与 vue pnpm build 并发致 T15 整组 7 败+T17 驱动
+  竞态（负载噪声非代码）——run2 起零并发重跑；②T17.7 初版缺
+  AUTO_BENCH=1（ConsumeOpen env 种子仅门控下生效——T13 +按钮同源
+  根因）即修；③T17.8 初版误设 tab_count==3——恢复链 `.tabs=[]`
+  替换种子形，正确期望 1，即修；④file_size 裸 int 返回过 HTTP=
+  serialize null（T-00 Phase A 勘出）→envelope JSON 形仓内既证形
+  落地+§16 观察登记；⑤a2r rust 转译器 try 体不支持 Asn/Return（两
+  形实测）→fsys 零-try 形+防御上移 front try 门（VM 面任意形可用）
+  ——fsys.rs 转译恢复至仅余 009 期预存警告；⑥探针 B2 首拍派发竞态
+  （typed/clicked 全空）→开栏 state 校验重试+effective 回读验证
+  （T13 卫生同源）即愈。
+
 - **2026-09-24 stage: work（executing 进入，T-00 起）**：用户指令「计划
   013: 实施它」；前置核实=012 merge 归档闭环（84c2ef6 五检查点
   delivered，执行前置解除）。worktree=`D:/autostack/.wt/plan-013/auto-edit`
@@ -305,13 +347,36 @@ SD-01..03 落 docs/specs（追加节+来源注记——SD-02 按 T-00② 裁定�
 
 （T-00 决策记录落档处——起草时预登记三项）
 
-- **Q-1 探测时点**（T-00②，核心）：pre-load file_size 端点（首帧即
-  模式态+超大拒绝前置——代价=第 14 端点）vs post-load loaded_bytes
-  （零端点——代价=wrap-on 首拍+拒绝降级「不再渲染」）。预判=pre；
-  SD-02 条件落档。
-- **Q-2 wrap 现状**（T-00①）：现视图若恒 false（默认值未绑），「关
-  折行」=零动作注记（绑定仍落——防默认漂移）；若现状 true 源（他
-  处绑定）则切换面实测定形态。
-- **Q-3 超大拒绝位**（T-00④）：预判 512MB——200MB 档 RSS/时城实测
-  后定参；与 1GB 预算行的关系=「拒绝位之内 50MB+ 可开（模式态），
-  之外拒绝（上游阻塞）」两段式，注记成文。
+- **Q-1 探测时点**（T-00②，核心）：**裁定=pre-load 形，落点细化**——
+  back 新端点 `file_size(path) int`（fs.metadata 直通=fs.size 映射，T-01
+  落），探测位=**RunPendingLoad 装载前门**（非 OpenPath——OpenPath/恢复
+  链统一单点：两链的 tab 均为 loaded=false 建 tab→编辑器空实化（零内容
+  渲染成本）→Tick 装载；big 置位先于 load_file 完成 → 装载后首帧即模式
+  态，同 handler 原子性保证）。首帧正确性另两根静态支柱：apply_config
+  逐字段 diff 热应用（mod.rs apply_config_locked：lang_changed=同 buffer
+  重建 SyntaxEditor[plain→无语法=旁路]/wrap_changed=set_wrap）+ 渲染侧
+  get-or-create 每重建 diffed-in（iced/renderer.rs build_code_editor_
+  generic→CodeEditor::new「config is diffed in」）。pre 相对 post 的
+  实质优势=**超大拒绝先于 rope 分配**（post 拒绝=装载后「不再渲染」
+  降级形——600MB 级 rope RSS 已发生）；SD-02 落档。
+- **Q-2 wrap 现状**（T-00①）：**裁定=现状恒 false**——内核 builder
+  默认 wrap:false（view.rs:1921）+现视图未绑 wrap（app.at code_editor
+  仅 lang/style/search/on* 面）。「关折行」项=**零动作注记**（模式
+  语义已是关）；显式绑定 `wrap: false` 仍落（防默认漂移，T-02）。
+- **Q-3 超大拒绝位**（T-00④）：**定参=512MB（536870912B）**。依据：
+  687 锚 100MB→219MB RSS（≈2.2×）外推 512MB→~1.1GB rope 峰（VM 池
+  驻留另计）——装载本身可行但资源峰进入不可控域；1GB 线（战略 §2.1
+  预算行）在其上=「拒绝位之内 50MB+ 可开（模式态），之外拒绝（真分块
+  IO=上游阻塞）」两段式。探针 b5 活体：200MB 装载 loaded_bytes 全对
+  （2046 钉版）——200MB<512MB 拒绝位内，门槛不扰现存域。与 1GB 预算
+  行关系注记成文（§16 架构阻塞指向）。
+- **Q-4 全文本命令风险实测（T-00③，执行期增记）**：50MB fixture
+  （2046 钉版）ReplaceAll 全管线（code_editor_text 读出→back
+  regex_replace→edit 全文回写）**2.53s 完成、计数 1691/1691 精确**；
+  save（WriteFidelity 读出+包装+write_text）1.26s——50MB 域无硬步墙。
+  护栏依据据此**勘定为结构性/战略线**（非紧急墙）：①全文往返把
+  50–100MB 字符串两次过 VM 池（687 反例 729–1356MB 池滞留形态；RSS
+  峰未测域）；②工具链漂移在案（011 实勘 split 49×/dp 2.7×——同代码
+  跨版时间不保）；③save 唯一路径=全文 VM 往返（直写端点 §10-2 want
+  清偿前无正解）；④战略 §2.2 大文件模式语义=约束域（50MB+ 不做无界
+  全文操作）。护栏维持三件全拦截（G-3 原授权不变）。
