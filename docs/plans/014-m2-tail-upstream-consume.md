@@ -4,8 +4,8 @@ status: executing
 feature_name: m2-tail-upstream-consume-v1（M2 尾件+上游端点消费——跳转列表/化妆件/save 解禁/光标恢复/time 族/vue 复验，形态 A 消费件）
 author: [agent]
 created_at: 2026-09-24T15:00:00+08:00
-updated_at: 2026-09-24T17:10:00+08:00
-plan_revision: 1
+updated_at: 2026-09-24T17:30:00+08:00
+plan_revision: 2
 current_step: 2
 total_steps: 11
 supersedes_spec_components: []
@@ -154,11 +154,12 @@ time 族改接+口径）、scripts/regen_vue.py（缓解件退役判定）、aut
 | 供③ | F-RV6 稳定化 | 矩阵进程级早崩竞态清偿（5 连跑零早崩判据——004 §5 判据形） | §5 |
 | 供④ | time 族接线（now_ms/elapsed 形） | bench 标记毫秒值 app 内来源（BENCH 行携值 or 查询端点——勘定） | §9 |
 | 供⑤ | menubar-sub 三元素 vue schema + helper 族类型注解 | strict gen 恢复（S002 清零）+TS7006 清零；print 映射改道（§16 解锁③）随件评估 | §14/§15/§16 |
+| 供⑥ | 跳转列表 shim（r2 新增——Q-1 裁定 (b) 用户确认 2026-09-24） | 内核 native 一调用形：`SHAddToRecentDocs(SHARD_PATHW, path)`（命名/签名由供料件定，如 `shell_add_recent(path)`）；调用位=.at 侧 recents 落盘挂点（editor_store.at SessionSave/OpenPath 维护位——本件 T-02 消费）；契约细节=probe_jumplist_report.txt 裁定节 | T-01 裁定+用户确认 |
 
 优先序（用户形态 A 裁定语境）：**供③ F-RV6 先行**（矩阵可信度=全
 部下游判据的前置）→ 供① save 直写（013 解除件）→ 供② 光标/滚动
-→ 供④⑤ 并行可选。供料件编号/立项在 auto-lang 仓（PLAN-6xx），本件
-不代立。
+→ 供④⑤⑥ 并行可选（供⑥=跳转列表 shim，r2 增，体量最小）。供料件
+编号/立项在 auto-lang 仓（PLAN-6xx），本件不代立。
 
 ### T-01 跳转列表勘定（决策件，段一先行）
 
@@ -193,10 +194,12 @@ Recent——矩阵可断言面勘定（autoui_state 零 shell 面——E2E=手�
 
 - AC 关联：AC-01。验证：裁定形对应矩阵/手工面。
 
-  **[⛔ 阻塞 T-01 裁定 (b)]** G-1 部分改道供料段=范围缩减，**须用户
-  确认**（Q-1；skill 禁静默缩界）。确认后：供料件（auto-lang native
-  shim）立项+delivered → 本任务改「消费 shim」实施。确认 (b) 前本
-  任务无可本仓先行面（shim native 不存在，.at 调用位无法先行落）。
+  **[⛔ 阻塞→待供⑥ delivered]** T-01 裁定 (b) 已获用户确认（2026-09-24，
+  见 §9 r2 记录）——用户确认门解除；本任务定形=**「消费 shim」**：
+  recents 落盘挂点（SessionSave/OpenPath 维护位）直调内核 shim 使打开
+  文件进壳 Recent。前置=供⑥（§5 表 r2 行）delivered；矩阵可断言面
+  勘定（autoui_state 零 shell 面——E2E=手工/探针双轨）。custom 类挂
+  账非目标。
 
 ### T-03 bench 化妆件（段一）
 
@@ -335,7 +338,7 @@ SD-01..04 落 docs/specs（条件形按实落）；upstream §17 登记（消费
 | 步 | 任务 | 依赖 | 产出/验证 |
 |---|---|---|---|
 | 1 | T-01 跳转列表勘定（三路裁定）✅ | 无（段一） | §10 决策记录；探针 exit 0（裁定 b，663548d） |
-| 2 | T-02 跳转列表实施（条件裁定形）⛔ | T-01 | 阻塞：裁定 (b) 改道供料段待用户确认（Q-1） |
+| 2 | T-02 跳转列表实施（条件裁定形）⛔ | T-01+用户确认✅+供⑥ | 定形「消费 shim」；阻塞位=供⑥ delivered |
 | 3 | T-03 bench 化妆件（F-01 修+F-02 勘定）✅ | 无（段一） | assert 重放复验；check/proxy l0 绿（663548d） |
 | 4 | T-04 端点消费探针 | **供①②delivered** | §10 决策记录；探针 exit 0 |
 | 5 | T-05 save 护栏解禁 | T-04 | 矩阵 big save E2E |
@@ -386,15 +389,26 @@ SD-01..04 落 docs/specs（条件形按实落）；upstream §17 登记（消费
   均有精确解锁动作）。next: 用户确认 Q-1 裁定 (b) 改道 + auto-lang
   仓供料件立项（供③→供①→供②→供④⑤）；确认前本件无推进会。
 
+- **2026-09-24 stage: work（r1 → r2，Q-1 确认轮）**：用户确认裁定
+  (b) 改道（「OK，这么改可以。不过等会儿给 auto-lang 仓库要新建的
+  计划时要记得这个事情」）——T-02 用户确认门解除，定形=消费 shim，
+  唯一阻塞位=供⑥ delivered。**供⑥ 跳转列表 shim 入 §5 供料回执表
+  （六件）**：内核 native 一调用形 SHAddToRecentDocs(SHARD_PATHW)，
+  契约细节取 probe_jumplist_report.txt 裁定节；优先序归入供④⑤⑥
+  并行可选（体量最小）。r2=有界修订（仅授权面：§5 表+T-02 定形+
+  本记录；段一任务证据零改动）。**供料件立项备忘（用户嘱）**：auto-lang
+  仓新建供料计划时必须含供⑥。outcome: pass（确认轮闭环）。next:
+  auto-lang 仓供料计划立项（auto-plan-new，取材本件 §5 六件契约面）
+  → 逐供件 delivered 解锁段二。
+
 ## 10. 待澄清事项
 
 - **Q-1 跳转列表裁定**（T-01）：(a) 壳自动 Recent 已备度实测为准；
   (b) SHAddToRecentDocs shim=供料段扩件（**G-1 部分改道=范围缩减
   须用户确认**——skill 禁静默缩界）；custom 类非目标成文。
-  **[2026-09-24 T-01 实测裁定 (b)**：四层全零（探针报告入库）——
-  **待用户确认改道**：G-1 落地形=供料段 shim+本仓 T-02 消费；确认
-  (b) 即解除 T-02 阻塞（挂供料件 delivered 前置）；改裁 (a) 需推翻
-  实测证据（现无）。**]**
+  **[2026-09-24 已闭环]**：T-01 实测裁定 (b)（四层全零，探针报告入
+  库）→ 用户确认改道。T-02=消费 shim，前置=供⑥ delivered；custom
+  任务类维持非目标。
 - **Q-1b〔新〕worktree 依赖物化惯例**（环境面，非授权面）：组内
   worktree 的 deps/bps 需 junction→组内钉版依赖 worktree（本件
   3e3e1e297 detached）；stylekit 经 pac path dep 原生可达免链。已按
