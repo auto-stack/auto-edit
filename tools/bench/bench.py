@@ -773,14 +773,20 @@ def stage_assert(results: str | None) -> int:
         path = cands[-1]
     _log(f"断言源：{path}")
     rows = None
+    mode = "l0"
     for ln in path.read_text(encoding="utf-8").splitlines():
         d = json.loads(ln)
         if d.get("type") == "budget_assert":
             rows = d["rows"]
+            mode = d.get("mode", "l0")
     if rows is None:
         _log("FATAL: 该结果文件无 budget_assert 记录")
         return EXIT_FAIL
-    _print_budget_table(rows)
+    # PLAN-014 T-03（006 §F-01）：行序取自记录 mode 字段——l2 文件按
+    # L2 终态序重放（not-armed 位在 L2 被 armed 顶替，缺省序会打出
+    # 误导性「缺：not-armed」）；l0/l1 文件维持五态缺省序。
+    _print_budget_table(rows,
+                        order=_L2_STATE_ORDER if mode == "l2" else _STATE_ORDER)
     return EXIT_OK
 
 
