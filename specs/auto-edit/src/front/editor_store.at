@@ -51,7 +51,7 @@ fn json_escape(s str) str {
 // (vue 轨 ts_adapter 将其拦为 __vmOnly 抛错桩,拆 back 动机);fs.join 亦
 // 在拦截面(T-00 P-5),TreeSelect 改本地字符串拼接。
 // PLAN-010 T-02: read_text 加入（会话文件读取——恢复链）。
-use back.api: ws_root, tree, write_text, exists, env_str, read_text_range, regex_replace, search_files, read_text, diff_files, diff_dirs, sync_copy, sync_delete
+use back.api: ws_root, tree, write_text, exists, env_str, read_text_range, regex_replace, search_files, read_text, diff_files, diff_dirs, sync_copy, sync_delete, file_size
 
 store EditorStore {
     model {
@@ -72,8 +72,8 @@ store EditorStore {
         // 前向兼容位,docs/upstream §13)。种子 tab loaded=true(演示 tab
         // 即装即用,src 绑定承载正文)。
         var tabs list = [
-            {key: "tab-main", title: "main.at", path: "", dirty: false, bom: false, eol: "lf", readonly: false, loaded: true, cline: 1, ccol: 1, src: "// 预填文本显示测试 — 如果你看到这行字,说明正文渲染正常\nfn add(a int, b int) int {\n    return a + b\n}\n\n// 中文注释:你好世界\nprint(add(1, 2))\n"},
-            {key: "tab-util", title: "util.at", path: "", dirty: false, bom: false, eol: "lf", readonly: false, loaded: true, cline: 1, ccol: 1, src: "// 工具模块 — 每个 tab 的编辑状态独立保存\nfn greet(name str) str {\n    return \"hello \" + name\n}\n\nfn farewell(name str) str {\n    return \"bye \" + name\n}\n"},
+            {key: "tab-main", title: "main.at", path: "", dirty: false, bom: false, eol: "lf", readonly: false, loaded: true, cline: 1, ccol: 1, big: false, ro_reason: "", src: "// 预填文本显示测试 — 如果你看到这行字,说明正文渲染正常\nfn add(a int, b int) int {\n    return a + b\n}\n\n// 中文注释:你好世界\nprint(add(1, 2))\n"},
+            {key: "tab-util", title: "util.at", path: "", dirty: false, bom: false, eol: "lf", readonly: false, loaded: true, cline: 1, ccol: 1, big: false, ro_reason: "", src: "// 工具模块 — 每个 tab 的编辑状态独立保存\nfn greet(name str) str {\n    return \"hello \" + name\n}\n\nfn farewell(name str) str {\n    return \"bye \" + name\n}\n"},
         ]
         var active_key str = "tab-main"
         // 派生标量(索引镜像/空态判断/状态栏与矩阵断言面;结构变化时由
@@ -99,6 +99,22 @@ store EditorStore {
         var eol_label str = "LF"
         var bom_active bool = false
         var readonly_active bool = false
+        // PLAN-013 T-01: 大文件模式（M2-04）——per-tab `big` 标量（阈值
+        // 52428800B=50MB，战略 §2.2；装载前探测门置位，见 RunPendingLoad）
+        // + 激活 tab 派生标量（SyncByteMeta 重算；状态栏「大文件」标注/
+        // 视图 props 条件绑定 [app.at T-02]/矩阵断言面）+ 只读原因标签
+        // （编码错误 vs 超大拒绝两形态分立——拒绝形 readonly 置位必须保
+        // 留：空 rope + WriteFidelity 无栏 = 把原文件清写盘成 0B，008
+        // T-04 同根拦截面）。
+        var big_active bool = false
+        var readonly_label str = ""
+        // PLAN-013 T-02: 模式切换链派生标量——激活 tab 的 lang 绑定值
+        // （big→"plain"=syntect 旁路[highlight.rs 白名单]，否则 "auto"；
+        // SyncByteMeta 重算，app.at Ident 绑定已证面[search prop 同形]）。
+        var lang_active str = "auto"
+        // PLAN-013 T-03: 护栏状态栏提示位（三命令拦截位写入；SyncByteMeta
+        // 清零=切 tab/结构变更自然消退——绝不静默纪律的显示面）。
+        var big_hint str = ""
         // PLAN-008 T-03: mixed 行尾转换确认弹层（alert-dialog 先例）。
         var eol_confirm_open bool = false
         var eol_confirm_target str = ""
@@ -391,7 +407,7 @@ store EditorStore {
                                 if p != "" {
                                     if exists(p) {
                                         var knum int = seq + 1
-                                        .tabs.push({key: "tab-" + knum.str(), title: t.title ?? file_basename(p), path: p, dirty: false, bom: false, eol: "lf", readonly: false, loaded: false, cline: t.cline ?? 1, ccol: t.ccol ?? 1, src: ""})
+                                        .tabs.push({key: "tab-" + knum.str(), title: t.title ?? file_basename(p), path: p, dirty: false, bom: false, eol: "lf", readonly: false, loaded: false, cline: t.cline ?? 1, ccol: t.ccol ?? 1, big: false, ro_reason: "", src: ""})
                                         if act == seq {
                                             want = seq
                                         }
@@ -467,6 +483,25 @@ store EditorStore {
             if .tab_count > 0 {
                 .bom_active = .tabs[.tab].bom
                 .readonly_active = .tabs[.tab].readonly
+                .big_active = .tabs[.tab].big
+                // PLAN-013 T-02: lang 绑定值（plain=旁路 syntect+零
+                // warm_language 语法面；hint 清零=提示与激活 tab 绑定）。
+                var la str = "auto"
+                if .tabs[.tab].big {
+                    la = "plain"
+                }
+                .lang_active = la
+                .big_hint = ""
+                // PLAN-013 T-01: 只读原因标签（编码错误/超大拒绝两形态
+                // 分立——ro_reason 空=既有编码兜底形缺省，向后兼容）。
+                var rl str = ""
+                if .readonly_active {
+                    rl = "只读(编码错误)"
+                    if .tabs[.tab].ro_reason == "big" {
+                        rl = "只读(超大拒绝)"
+                    }
+                }
+                .readonly_label = rl
                 var e str = .tabs[.tab].eol
                 var lbl str = "LF"
                 if e == "crlf" {
@@ -484,6 +519,8 @@ store EditorStore {
             } else {
                 .bom_active = false
                 .readonly_active = false
+                .big_active = false
+                .readonly_label = ""
                 .eol_label = "LF"
             }
         }
@@ -639,6 +676,8 @@ store EditorStore {
                 .tabs[.tab].bom = false
                 .tabs[.tab].eol = "lf"
                 .tabs[.tab].readonly = false
+                .tabs[.tab].big = false
+                .tabs[.tab].ro_reason = ""
                 .title_active = "untitled.at"
                 .path_active = ""
                 store.SyncByteMeta()
@@ -699,7 +738,7 @@ store EditorStore {
             }
             .recents_count = .recents.len()
             .open_count = .open_count + 1
-            .tabs.push({key: "tab-" + .open_count.str(), title: file_basename(p), path: p, dirty: false, bom: false, eol: "lf", readonly: false, loaded: false, cline: 1, ccol: 1, src: ""})
+            .tabs.push({key: "tab-" + .open_count.str(), title: file_basename(p), path: p, dirty: false, bom: false, eol: "lf", readonly: false, loaded: false, cline: 1, ccol: 1, big: false, ro_reason: "", src: ""})
             .tab = .tab_count
             .tab_count = .tab_count + 1
             .active_key = .tabs[.tab].key
@@ -729,71 +768,137 @@ store EditorStore {
                 if code_editor_edit(.load_key, 0, 0, "") {
                     let key str = .load_key
                     let path str = .path_active
+                    // PLAN-013 T-01: 装载前探测门（pre-load 裁定形——§10
+                    // Q-1）。file_size 一次性（envelope JSON——裸 int 过
+                    // HTTP=serialize null，T-00 实勘）；负值=缺席/IO（跳过
+                    // 模式判定——既有 load_file 错误形承接，零行为差异）。
+                    // 两级：>超大拒绝位（536870912B=512MB，Q-3 定参）→
+                    // 拒绝装载（零 rope 分配——拒绝先于装载是 pre 形的实
+                    // 质优势）；≥模式阈值（52428800B=50MB，战略 §2.2）→
+                    // big 置位先于 load_file——装载完成渲染时 lang/wrap
+                    // props 已按模式态走（apply_config 热应用+同 handler
+                    // 原子性=首帧即模式态）。json.to_value 内联包裹（vue
+                    // 转译吸收面，FifSearch 同款）；try 门=fsys 侧零 try
+                    // 形的竞态窗兜底（异常→-1→既有错误形承接）。
+                    var fsize int = -1
                     try {
-                        code_editor_set_text(key, "")
+                        let vsize = json.to_value(file_size(path))
+                        fsize = vsize.size ?? -1
                     } catch {
-                        // guard no-op——last_external 已对齐，达标
+                        fsize = -1
                     }
-                    if env_str("AUTO_BENCH") == "1" {
-                        print("BENCH bench_open_start")
-                    }
-                    let total int = code_editor_load_file(key, path)
-                    if total >= 0 {
-                        .loaded_bytes = total
-                        // PLAN-008 T-01: 字节元数据探测（BOM/EOL/采样窗，
-                        // 协议见 ProbeByteMeta 头注；错误形分支 T-04）
-                        store.ProbeByteMeta(key, path)
-                        // PLAN-010 T-02: 装载完成位置位（TabActivate 触发
-                        // 门的关闭侧——此后激活免重装载；错误形不置位，
-                        // 文件修复后可重试）。
-                        var lidx int = -1
-                        var li int = 0
-                        while li < .tabs.len() {
-                            if .tabs[li].key == key {
-                                lidx = li
+                    if fsize > 536870912 {
+                        // 超大拒绝：错误形 tab（readonly+标题后缀）+
+                        // loaded=true（装载链终结——防 TabActivate 懒装载
+                        // 重触发）+ console 架构阻塞指向。readonly 置位
+                        // 必须保留：空 rope + WriteFidelity 无栏 = 原文件
+                        // 被清写盘成 0B（008 T-04 同根拦截面）。1GB 线
+                        // 非目标注记：拒绝位在 1GB 之下，真分块 IO 清偿
+                        // 前不进半装载态（upstream §16 登记）。
+                        var ridx int = -1
+                        var ri int = 0
+                        while ri < .tabs.len() {
+                            if .tabs[ri].key == key {
+                                ridx = ri
                             }
-                            li = li + 1
+                            ri = ri + 1
                         }
-                        if lidx >= 0 {
-                            .tabs[lidx].loaded = true
+                        if ridx >= 0 {
+                            .tabs[ridx].readonly = true
+                            .tabs[ridx].ro_reason = "big"
+                            .tabs[ridx].loaded = true
+                            .tabs[ridx].title = file_basename(path) + "（超大文件-拒绝装载）"
+                            if .tab == ridx {
+                                .title_active = .tabs[ridx].title
+                            }
+                            store.SyncByteMeta()
                         }
-                    } else {
                         .loaded_bytes = 0
-                        // PLAN-008 T-04: 非法 UTF-8 无损兜底——错误提示
-                        // tab + readonly 置位（WriteFidelity 拦截落盘）+
-                        // 状态栏标注；原文件字节零触碰（T-00 实测旧行为
-                        // 会把空编辑器清写盘 32B→0B——拦截对象即此路径）。
-                        // load_file 的 -1 兼指缺席/IO/非法 UTF-8——错误
-                        // 路径专用 exists 前置判定区分「文件缺失」（维持
-                        // 旧静默空 tab 语义）与「编码错误」（兜底形态）。
-                        // widget 无禁编面（T-00 勘，§10-④）——边界=save
-                        // 拦截+显著标注；替换符查看=上游 lossy want。
-                        if exists(path) {
-                            var eidx int = -1
-                            var j int = 0
-                            while j < .tabs.len() {
-                                if .tabs[j].key == key {
-                                    eidx = j
+                        .load_key = ""
+                        console_log("load rejected: " + fsize.str() + " bytes > 超大拒绝位 536870912（50MB+ 为大文件模式域；>512MB 拒绝装载——真分块 IO=上游阻塞，docs/upstream §16）— " + path)
+                        .console = console_lines()
+                    } else {
+                        if fsize >= 52428800 {
+                            var bidx int = -1
+                            var bi int = 0
+                            while bi < .tabs.len() {
+                                if .tabs[bi].key == key {
+                                    bidx = bi
                                 }
-                                j = j + 1
+                                bi = bi + 1
                             }
-                            if eidx >= 0 {
-                                .tabs[eidx].readonly = true
-                                .tabs[eidx].title = file_basename(path) + "（编码错误-只读）"
-                                if .tab == eidx {
-                                    .title_active = .tabs[eidx].title
-                                }
+                            if bidx >= 0 {
+                                .tabs[bidx].big = true
                                 store.SyncByteMeta()
-                                console_log("load error: invalid UTF-8 (readonly, save blocked) — " + path)
+                            }
+                        }
+                        try {
+                            code_editor_set_text(key, "")
+                        } catch {
+                            // guard no-op——last_external 已对齐，达标
+                        }
+                        if env_str("AUTO_BENCH") == "1" {
+                            print("BENCH bench_open_start")
+                        }
+                        let total int = code_editor_load_file(key, path)
+                        if total >= 0 {
+                            .loaded_bytes = total
+                            // PLAN-008 T-01: 字节元数据探测（BOM/EOL/采样窗，
+                            // 协议见 ProbeByteMeta 头注；错误形分支 T-04）
+                            store.ProbeByteMeta(key, path)
+                            // PLAN-010 T-02: 装载完成位置位（TabActivate 触发
+                            // 门的关闭侧——此后激活免重装载；错误形不置位，
+                            // 文件修复后可重试）。
+                            var lidx int = -1
+                            var li int = 0
+                            while li < .tabs.len() {
+                                if .tabs[li].key == key {
+                                    lidx = li
+                                }
+                                li = li + 1
+                            }
+                            if lidx >= 0 {
+                                .tabs[lidx].loaded = true
                             }
                         } else {
-                            console_log("load error: file not found — " + path)
+                            .loaded_bytes = 0
+                            // PLAN-008 T-04: 非法 UTF-8 无损兜底——错误提示
+                            // tab + readonly 置位（WriteFidelity 拦截落盘）+
+                            // 状态栏标注；原文件字节零触碰（T-00 实测旧行为
+                            // 会把空编辑器清写盘 32B→0B——拦截对象即此路径）。
+                            // load_file 的 -1 兼指缺席/IO/非法 UTF-8——错误
+                            // 路径专用 exists 前置判定区分「文件缺失」（维持
+                            // 旧静默空 tab 语义）与「编码错误」（兜底形态）。
+                            // widget 无禁编面（T-00 勘，§10-④）——边界=save
+                            // 拦截+显著标注；替换符查看=上游 lossy want。
+                            if exists(path) {
+                                var eidx int = -1
+                                var j int = 0
+                                while j < .tabs.len() {
+                                    if .tabs[j].key == key {
+                                        eidx = j
+                                    }
+                                    j = j + 1
+                                }
+                                if eidx >= 0 {
+                                    .tabs[eidx].readonly = true
+                                    .tabs[eidx].ro_reason = "encoding"
+                                    .tabs[eidx].title = file_basename(path) + "（编码错误-只读）"
+                                    if .tab == eidx {
+                                        .title_active = .tabs[eidx].title
+                                    }
+                                    store.SyncByteMeta()
+                                    console_log("load error: invalid UTF-8 (readonly, save blocked) — " + path)
+                                }
+                            } else {
+                                console_log("load error: file not found — " + path)
+                            }
                         }
-                    }
-                    .load_key = ""
-                    console_log("loaded: " + path + " " + total.str() + " bytes")
-                    if env_str("AUTO_BENCH") == "1" {
-                        print("BENCH bench_open_done")
+                        .load_key = ""
+                        console_log("loaded: " + path + " " + total.str() + " bytes")
+                        if env_str("AUTO_BENCH") == "1" {
+                            print("BENCH bench_open_done")
+                        }
                     }
                 }
                 .console = console_lines()
@@ -878,14 +983,23 @@ store EditorStore {
         // delta drain-弃——检测器白名单登记件「save 位+登记转换 handler」
         // 封闭集）。转换后 eol 元数据/状态栏同步，dirty 置位（可撤销性：
         // set_text 全文重写，Ctrl+Z 可回）。
+        // PLAN-013 T-03: 大文件命令护栏（G-3）——Request 入口拦截（确认
+        // 弹层不开=确认链不可达；本体 EolConvert 另设同门=确认链直呼
+        // 防御，双门零成本）。readonly 不设（同 ReplaceAll——小步编辑
+        // 不受限）。
         .EolConvertRequest(target) -> {
             if .tab_count > 0 {
-                if .tabs[.tab].eol == "mixed" {
-                    .eol_confirm_target = target
-                    .eol_confirm_open = true
-                    console_log("eol: mixed line endings — confirm to unify")
+                if .tabs[.tab].big {
+                    .big_hint = "大文件：行尾转换已拦截（全文命令护栏）"
+                    console_log("eol: blocked (big file — 全文命令护栏；全文读出+重写不进入大文件域，直写/分块端点=upstream §16)")
                 } else {
-                    store.EolConvert(target)
+                    if .tabs[.tab].eol == "mixed" {
+                        .eol_confirm_target = target
+                        .eol_confirm_open = true
+                        console_log("eol: mixed line endings — confirm to unify")
+                    } else {
+                        store.EolConvert(target)
+                    }
                 }
             }
             .console = console_lines()
@@ -893,32 +1007,37 @@ store EditorStore {
 
         .EolConvert(target) -> {
             if .tab_count > 0 {
-                if .tabs[.tab].readonly {
-                    console_log("eol: blocked (readonly tab)")
+                if .tabs[.tab].big {
+                    .big_hint = "大文件：行尾转换已拦截（全文命令护栏）"
+                    console_log("eol: blocked (big file — 全文命令护栏)")
                 } else {
-                    let body str = code_editor_text(.active_key)
-                    var out str = body.replace("\r\n", "\n").replace("\r", "\n")
-                    if target == "crlf" {
-                        out = out.replace("\n", "\r\n")
+                    if .tabs[.tab].readonly {
+                        console_log("eol: blocked (readonly tab)")
                     } else {
-                        if target == "cr" {
-                            out = out.replace("\n", "\r")
+                        let body str = code_editor_text(.active_key)
+                        var out str = body.replace("\r\n", "\n").replace("\r", "\n")
+                        if target == "crlf" {
+                            out = out.replace("\n", "\r\n")
+                        } else {
+                            if target == "cr" {
+                                out = out.replace("\n", "\r")
+                            }
                         }
+                        if out != body {
+                            // 全文重写走结构化 edit（start=0,end=字节全长——
+                            // VM str.len()=Rust s.len() 字节语义，T-00 勘定）：
+                            // 该路径不触 registry set_text 的 last_external
+                            // guard——handler 侧 set_text 会被下轮绑定推送
+                            // （content=t.src=""≠last_external）清场（装载
+                            // 协议②同款防御面，实测教训）；delta drain-弃。
+                            code_editor_edit(.active_key, 0, body.len(), out)
+                            code_editor_delta(.active_key)
+                        }
+                        .tabs[.tab].eol = target
+                        .tabs[.tab].dirty = true
+                        store.SyncByteMeta()
+                        console_log("eol: converted to " + target)
                     }
-                    if out != body {
-                        // 全文重写走结构化 edit（start=0,end=字节全长——
-                        // VM str.len()=Rust s.len() 字节语义，T-00 勘定）：
-                        // 该路径不触 registry set_text 的 last_external
-                        // guard——handler 侧 set_text 会被下轮绑定推送
-                        // （content=t.src=""≠last_external）清场（装载
-                        // 协议②同款防御面，实测教训）；delta drain-弃。
-                        code_editor_edit(.active_key, 0, body.len(), out)
-                        code_editor_delta(.active_key)
-                    }
-                    .tabs[.tab].eol = target
-                    .tabs[.tab].dirty = true
-                    store.SyncByteMeta()
-                    console_log("eol: converted to " + target)
                 }
             }
             .console = console_lines()
@@ -1096,29 +1215,40 @@ store EditorStore {
         // → json.to_value 解包 → count>0 才 edit(0,len,out) 全文重写 +
         // delta drain-弃 + dirty + SyncCursor + 计数 console 反馈。
         // 空 query/零匹配零动作（零匹配不重写——省一次全文置换）。
+        // PLAN-013 T-03: 大文件命令护栏（G-3）——big 态入口拦截+显式
+        // 提示（console+状态栏 big_hint，绝不静默）：全文读出+回写把
+        // 50MB+ 字符串两次过 VM 池（687 滞留形态+011 工具链漂移实证，
+        // §10 Q-4）；readonly 不设（小步编辑不受限——战略 §1.2 保留
+        // 清单②）；解锁件=上游 code_editor_save 直写端点（§10-2 want，
+        // upstream §16 登记）。
         .ReplaceAllRequest -> {
             if .tab_count > 0 {
-                if .tabs[.tab].readonly {
-                    console_log("replace: blocked (readonly tab)")
+                if .tabs[.tab].big {
+                    .big_hint = "大文件：全部替换已拦截（全文命令护栏）"
+                    console_log("replace: blocked (big file — 全文命令护栏；全文读出+回写不进入大文件域，直写/分块端点=upstream §16)")
                 } else {
-                    if .find_effective != "" {
-                        let body str = code_editor_text(.active_key)
-                        // json.to_value 内联包裹（vue 转译吸收面，FifSearch
-                        // 同款；typed str 中间层=vue TS2339 根因）。
-                        let v = json.to_value(regex_replace(body, .find_effective, .find_replacement, true))
-                        let out str = v.out ?? ""
-                        let count int = v.count ?? 0
-                        if count > 0 {
-                            code_editor_edit(.active_key, 0, body.len(), out)
-                            code_editor_delta(.active_key)
-                            .tabs[.tab].dirty = true
-                            store.SyncCursor(.active_key)
-                            console_log("replace all: " + count.str() + " 处")
-                        } else {
-                            console_log("replace all: 0 matches")
-                        }
+                    if .tabs[.tab].readonly {
+                        console_log("replace: blocked (readonly tab)")
                     } else {
-                        console_log("replace all: empty query")
+                        if .find_effective != "" {
+                            let body str = code_editor_text(.active_key)
+                            // json.to_value 内联包裹（vue 转译吸收面，FifSearch
+                            // 同款；typed str 中间层=vue TS2339 根因）。
+                            let v = json.to_value(regex_replace(body, .find_effective, .find_replacement, true))
+                            let out str = v.out ?? ""
+                            let count int = v.count ?? 0
+                            if count > 0 {
+                                code_editor_edit(.active_key, 0, body.len(), out)
+                                code_editor_delta(.active_key)
+                                .tabs[.tab].dirty = true
+                                store.SyncCursor(.active_key)
+                                console_log("replace all: " + count.str() + " 处")
+                            } else {
+                                console_log("replace all: 0 matches")
+                            }
+                        } else {
+                            console_log("replace all: empty query")
+                        }
                     }
                 }
             }
@@ -2056,27 +2186,37 @@ store EditorStore {
         // "\r\n"→"\n" 幂等归一、lone "\r"→"\n"，再统一 "\n"→目标形态——
         // 无编辑的纯形态 rope 两步互抵无损）；lf/mixed 零动作（无编辑
         // =mixed 逐字保真；编辑后=归一 LF 形态，逐行保真为上游 want
-        // §10-⑥）。readonly（T-04 非法 UTF-8 错误形）拦截：不落盘。
+        // §10-⑥）。readonly（T-04 非法 UTF-8 错误形/PLAN-013 超大拒绝
+        // 形）拦截：不落盘。
+        // PLAN-013 T-03: 大文件 save 护栏（G-3）——big 态全文读出+包装+
+        // write_text 往返全过 VM（50–100MB 字符串×2 池驻留，Q-4）；
+        // 拦截+显式提示，绝不静默；解禁件=上游 code_editor_save 直写
+        // 端点（§10-2 want 在册——落地后零 front 改动预期）。
         .WriteFidelity(i) -> {
             if .tabs[i].path != "" {
-                if .tabs[i].readonly {
-                    console_log("save blocked (readonly): " + .tabs[i].path)
+                if .tabs[i].big {
+                    .big_hint = "大文件：保存已拦截（待上游直写端点）"
+                    console_log("save blocked (big file — 全文命令护栏；全文往返不进入大文件域，code_editor_save 直写端点=upstream §16)：" + .tabs[i].path)
                 } else {
-                    let body str = code_editor_text(.tabs[i].key)
-                    var out str = body
-                    if .tabs[i].bom {
-                        out = .bom_prefix + body
-                    }
-                    if .tabs[i].eol == "crlf" {
-                        out = out.replace("\r\n", "\n").replace("\n", "\r\n")
+                    if .tabs[i].readonly {
+                        console_log("save blocked (readonly): " + .tabs[i].path)
                     } else {
-                        if .tabs[i].eol == "cr" {
-                            out = out.replace("\r\n", "\n").replace("\r", "\n").replace("\n", "\r")
+                        let body str = code_editor_text(.tabs[i].key)
+                        var out str = body
+                        if .tabs[i].bom {
+                            out = .bom_prefix + body
                         }
+                        if .tabs[i].eol == "crlf" {
+                            out = out.replace("\r\n", "\n").replace("\n", "\r\n")
+                        } else {
+                            if .tabs[i].eol == "cr" {
+                                out = out.replace("\r\n", "\n").replace("\r", "\n").replace("\n", "\r")
+                            }
+                        }
+                        write_text(.tabs[i].path, out)
+                        .tabs[i].dirty = false
+                        console_log("saved: " + .tabs[i].path)
                     }
-                    write_text(.tabs[i].path, out)
-                    .tabs[i].dirty = false
-                    console_log("saved: " + .tabs[i].path)
                 }
             }
         }

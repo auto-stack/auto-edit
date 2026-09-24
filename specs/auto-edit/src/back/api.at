@@ -50,6 +50,17 @@ pub fn read_text_range(path str, offset int, limit int) str {
     return fsys.read_range(path, offset, limit)
 }
 
+/// 文件字节数（PLAN-013 T-01 大文件模式探测链，第 14 端点）：envelope
+/// JSON 串 `{"size":<字节>}`（裸 int 过 HTTP=serialize null——T-00 实勘
+/// 上游 §16 观察；缺失/IO→-1，fsys.file_size_impl exists 前置+try 门）。
+/// front RunPendingLoad 装载前门消费：≥阈值置 big 态（首帧前置）、
+/// >超大拒绝位拒装载（先于 rope 分配）、负值跳过判定（既有错误形承接）。
+/// GET /api/file_size?path=..
+#[api(method = "GET", path = "/api/file_size")]
+pub fn file_size(path str) str {
+    return fsys.file_size_impl(path)
+}
+
 /// 写文本文件（落盘后 exists 复核）
 /// POST /api/write_text
 #[api(method = "POST", path = "/api/write_text")]

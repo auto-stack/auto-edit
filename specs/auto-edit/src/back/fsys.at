@@ -35,6 +35,33 @@ pub fn read_range(path str, offset int, limit int) str {
     return File.read_text_range(path, offset, limit)
 }
 
+/// 文件字节数（PLAN-013 T-01 大文件模式探测链）：**envelope JSON 串形**
+/// （`{"size":<字节>}`）——裸 int 返回过 AutoVM HTTP 面=serialize null
+/// （T-00 Phase A 实勘：merged 直调 ✓/split HTTP ✗——上游 §16 观察
+/// 登记；仓内既证形=JSON 串 envelope[search_files count 同款]，双轨
+/// 一致）。fs.metadata 直通=auto.fs.size 映射（int 字节长）；缺失/IO
+/// 错误 → size:-1（exists 前置判——metadata 对缺失返 0 无异_REQUEST
+/// 常形，0 与空文件歧义故显式判存；try 门兜真异常）。调用方
+/// RunPendingLoad 负值=跳过模式判定，装载链既有错误形[缺席/非法
+/// UTF-8]原样承接，零行为差异。
+pub fn file_size_impl(path str) str {
+    // 形注记：零 try 形——a2r rust 转译器不支持 try 体内的 Asn/Return
+    // （两形实测皆 unsupported statement，T-05 勘出；唯一已证形=let 体+
+    // 空 catch[search_files_json]）。exists 前置后 metadata 的竞态窗
+    // （删除/锁定）异常由**front 探测位 try 门**兜（editor_store.at
+    // RunPendingLoad——VM 面 try 任意形可用；异常→-1→既有装载链错误
+    // 形承接）。rust 臂本已全局 blocked[back-api 引擎切换节]，本形使
+    // fsys.rs 模块转译零警告。
+    var s int = -1
+    if File.exists(path) {
+        s = fs.metadata(path)
+    }
+    if s < 0 {
+        s = -1
+    }
+    return json.from_value({size: s})
+}
+
 /// 写文本 + exists 复核（成功信号；对齐 TreeSelect 前置判存的 IO 惯例）
 pub fn write_all(path str, content str) bool {
     File.write_text(path, content)

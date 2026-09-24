@@ -581,7 +581,14 @@ widget App {
                     if !.store.diff_open {
                         for i, t in .store.tabs {
                             if t.key == .store.active_key {
-                                code_editor (key: t.key, lang: "auto", style: "flex-1 w-full") {
+                                // PLAN-013 T-02: 模式切换链——lang 按 big 态
+                                // 条件（lang_active 派生标量，SyncByteMeta
+                                // 重算；Ident 绑定已证面=search prop 同形；
+                                // plain=syntect 旁路+零语法 warm）；wrap 显式
+                                // false（T-00① 勘定现状恒 false=零动作注记，
+                                // 绑定防内核默认漂移；builder 默认 view.rs
+                                // :1921）。
+                                code_editor (key: t.key, lang: .store.lang_active, wrap: false, style: "flex-1 w-full") {
                                     content: t.src
                                     // PLAN-009 T-02: 查找高亮接线（Ident 绑定，
                                     // T-00① 正案；live diff + 非空首跳）。

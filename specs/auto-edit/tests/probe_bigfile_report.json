@@ -1,0 +1,96 @@
+{
+ "toolchain": "auto 0.1.0+v0.4.2-2046-g02ae0ac1c-dirty",
+ "psutil": true,
+ "fixtures": {
+  "small.txt": 0,
+  "big50_lf.txt": 1691,
+  "big100_lf.txt": 3383,
+  "big200_lf.txt": 6767
+ },
+ "bench": {
+  "b1_load_50mb": {
+   "loaded": true,
+   "wait_s": 0.02,
+   "loaded_bytes": 52428800,
+   "rss_peak_mb": 785.6
+  },
+  "b2_replaceall_50mb": {
+   "typed": true,
+   "effective": "NEEDLE_QZ_7F",
+   "clicked": true,
+   "ok": true,
+   "wait_s": 0.44,
+   "count": -1,
+   "expected": 1691,
+   "rss_peak_mb": 658.7,
+   "guarded": true,
+   "note": ""
+  },
+  "b3_save_50mb": {
+   "clicked": true,
+   "ok": true,
+   "wait_s": 0.68,
+   "size_before": 52428800,
+   "size_after": 52428800,
+   "expected_after": 52411890,
+   "wrote_through": false,
+   "rss_peak_mb": 621.0,
+   "intercepted": true
+  },
+  "b4_load_100mb": {
+   "loaded": true,
+   "wait_s": 0.24,
+   "loaded_bytes": 104857600,
+   "rss_peak_mb": 902.1
+  },
+  "b5_load_200mb": {
+   "loaded": true,
+   "wait_s": 0.46,
+   "loaded_bytes": 209715200,
+   "rss_peak_mb": 900.9
+  }
+ },
+ "checks": [
+  [
+   "A: file_size 50MB",
+   true,
+   "http=200 got=52428800 want=52428800"
+  ],
+  [
+   "A: file_size small",
+   true,
+   "http=200 got=42 want=42"
+  ],
+  [
+   "A: file_size missing",
+   true,
+   "http=200 got=-1 want=-1"
+  ],
+  [
+   "B1: 50MB auto-load completes, loaded_bytes==size",
+   true,
+   "found=True loaded_bytes=52428800 wait_s=0.02 rss_peak_mb=785.6"
+  ],
+  [
+   "B2: ReplaceAll 50MB drive chain + outcome captured",
+   true,
+   "typed=True clicked=True ok=True count=-1/1691 wait_s=0.44 rss_peak_mb=658.7 "
+  ],
+  [
+   "B3: save 50MB outcome (wrote-through E2E | guarded no-op)",
+   true,
+   "clicked=True ok=True wait_s=0.68 size 52428800->52428800 (expect 52411890) rss_peak_mb=621.0 intercepted=True"
+  ],
+  [
+   "B4_LOAD_100MB: 100MB load completes, loaded_bytes==size",
+   true,
+   "found=True loaded_bytes=104857600 wait_s=0.24 rss_peak_mb=902.1"
+  ],
+  [
+   "B5_LOAD_200MB: 200MB load completes, loaded_bytes==size",
+   true,
+   "found=True loaded_bytes=209715200 wait_s=0.46 rss_peak_mb=900.9"
+  ]
+ ],
+ "summary": "8/8"
+}

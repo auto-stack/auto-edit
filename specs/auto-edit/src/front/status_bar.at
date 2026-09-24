@@ -26,11 +26,25 @@ widget StatusBar {
                 if .store.bom_active {
                     text "BOM" { style: status_text }
                 }
+                // PLAN-013 T-01: 大文件模式标注（激活 tab big 态——
+                // big_active 派生标量，SyncByteMeta 重算；矩阵断言面=
+                // autoui_state big_active）。
+                if .store.big_active {
+                    text "大文件" { style: status_text }
+                }
+                // PLAN-013 T-01: 只读原因标签派生化（编码错误/超大拒绝
+                // 两形态——readonly_label，SyncByteMeta 重算）。
                 if .store.readonly_active {
-                    text "只读(编码错误)" { style: status_text }
+                    text .store.readonly_label { style: status_text }
                 }
                 text "EOL ${.store.eol_label}" { style: status_text }
                 text "Spaces: 4" { style: status_text }
+                // PLAN-013 T-03: 大文件命令护栏提示位（三命令拦截位写入
+                // big_hint；SyncByteMeta 清零=切 tab 自然消退——绝不
+                // 静默纪律的显示面）。
+                if .store.big_hint != "" {
+                    text .store.big_hint { style: "text-[11px] text-amber-400" }
+                }
 
                 text "${.store.line}:${.store.col}" {
                     style: "text-[11px] text-muted-foreground ml-auto"
