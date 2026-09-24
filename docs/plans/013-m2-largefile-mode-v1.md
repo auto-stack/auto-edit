@@ -1,6 +1,6 @@
 ---
 plan_id: PLAN-013
-status: execution_done
+status: reviewed
 feature_name: m2-largefile-mode-v1（M2-04：大文件模式 v1——50MB 档探测/关折行/平文本/全文本命令护栏）
 author: [agent]
 created_at: 2026-09-23T23:06:15+08:00
@@ -276,6 +276,48 @@ SD-01..03 落 docs/specs（追加节+来源注记——SD-02 按 T-00② 裁定�
 落盘；**钉版纪律**（011 教训）——bench/判读前核 auto --version。）
 
 ## 9. 复审记录
+
+- **2026-09-24 stage: review | plan_id: PLAN-013 | plan_revision: 1 |
+  outcome: pass | reviewed_commit: f45da264（worktree plan-013-dev tip，
+  树全净） | base_commit: 84c2ef6 | dependency_revisions: auto-lang
+  主检出 b41e9aa31（698 报告件[docs-only]， drafting 基线 543eccdc4
+  之后前移——零运行面影响）/工具链钉版 p012_pin_auto.exe 2046-dirty
+  同版未变 | spec_inputs: editor-store.md 大文件模式节/back-api.md
+  file_size 端点节+计数 14/00-overview.md M2 第四件行/upstream §16
+  （均 tip f45da264 冻结副本） | acceptance_results: AC-01 pass（
+  T17.1 big_active/loaded_bytes=50MB/lang_active=plain+T17.8 恢复重
+  探+17.5/17.6 边界双件）/AC-02 pass（T17.1 plain 绑定+T17.4 往返无
+  残留+wrap:false 显式绑定[内核 prop 流静态证据 view.rs:1921 builder
+  默认+apply_config 逐字段 diff 热应用]）/AC-03 pass（T17.2 ReplaceAll
+  拦截+big_hint+T17.3 save 拦截磁盘零变 E2E+T17.7 normal 零误伤写通
+  E2E+T12/T13 组复绿[复审轮 T12.6 唯一败=已知缺]；EolConvert 双门源
+  检在册[Request+本体]、菜单入口 menubar-sub MCP 失明=T12.6 同源如
+  实注记）/AC-04 pass（T17.5 513MB 错误形+readonly_label=只读(超大
+  拒绝)+loaded_bytes=0+console load rejected；1GB 非目标注记在档）/
+  AC-05 pass（完成态 117 检查，复审轮 **116/1**[唯一败=T12.6 不计]
+  ≥判绿线 115/0 达成[与执行期 run4 同谱复现]；README 口径段 grep ✓；
+  bench JSONL 在仓 tools/bench/results/bigfile-20260924-120827.jsonl；
+  bench check 绿=检测器白名单零变更[源检 code_editor_text 恰三读出
+  位=EolConvert/ReplaceAll/WriteFidelity 既有件]）/AC-06 pass-with-
+  noted-deviation（SD-01..03 grep 在册+§16 line 440 在册；vue 复审轮
+  lenient gen exit 0 [34 组件]+pnpm build 红=12 错全在 src/App.vue
+  [§14 helper 预存 TS7006]+strict 红=695 menubar-sub 预存——**本件
+  零新增错面双轮复现**[执行期+复审轮]） | findings: **F-1（非阻断，
+  blocked-on-upstream）**：AC-06 字面「pnpm build exit 0」不可达——
+  阻断面全在上游（menubar-sub 三元素 vue schema 缺登记[695 引入预
+  存主干断层]+helper 族 TS7006[§14]），本件可控面（gen 可过+零新增
+  错面）达成且 012 同形 delivered 在案；残留已 §16 登记解锁动作三
+  项，清偿后无需回改本件 front。**F-2（观察）**：deps auto-lang
+  543eccdc4→b41e9aa31 前移（docs-only）不涉运行面。**F-3（观察）**
+  ：复审轮矩阵 116/1 与执行期 run4 完全同谱（T17 8/8 两轮稳定） |
+  evidence: 复审轮矩阵 RESULT=116 passed/1 failed[唯一 FAIL=T12.6
+  mixed→LF=已知上游缺]（session 内复审独立性声明：判定自工件重建
+  ——提交内容静态核[code_editor_text 三位/阈值常量 536870912>
+  /52428800>=/SD 计数勘正/§16/T17 八检查+失败臂 13 处 result.check
+  /探针报告 8/8]+复跑[矩阵复审轮+vue 复审轮]；仓内耐久工件=探针
+  报告 probe_bigfile_report.{json,txt} 8/8+bench JSONL+README 口径
+  段；复审轮 RESULT 行摘录于本记录——复跑日志在组目录随 merge 清理
+  不入仓） | next: merge |
 
 - **2026-09-24 stage: work | plan_id: PLAN-013 | plan_revision: 1 |
   outcome: pass | code_commit: f45da26（plan-013-dev tip；基 84c2ef6，
