@@ -1,6 +1,7 @@
 ---
 plan_id: PLAN-013
-status: reviewed
+status: archived
+completion_kind: delivered
 feature_name: m2-largefile-mode-v1（M2-04：大文件模式 v1——50MB 档探测/关折行/平文本/全文本命令护栏）
 author: [agent]
 created_at: 2026-09-23T23:06:15+08:00
@@ -276,6 +277,21 @@ SD-01..03 落 docs/specs（追加节+来源注记——SD-02 按 T-00② 裁定�
 落盘；**钉版纪律**（011 教训）——bench/判读前核 auto --version。）
 
 ## 9. 复审记录
+
+- **2026-09-24 stage: merge | plan_id: PLAN-013 | plan_revision: r1 |
+  outcome: pass | 收据键 PLAN-013:r1 五检查点 | prepared：reviewed 基线
+  f45da264[pass@r1]+delta 冻结三册+§16（均 docs/ 规范层既证靶，无
+  README-as-spec 类未证靶） | landed：rebase main（a7b833c）3/3 重放
+  +range-diff 全等 `=`（eb451ca→fc317f4/9741d1e→8007f25/
+  **f45da26→027346e=delivery**）+`git merge --ff-only` TIP-MATCH
+  027346e 零合并提交+落位烟测 bench check 绿（检测器红证 PASS+构建
+  2046） | ledger_refreshed：.autoos/specs.json reviews 段 **P013-1**
+  外科插入（13 items；整文件解析+roundtrip 字节等价先证+回读断言前
+  12 项零扰动+他五段零扰动；file 指归档路径本件）commit 6678954 |
+  archived：git mv docs/plans/archived/013-m2-largefile-mode-v1.md+
+  status: archived+completion_kind: delivered | cleaned：随后行
+  （wt-guard clean 493 链接级摘除[deps×2+pnpm 晶格 491]目标完好复核
+  在案）。
 
 - **2026-09-24 stage: review | plan_id: PLAN-013 | plan_revision: 1 |
   outcome: pass | reviewed_commit: f45da264（worktree plan-013-dev tip，
