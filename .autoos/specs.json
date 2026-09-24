@@ -192,6 +192,18 @@
           ],
           "superseded_by": null,
           "content": "- 交付：back 第十件 diff_files（fsys.diff_files_json 朴素分层全内联单函数=envelope 替换缝——公共前后缀裁剪/DP-LCS 200²/大中段降级 degraded/索引对齐配对+三段标记 100k 字符预算/ctx 窗切 hunk；上限门 1MB pre-read+10k 行 post-split；CR 容忍）+front 17 状态字段/五 msg/env 旁路 Tick 自开（DiffOpen/Compute/Close/Next/Prev/DiffScrollToHunk）+根视图全幅并排视图（四 for 单 bool 旗标/scroll-pane controller）+F7/Shift+F7 导航（24px/行 float 累加）。\n- 验收：AC-01..06 PASS+AC-07 PARTIAL（vue regen --build exit 0 blocked-on-upstream——生成器 scroll_* helper 族无 TS 类型 strict TS7006，本件转译零错[App.vue 23-28 归因]，跨轨禁补件适用，upstream §14 want）；矩阵 **97/0** EXIT 0（86+T15×11，判绿 ≥96）；探针 probe_diff.py 35/0（golden×六形态逐字段+错误形×3）；烟测 19/0；bench diff 档两轮 JSONL（基线 543/131·1184/358ms+门拒 19-21/42ms）。\n- 复审 r1 pass：同会话复审以工件重建裁决（全门禁受审树重跑）；T-00 五轮定参（DP 200/渲染 600/文件 10k 行·1MB——50k/2MB 预判不成立降参注记）；R-2 上游件/R-3 卫生候选在案。\n- merge 期 rebase ×2（并行 695 landing：5aa8ea9+主检出账目 acdc31b）——range-diff 8/8 全等两轮（f19fa47→5f91e39→722c0ed 交付链），rebased 树 T15 11/11+烟测 19/0 复验绿。\n- R-4（非本件）：695 行尾 submenu 化后 T12.6 mixed→LF MCP 不可达（menubar-sub 子树不进快照，裸 main 5aa8ea9 两级复现）——§14 登记，README 口径注记不计判绿。"
+        },
+        {
+          "id": "P012-1",
+          "section": "reviews",
+          "status": "stable",
+          "title": "PLAN-012 — M3-02 目录 diff v1 收据（reviewed pass @ r1 fe4dde6：递归比对五态分类+长度桶对齐+基础同步+下钻，复审矩阵 108/1 判绿）",
+          "file": "docs/plans/archived/012-m3-dir-diff-v1.md",
+          "related": [
+            "PLAN-011"
+          ],
+          "superseded_by": null,
+          "content": "- 交付：back 十一件至十三件（diff_dirs 递归遍历+长度桶对齐[.at 无 sort/hash 面内解]+五态分类 same/added/deleted/modified/binary[二进制启发式 size>0 且 read_text==\"\"，≤2MB 全文域]+桶积护栏 Σk²≤700k[N=800 过 0.94s/N=1000 WARN[budget] 墙→优雅超限 err 架构注记]+sync_copy[文件=字节往返 read_bytes→write_bytes ≤2MB——fs.copy(1007) 被 copy 保留字阻断 Plan 122，T-00 迷你 app 复现；目录=copy_recursive 静默覆盖 Q-2]+sync_delete[文件 fs.delete/目录仅空目录 fs.remove_dir+空/根/缺失护栏]）+front 目录面板（dir_mode⟺diff_open handler 组+dir_from_dirs 归位门[DiffCompute err/DiffClose 双外科点，011 路径零扰动]+五状态五独立 for 行渲染[兄弟 if 实勘规避]+过滤纯 front 态零重比+同步动作 alert-dialog 确认链[双侧复制恒确认/删除恒确认/删除域=单侧条目]+下钻 DiffCompute 复用+返回目录 entries 保留）。\n- 验收：AC-01..06 PASS+AC-07 PARTIAL（vue regen --build 双重 blocked-on-upstream：strict gen 红 menubar-sub 族 vue schema 缺登记[695 预存主干断层，非本件]+TS 16 错[TS7006×12 §14 helper+TS2339×4 PLAN-005 AUTO_BENCH print 遮蔽交互，预存非本件 diff]；lenient gen ✓ 本件零新增错面；解锁三项 §15）；矩阵 109 检查（97+T16×12），复审轮 **108/1** 达判绿 ≥107/0（唯一败=T12.6 R-4 已知缺不计，T16 12/12 全绿；执行期五轮谱 85/5→95/2→104/5→107/2→106/3 竞态地板在案）；探针 probe_dirdiff.py 27/0；烟测 smoke_t345_dirdiff 47/47；fixtures/dirdiff base+rev 五形态 golden 入仓。\n- T-00 决策：fs.copy 保留字阻断→字节往返获救（原生 shim 零 VM 步循环，2MB roundtrip ok）；覆盖=静默（write_bytes truncate/copy_recursive 合并）→双侧条目复制恒确认；对齐长度桶+桶积护栏；dialog_open=rfd pick_file 文件专用→v1 双路径输入框+env AUTO_DIRDIFF_A/B 旁路；二进制启发式正判（0B 不误判）；>2MB 同尺寸=同(未比对)注记态。\n- 复审 r1 pass（同会话以工件重建裁决，全门禁受审树独立重跑）：矩阵 108/1/探针 27/0/烟测 ALL PASS/vue strict+lenient 双定性复现；findings R-1 边界活体缺口两项在档（>5000 truncated 注记未实测[护栏路径已证]/sync_copy >2MB 拒绝路径未活体断言）、R-2 vue 三项解锁在 §15、R-3 执行期 TS 定性漏计勘正（fe4dde6——011 复审 12/12 同款漏计）、R-4 复审并发姿势错误（探针×矩阵并发连接重置，串行重跑过）。\n- upstream §15 八件：copy 保留字 P1/folder picker/file-hash/sort-hash 原语 P1/WARN[budget] 响应形观察件/menubar-sub schema P2[695 预存]/helper TS7006 沿 §14/print 遮蔽映射。"
         }
       ],
       "status": "Empty",
