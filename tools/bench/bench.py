@@ -927,9 +927,83 @@ def stage_diff() -> int:
                        capture_output=True)
 
 
+# PLAN-013 T-04: 大文件档（G-5/AC-05）——50MB 档 mode on/off 代理对照。
+#   big49mb          49MB（<阈值——auto 高亮臂）open 链计时+RSS
+#   big50mb          50MB（=阈值——plain 旁路臂）open 链计时+RSS
+#   big100mb         100MB（plain 臂域内上探）
+# 对照语义（代理口径，L0 无预算效力——注记成文）：mode 无独立开关面
+# （big 由装载前探测派生，v1 契约）——mode 臂=**尺寸杠杆**（49MB auto
+# vs 50MB plain），差值=旁路收益代理指标（load_file 原生同构下，差异
+# 面=渲染高亮路径+VM 探测门+池驻留形态；RSS 峰值为进程树工作集，
+# 687 锚 100MB→219MB 为 a2r release 域，本档=L0 vm merged debug 域
+# 不可直比——只作档内对照与漂移哨兵）。退出码 0=记录性（无硬预算行）。
+
+def _bigfile_fixture(path: Path, total: int) -> float:
+    t0 = time.perf_counter()
+    unit = b"".join(
+        (b"line %08d bigfile bench fixture padding ........\n" % i)
+        for i in range(512))
+    per = len(unit)
+    with open(path, "wb") as f:
+        written = 0
+        while written < total - per:
+            f.write(unit)
+            written += per
+        if written < total:
+            f.write(b"x" * (total - written - 1) + b"\n")
+    return time.perf_counter() - t0
+
+
+def stage_bigfile() -> int:
+    exe = _auto_exe()
+    fp = _fingerprint()
+    _log(f"bigfile 档（PLAN-013 T-04）toolchain: {fp.get('version', '?')}")
+    FIXTURES.mkdir(exist_ok=True)
+    mb_unit = 1024 * 1024
+    sizes = [(49, "auto 臂（阈值下）"), (50, "plain 臂（=阈值）"),
+             (100, "plain 臂（域内上探）")]
+    rows = []
+    for mb, note in sizes:
+        fx = FIXTURES / f"bigfile-{mb}mb.txt"
+        gen_s = _bigfile_fixture(fx, mb * mb_unit)
+        _log(f"bigfile {mb}MB（fixture 生成 {gen_s:.2f}s，gitignored）——{note}")
+        r = run_app_tracked(
+            {"AUTO_BENCH": "1", "AUTO_OPEN_PATH": str(fx)},
+            want_markers=["bench_open_start", "bench_open_done"],
+            timeout_s=max(180.0, 60.0 + mb * 4.0),
+            log_name=f"bigfile-{mb}mb",
+            mem_after=["bench_open_done"])
+        m = r["markers"]
+        mem = r["mem"].get("bench_open_done")
+        rec = {"id": f"big{mb}mb", "size_mb": mb, "arm": note,
+               "open_ms": (m["bench_open_done"] - m["bench_open_start"])
+               if "bench_open_start" in m and "bench_open_done" in m else None,
+               "spawn_to_open_ms": m.get("bench_open_start"),
+               "mem_loaded_bytes": mem[0] if mem else None,
+               "fixture_gen_s": round(gen_s, 3)}
+        rows.append(rec)
+        mem_mb = rec["mem_loaded_bytes"] and round(rec["mem_loaded_bytes"] / mb_unit)
+        _log(f"  {rec['id']}: open={rec['open_ms'] and round(rec['open_ms'])}ms "
+             f"mem={mem_mb}MB")
+    outfile = RESULTS / f"bigfile-{_ts()}.jsonl"
+    with open(outfile, "w", encoding="utf-8", newline=chr(10)) as f:
+        f.write(json.dumps({"type": "bigfile_timing", "toolchain": fp,
+                            "note": "mode on/off=尺寸杠杆代理对照（49 auto/50+100 plain）；"
+                                    "L0 无预算效力"},
+                           ensure_ascii=False) + chr(10))
+        for r in rows:
+            f.write(json.dumps(r, ensure_ascii=False) + chr(10))
+    _log(f"结果 JSONL → {outfile}")
+    bad = [r["id"] for r in rows if r["open_ms"] is None]
+    if bad:
+        _log(f"FATAL: 档无数字：{bad}")
+        return EXIT_FAIL
+    return EXIT_OK
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description="auto-edit 测量套件（PLAN-005 B 段）")
-    ap.add_argument("cmd", choices=["check", "proxy", "assert", "diff"])
+    ap.add_argument("cmd", choices=["check", "proxy", "assert", "diff", "bigfile"])
     ap.add_argument("--runs", type=int, default=DEFAULT_RUNS,
                     help=f"启动分解跑数（默认 {DEFAULT_RUNS}，首跑弃暖机）")
     ap.add_argument("--full", action="store_true",
@@ -942,6 +1016,8 @@ def main() -> int:
         return stage_check()
     if args.cmd == "diff":
         return stage_diff()
+    if args.cmd == "bigfile":
+        return stage_bigfile()
     if args.cmd == "proxy":
         return stage_proxy(args.runs, args.full, args.mode)
     return stage_assert(args.results)

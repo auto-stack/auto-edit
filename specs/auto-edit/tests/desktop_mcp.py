@@ -2181,6 +2181,327 @@ def run_tests(mcp_url, proc):
     else:
         print("  NOTE  tests/fixtures/dirdiff missing; skipping T16")
 
+    # T17: PLAN-013 —— 大文件模式检查组（T16 形态：独立新鲜进程+APPDATA
+    # 隔离；50MB 级 fixture 生成式临时构造不入库——计划 §T-04）。驱动面=
+    # AUTO_BENCH+AUTO_OPEN_PATH env 旁路（ConsumeOpen 链——T13 +按钮
+    # ActOpen 同源）。子组：
+    #   17.1 探测置位+plain 绑定（big_active/loaded_bytes/lang_active）
+    #   17.2 ReplaceAll 拦截（console blocked+big_hint 提示位）
+    #   17.3 save 拦截（console+big_hint+磁盘零变 E2E）
+    #   17.4 切换往返无残留（big↔normal：lang_active/big_active 联动）
+    #   17.5 超大拒绝（513MB：错误形 tab+readonly_label+loaded_bytes=0）
+    #   17.6 阈值下界（49MB：big_active=false——门槛不误伤）
+    #   17.7 normal 态零误伤（小文件 replace-all 成功+save 写通 E2E）
+    #   17.8 会话恢复重探（退出→同 APPDATA 重启→恢复 tab→装载重探 big）
+    print("\nT17: PLAN-013 big-file mode")
+    t17_dir = tempfile.mkdtemp(prefix="p013_t17_fx_")
+    MB = 1024 * 1024
+
+    def _t17_make(name, total_bytes):
+        p = os.path.join(t17_dir, name)
+        with open(p, "wb") as f:
+            block = (b"line %08d padding for t17 bigfile fixture ........\n")
+            unit = b"".join((block % i) + b"\n" for i in range(512))
+            per = len(unit)
+            written = 0
+            while written < total_bytes - per:
+                f.write(unit)
+                written += per
+            if written < total_bytes:
+                f.write(b"x" * (total_bytes - written - 1) + b"\n")
+        return p
+
+    f_big50 = _t17_make("big50.txt", 50 * MB)
+    f_49 = _t17_make("under49.txt", 49 * MB)
+    f_513 = _t17_make("over513.txt", 513 * MB)
+    f_small = os.path.join(t17_dir, "small.txt")
+    with open(f_small, "w", encoding="utf-8", newline="") as f:
+        f.write("alpha line one\nbeta line two\nNEEDLE_QZ here\nalpha line four\n")
+
+    def _t17_app(extra, appdata=None):
+        port = pick_free_port()
+        env = {**os.environ, "AUTOUI_MCP_PORT": str(port),
+               "APPDATA": appdata or tempfile.mkdtemp(prefix="auto013_t17_"),
+               **extra}
+        proc = subprocess.Popen(
+            [AUTO_BIN, "run", "-r", "vm"],
+            cwd=PROJECT, env=env,
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        url = f"http://127.0.0.1:{port}/mcp"
+        assert wait_for_server(url, 30), "T17 server never up"
+        t = McpClient(url)
+        for _ in range(15):
+            s = t.snapshot()
+            if "(rendered)" in s and s.count("onclick") > 0:
+                break
+            time.sleep(1)
+        time.sleep(1.5)
+        return proc, t
+
+    def _t17_wait_loaded(t, base, timeout=90):
+        for _ in range(timeout * 4):
+            c = state_str(t.state("console"), "console") or ""
+            if "loaded: " in c and base in c:
+                return True
+            if "load rejected" in c:
+                return True
+            time.sleep(0.25)
+        return False
+
+    # 17.1-17.4 共享实例（探测/拦截/往返链）
+    try:
+        p17, t17 = _t17_app({"AUTO_BENCH": "1", "AUTO_OPEN_PATH": f_big50})
+        ok_load = _t17_wait_loaded(t17, "big50.txt")
+        st = t17.state("big_active", "lang_active", "loaded_bytes",
+                       "readonly_label", "big_hint")
+        result.check("T17.1 探测置位+plain 绑定（big_active+loaded_bytes+lang）",
+                     ok_load
+                     and state_bool(st, "big_active") is True
+                     and state_int(st, "loaded_bytes") == 50 * MB
+                     and (state_str(st, "lang_active") or "").strip('"') == "plain"
+                     and (state_str(st, "readonly_label") or "").strip('"') == "",
+                     st.replace("\n", " ")[:160])
+
+        # 17.2 ReplaceAll 拦截（开栏 keystroke 加 state 校验重试——首拍
+        # 派发竞态卫生，probe_bigfile B-2 同款）
+        opened17 = False
+        for _ in range(3):
+            t17.call("autoui_keyboard", key="h", modifiers=["ctrl"])
+            time.sleep(0.6)
+            if state_bool(t17.state("find_replace_mode"), "find_replace_mode"):
+                opened17 = True
+                break
+            time.sleep(0.4)
+        iid = None
+        for _ in range(4):
+            m2 = re.search(r"input #(\w+)", t17.snapshot())
+            iid = m2.group(1) if m2 else None
+            if iid:
+                break
+            time.sleep(0.5)
+        if iid:
+            t17.call("autoui_type", element_id=iid, text="alpha", clear_first=True)
+            time.sleep(0.6)
+        btn = None
+        for _ in range(3):
+            btn = find_button_by_text(t17.snapshot(), "全部替换")
+            if btn:
+                break
+            time.sleep(0.5)
+        if btn:
+            t17.click(btn)
+        # 拦截行轮询窗（T13.4 readonly 拦截检查同款——定睡读一次在 50MB
+        # 首渲染窗口内会抢跑）。
+        c17 = ""
+        for _ in range(24):
+            c17 = state_str(t17.state("console"), "console") or ""
+            if "replace: blocked (big file" in c17:
+                break
+            time.sleep(0.3)
+        st2 = t17.state("console", "big_hint")
+        hint = (state_str(st2, "big_hint") or "").strip('"')
+        result.check("T17.2 ReplaceAll 拦截（console blocked+big_hint 提示）",
+                     "replace: blocked (big file" in c17 and "拦截" in hint,
+                     f"opened={opened17} iid={iid} btn={btn is not None} "
+                     f"hint={hint!r} console_tail={c17[-140:]!r}")
+
+        # 17.3 save 拦截（磁盘零变 E2E；console 轮询窗替代定睡——派发竞态卫生）
+        size_before = os.path.getsize(f_big50)
+        sbtn = find_button_by_icon(t17.snapshot(), "save")
+        if sbtn:
+            t17.click(sbtn)
+        blk = ""
+        for _ in range(20):
+            blk = state_str(t17.state("console"), "console") or ""
+            if "save blocked (big file" in blk:
+                break
+            time.sleep(0.25)
+        st3 = t17.state("console", "big_hint")
+        size_after = os.path.getsize(f_big50)
+        result.check("T17.3 save 拦截（console+提示+磁盘零变）",
+                     "save blocked (big file" in (state_str(st3, "console") or "")
+                     and "拦截" in ((state_str(st3, "big_hint") or ""))
+                     and size_after == size_before,
+                     f"size {size_before}->{size_after}")
+
+        # 17.4 切换往返无残留（seed tab[main.at] ↔ big tab；点击加 state
+        # 校验重试——快照-派发间视图重建 vnode 失效卫生，T13 同源）
+        tmain = find_button_by_text(t17.snapshot(), "main.at")
+        if tmain:
+            t17.click(tmain)
+        for _ in range(4):
+            st4 = t17.state("big_active", "lang_active")
+            if state_bool(st4, "big_active") is False:
+                break
+            tmain = find_button_by_text(t17.snapshot(), "main.at")
+            if tmain:
+                t17.click(tmain)
+            time.sleep(0.6)
+        st4 = t17.state("big_active", "lang_active")
+        to_big = find_button_by_text(t17.snapshot(), "big50.txt")
+        if to_big:
+            t17.click(to_big)
+        for _ in range(4):
+            st5 = t17.state("big_active", "lang_active")
+            if state_bool(st5, "big_active") is True:
+                break
+            to_big = find_button_by_text(t17.snapshot(), "big50.txt")
+            if to_big:
+                t17.click(to_big)
+            time.sleep(0.6)
+        st5 = t17.state("big_active", "lang_active")
+        result.check("T17.4 切换往返无残留（big↔normal props 联动）",
+                     state_bool(st4, "big_active") is False
+                     and (state_str(st4, "lang_active") or "").strip('"') == "auto"
+                     and state_bool(st5, "big_active") is True
+                     and (state_str(st5, "lang_active") or "").strip('"') == "plain",
+                     f"main[{state_bool(st4, 'big_active')},"
+                     f"{(state_str(st4, 'lang_active') or '').strip(chr(34))}] "
+                     f"big[{state_bool(st5, 'big_active')},"
+                     f"{(state_str(st5, 'lang_active') or '').strip(chr(34))}]")
+        _kill_proc_tree(p17)
+    except Exception as e:
+        result.check("T17.1-4 探测/拦截/往返链", False, repr(e))
+
+    # 17.5 超大拒绝（513MB 独立实例）
+    try:
+        p17b, t17b = _t17_app({"AUTO_BENCH": "1", "AUTO_OPEN_PATH": f_513})
+        ok_rej = _t17_wait_loaded(t17b, "over513.txt", timeout=60)
+        st = t17b.state("title_active", "loaded_bytes", "readonly_active",
+                        "readonly_label", "big_active", "console")
+        result.check("T17.5 超大拒绝（错误形 tab+readonly_label+零装载）",
+                     ok_rej
+                     and "超大文件-拒绝装载" in (state_str(st, "title_active") or "")
+                     and state_int(st, "loaded_bytes") == 0
+                     and state_bool(st, "readonly_active") is True
+                     and (state_str(st, "readonly_label") or "").strip('"') == "只读(超大拒绝)"
+                     and "load rejected" in (state_str(st, "console") or ""),
+                     st.replace("\n", " ")[:220])
+        _kill_proc_tree(p17b)
+    except Exception as e:
+        result.check("T17.5 超大拒绝", False, repr(e))
+
+    # 17.6 阈值下界（49MB——门槛不误伤）
+    try:
+        p17c, t17c = _t17_app({"AUTO_BENCH": "1", "AUTO_OPEN_PATH": f_49})
+        ok_load = _t17_wait_loaded(t17c, "under49.txt")
+        st = t17c.state("big_active", "lang_active", "loaded_bytes")
+        result.check("T17.6 阈值下界（49MB big_active=false+auto）",
+                     ok_load
+                     and state_bool(st, "big_active") is False
+                     and (state_str(st, "lang_active") or "").strip('"') == "auto"
+                     and state_int(st, "loaded_bytes") == 49 * MB,
+                     st.replace("\n", " ")[:140])
+        _kill_proc_tree(p17c)
+    except Exception as e:
+        result.check("T17.6 阈值下界", False, repr(e))
+
+    # 17.7 normal 态零误伤（小文件 replace-all 成功+save 写通；AUTO_BENCH=1
+    # 必需——ConsumeOpen 的 env 种子仅门控下生效，T13 +按钮同源根因）
+    try:
+        p17d, t17d = _t17_app({"AUTO_BENCH": "1", "AUTO_OPEN_PATH": f_small,
+                               "AUTO_SAVE_PATH": f_small})
+        ok_load = _t17_wait_loaded(t17d, "small.txt", timeout=20)
+        t17d.call("autoui_keyboard", key="h", modifiers=["ctrl"])
+        time.sleep(0.6)
+        iid = None
+        for _ in range(4):
+            m2 = re.search(r"input #(\w+)", t17d.snapshot())
+            iid = m2.group(1) if m2 else None
+            if iid:
+                break
+            time.sleep(0.5)
+        typed = False
+        if iid:
+            t17d.call("autoui_type", element_id=iid, text="alpha", clear_first=True)
+            time.sleep(0.6)
+            m2 = re.findall(r"input #(\w+)", t17d.snapshot())
+            if len(m2) >= 2:
+                t17d.call("autoui_type", element_id=m2[1], text="ALPHA", clear_first=True)
+                time.sleep(0.6)
+                typed = True
+        btn = find_button_by_text(t17d.snapshot(), "全部替换")
+        if btn:
+            t17d.click(btn)
+            time.sleep(1.0)
+        st = t17d.state("console", "big_active", "big_hint")
+        rep_ok = "replace all: 2" in (state_str(st, "console") or "")
+        sbtn = find_button_by_icon(t17d.snapshot(), "save")
+        if sbtn:
+            t17d.click(sbtn)
+            time.sleep(1.5)
+        with open(f_small, encoding="utf-8") as fh:
+            saved = fh.read()
+        result.check("T17.7 normal 零误伤（replace 2 处+save 写通 E2E）",
+                     ok_load and typed and rep_ok
+                     and state_bool(st, "big_active") is False
+                     and saved.count("ALPHA") == 2
+                     and "NEEDLE_QZ" in saved,
+                     f"rep_ok={rep_ok} file_alpha={saved.count('ALPHA')}")
+        _kill_proc_tree(p17d)
+    except Exception as e:
+        result.check("T17.7 normal 零误伤", False, repr(e))
+
+    # 17.8 会话恢复重探（退出→同 APPDATA 重启→恢复 tab→装载重探 big）
+    try:
+        ad17 = tempfile.mkdtemp(prefix="auto013_t17_sess_")
+        p17e, t17e = _t17_app({"AUTO_BENCH": "1", "AUTO_OPEN_PATH": f_big50},
+                              appdata=ad17)
+        ok_load = _t17_wait_loaded(t17e, "big50.txt")
+        qitem = None
+        menu = find_button_by_text(t17e.snapshot(), "文件")
+        if menu:
+            t17e.click(menu)
+            time.sleep(1.0)
+            qitem = find_button_by_text(t17e.snapshot(), "退出")
+        if qitem:
+            try:
+                t17e.click(qitem)
+            except (requests.ConnectionError, requests.Timeout):
+                pass
+        for _ in range(30):
+            if p17e.poll() is not None:
+                break
+            time.sleep(0.5)
+        # 菜单点击竞态兜底：确认弹层若在（脏判定竞态）走不保存退出；
+        # 仍未退则重试菜单一次。
+        if p17e.poll() is None:
+            try:
+                snap_q = t17e.snapshot()
+                disc = find_button_by_text(snap_q, "不保存退出")
+                if disc:
+                    t17e.click(disc)
+                else:
+                    menu2 = find_button_by_text(snap_q, "文件")
+                    if menu2:
+                        t17e.click(menu2)
+                        time.sleep(1.0)
+                        q2 = find_button_by_text(t17e.snapshot(), "退出")
+                        if q2:
+                            t17e.click(q2)
+            except (requests.ConnectionError, requests.Timeout):
+                pass
+            for _ in range(20):
+                if p17e.poll() is not None:
+                    break
+                time.sleep(0.5)
+        exited = p17e.poll() is not None
+        _kill_proc_tree(p17e)
+        p17f, t17f = _t17_app({}, appdata=ad17)
+        ok_restore = _t17_wait_loaded(t17f, "big50.txt")
+        st = t17f.state("big_active", "lang_active", "loaded_bytes",
+                        "tab_count")
+        result.check("T17.8 会话恢复重探（恢复 tab→装载→big 重探）",
+                     ok_load and exited and ok_restore
+                     and state_int(st, "tab_count") == 1
+                     and state_bool(st, "big_active") is True
+                     and (state_str(st, "lang_active") or "").strip('"') == "plain"
+                     and state_int(st, "loaded_bytes") == 50 * MB,
+                     st.replace("\n", " ")[:160])
+        _kill_proc_tree(p17f)
+    except Exception as e:
+        result.check("T17.8 会话恢复重探", False, repr(e))
+
     print()
     print("T8: ActQuit (menu item)")
     open_menu(mcp, snap_cache, "文件")

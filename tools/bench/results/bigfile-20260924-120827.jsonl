@@ -1,0 +1,4 @@
+{"type": "bigfile_timing", "toolchain": {"auto_path": "D:/tmp/p012_pin_auto.exe", "auto_version": "auto 0.1.0+v0.4.2-2046-g02ae0ac1c-dirty", "auto_mtime": "2026-09-23T22:38", "psutil": true, "project": "D:\\autostack\\.wt\\plan-013\\auto-edit\\specs\\auto-edit", "os": "win32"}, "note": "mode on/off=尺寸杠杆代理对照（49 auto/50+100 plain）；L0 无预算效力"}
+{"id": "big49mb", "size_mb": 49, "arm": "auto 臂（阈值下）", "open_ms": 178.7858999996388, "spawn_to_open_ms": 2272.305200000119, "mem_loaded_bytes": 607281152, "fixture_gen_s": 0.012}
+{"id": "big50mb", "size_mb": 50, "arm": "plain 臂（=阈值）", "open_ms": 203.63980000001902, "spawn_to_open_ms": 2272.2515000004933, "mem_loaded_bytes": 686325760, "fixture_gen_s": 0.016}
+{"id": "big100mb", "size_mb": 100, "arm": "plain 臂（域内上探）", "open_ms": 382.49630000063917, "spawn_to_open_ms": 2270.6727999993745, "mem_loaded_bytes": 987222016, "fixture_gen_s": 0.04}

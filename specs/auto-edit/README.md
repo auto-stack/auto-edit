@@ -249,6 +249,26 @@ T-00 勘定 upstream §15 want）。vue 臂双重 blocked-on-upstream（strict
 gen 红=menubar-sub 族 schema 缺登记[695 预存主干断层]+helper 族
 TS7006[§14]——lenient gen ✓ 34 组件，本件零新增错面）。
 
+PLAN-013 口径更新（2026-09-24，工具链 2046 钉版 /d/tmp/p012_pin_auto.exe
+同版续用）：矩阵扩 T17 大文件模式检查组（探测置位+plain 绑定 state 面
+big_active/loaded_bytes/lang_active、ReplaceAll 拦截 console+big_hint、
+save 拦截磁盘零变 E2E、big↔normal 切换往返 props 联动、超大拒绝 513MB
+错误形 tab+readonly_label、阈值下界 49MB 不误伤、normal 态零误伤
+replace+save 写通 E2E、会话恢复重探；每检查独立进程+临时 APPDATA
+隔离；50/49/513MB 级 fixture 生成式临时构造不入库）——完成态 **117
+检查**（109 + 8 新检查）。**判绿口径=≥115 passed / 0 failed（T12.6
+已知上游缺[menubar-sub MCP 失明]不计+轮换 flake 按重跑条款清零）**；
+决策探针 `tests/probe_bigfile.py`（8/0）为前置决策门不入矩阵计数。
+大文件链零 `code_editor_text` 新面（护栏=前置门——检测器白名单零变更
+）；探测链=back 第 14 端点 `file_size`（envelope JSON——裸 int 过 HTTP
+=serialize null，upstream §16 观察）；超大拒绝位 512MB（200MB 峰值
+RSS ~1.55GB 实测外推——upstream §16 归档注记）；EolConvert 菜单入口
+menubar-sub MCP 失明（T12.6 同源）——其护栏门在 store 侧（
+EolConvertRequest+EolConvert 双门），矩阵不可直驱如实注记。bench 增
+`bigfile` 计时档（tools/bench `bench.py bigfile`：49/50/100MB mode
+on/off 尺寸杠杆代理对照——mode 无独立开关面，big 由装载前探测派生；
+L0 无预算效力口径注记，JSONL 在 results/）。
+
 注：Plan 451 起 T10「热重载」走 DSL 源路径（reload 工具或 mtime 轮询重读
 app.at 重新提取 actions + generation bump → 视图重建），实测 50/0 全绿。
 OS 用户键位层（`%APPDATA%/auto/keymaps/auto-edit.at`）保持外部文件——那是
