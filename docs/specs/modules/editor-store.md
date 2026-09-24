@@ -257,3 +257,66 @@ want 消费方）；会话恢复开关无 config-as-data 配置面（v1 恒开�
 未来件）；多 workspace 并行会话（v1 单文件 last-wins，ws_dir 键控判匹配
 ）；tree 展开态/滚动位/fif 结果/查找栏开合等瞬态不恢复（v1 只恢复
 tab 集与激活位）。
+
+## 大文件模式（PLAN-013 SD-01，M2-04）
+
+> 来源：PLAN-013 T-01..T-03 交付；探测时点/双阈值/护栏语义=T-00 决策
+> 记录（probe_bigfile.py 实证 + 内核静态勘，计划 §10 Q-1..Q-4）。内核
+> 零改动（wrap prop/lang plain 白名单/apply_config 热应用皆现役面）。
+
+**模式态与探测协议**：per-tab `big: bool` 标量（阈值 **52428800B=
+50MB**，战略 §2.2 原文；≥判 big）。探测位=**RunPendingLoad 装载前门**
+（pre-load 形，Q-1 裁定）：`file_size(path)` 一次性（back 第 14 端点，
+envelope JSON——**裸 int 返回过 AutoVM HTTP 面=serialize null**，T-00
+Phase A 实勘，merged 直调 ✓/split ✗；upstream §16 观察）→ `vsize.size
+?? -1`。负值=缺席/IO（跳过模式判定——既有 load_file 错误形承接，零行
+为差异）。OpenPath/会话恢复链统一单点（两链 tab 均 loaded=false 建
+tab→编辑器空实化（零内容渲染）→Tick 装载；恢复链 big=false 重建、
+装载时重探=「重装载即重探」，会话只存 path 天然兼容）。big 置位先于
+`load_file`——装载完成渲染时 props 已按模式态走（同 handler 原子性+
+apply_config 逐字段 diff 热应用[lang_changed=同 buffer 重建 SyntaxEditor/
+wrap_changed=set_wrap，内核 mod.rs apply_config_locked]=首帧即模式态）。
+
+**模式切换链（视图 props）**：big tab → `lang: "plain"`（激活 tab 派生
+标量 `lang_active`，SyncByteMeta 重算；Ident 绑定=search prop 已证面）+
+`wrap: false` 显式绑定。plain 语义=**跳过**非「延迟」（lang_to_extension
+白名单 plain/none/""→None——syntect 高亮跳过+syntax_by_extension 不设；
+warm_language 兜底 warm txt=无害常数）。wrap 现状勘定（Q-2）=**恒
+false**（内核 builder 默认 view.rs:1921+现视图未绑）——「关折行」项=
+零动作注记，显式绑定防内核默认漂移。切换联动=激活 tab 变更→
+SyncByteMeta 重算→视图重建（big↔normal 往返无残留；ActNew untitled
+化同时清 big/ro_reason）。undo 历史在 lang 切换位重置（内核语义，v1
+接受——big 态编辑为小步精修域）。
+
+**命令护栏（全文本三件）**：big 态入口拦截+显式提示（console+状态栏
+`big_hint`，绝不静默）——①`ReplaceAllRequest`、②`EolConvertRequest`
+（+本体 `EolConvert` 同门=确认链直呼防御）、③`WriteFidelity`（save，
+ActSave/QuitSaveClose 双臂同拦）。**readonly 不设**（大文件仍可小步精
+修——战略 §1.2 保留清单②；编辑/查找/导航/fif 不受限）；拦截语义=命
+令级。实证依据（Q-4，探针 50MB 活体）：全文命令在 2046 工具链可完成
+（ReplaceAll 全管线 2.5s/计数精确）——护栏依据=**结构性/战略线**：全
+文往返 50MB+ 字符串两次过 VM 池（687 滞留形态；200MB 峰值 RSS
+~1.55GB 实测）+工具链漂移（011 实勘 split 49×）+save 唯一路径=全文
+VM 往返（直写端点清偿前无正解）。解锁件=上游 `code_editor_save` 直写
+端点（§10-2 want 在册，upstream §16 登记）——落地后 big 态 save 解禁，
+零 front 改动预期。EolConvert 菜单入口在 menubar-sub（MCP 失明=T12.6
+同源已知上游缺——护栏门不可矩阵直驱，门本体在 store 侧成文）。
+
+**超大拒绝位**：**536870912B=512MB**（Q-3 定参；依据=探针 200MB 峰值
+RSS ~1.55GB 实测外推 512MB→~4GB 不可控域+687 锚交叉）。`file_size >
+512MB` → **拒绝装载**（零 rope 分配——pre 形实质优势）：错误形 tab
+（readonly 置位+`ro_reason:"big"`+标题后缀「超大文件-拒绝装载」+
+loaded=true 终结装载链[防 TabActivate 懒装载重触发]）+console 注记
+（含架构阻塞指向）。readonly 必须保留：空 rope+WriteFidelity 无栏=原
+文件被清写盘成 0B（008 T-04 同根拦截面）。状态栏只读标签派生化
+`readonly_label`（编码错误/超大拒绝两形态分立）。1GB 线（战略 §2.1
+预算行）在拒绝位之上=两段式成文：**拒绝位之内 50MB+ 可开（模式态），
+之外拒绝（真分块 IO=上游阻塞，upstream §16）**；分块解码/1GB 可打开
+=非目标（v1 纪律）。
+
+**会话恢复兼容**：会话只存 path——重装载即重探（恢复链 big=false，
+RunPendingLoad 探测门统一置位）；拒绝形 tab 的 loaded=true 语义=装载
+链已终结（拒绝），恢复后激活不重触发。
+
+**检测器口径**：白名单五件封闭集**零变更**（护栏=前置门，不动读出
+位；探测链走 back file_size，零 `code_editor_text` 新面）。

@@ -89,6 +89,20 @@ menubar-content 动态子节点边界适配在案）。边界如实成文：脏�
 节；**back-api 零端点变更**（env_str/read_text/write_text/exists 四件
 既有复用）；矩阵扩 T14 检查组（完成态 86/0）+ fixtures/session/ 两件。
 
+**第四件已落（PLAN-013，2026-09-24）——M2 四件全落**：**大文件模式
+v1（50MB 档）**——>50MB 进入大文件模式（战略 §2.2）：装载前探测门
+（back 第 14 端点 `file_size` envelope）置 per-tab big 态→关折行（wrap
+显式 false——现状勘定恒 false，零动作注记）+懒语法（lang plain=syntect
+旁路，跳过非延迟）+**全文本命令护栏**（ReplaceAll/EolConvert/save 三
+入口 big 态拦截+显式提示，readonly 不设=小步精修保留）；超大拒绝位
+512MB（>之拒绝装载零 rope 分配——真分块 IO=上游阻塞，1GB 线非目标
+注记，upstream §16）。内核零改动（wrap prop/plain 白名单/apply_config
+热应用皆现役面）。editor-store.md 大文件模式节+back-api.md file_size
+端点节（计数勘正 13→14）；矩阵扩 T17 检查组+bench bigfile 档（mode
+on/off 尺寸杠杆代理对照）；决策探针 tests/probe_bigfile.py 为前置
+决策门不入矩阵计数。上游件（code_editor_save 直写端点[护栏解除件]/
+HTTP int 返回 serialize null 观察）登记 docs/upstream §16。
+
 ## M3 面开篇注记（PLAN-011，2026-09-23）
 
 M3（diff 对打 Beyond Compare，战略 §2.3）首件已落：**文件 diff v1——

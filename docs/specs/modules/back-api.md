@@ -2,13 +2,13 @@
 
 > 来源：PLAN-003 交付 + src/back/{api.at,fsys.at}；计数勘正与 IO 字节
 > 语义节=PLAN-008 SD-02；搜索服务端点节=PLAN-009 SD-02；目录 diff 与
-> 同步端点节=PLAN-012 SD-02。
+> 同步端点节=PLAN-012 SD-02；file_size 端点节=PLAN-013 SD-02。
 
-## 契约（src/back/api.at，**十三 #[api]**——PLAN-012 勘正：PLAN-011
-十件基础上增 diff_dirs/sync_copy/sync_delete）
+## 契约（src/back/api.at，**十四 #[api]**——PLAN-013 勘正：PLAN-012
+十三件基础上增 file_size）
 
-`ws_root / tree / read_text / read_text_range / write_text / exists /
-env_str / regex_replace / search_files / diff_files / diff_dirs /
+`ws_root / tree / read_text / read_text_range / file_size / write_text /
+exists / env_str / regex_replace / search_files / diff_files / diff_dirs /
 sync_copy / sync_delete`——路由前缀 /api，GET 走 query、
 POST 走 body。消费形态：`use back.api: <fns>` 裸函数直调（013-todo/
 015-notes 形态）：
@@ -133,3 +133,20 @@ a2r server 生成器模板假设 api::Db 状态注入 + 契约 fn 转译为空�
 - 安全注记（破坏性动作纪律）：动作仅对已完成一次比对的 entries 态
   开放；覆盖复制/删除=front alert-dialog 确认链；back 空路径拒绝。
   完整契约见 modules/diff-view.md 目录节（SD-01 主册）。
+
+## file_size 端点（PLAN-013 SD-02，M2-04 大文件模式探测链）
+
+- **`file_size(path) str`**（GET `/api/file_size?path=..`）：文件字节
+  数，**envelope JSON 串形 `{"size":<字节>}`**。实现=fsys.file_size_impl
+  （exists 前置判 + fs.metadata 直通[auto.fs.size 映射，int 字节长]+
+  try 门）——缺失/IO 错误 → `size:-1`（metadata 对缺失返 0 无异常，
+  0 与空文件歧义故显式判存）。消费方=front RunPendingLoad 装载前门
+  （editor-store.md 大文件模式节）：负值跳过模式判定、≥50MB 置 big、
+  >512MB 拒绝装载。
+- **返回形勘定（T-00 Phase A 实勘，upstream §16 观察）**：裸 int 返回
+  过 AutoVM HTTP 面=serialize `null`（merged 进程内直调 ✓ 正常）——
+  api.at 头注「返回面 str/int/bool」的 int 腿在 split/vue 轨**不成立**
+  （本端点是首个 int 返回件，实勘即破）；JSON 串 envelope=仓内既证
+  双轨形（search_files count 同款），本端点从之。want=HTTP 层 int 返回
+  序列化修复（清偿后 envelope 可简化，front 侧零行为依赖——`?? -1`
+  兜底形保持）。
