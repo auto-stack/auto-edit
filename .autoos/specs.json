@@ -204,12 +204,24 @@
           ],
           "superseded_by": null,
           "content": "- 交付：back 十一件至十三件（diff_dirs 递归遍历+长度桶对齐[.at 无 sort/hash 面内解]+五态分类 same/added/deleted/modified/binary[二进制启发式 size>0 且 read_text==\"\"，≤2MB 全文域]+桶积护栏 Σk²≤700k[N=800 过 0.94s/N=1000 WARN[budget] 墙→优雅超限 err 架构注记]+sync_copy[文件=字节往返 read_bytes→write_bytes ≤2MB——fs.copy(1007) 被 copy 保留字阻断 Plan 122，T-00 迷你 app 复现；目录=copy_recursive 静默覆盖 Q-2]+sync_delete[文件 fs.delete/目录仅空目录 fs.remove_dir+空/根/缺失护栏]）+front 目录面板（dir_mode⟺diff_open handler 组+dir_from_dirs 归位门[DiffCompute err/DiffClose 双外科点，011 路径零扰动]+五状态五独立 for 行渲染[兄弟 if 实勘规避]+过滤纯 front 态零重比+同步动作 alert-dialog 确认链[双侧复制恒确认/删除恒确认/删除域=单侧条目]+下钻 DiffCompute 复用+返回目录 entries 保留）。\n- 验收：AC-01..06 PASS+AC-07 PARTIAL（vue regen --build 双重 blocked-on-upstream：strict gen 红 menubar-sub 族 vue schema 缺登记[695 预存主干断层，非本件]+TS 16 错[TS7006×12 §14 helper+TS2339×4 PLAN-005 AUTO_BENCH print 遮蔽交互，预存非本件 diff]；lenient gen ✓ 本件零新增错面；解锁三项 §15）；矩阵 109 检查（97+T16×12），复审轮 **108/1** 达判绿 ≥107/0（唯一败=T12.6 R-4 已知缺不计，T16 12/12 全绿；执行期五轮谱 85/5→95/2→104/5→107/2→106/3 竞态地板在案）；探针 probe_dirdiff.py 27/0；烟测 smoke_t345_dirdiff 47/47；fixtures/dirdiff base+rev 五形态 golden 入仓。\n- T-00 决策：fs.copy 保留字阻断→字节往返获救（原生 shim 零 VM 步循环，2MB roundtrip ok）；覆盖=静默（write_bytes truncate/copy_recursive 合并）→双侧条目复制恒确认；对齐长度桶+桶积护栏；dialog_open=rfd pick_file 文件专用→v1 双路径输入框+env AUTO_DIRDIFF_A/B 旁路；二进制启发式正判（0B 不误判）；>2MB 同尺寸=同(未比对)注记态。\n- 复审 r1 pass（同会话以工件重建裁决，全门禁受审树独立重跑）：矩阵 108/1/探针 27/0/烟测 ALL PASS/vue strict+lenient 双定性复现；findings R-1 边界活体缺口两项在档（>5000 truncated 注记未实测[护栏路径已证]/sync_copy >2MB 拒绝路径未活体断言）、R-2 vue 三项解锁在 §15、R-3 执行期 TS 定性漏计勘正（fe4dde6——011 复审 12/12 同款漏计）、R-4 复审并发姿势错误（探针×矩阵并发连接重置，串行重跑过）。\n- upstream §15 八件：copy 保留字 P1/folder picker/file-hash/sort-hash 原语 P1/WARN[budget] 响应形观察件/menubar-sub schema P2[695 预存]/helper TS7006 沿 §14/print 遮蔽映射。"
+        },
+        {
+          "id": "P013-1",
+          "section": "reviews",
+          "status": "stable",
+          "title": "PLAN-013 — M2-04 大文件模式 v1 收据（reviewed pass @ r1 027346e：50MB 档探测/关折行/平文本/全文本命令护栏，复审矩阵 116/1 判绿）",
+          "file": "docs/plans/archived/013-m2-largefile-mode-v1.md",
+          "related": [
+            "PLAN-008"
+          ],
+          "superseded_by": null,
+          "content": "- 交付：back 第 14 端点 file_size（envelope JSON 形——裸 int 过 AutoVM HTTP=serialize null 实勘[merged 直调 ✓]，§16 观察；fsys 零-try 形[exists 前置+a2r 转译器 try 体不支持 Asn/Return 两形实测]+front 探测位 try 门兜竞态窗）+front 装载前探测门（RunPendingLoad 单点[OpenPath/恢复链统一]，pre-load 裁定=拒绝先于 rope 分配；50MB 阈置 per-tab big+512MB 拒绝位[拒绝形 readonly+ro_reason:\"big\"+标题后缀+loaded=true 终结装载链——readonly 保留=空 rope 无栏清写盘 0B 防线，008 同根；readonly_label 派生两形态分立]）+模式切换链（lang_active Ident 绑定=plain syntect 旁路[白名单+apply_config 逐字段 diff 热应用静态证据]+wrap 显式 false[现状勘定恒 false=零动作注记防漂移]+ActNew 清 big/ro_reason）+三护栏（ReplaceAllRequest/EolConvertRequest+EolConvert 双门/WriteFidelity[ActSave+QuitSaveClose 双臂]+big_hint 状态栏提示位，绝不静默；readonly 不设=小步精修保留）。内核零改动。\n- 验收：AC-01..05 PASS+AC-06 PASS-WITH-NOTED-DEVIATION（F-1 非阻断 blocked-on-upstream：vue pnpm build exit 0 阻断面全在上游——strict gen 红=menubar-sub 三元素 schema 缺登记[695 预存主干断层]+build 红=12×TS7006 全 App.vue §14 helper 预存；lenient gen exit 0 34 组件+本件零新增错面双轮复现[执行期+复审轮]，012 同形 delivered 在案；解锁三项 §16）；矩阵完成态 117 检查（109+T17×8），复审轮 **116/1** 达判绿 ≥115/0（唯一败=T12.6 已知上游缺不计；执行期 run3 114/3→run4 116/1+复审轮同谱[run1 101/16=vue pnpm 并发负载噪声实录，零并发重跑即愈]）；探针 probe_bigfile.py 8/8 exit 0（Phase A 端点三形+护栏活体拦截+磁盘零变 E2E+200MB 峰 RSS ~1.55GB=512MB 拒绝位实证）；bench bigfile 档 JSONL（49/50/100MB 尺寸杠杆代理对照——mode 无独立开关面 big 由探测派生）；bench check 绿=检测器白名单零变更[code_editor_text 恰三读出位]。\n- T-00 决策：探测时点=pre-load（RunPendingLoad 装载前门，非 OpenPath——两链统一单点+拒绝先于 rope 分配是 post 形不可达优势）；wrap 现状勘定恒 false（builder 默认 view.rs:1921+视图未绑）=零动作注记；拒绝位 512MB（200MB 峰 RSS ~1.55GB 外推+687 锚交叉）；护栏=结构性/战略线定位（50MB 全文管线 2046 活体可完成 ReplaceAll 2.5s 计数 1691/1691 精确——非紧急墙；池滞留[200MB→1.55GB]+工具链漂移 49×+save 无直写三根因）。\n- 边界：分块解码/1GB 可打开=非目标（真分块 IO=上游阻塞 §16）；大文件 save 可用路径=护栏只拦截（code_editor_save 直写端点=解除件，落地后零 front 改动预期）；EolConvert 菜单入口 menubar-sub MCP 失明=T12.6 同源（护栏门在 store 侧 Request+本体双门，矩阵不可直驱如实注记）；会话恢复重探兼容（恢复链 .tabs=[] 替换种子形——tab_count 期望=1）。\n"
         }
       ],
       "status": "Empty",
       "content": "",
       "depends_on": [],
-      "last_modified": 1788936821,
+      "last_modified": 1790230913,
       "last_verified": null
     },
     {
