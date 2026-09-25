@@ -2,7 +2,7 @@
   "toolchain": "D:/autostack/.wt/plan-014/auto-lang/target/debug/auto.exe",
   "runs": {
     "lf": {
-      "save_host_ms": 1,
+      "save_host_ms": 0,
       "src_sha_len": 45,
       "dst_len": 45,
       "identical": true,
@@ -17,11 +17,11 @@
         "P014 scroll_to true",
         "P014 sy_soft 0",
         "P014 t_ms",
-        "1790326807724",
+        "1790340748696",
         "P014 shell true",
         "P014 save_ms",
         "P014 save true",
-        "1790326807725",
+        "1790340748696",
         "P014 probe_done"
       ],
       "recent_delta": []
@@ -38,17 +38,17 @@
         "    title: \"P014Probe\",",
         "P014 phase1",
         "P014 t_ms",
-        "1790326812892",
+        "1790340753841",
         "P014 shell true",
         "P014 save_ms",
         "P014 save true",
-        "1790326812892",
+        "1790340753841",
         "P014 probe_done"
       ],
       "recent_delta": []
     },
     "bom": {
-      "save_host_ms": 0,
+      "save_host_ms": 1,
       "src_sha_len": 16,
       "dst_len": 16,
       "identical": true,
@@ -59,11 +59,11 @@
         "    title: \"P014Probe\",",
         "P014 phase1",
         "P014 t_ms",
-        "1790326818024",
+        "1790340758975",
         "P014 shell true",
         "P014 save_ms",
         "P014 save true",
-        "1790326818024",
+        "1790340758976",
         "P014 probe_done"
       ],
       "recent_delta": []
@@ -71,17 +71,17 @@
     "big50": {
       "identical": true,
       "dst_len": 52428816,
-      "host_wall_s": 7.59,
+      "host_wall_s": 7.95,
       "prints": [
         "  VM window title: P014Probe (from pac.at)",
         "    title: \"P014Probe\",",
         "P014 phase1",
         "P014 t_ms",
-        "1790326825709",
+        "1790340766854",
         "P014 shell true",
         "P014 save_ms",
         "P014 save true",
-        "1790326825755",
+        "1790340766908",
         "P014 probe_done"
       ]
     }
