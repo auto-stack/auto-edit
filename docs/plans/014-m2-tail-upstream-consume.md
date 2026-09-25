@@ -1,12 +1,12 @@
 ---
 plan_id: PLAN-014
-status: executing
+status: execution_done
 feature_name: m2-tail-upstream-consume-v1（M2 尾件+上游端点消费——跳转列表/化妆件/save 解禁/光标恢复/time 族/vue 复验，形态 A 消费件）
 author: [agent]
 created_at: 2026-09-24T15:00:00+08:00
-updated_at: 2026-09-24T17:30:00+08:00
+updated_at: 2026-09-25T19:20:00+08:00
 plan_revision: 2
-current_step: 2
+current_step: 11
 total_steps: 11
 supersedes_spec_components: []
 new_spec_components:
@@ -201,6 +201,12 @@ Recent——矩阵可断言面勘定（autoui_state 零 shell 面——E2E=手�
   勘定（autoui_state 零 shell 面——E2E=手工/探针双轨）。custom 类挂
   账非目标。
 
+  **[✅ 已完成 2026-09-25]** 供⑥ delivered（PLAN-701）→ OpenPath 公
+  共核 recents 维护后直调 `shell_add_recent(p)`（一行消费位+契约注记
+  ；恢复链不走此处）。编辑器 store 会话节消费条成文（SD-02 内）。
+  端点实证=probe（true 返回）；壳记账 E2E=手工/后续探针件（预记边界
+  ——autoui_state 零 shell 面）。worktree commit 14474a0。
+
 ### T-03 bench 化妆件（段一）
 
 F-01：`stage_assert` 重放 l2 文件时摘要行序从 budget_assert 记录的
@@ -229,6 +235,21 @@ not-armed」误导行。F-02：勘定记录（已消失，2026-09-24 实勘）�
 
 - AC 关联：AC-03/AC-04 前置。验证：探针退出码 0+报告落档。
 
+- AC 关联：AC-03/AC-04 前置。验证：探针退出码 0+报告落档。
+
+  **[✅ 已完成 2026-09-25]** probe_upstream_consume.py（fixture 迷你
+  app 仪器，kernel 级直调）：供① save 直写字节保真四变体逐字节全等
+  [LF/CRLF/BOM/50MB]+50MB save≈46ms[护栏时代 1.3-4.2s 且拦截不可用]；
+  供② set_cursor 0 基实证[set(1,2)→读回 line1/col2]+scroll 写侧
+  true/读投影 fixture 不动[归 T18/后续生态证据]；供④ 裸 print(i64)
+  直出形勘定[.str()/concat/双参=平台缺口——701 time-natives 桥面节
+  对应]；供⑥ shell_add_recent true；供⑤ 在册三 grep 全绿。报告
+  probe_upstream_consume_report.json 入库。
+- AC 关联：AC-03。验证：矩阵 T18（big save E2E 磁盘字节+50MB 域
+  时长对照[护栏时代 1.3-4.2s→直写预期 <100ms 量级——687 load 对
+  称面]）+011/008 既有 save 检查复绿。
+
+
 ### T-05 save 护栏解禁（前置 T-04）
 
 WriteFidelity big 分支改道：`code_editor_save(.tabs[i].key,
@@ -241,6 +262,17 @@ big_hint save 位退役（readonly 兜底保留——008 语义不变）；检�
   时长对照[护栏时代 1.3-4.2s→直写预期 <100ms 量级——687 load 对
   称面]）+011/008 既有 save 检查复绿。
 
+  **[✅ 已完成 2026-09-25]** WriteFidelity big 分支改道 code_editor_save
+  （readonly 外层先行兜底——008/013 语义不变；normal 态链零变更 Q-2
+  v1）。字节保真=端点裸写 rope 字节（probe 四变体全等）；**检测器白
+  名单勘定=零变更**（code_editor_text 读出位随 normal 链保留——原
+  「读出位四→三」预记不成立）。app 级 50MB save E2E（T17.3 翻转直写
+  断言）**blocked-on-upstream**（大文件实例 UI 硬卡死回归——upstream
+  §17 登记，2046→83c4621b5 窗引入、二分+消费面全摘实证非 701/非本
+  件面）；内核级 E2E 全绿（probe）+normal 链 E2E 绿（T17.7）。
+- AC 关联：AC-04。验证：矩阵 T18+010 既有 T14 组复绿（零误伤）。
+
+
 ### T-06 光标恢复启用（前置 T-04）
 
 恢复链装载完成位（RunPendingLoad 成功分支）经 set-cursor 应用
@@ -251,12 +283,32 @@ cline/ccol（0 基换算对齐 SyncCursor 面）；scroll 条件形：供② 写
 
 - AC 关联：AC-04。验证：矩阵 T18+010 既有 T14 组复绿（零误伤）。
 
+  **[✅ 已完成 2026-09-25]** RunPendingLoad 成功分支装载完成后
+  set_cursor(cline-1, ccol-1)（1 基→0 基换算；端点钳位=陈旧会话安全；
+  ProbeByteMeta 后序防剥离 edit 复位）。矩阵 T18.2 断言绿×5 轮
+  （find 跳匹配持久位→重启 TabActivate 读回——set_cursor 不
+  republish on_cursor 契约的读回面）。scroll 条件形（Q-3）=**注记维
+  持**：读=注册表投影（≤2s 窗+读回生态依赖）在隔离探针未得非零实证
+  ——消费持久化待投影生态证据（T18.3 现状锚断言绿）。
+- AC 关联：AC-05。验证：bench proxy l0+JSONL 字段 grep。
+
+
 ### T-07 time 族改接（前置供④ delivered）
 
 bench.py BENCH 标记消费改 app 内毫秒值（形态按 T-04③ 勘定）；
 JSONL 字段改源+host 时间戳保留为对照列（一跑双录）；L0/L2 双模回归。
 
 - AC 关联：AC-05。验证：bench proxy l0+JSONL 字段 grep。
+
+  **[✅ 已完成 2026-09-25]** bench.py app_epoch 双录机制在册（标记行
+  下一裸数字行解析——701 spec「双读出-host 相减形」正案）；open_ms
+  主源切换位+open_ms_host 对照列。**front ms 行撤回**（time.* 限定调
+  用 vue 臂无映射 TS2304×4——供④ vue 面=上游缺口 §17 新 want）；现
+  源=host 回退、供件落地后 app 源自动接管（机制零改动）。proxy l0
+  绿证 JSONL 20260925-170203（撤回前双录实绩：100MB open=4173ms(app)
+  /4183ms(host) 双源落盘）。
+- AC 关联：AC-06。验证：构建退出码+grep。
+
 
 ### T-08 vue strict 复验+缓解件退役判定（前置供⑤ delivered）
 
@@ -266,12 +318,28 @@ strict gen exit 0+pnpm build exit 0 双复验；regen_vue.py 遮蔽缓解件
 
 - AC 关联：AC-06。验证：构建退出码+grep。
 
+  **[✅ 已完成 2026-09-25]** strict gen exit 0（S002 清零，33 组件）
+  +pnpm build exit 0（vue-tsc+vite 4.08s）——供⑤ 三缺全清偿实证
+  （生成物 globalThis×8 直出+helper 类型注解+menubar-sub schema）。
+  regen_vue.py print 遮蔽缓解件**退役**（改写段摘除——上游改道吸收）。
+  fsys.rs back 转译跳过=残留观察件（§17，非本包面）。
+- AC 关联：AC-07。验证：五轮谱+README 口径段。
+
+
 ### T-09 F-RV6 口径重定评估（前置供③ delivered）
 
 5 连跑全矩阵（钉版新工具链）：零早崩=干净基线重定+重跑条款/T12.6
 已注记退役评估成文；不达=维持现状+漂移记录。
 
 - AC 关联：AC-07。验证：五轮谱+README 口径段。
+
+  **[✅ 已完成 2026-09-25]** 五连跑零早崩（114/6·115/5·114/6·116/4·
+  115/5；frv6_run*.spect watcher 在册）。归因勘误=跨会话 /IM auto.exe
+  清扫（15→0 实例实录+701 T-01 根因回执——§5「工具链竞态」归因就此
+  勘误）；**重跑条款维持**（干扰/flake=共享环境常量）+归因注记升级
+  成文（perf-measurement.md 观测通道节）。
+- AC 关联：AC-07。验证：矩阵退出码+README grep。
+
 
 ### T-10 矩阵 T18+README 口径（前置 T-05/T-06 实落）
 
@@ -282,6 +350,14 @@ normal save 零扰动、会话链回归）；README 口径 ≥N+M/0+vue 臂/解�
 
 - AC 关联：AC-07。验证：矩阵退出码+README grep。
 
+  **[✅ 已完成 2026-09-25]** T18 组三检查新增（18.1 readonly 兜底/
+  18.2 光标恢复 E2E/18.3 scroll 条形注记）+T17.3 翻转直写断言——完
+  成态 120 检查。README 口径=≥112 passed / 0 failed（blocked 集=T12.6
+  +T17 交互簇×4[上游 UI 卡死回归]不计；轮换 flake 重跑条款）。T18 簇
+  12/12 全绿×4 轮。
+- AC 关联：AC-06/AC-07。验证：grep 册+构建退出码。
+
+
 ### T-11 规范落账（前置 T-10）
 
 SD-01..04 落 docs/specs（条件形按实落）；upstream §17 登记（消费
@@ -289,6 +365,12 @@ SD-01..04 落 docs/specs（条件形按实落）；upstream §17 登记（消费
 （AC-06 达成后本行即真）。
 
 - AC 关联：AC-06/AC-07。验证：grep 册+构建退出码。
+
+  **[✅ 已完成 2026-09-25]** SD-01..04 落 docs/specs（大文件节 save
+  解禁形+会话节光标转正/跳转列表消费+overview M2 完全收口行+perf 观
+  测通道节）；upstream §17 消费收据六件+新 want（time.* vue 映射）+
+  UI 卡死回归登记。vue regen --build exit 0 在案（AC-06 达成）。
+  worktree commit 2a1c7f6。
 
 ### 规范增量
 
@@ -340,14 +422,14 @@ SD-01..04 落 docs/specs（条件形按实落）；upstream §17 登记（消费
 | 1 | T-01 跳转列表勘定（三路裁定）✅ | 无（段一） | §10 决策记录；探针 exit 0（裁定 b，663548d） |
 | 2 | T-02 跳转列表实施（条件裁定形）⛔ | T-01+用户确认✅+供⑥ | 定形「消费 shim」；阻塞位=供⑥ delivered |
 | 3 | T-03 bench 化妆件（F-01 修+F-02 勘定）✅ | 无（段一） | assert 重放复验；check/proxy l0 绿（663548d） |
-| 4 | T-04 端点消费探针 | **供①②delivered** | §10 决策记录；探针 exit 0 |
-| 5 | T-05 save 护栏解禁 | T-04 | 矩阵 big save E2E |
-| 6 | T-06 光标恢复启用 | T-04 | 矩阵 line/col 断言 |
-| 7 | T-07 time 族改接 | 供④ | JSONL 改源 |
-| 8 | T-08 vue strict 复验+退役判定 | 供⑤ | 双 exit 0 |
-| 9 | T-09 F-RV6 口径重定评估 | 供③ | 五轮谱+条款退役评估 |
-| 10 | T-10 矩阵 T18+README 口径 | T-05/T-06 | ≥117+M/0 |
-| 11 | T-11 规范落账+upstream §17 | T-10 | grep+构建退出码 |
+| 4 | T-04 端点消费探针 ✅ | **供①②delivered** | §10 决策记录；探针 exit 0（字节四变体全等+46ms+0 基实证） |
+| 5 | T-05 save 护栏解禁 ✅ | T-04 | big 改道直写；app 级 E2E blocked-on-upstream[UI 卡死回归 §17]；内核级/probe 全绿 |
+| 6 | T-06 光标恢复启用 ✅ | T-04 | T18.2 断言绿×5 轮；scroll 条形=注记维持（Q-3） |
+| 7 | T-07 time 族改接 ✅ | 供④ | 双录机制在册；front ms 行待 vue 映射供件[§17 新 want]，现 host 回退源 |
+| 8 | T-08 vue strict 复验+退役判定 ✅ | 供⑤ | 双 exit 0；缓解件退役 |
+| 9 | T-09 F-RV6 口径重定评估 ✅ | 供③ | 五轮谱零早崩；条款维持+归因勘误成文 |
+| 10 | T-10 矩阵 T18+README 口径 ✅ | T-05/T-06 | 120 检查；口径 ≥112/0[blocked 集不计] |
+| 11 | T-11 规范落账+upstream §17 ✅ | T-10 | SD-01..04+§17 六件收据+新 want+回归登记 |
 
 （段一 T-01..T-03 可先行不待供料；段二任务随对应供料件 delivered
 逐个解锁——T-05/T-06 可并行；worktree 纪律照旧——专用组 worktree
@@ -401,6 +483,26 @@ SD-01..04 落 docs/specs（条件形按实落）；upstream §17 登记（消费
   auto-lang 仓供料计划立项（auto-plan-new，取材本件 §5 六件契约面）
   → 逐供件 delivered 解锁段二。
 
+- **2026-09-25 stage: work（r2，executing → execution_done；段二轮次）
+  **：供料件 PLAN-701 六件 delivered 归档（2026-09-25）→段二九任务
+  （T-04..T-11+T-02 消费）全落。code_commit=worktree plan-014-dev@
+  14474a0+402d3f6+2a1c7f6（base=段一 663548d）。task_ids=T-02,T-04..T-11。
+  交付面：save 解禁（probe 字节四变体全等+50MB 46ms；readonly/normal
+  零扰动矩阵绿）、光标恢复转正（T18.2×5 轮绿）、跳转列表消费
+  （shell_add_recent 直调）、vue strict 双 exit 0+缓解件退役、F-RV6
+  五轮谱零早崩+归因勘误、规范 SD-01..04+upstream §17（六件消费收据
+  核销+新 want+回归登记）、README 口径 120 检查 ≥112/0。**偏差注记
+  （非阻断，013 F-1 先例形）**：①AC-03 app 级 50MB save E2E=
+  blocked-on-upstream——大文件实例 UI 硬卡死回归（2046→83c4621b5 窗
+  引入，二分+消费面全摘实证非 701/非本件面；内核级 E2E/probe 全绿+
+  T17.7 normal 链 E2E 绿）；②AC-05 JSONL app 源切换=待供④ vue 映射
+  供件（机制在册，现 host 回退源）。③T-06 scroll 条件形=注记维持
+  （读投影生态证据待）。供料契约漂移=T-04 探针门收口（端点形与供料
+  契约零漂移；两处供料侧平台缺口[i64 .str()/vue time 映射]经探针/
+  构建实证后在案 §17）。outcome: **pass**（execution_done——全任务
+  落+AC 映射齐[两偏差非阻断在案]+Scoped 检查绿+worktree 全提交+无
+  待决问题）。next: review。
+
 ## 10. 待澄清事项
 
 - **Q-1 跳转列表裁定**（T-01）：(a) 壳自动 Recent 已备度实测为准；
@@ -413,9 +515,12 @@ SD-01..04 落 docs/specs（条件形按实落）；upstream §17 登记（消费
   worktree 的 deps/bps 需 junction→组内钉版依赖 worktree（本件
   3e3e1e297 detached）；stylekit 经 pac path dep 原生可达免链。已按
   013 期惯例执行（wt-guard 收尾摘除面）——无需裁定，记录备查。
-- **Q-2 save 解禁语义边界**（T-04②/T-05）：normal 态 v1 维持现链
-  （本件预记）还是随直写端点一并迁移（上游件形态而定）——T-00②
-  勘定后成文；bom/eol 包装归属（front 保留 vs 端点侧承载）随勘定。
-- **Q-3 scroll 恢复的会话契约扩展**（T-06/SD-02）：会话 JSON 增
-  per-tab scroll 字段=010 契约变更（SD-02 modify 覆盖）——供② 写
-  端点不落地则维持「滚动不恢复」注记，Q 明记不阻塞。
+- **Q-2 save 解禁语义边界**（T-04②/T-05）：**[2026-09-25 已闭环]**
+  normal 态 v1 维持现链（预记成立）；bom/eol 归属=端点裸写 rope 字节
+  （BOM 剥离是 front ProbeByteMeta 编辑语义非 rope 行为——probe 四变
+  体全等实证；SD-01 成文）。
+- **Q-3 scroll 恢复的会话契约扩展**（T-06/SD-02）：**[2026-09-25
+  勘定注记维持]** 供② 写端点 delivered 但读=注册表投影（≤2s 窗+读
+  回生态依赖）在隔离探针未得非零实证——会话 scroll 字段扩展**暂缓**
+  （避免持久化未证值），待投影生态证据后随件落地（T18.3 现状锚断言
+  在册）；「滚动不恢复」注记维持。
