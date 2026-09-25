@@ -176,9 +176,11 @@ def _spawn_tracked(cmd: list[str], env_extra: dict, want_markers: list[str],
                    on_complete=None, keep_alive: bool = False) -> dict:
     """spawn cmd（cwd=PROJECT），stdout 落文件，轮询 BENCH 标记行到达时刻。
 
-    返回 {"markers": {name: ms_since_spawn}, "mem": {name: (bytes, method)},
-          "log": path, "pid": pid, "alive_at_end": bool}。毫秒值全部 host 侧
-    perf_counter 记（T-03 结论：VM 轨 time 族内建未接线，app 侧无可用毫秒钟）。
+    返回 {"markers": {name: ms_since_spawn}, "app_epoch": {name: epoch_ms},
+          "mem": {name: (bytes, method)}, "log": path, "pid": pid,
+          "alive_at_end": bool}。markers=host 侧 perf_counter（对照列）；
+    app_epoch=app 内 epoch 毫秒（PLAN-014 T-07 供④ time 族接线——标记行
+    下一裸数字行；host 时间戳自此降对照列，一跑双录）。
     结束按 PID 树收编，除非 keep_alive=True（L2：末窗退出语义下 daemon 随
     最后窗口自退——app 保活让 daemon 常驻整个测量序列，收编归 suite 末）。
     on_complete 在标记+内存齐时、收编前回调（此刻 app 与其依赖进程均
@@ -193,6 +195,7 @@ def _spawn_tracked(cmd: list[str], env_extra: dict, want_markers: list[str],
                                 env={**os.environ, **env_extra},
                                 stdout=f, stderr=subprocess.STDOUT)
     markers: dict[str, float] = {}
+    app_epoch: dict[str, int] = {}
     mems: dict[str, tuple] = {}
     try:
         deadline = time.time() + timeout_s
@@ -208,6 +211,11 @@ def _spawn_tracked(cmd: list[str], env_extra: dict, want_markers: list[str],
             for m in want_markers:
                 if m not in markers and f"BENCH {m}" in text:
                     markers[m] = (time.perf_counter() - t0) * 1000.0
+                    # PLAN-014 T-07: 标记行下一裸数字行=app 侧 epoch 毫秒
+                    # （editor_store.at BENCH 面；缺席=None 零破坏）。
+                    m2 = re.search(rf"BENCH {m}\r?\n(\d+)", text)
+                    if m2:
+                        app_epoch[m] = int(m2.group(1))
             for m in (mem_after or []):
                 if m in markers and m not in mems:
                     mems[m] = _sample_mem(proc.pid)
@@ -216,8 +224,9 @@ def _spawn_tracked(cmd: list[str], env_extra: dict, want_markers: list[str],
                 if on_complete is not None:
                     on_complete()
                 break
-        return {"markers": markers, "mem": mems, "log": str(log),
-                "pid": proc.pid, "alive_at_end": proc.poll() is None}
+        return {"markers": markers, "app_epoch": app_epoch, "mem": mems,
+                "log": str(log), "pid": proc.pid,
+                "alive_at_end": proc.poll() is None}
     finally:
         if not keep_alive:
             _kill_pid(proc.pid)
@@ -519,11 +528,16 @@ def _l2_suite(runs: int, sizes: list[int], fp: dict) -> dict | None:
                 _log(f"FATAL: L2 run{i} 拓扑无效（app 存活={r['alive_at_end']}，"
                      "后端就绪行未达——单 iced 门）——数字不纳入")
                 return None
+            ae = r.get("app_epoch", {})
             rec = {"run": i, "warmup": i == 0,
                    "spawn_to_vm_init_ms": round(m["bench_vm_init"], 1),
                    "vm_init_to_ws_loaded_ms":
                        round(m["bench_ws_loaded"] - m["bench_vm_init"], 1),
                    "steady_start_ms": round(m["bench_ws_loaded"], 1),
+                   "app_ws_load_ms": (ae.get("bench_ws_loaded")
+                                      - ae.get("bench_vm_init")
+                                      if ae.get("bench_vm_init")
+                                      and ae.get("bench_ws_loaded") else None),
                    "mem_idle": r["mem"].get("bench_ws_loaded")}
             startup.append(rec)
             mem_mb = (round(rec["mem_idle"][0] / 1048576)
@@ -637,14 +651,23 @@ def _open_timing(sizes: list[int]) -> list[dict]:
             timeout_s=_open_timeout_s(mb), log_name=f"open-{mb}mb",
             mem_after=["bench_open_done"])
         m = r["markers"]
+        ae = r.get("app_epoch", {})
+        # PLAN-014 T-07: open_ms 改源 app 内 epoch 差（供④ time 族）——
+        # host 侧 perf_counter 差降对照列（一跑双录）。
+        app_open_ms = (ae.get("bench_open_done") - ae.get("bench_open_start")
+                       if ae.get("bench_open_start")
+                       and ae.get("bench_open_done") else None)
         rec = {"size_mb": mb,
-               "open_ms": (m["bench_open_done"] - m["bench_open_start"])
-                          if "bench_open_start" in m and "bench_open_done" in m else None,
+               "open_ms": app_open_ms,
+               "open_ms_host": (round(m["bench_open_done"] - m["bench_open_start"], 1)
+                                if "bench_open_start" in m
+                                and "bench_open_done" in m else None),
                "spawn_to_open_start_ms": m.get("bench_open_start"),
                "mem_loaded": r["mem"].get("bench_open_done"),
                "fixture_gen_s": round(gen_s, 3)}
         out.append(rec)
-        _log(f"  {mb}MB: open={rec['open_ms'] and round(rec['open_ms'])}ms "
+        _log(f"  {mb}MB: open={rec['open_ms'] and rec['open_ms']}ms(app) "
+             f"host={rec['open_ms_host'] and round(rec['open_ms_host'])}ms "
              f"mem={rec['mem_loaded'][0] and round(rec['mem_loaded'][0] / 1048576)}MB"
              if rec["mem_loaded"] else "  (未捕获)")
     return out

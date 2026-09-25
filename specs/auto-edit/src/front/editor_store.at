@@ -364,6 +364,10 @@ store EditorStore {
             // 矩阵断言零扰动。未设门=分支不进，零行为差异。
             if env_str("AUTO_BENCH") == "1" {
                 print("BENCH bench_vm_init")
+                // PLAN-014 T-07: 标记携 app 侧 epoch 毫秒（供④ time 族——
+                // 裸 print 直出 i64 实证形；.at 层 i64 拼接/算术=平台缺口
+                // 不用）。host 时间戳降对照列（bench.py 一跑双录）。
+                print(time.now_ms())
             }
             // PLAN-010 T-01: 会话链定位（头段）——APPDATA 根
             // auto-edit-session.json；缺席兜底 ""=会话链禁用（写入挂点与
@@ -381,6 +385,7 @@ store EditorStore {
             .console = console_lines()
             if env_str("AUTO_BENCH") == "1" {
                 print("BENCH bench_ws_loaded")
+                print(time.now_ms())
             }
             // PLAN-010 T-02: 会话恢复链（尾段——bench 计时标记之后，热启动
             // 预算行效力在 L2 模式、本件按门禁两档记账不阻塞）。三门：存在
@@ -738,6 +743,12 @@ store EditorStore {
             }
             .recents_count = .recents.len()
             .open_count = .open_count + 1
+            // PLAN-014 T-02: 任务栏跳转列表消费（供⑥ shell_add_recent，
+            // PLAN-701 native 9914）——打开文件即报 shell Recent（Windows
+            // 跳转列表「最近」）；非 Windows no-op 返 false 零行为差异。
+            // 放行位=recents 维护后（公共核四路同源单点）；恢复链不走此
+            // 处（重建非新开）。注册表关联零依赖（014 T-01 勘定）。
+            shell_add_recent(p)
             .tabs.push({key: "tab-" + .open_count.str(), title: file_basename(p), path: p, dirty: false, bom: false, eol: "lf", readonly: false, loaded: false, cline: 1, ccol: 1, big: false, ro_reason: "", src: ""})
             .tab = .tab_count
             .tab_count = .tab_count + 1
@@ -839,6 +850,7 @@ store EditorStore {
                         }
                         if env_str("AUTO_BENCH") == "1" {
                             print("BENCH bench_open_start")
+                            print(time.now_ms())
                         }
                         let total int = code_editor_load_file(key, path)
                         if total >= 0 {
@@ -859,6 +871,18 @@ store EditorStore {
                             }
                             if lidx >= 0 {
                                 .tabs[lidx].loaded = true
+                                // PLAN-014 T-06: 光标恢复应用启用（010 前
+                                // 向兼容位转正——供② code_editor_set_cursor
+                                // 端点，PLAN-701）。cline/ccol 会话持久化
+                                // 1 基 → 端点 0 基换算（-1）；端点内建钳位
+                                // （越界→末行/行尾 char，陈旧会话安全）+
+                                // Selection 弃置。fresh 打开 cline=ccol=1 →
+                                // set(0,0)=起点，零行为差异。不 republish
+                                // on_cursor（契约）——SyncCursor 由既有
+                                // CursorMoved/TabActivate 面读回。排序：
+                                // ProbeByteMeta（BOM 剥离 edit）之后——防
+                                // 剥离 edit 复位光标。
+                                code_editor_set_cursor(key, .tabs[lidx].cline - 1, .tabs[lidx].ccol - 1)
                             }
                         } else {
                             .loaded_bytes = 0
@@ -898,6 +922,7 @@ store EditorStore {
                         console_log("loaded: " + path + " " + total.str() + " bytes")
                         if env_str("AUTO_BENCH") == "1" {
                             print("BENCH bench_open_done")
+                            print(time.now_ms())
                         }
                     }
                 }
@@ -2188,18 +2213,30 @@ store EditorStore {
         // =mixed 逐字保真；编辑后=归一 LF 形态，逐行保真为上游 want
         // §10-⑥）。readonly（T-04 非法 UTF-8 错误形/PLAN-013 超大拒绝
         // 形）拦截：不落盘。
-        // PLAN-013 T-03: 大文件 save 护栏（G-3）——big 态全文读出+包装+
-        // write_text 往返全过 VM（50–100MB 字符串×2 池驻留，Q-4）；
-        // 拦截+显式提示，绝不静默；解禁件=上游 code_editor_save 直写
-        // 端点（§10-2 want 在册——落地后零 front 改动预期）。
+        // PLAN-014 T-05: 大文件 save 解禁（013 护栏解除件消费——供①
+        // code_editor_save 直写端点，PLAN-701）——big 态改道 rope 直写
+        // 落盘（零全文 VM 往返；字节保真归属见 SD-01：端点裸写 rope 字
+        // 节，BOM 剥离形态随 rope——T-04 探针实测形）；readonly 兜底
+        // （超大拒绝/编码错误形）保持外层先行。normal 态维持现链（Q-2
+        // v1 界定——读出+包装+write_text 零变更）。Q-2 消费注记：检测器
+        // 白名单零变更（code_editor_text 读出位随 normal 链保留——预记
+        // 「读出位四→三」不成立，读出位语义未变）。
         .WriteFidelity(i) -> {
             if .tabs[i].path != "" {
-                if .tabs[i].big {
-                    .big_hint = "大文件：保存已拦截（待上游直写端点）"
-                    console_log("save blocked (big file — 全文命令护栏；全文往返不进入大文件域，code_editor_save 直写端点=upstream §16)：" + .tabs[i].path)
+                if .tabs[i].readonly {
+                    console_log("save blocked (readonly): " + .tabs[i].path)
                 } else {
-                    if .tabs[i].readonly {
-                        console_log("save blocked (readonly): " + .tabs[i].path)
+                    if .tabs[i].big {
+                        // big 态直写（供①）：true=写通；false=无此 key/IO
+                        // 失败（值形错误——stderr 不静默，镜像 load -1 形）。
+                        if code_editor_save(.tabs[i].key, .tabs[i].path) {
+                            .tabs[i].dirty = false
+                            .big_hint = ""
+                            console_log("saved (direct): " + .tabs[i].path)
+                        } else {
+                            .big_hint = "大文件：直写保存失败"
+                            console_log("save failed (code_editor_save false): " + .tabs[i].path)
+                        }
                     } else {
                         let body str = code_editor_text(.tabs[i].key)
                         var out str = body

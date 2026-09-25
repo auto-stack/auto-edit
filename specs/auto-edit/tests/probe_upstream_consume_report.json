@@ -1,0 +1,94 @@
+{
+  "toolchain": "D:/autostack/.wt/plan-014/auto-lang/target/debug/auto.exe",
+  "runs": {
+    "lf": {
+      "save_host_ms": 1,
+      "src_sha_len": 45,
+      "dst_len": 45,
+      "identical": true,
+      "crlf_preserved": 0,
+      "bom_preserved": false,
+      "prints": [
+        "  VM window title: P014Probe (from pac.at)",
+        "    title: \"P014Probe\",",
+        "P014 phase1",
+        "P014 cur_line 1",
+        "P014 cur_col 2",
+        "P014 scroll_to true",
+        "P014 sy_soft 0",
+        "P014 t_ms",
+        "1790326807724",
+        "P014 shell true",
+        "P014 save_ms",
+        "P014 save true",
+        "1790326807725",
+        "P014 probe_done"
+      ],
+      "recent_delta": []
+    },
+    "crlf": {
+      "save_host_ms": 0,
+      "src_sha_len": 20,
+      "dst_len": 20,
+      "identical": true,
+      "crlf_preserved": 3,
+      "bom_preserved": false,
+      "prints": [
+        "  VM window title: P014Probe (from pac.at)",
+        "    title: \"P014Probe\",",
+        "P014 phase1",
+        "P014 t_ms",
+        "1790326812892",
+        "P014 shell true",
+        "P014 save_ms",
+        "P014 save true",
+        "1790326812892",
+        "P014 probe_done"
+      ],
+      "recent_delta": []
+    },
+    "bom": {
+      "save_host_ms": 0,
+      "src_sha_len": 16,
+      "dst_len": 16,
+      "identical": true,
+      "crlf_preserved": 0,
+      "bom_preserved": true,
+      "prints": [
+        "  VM window title: P014Probe (from pac.at)",
+        "    title: \"P014Probe\",",
+        "P014 phase1",
+        "P014 t_ms",
+        "1790326818024",
+        "P014 shell true",
+        "P014 save_ms",
+        "P014 save true",
+        "1790326818024",
+        "P014 probe_done"
+      ],
+      "recent_delta": []
+    },
+    "big50": {
+      "identical": true,
+      "dst_len": 52428816,
+      "host_wall_s": 7.59,
+      "prints": [
+        "  VM window title: P014Probe (from pac.at)",
+        "    title: \"P014Probe\",",
+        "P014 phase1",
+        "P014 t_ms",
+        "1790326825709",
+        "P014 shell true",
+        "P014 save_ms",
+        "P014 save true",
+        "1790326825755",
+        "P014 probe_done"
+      ]
+    }
+  },
+  "grep_供⑤": {
+    "print_globalthis": true,
+    "menubar_sub_vue": true,
+    "helper_annotated": true
+  }
+}
