@@ -657,11 +657,15 @@ def _open_timing(sizes: list[int]) -> list[dict]:
         app_open_ms = (ae.get("bench_open_done") - ae.get("bench_open_start")
                        if ae.get("bench_open_start")
                        and ae.get("bench_open_done") else None)
+        host_open_ms = (round(m["bench_open_done"] - m["bench_open_start"], 1)
+                        if "bench_open_start" in m
+                        and "bench_open_done" in m else None)
+        # T-07 勘定（2026-09-25）：app_epoch 面=上游供④ vue 映射缺口在册
+        # （time.* 限定调用 vue 臂 TS2304——front ms 行撤回）；open_ms 先回
+        # 落 host 源，供件落地后 app 源自动接管（双录字段在册）。
         rec = {"size_mb": mb,
-               "open_ms": app_open_ms,
-               "open_ms_host": (round(m["bench_open_done"] - m["bench_open_start"], 1)
-                                if "bench_open_start" in m
-                                and "bench_open_done" in m else None),
+               "open_ms": app_open_ms if app_open_ms is not None else host_open_ms,
+               "open_ms_host": host_open_ms,
                "spawn_to_open_start_ms": m.get("bench_open_start"),
                "mem_loaded": r["mem"].get("bench_open_done"),
                "fixture_gen_s": round(gen_s, 3)}

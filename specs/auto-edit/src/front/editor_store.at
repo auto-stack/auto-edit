@@ -364,10 +364,6 @@ store EditorStore {
             // 矩阵断言零扰动。未设门=分支不进，零行为差异。
             if env_str("AUTO_BENCH") == "1" {
                 print("BENCH bench_vm_init")
-                // PLAN-014 T-07: 标记携 app 侧 epoch 毫秒（供④ time 族——
-                // 裸 print 直出 i64 实证形；.at 层 i64 拼接/算术=平台缺口
-                // 不用）。host 时间戳降对照列（bench.py 一跑双录）。
-                print(time.now_ms())
             }
             // PLAN-010 T-01: 会话链定位（头段）——APPDATA 根
             // auto-edit-session.json；缺席兜底 ""=会话链禁用（写入挂点与
@@ -385,7 +381,6 @@ store EditorStore {
             .console = console_lines()
             if env_str("AUTO_BENCH") == "1" {
                 print("BENCH bench_ws_loaded")
-                print(time.now_ms())
             }
             // PLAN-010 T-02: 会话恢复链（尾段——bench 计时标记之后，热启动
             // 预算行效力在 L2 模式、本件按门禁两档记账不阻塞）。三门：存在
@@ -850,7 +845,6 @@ store EditorStore {
                         }
                         if env_str("AUTO_BENCH") == "1" {
                             print("BENCH bench_open_start")
-                            print(time.now_ms())
                         }
                         let total int = code_editor_load_file(key, path)
                         if total >= 0 {
@@ -922,7 +916,6 @@ store EditorStore {
                         console_log("loaded: " + path + " " + total.str() + " bytes")
                         if env_str("AUTO_BENCH") == "1" {
                             print("BENCH bench_open_done")
-                            print(time.now_ms())
                         }
                     }
                 }

@@ -46,18 +46,12 @@ def main():
     if rc != 0:
         sys.exit(rc)
 
-    # PLAN-005 唯一保留件（非退役补件复活）：生成器硬编码 print→console.log
-    # （ts_adapter.rs），与本 app store 名为 console 的 state 字段（Ref）遮蔽
-    # 成 TS2339——上游未吸收（供料包 §9 登记），单行外科缓解：store 生成物
-    # 内改写为 globalThis.console.log。幂等（改写后锚点不再命中）。
-    store = os.path.join(VUE, "src", "stores", "useEditorStore.ts")
-    if os.path.exists(store):
-        with open(store, encoding="utf-8") as f:
-            s = f.read()
-        if "console.log(" in s and "globalThis.console.log(" not in s:
-            with open(store, "w", encoding="utf-8", newline="\n") as f:
-                f.write(s.replace("console.log(", "globalThis.console.log("))
-            print("[regen-vue] print 遮蔽缓解：console.log → globalThis.console.log（store）")
+    # PLAN-014 T-08: print 遮蔽缓解件退役（2026-09-25）——上游 print 映射
+    # 改道已落地（auto-lang PLAN-701 供⑤，ts_adapter 发射
+    # globalThis.console.log），本脚本改写段（store 生成物 console.log →
+    # globalThis.console.log 单行外科）随之摘除；生成物自备直写形。
+    # 历史：PLAN-005 T-07 登记的 TS2339×4 遮蔽缓解（2026-09-24 在役形）
+    # 见 git 历史（14474a0 及此前）。
 
     if "--install" in sys.argv or "--build" in sys.argv:
         rc = run([which("pnpm"), "install"], cwd_root=False)
