@@ -1,6 +1,7 @@
 ---
 plan_id: PLAN-014
-status: reviewed
+status: archived
+completion_kind: delivered
 feature_name: m2-tail-upstream-consume-v1（M2 尾件+上游端点消费——跳转列表/化妆件/save 解禁/光标恢复/time 族/vue 复验，形态 A 消费件）
 author: [agent]
 created_at: 2026-09-24T15:00:00+08:00
@@ -533,6 +534,23 @@ SD-01..04 落 docs/specs（条件形按实落）；upstream §17 登记（消费
   当前行为描述核对 ✓；frontmatter 契约面定稿（精确路径）；touched_
   goals=[] 说明=本仓无 GOALS 账本，M2 收口叙事落 00-overview（等效
   面）。outcome: **pass**。next: merge。
+
+- **2026-09-25 stage: merge | plan_id: PLAN-014 | plan_revision: r2 |
+  outcome: pass | 收据键 PLAN-014:r2 五检查点 | prepared：reviewed 基
+  线 2c43889[pass@r2]+delta 冻结 SD-01..04（docs/ 规范层既证靶——
+  editor-store 大文件/会话两节+00-overview M2 行+perf 观测通道节+
+  upstream §17，无 README-as-spec 类未证靶） | landed：rebase main
+  （6209622）7/7 重放+range-diff 全等 `=` 七映射（663548d→a98f42f/
+  14474a0→c0dc4ed/402d3f6→211b5ba/2a1c7f6→7c048f8/c9cd333→
+  62078ab/54a542e→5ed68f8/2c43889→0142e28）+纯证据后代 ea6c8c5=
+  **delivery**（一条 JSONL 证据件——码/规范零变更核验）+`git merge
+  --ff-only` TIP-MATCH ea6c8c5 零合并提交+落位烟测 bench check 绿
+  （检测器红证 PASS+构建 2127）+assert 重放复验 | ledger_refreshed：
+  .autoos/specs.json reviews 段 **P014-1** 外科插入（14 items；整文
+  件解析+roundtrip 字节等价先证[尾换行]+回读断言前 13 项零扰动+他五
+  段零扰动）commit a7638c9 | archived：git mv
+  docs/plans/archived/014-m2-tail-upstream-consume.md+status:
+  archived+completion_kind: delivered | cleaned：随后行。
 
 ## 10. 待澄清事项
 
