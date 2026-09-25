@@ -1,19 +1,19 @@
 ---
 plan_id: PLAN-014
-status: execution_done
+status: reviewed
 feature_name: m2-tail-upstream-consume-v1（M2 尾件+上游端点消费——跳转列表/化妆件/save 解禁/光标恢复/time 族/vue 复验，形态 A 消费件）
 author: [agent]
 created_at: 2026-09-24T15:00:00+08:00
-updated_at: 2026-09-25T19:20:00+08:00
+updated_at: 2026-09-25T21:00:00+08:00
 plan_revision: 2
 current_step: 11
 total_steps: 11
 supersedes_spec_components: []
 new_spec_components:
-  - "docs/specs/modules/editor-store.md#SD-01（大文件模式节 modify：save 护栏→直写端点解禁——条件供①）"
-  - "docs/specs/modules/editor-store.md#SD-02（会话节 modify：光标恢复应用转正+scroll 条件形——条件供②）"
+  - "docs/specs/modules/editor-store.md#SD-01（大文件模式节 modify：big save 改道 code_editor_save 直写——护栏退役+裸写 rope 字节归属+检测器白名单零变更）"
+  - "docs/specs/modules/editor-store.md#SD-02（会话节 modify：光标恢复应用转正[set_cursor 0 基换算]+scroll 注记维持+跳转列表消费条[shell_add_recent OpenPath 直调]）"
   - "docs/specs/00-overview.md#SD-03（M2 注记补尾件行——跳转列表+消费收口=M2 完全收口）"
-  - "docs/specs/modules/perf-measurement.md#SD-04（time 族改接——条件供④）"
+  - "docs/specs/modules/perf-measurement.md#SD-04（观测通道节：BENCH 双录机制+host 回退态+F-RV6 归因勘误）"
 touched_goals: []
 ---
 
@@ -502,6 +502,37 @@ SD-01..04 落 docs/specs（条件形按实落）；upstream §17 登记（消费
   构建实证后在案 §17）。outcome: **pass**（execution_done——全任务
   落+AC 映射齐[两偏差非阻断在案]+Scoped 检查绿+worktree 全提交+无
   待决问题）。next: review。
+
+- **2026-09-25 stage: review（r2，execution_done → reviewed）**：
+  reviewed_commit=worktree plan-014-dev@**2c43889**（评审证据刷新
+  54a542e/2c43889；实现终态 2a1c7f6+c9cd333）；base_commit=a96bd4e
+  （main）；dependency_revisions=auto-lang 钉版 worktree
+  .wt/plan-014/auto-lang@729dd4f2f（二进制 v0.4.2-2155——含 701 六件
+  代码实证）。spec_inputs=worktree docs/specs（SD-01..04 落账态）+
+  docs/upstream/2026-09-m1-supply.md §17。**独立性声明**：复审在实现
+  会话内进行——裁定自工件重建（探针重跑/矩阵谱/提交内容），非执行摘
+  要转述。**acceptance_results**：AC-01 pass（探针 exit 0 复现+l2 消
+  费位源证；F-3 漂移注记）/AC-02 pass（l2 重放六态序诚实+l0 齐+F-02
+  零命中复现）/AC-03 **pass[偏差 F-1 非阻断在案]**（内核级四变体全
+  等+46ms 复现；readonly T18.1/normal T17.7 绿；app 级 50MB E2E=
+  上游 UI 卡死回归 blocked——§17）/AC-04 pass（T18.2×5 轮绿[runs
+  3-5=HEAD 码态复用，理由：desktop_mcp/editor_store 自 2a1c7f6 零变
+  更+同二进制源]；scroll 条形=T18.3 现状锚 ✓）/AC-05 **pass[偏差 F-2
+  非阻断在案]**（app_epoch 机制+VM 轨直出形实证；HEAD 态 proxy 复现
+  50.8/434.3/4518.7ms host 回退源[JSONL 双字段诚实]；app 源切换待供
+  ④ vue 映射件——§17 新 want）/AC-06 pass（gen 产物 globalThis=4 行
+  [×8 叙事含已撤 4 行——实质成立]+双 exit 0 证据链；源未再变更，产物
+  复用）/AC-07 pass（五轮谱 114/6·115/5·114/6·116/4·115/5 零早崩+
+  README 口径 120 检查 ≥112/0[blocked 集=T12.6+T17 簇×4]+SD-01..04
+  内容 grep 全中+§17 六件收据）。**findings**：F-1=AC-03 app 级 E2E
+  blocked-on-upstream（UI 卡死回归，§17 登记，清偿自动复绿——非阻断
+  013-F-1 先例形）；F-2=AC-05 app 源切换待 vue 映射供件+回退态控制
+  台 (app) 标签错位（JSONL 诚实；化妆级，随供件消费一并修）；F-3=
+  probe_jumplist 现态漂移（源面 13 自指命中+动态面旧 exe——T-01 历
+  史基线效力不变，现态探针 v2=非阻断后续件）。规范增量=SD-01..04 对
+  当前行为描述核对 ✓；frontmatter 契约面定稿（精确路径）；touched_
+  goals=[] 说明=本仓无 GOALS 账本，M2 收口叙事落 00-overview（等效
+  面）。outcome: **pass**。next: merge。
 
 ## 10. 待澄清事项
 
