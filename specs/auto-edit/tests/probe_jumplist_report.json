@@ -10,7 +10,21 @@
         "AppUserModelID",
         "Software\\Classes"
       ],
-      "hits": [],
+      "hits": [
+        "auto-lang\\src\\tests\\plan701_supply_probes.rs:158: SHAddToRecentDocs",
+        "auto-lang\\src\\tests\\plan701_supply_probes.rs:158: RecentDocs",
+        "auto-lang\\src\\ui_gen\\rust.rs:9747: SHAddToRecentDocs",
+        "auto-lang\\src\\ui_gen\\rust.rs:9747: RecentDocs",
+        "auto-lang\\src\\vm\\native.rs:981: SHAddToRecentDocs",
+        "auto-lang\\src\\vm\\native.rs:981: RecentDocs",
+        "auto-lang\\src\\vm\\native.rs:983: ICustomDestinationList",
+        "auto-lang\\src\\vm\\native.rs:995: SHAddToRecentDocs",
+        "auto-lang\\src\\vm\\native.rs:995: RecentDocs",
+        "auto-lang\\src\\vm\\native.rs:1003: SHAddToRecentDocs",
+        "auto-lang\\src\\vm\\native.rs:1003: RecentDocs",
+        "auto-lang\\src\\vm\\native_catalog.rs:52: SHAddToRecentDocs",
+        "auto-lang\\src\\vm\\native_catalog.rs:52: RecentDocs"
+      ],
       "auto_lang_root": "D:\\autostack\\.wt\\plan-014\\auto-lang"
     },
     "2_binary": {
@@ -24,8 +38,8 @@
       "auto_exe": {
         "path": "D:\\autostack\\auto-lang\\target\\debug\\auto.EXE",
         "exists": true,
-        "size": 79993344,
-        "mtime": "2026-09-23 16:45",
+        "size": 127345152,
+        "mtime": "2026-09-25 11:00",
         "hits": []
       }
     },
@@ -44,7 +58,7 @@
       "loaded": true,
       "deltas": {},
       "fixture_hits": [],
-      "log_tail": "Running with Iced backend\nBENCH bench_vm_init\nBENCH bench_ws_loaded\nBENCH bench_vm_init\nBENCH bench_ws_loaded\nAutoUI MCP: bind 127.0.0.1:9247 failed: 通常每个套接字地址(协议/网络地址/端口)只允许使用一次。 (os error 10048) (retrying)\nAutoUI MCP: port 9247 busy — fell back to 9248 (set AUTOUI_MCP_PORT to pin)\nAutoUI MCP: listening on http://127.0.0.1:9248\nBENCH bench_open_start\nBENCH bench_open_done\n"
+      "log_tail": "Running with Iced backend\nBENCH bench_vm_init\nBENCH bench_ws_loaded\nBENCH bench_vm_init\nBENCH bench_ws_loaded\nAutoUI MCP: listening on http://127.0.0.1:9247\nBENCH bench_open_start\nBENCH bench_open_done\n"
     }
   },
   "ruling": "b",
