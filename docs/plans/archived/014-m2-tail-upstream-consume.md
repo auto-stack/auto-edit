@@ -550,7 +550,15 @@ SD-01..04 落 docs/specs（条件形按实落）；upstream §17 登记（消费
   件解析+roundtrip 字节等价先证[尾换行]+回读断言前 13 项零扰动+他五
   段零扰动）commit a7638c9 | archived：git mv
   docs/plans/archived/014-m2-tail-upstream-consume.md+status:
-  archived+completion_kind: delivered | cleaned：随后行。
+  archived+completion_kind: delivered | cleaned：git 侧全净——
+  **wt-guard clean** ✓（493 枚 junction 链接级摘除[deps bps/stylekit
+  ×2+pnpm 晶格 491——python isjunction 枚举+os.rmdir 链接级；islink
+  于 py3.14 不认 junction=坑位注记]；目标完好三重复核[钉版 blueprints
+  /本仓自持 stylekit/pnpm 内容目录存续]）；worktree 注销 ✓（git
+  worktree list 零 plan-014 条目）/branch plan-014-dev 删 ✓（was
+  ea6c8c5=delivery）/组依赖 worktree .wt/plan-014/auto-lang 注销 ✓/
+  组级 auto-down junction 摘除 ✓/组目录 .wt/plan-014 rmdir ✓。主检出
+  stylekit 两删除 WIP=既有挂账非本件面（pac.at 缺席=其 WIP 态）。
 
 ## 10. 待澄清事项
 
