@@ -103,6 +103,23 @@ on/off 尺寸杠杆代理对照）；决策探针 tests/probe_bigfile.py 为前�
 决策门不入矩阵计数。上游件（code_editor_save 直写端点[护栏解除件]/
 HTTP int 返回 serialize null 观察）登记 docs/upstream §16。
 
+**M2 尾件与消费收口（PLAN-014，2026-09-25）——M2 完全收口**：M2 验
+收面四件（008/009/010/013）后的尾债收口——**任务栏跳转列表**（补注
+十一「Windows 集成余=小尾件」原文）：T-01 五面勘定裁定 (b)（源/二
+进制/注册/动态全零，probe_jumplist.py）→用户确认改道供料段→供⑥
+SHAddToRecentDocs shim（PLAN-701）→T-02 OpenPath 公共核直调消费（
+editor-store.md 会话节消费条）；跳转列表壳记账的矩阵可断言面=零
+（autoui_state 无 shell 面）——E2E 归手工/后续探针件。**上游端点消
+费五件**（供料=PLAN-701，2026-09-25 delivered）：save 护栏解禁（供①
+直写端点——big save 46ms/字节全等，T17.3 翻转）、光标恢复转正（供②
+set_cursor——T18.2 断言）、time 族双录机制（供④——vue 映射缺口在
+册 §17）、vue strict 双 exit 0 恢复（供⑤——print 缓解件退役）、
+F-RV6 口径评估（供③——根因=跨会话 /IM sweep 误伤勘定，非工具链竞
+态，§5 勘误随 §17）。矩阵扩 T18 检查组；上游消费收据登记 docs/
+upstream §17。M2 面自本件起=**完全收口**（剩余增强件——滚动恢复/
+EOL 逐行保真/单处替换族/tree-sitter——均为清单外后续件，M4 门控或
+另行供料评估）。
+
 ## M3 面开篇注记（PLAN-011，2026-09-23）
 
 M3（diff 对打 Beyond Compare，战略 §2.3）首件已落：**文件 diff v1——

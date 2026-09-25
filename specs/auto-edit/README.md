@@ -269,6 +269,32 @@ EolConvertRequest+EolConvert 双门），矩阵不可直驱如实注记。bench 
 on/off 尺寸杠杆代理对照——mode 无独立开关面，big 由装载前探测派生；
 L0 无预算效力口径注记，JSONL 在 results/）。
 
+PLAN-014 口径更新（2026-09-25，工具链=auto-lang master tip 钉版构建
+[.wt/plan-014/auto-lang@729dd4f2f target/debug，含 PLAN-701 六件供料]）：
+矩阵扩 **T18 上游端点消费检查组**（18.1 readonly 兜底不受扰[513MB 拒绝
+形 save blocked+磁盘零变]、18.2 光标恢复 E2E[find 跳匹配持久位→重启
+TabActivate 读回——set_cursor 不 republish on_cursor 契约的读回面]、
+18.3 scroll 条件形注记[会话无 scroll 字段=「滚动不恢复」现状锚]；
+normal 零扰动=T17.7 覆盖、会话链=T17.8 覆盖不重复设检）——完成态
+**120 检查**（117 + 3 新检查）。**T17.3 翻转**：save 拦截检查随护栏解
+禁退役，改断言 big save 直写（console saved (direct)+字节全等+时长
+sane——直写 46ms/字节四变体全等见 tests/probe_upstream_consume.py）。
+**判绿口径=≥112 passed / 0 failed（已知 blocked 集不计：T12.6[menubar-
+sub MCP 失明]+T17.2/17.3/17.4/17.8[大文件实例 UI 硬卡死=上游回归，
+2046→83c4621b5 窗引入——upstream §17 登记，二分边界+消费面全摘实证
+非 701/非本件面；清偿后自动复绿]+轮换 flake 按重跑条款清零[T13.6/
+T12 BOM 族]）**。执行期谱（v0.4.2-2155 钉版@729dd4f2f）：五连跑零早崩
+**run1 114/6、run2 115/5、run3 114/6、run4 116/4、run5 115/5**（T18
+簇 12/12 全绿；T17 交互簇 blocked 轮换[17.4 于 run4 翻绿一次]；谱文
+件 frv6_run*.spect=实例数 watcher——F-RV6 根因勘误后干扰归因面；另一次
+跑窗遭跨会话 /IM auto.exe 清扫全军覆没[15→0 实例实录]=重跑条款归因
+样本）。决策探针 probe_upstream_consume.py（字
+节保真四变体+50MB 46ms+0 基实证+time 直出形）为前置决策门不入矩阵
+计数。time 族双录机制在册（bench.py app_epoch——front ms 行待供④
+vue 映射供件，§17 新 want；open_ms 现 host 回退源）。vue 臂**双 exit 0
+恢复**（strict gen 33 组件+pnpm build；print 遮蔽缓解件退役——上游供⑤
+吸收）。上游消费收据+新 want 登记 docs/upstream §17。
+
 注：Plan 451 起 T10「热重载」走 DSL 源路径（reload 工具或 mtime 轮询重读
 app.at 重新提取 actions + generation bump → 视图重建），实测 50/0 全绿。
 OS 用户键位层（`%APPDATA%/auto/keymaps/auto-edit.at`）保持外部文件——那是

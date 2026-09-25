@@ -235,8 +235,18 @@ loaded==false 的文件 tab → 置 load_key（path_active 由 TabActivate 联�
 写——RunPendingLoad 读 `.path_active` 的协议假设天然满足；编辑器实化前
 探针 edit 失败静默递延=协议①）。切回语义=T-00③ 定案 **registry 存留、
 切回免重装**（内容留存于编辑器 registry，loaded=true 激活零动作）。
-cline/ccol=激活 tab 光标位镜像（SyncCursor 位更新；**持久化但不应用**
-——前向兼容位，上游 set-cursor 端点清偿后启用即得光标恢复）。
+cline/ccol=激活 tab 光标位镜像（SyncCursor 位更新；**持久化并应用**
+——PLAN-014 T-06 转正（2026-09-25）：RunPendingLoad 成功分支装载完成后
+`code_editor_set_cursor(key, cline-1, ccol-1)`（PLAN-701 供②端点）——
+会话 1 基→端点 0 基换算；端点内建钳位（越界→末行/行尾 char，陈旧会
+话安全）+Selection 弃置；fresh 打开 1/1→set(0,0)=零行为差异。**不
+republish on_cursor**（端点契约）——恢复位读回经既有 CursorMoved/
+TabActivate 面（矩阵 T18.2 断言=Down/Up 往返驱 CursorMoved 读回持久
+位）。排序在 ProbeByteMeta（BOM 剥离 edit）之后——防剥离 edit 复位光
+标）。滚动位不恢复（现状注记维持——供② editor-scroll 读/写端点已
+delivered，但读=注册表投影（≤2s 新鲜度窗+读回生态依赖）在隔离探针
+未得非零实证，消费持久化待投影生态证据（T18.3 断言现状锚）；Q-3
+条件形部分落地）。
 
 **recents 契约（最近文件）**：OpenPath 前段维护（去重前移，上限 10 淘尾
 ）——OpenPath 是全部打开入口的公共核（菜单/树/fif 点击/最近文件四路
@@ -251,12 +261,20 @@ cline/ccol=激活 tab 光标位镜像（SyncCursor 位更新；**持久化但不
 永不出编辑器）——检测器白名单零变更（对照：009 ReplaceAll=第五件登记）。
 
 **边界（非目标，如实成文）**：脏内容/未保存编辑不恢复（自动存盘/
-checkpoint 依赖 back 文件版本化，战略 §3.2 L 线审阅面件）；光标/滚动
-恢复应用不启用（无 set-cursor/editor-scroll 端点——docs/upstream §13
-want 消费方）；会话恢复开关无 config-as-data 配置面（v1 恒开，配置项列
+checkpoint 依赖 back 文件版本化，战略 §3.2 L 线审阅面件）；光标恢复
+已启用（PLAN-014 T-06——上文 cline/ccol 转正条）；滚动恢复不启用（
+scroll 持久化/应用待读投影生态证据，Q-3 注记）；会话恢复开关无
+config-as-data 配置面（v1 恒开，配置项列
 未来件）；多 workspace 并行会话（v1 单文件 last-wins，ws_dir 键控判匹配
 ）；tree 展开态/滚动位/fif 结果/查找栏开合等瞬态不恢复（v1 只恢复
 tab 集与激活位）。
+
+**任务栏跳转列表消费（PLAN-014 T-02，2026-09-25）**：OpenPath 公共核
+recents 维护后直调内核 `shell_add_recent(p)`（PLAN-701 供⑥ native
+9914——SHAddToRecentDocs(SHARD_PATHW) 一调用；非 Windows no-op 返
+false 零行为差异）。打开文件即报 shell Recent（任务栏跳转列表「最近
+」面）；注册表关联零依赖（T-01 五面勘定：pac `opens` 是 auto 桌面壳
+内部注册非 Windows 关联）；恢复链不走此挂点（重建非新开）。
 
 ## 大文件模式（PLAN-013 SD-01，M2-04）
 
@@ -288,18 +306,21 @@ SyncByteMeta 重算→视图重建（big↔normal 往返无残留；ActNew untit
 化同时清 big/ro_reason）。undo 历史在 lang 切换位重置（内核语义，v1
 接受——big 态编辑为小步精修域）。
 
-**命令护栏（全文本三件）**：big 态入口拦截+显式提示（console+状态栏
-`big_hint`，绝不静默）——①`ReplaceAllRequest`、②`EolConvertRequest`
-（+本体 `EolConvert` 同门=确认链直呼防御）、③`WriteFidelity`（save，
-ActSave/QuitSaveClose 双臂同拦）。**readonly 不设**（大文件仍可小步精
-修——战略 §1.2 保留清单②；编辑/查找/导航/fif 不受限）；拦截语义=命
-令级。实证依据（Q-4，探针 50MB 活体）：全文命令在 2046 工具链可完成
-（ReplaceAll 全管线 2.5s/计数精确）——护栏依据=**结构性/战略线**：全
-文往返 50MB+ 字符串两次过 VM 池（687 滞留形态；200MB 峰值 RSS
-~1.55GB 实测）+工具链漂移（011 实勘 split 49×）+save 唯一路径=全文
-VM 往返（直写端点清偿前无正解）。解锁件=上游 `code_editor_save` 直写
-端点（§10-2 want 在册，upstream §16 登记）——落地后 big 态 save 解禁，
-零 front 改动预期。EolConvert 菜单入口在 menubar-sub（MCP 失明=T12.6
+**命令护栏（全文本三件→二件，PLAN-014 T-05 save 解禁后）**：big 态
+入口拦截+显式提示（console+状态栏 `big_hint`，绝不静默）——①
+`ReplaceAllRequest`、②`EolConvertRequest`（+本体 `EolConvert` 同门=
+确认链直呼防御）仍拦截；③`WriteFidelity`（save）**已解禁改道**
+（PLAN-014 T-05，2026-09-25）：big 分支直调上游 `code_editor_save`
+端点（PLAN-701 供①——rope 直写落盘，零全文 VM 往返；护栏时代拦截
+语义退役）。**readonly 外层先行**（超大拒绝/编码错误形拦截落盘不变
+——008/013 兜底语义；空 rope 清写盘防线保持）。字节保真归属（T-04
+探针实证）：端点**裸写 rope 字节**——未编辑内容 LF/CRLF/BOM 三变体
++50MB 逐字节全等（load_file 装载保真+CRLF 存于 rope；BOM 剥离是
+front ProbeByteMeta 编辑语义、非 rope 行为），50MB save≈46ms（护栏
+时代 1.3–4.2s 且拦截不可用态）。normal 态链零变更（读出+包装+
+write_text 维持——Q-2 v1 界定）；检测器白名单零变更（`code_editor_
+text` 读出位随 normal 链保留——原「读出位四→三」预记不成立，勘定
+记录）。EolConvert 菜单入口在 menubar-sub（MCP 失明=T12.6
 同源已知上游缺——护栏门不可矩阵直驱，门本体在 store 侧成文）。
 
 **超大拒绝位**：**536870912B=512MB**（Q-3 定参；依据=探针 200MB 峰值

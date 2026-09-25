@@ -2305,24 +2305,39 @@ def run_tests(mcp_url, proc):
                      f"opened={opened17} iid={iid} btn={btn is not None} "
                      f"hint={hint!r} console_tail={c17[-140:]!r}")
 
-        # 17.3 save 拦截（磁盘零变 E2E；console 轮询窗替代定睡——派发竞态卫生）
+        # 17.3 big save 直写（PLAN-014 T-05 解禁后形——原「拦截+磁盘零变」
+        # 检查随护栏退役翻转：console saved (direct)+字节全等+时长 sane。
+        # 未编辑 50MB save=rope 字节直落（T-04 探针 46ms 实证形）；时长
+        # 代理=点击→console 行轮询窗，护栏时代读出链 1.3-4.2s+不可用态
+        # 对比面。）
         size_before = os.path.getsize(f_big50)
-        sbtn = find_button_by_icon(t17.snapshot(), "save")
-        if sbtn:
-            t17.click(sbtn)
-        blk = ""
-        for _ in range(20):
-            blk = state_str(t17.state("console"), "console") or ""
-            if "save blocked (big file" in blk:
+        dblk = ""
+        # 点击重试卫生（T17.2 首拍派发竞态同款——高载环境派发丢失重试；
+        # 计时起点随每轮重试重置——save 时长语义=派发后直写耗时）
+        for _ in range(3):
+            t017 = time.time()
+            sbtn = find_button_by_icon(t17.snapshot(), "save")
+            if sbtn:
+                t17.click(sbtn)
+            for _ in range(16):
+                dblk = state_str(t17.state("console"), "console") or ""
+                if "saved (direct): " in dblk:
+                    break
+                time.sleep(0.25)
+            if "saved (direct): " in dblk:
                 break
-            time.sleep(0.25)
+        save_s = round(time.time() - t017, 2)
         st3 = t17.state("console", "big_hint")
         size_after = os.path.getsize(f_big50)
-        result.check("T17.3 save 拦截（console+提示+磁盘零变）",
-                     "save blocked (big file" in (state_str(st3, "console") or "")
-                     and "拦截" in ((state_str(st3, "big_hint") or ""))
-                     and size_after == size_before,
-                     f"size {size_before}->{size_after}")
+        with open(f_big50, "rb") as fh:
+            head_new = fh.read(4096)
+        result.check("T17.3 big save 直写（console saved direct+字节全等+时长 sane）",
+                     "saved (direct): " in (state_str(st3, "console") or "")
+                     and size_after == size_before
+                     and head_new.startswith(b"line 00000000")
+                     and save_s < 5.0,
+                     f"size {size_before}->{size_after} save_s={save_s} "
+                     f"hint={((state_str(st3, 'big_hint') or '')[:40])!r}")
 
         # 17.4 切换往返无残留（seed tab[main.at] ↔ big tab；点击加 state
         # 校验重试——快照-派发间视图重建 vnode 失效卫生，T13 同源）
@@ -2501,6 +2516,189 @@ def run_tests(mcp_url, proc):
         _kill_proc_tree(p17f)
     except Exception as e:
         result.check("T17.8 会话恢复重探", False, repr(e))
+
+    # T18: PLAN-014 —— 上游端点消费检查组（T17 形态：独立新鲜进程+APPDATA
+    # 隔离）。子组：
+    #   18.1 readonly 兜底不受扰（513MB 拒绝形 tab→save→blocked+磁盘零变
+    #        ——T-05 readonly 外层先行语义）
+    #   18.2 光标恢复 E2E（T-06 set_cursor 转正——cline/ccol 持久化→恢复
+    #        应用；断言=重启后 Down/Up 往返驱 CursorMoved→SyncCursor 读回
+    #        持久位[set_cursor 不 republish on_cursor——契约]）
+    #   18.3 scroll 条件形现状注记（会话 JSON 无 scroll 字段=「滚动不恢
+    #        复」现状；供② 读投影生态面归后续件——Q-3 注记维持）
+    #   （normal 零扰动=T17.7 覆盖、会话链回归=T17.8 覆盖——不重复设检）
+    print("\nT18: PLAN-014 upstream consume")
+    t18_dir = tempfile.mkdtemp(prefix="p014_t18_fx_")
+    f18 = os.path.join(t18_dir, "cursor_restore.txt")
+    with open(f18, "w", encoding="utf-8", newline="") as f:
+        for i in range(1, 13):
+            extra = " TARGETCURSOR" if i == 3 else ""
+            f.write(f"restore line {i:02d}{extra} payload\n")
+
+    def _t18_app(extra, appdata=None):
+        port = pick_free_port()
+        env = {**os.environ, "AUTOUI_MCP_PORT": str(port),
+               "APPDATA": appdata or tempfile.mkdtemp(prefix="auto014_t18_"),
+               **extra}
+        proc = subprocess.Popen(
+            [AUTO_BIN, "run", "-r", "vm"],
+            cwd=PROJECT, env=env,
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        url = f"http://127.0.0.1:{port}/mcp"
+        assert wait_for_server(url, 30), "T18 server never up"
+        t = McpClient(url)
+        for _ in range(15):
+            s = t.snapshot()
+            if "(rendered)" in s and s.count("onclick") > 0:
+                break
+            time.sleep(1)
+        time.sleep(1.5)
+        return proc, t
+
+    # 18.1 readonly 兜底（513MB 拒绝形——T17.5 同 fixture 形态独立实例）
+    try:
+        p18, t18 = _t18_app({"AUTO_BENCH": "1", "AUTO_OPEN_PATH": f_513})
+        for _ in range(60 * 4):
+            if "load rejected" in (state_str(t18.state("console"),
+                                            "console") or ""):
+                break
+            time.sleep(0.25)
+        size18 = os.path.getsize(f_513)
+        sbtn18 = find_button_by_icon(t18.snapshot(), "save")
+        if sbtn18:
+            t18.click(sbtn18)
+        blk18 = ""
+        for _ in range(20):
+            blk18 = state_str(t18.state("console"), "console") or ""
+            if "save blocked (readonly)" in blk18:
+                break
+            time.sleep(0.25)
+        result.check("T18.1 readonly 兜底不受扰（blocked+磁盘零变）",
+                     "save blocked (readonly)" in blk18
+                     and os.path.getsize(f_513) == size18,
+                     f"console_tail={blk18[-100:]!r}")
+        _kill_proc_tree(p18)
+    except Exception as e:
+        result.check("T18.1 readonly 兜底不受扰", False, repr(e))
+
+    # 18.2 光标恢复 E2E（T-06 set_cursor 转正）。驱动形（全已证原语）：
+    # Ctrl+F 栏+type pattern+「下一处」按钮=code_editor_find 跳匹配
+    # （store .FindNext 显式 SyncCursor——状态栏 line/col 即读回面）→
+    # 退出（CloseRequest→SessionSave 持久化 cline/ccol）→重启同 APPDATA
+    # （恢复链装载完成位 set_cursor 应用[不 republish on_cursor——契约]
+    # ）→点已激活 tab（TabActivate→SyncCursor 读回真实位）。未恢复形
+    # 对照=读回 1/1。
+    try:
+        ad18 = tempfile.mkdtemp(prefix="auto014_t18_sess_")
+        p18b, t18b = _t18_app({"AUTO_BENCH": "1", "AUTO_OPEN_PATH": f18},
+                              appdata=ad18)
+        ok18 = _t17_wait_loaded(t18b, "cursor_restore.txt")
+        t18b.call("autoui_keyboard", key="f", modifiers=["ctrl"])
+        time.sleep(0.6)
+        iid18 = None
+        for _ in range(4):
+            m18 = re.search(r"input #(\w+)", t18b.snapshot())
+            iid18 = m18.group(1) if m18 else None
+            if iid18:
+                break
+            time.sleep(0.5)
+        typed18 = False
+        if iid18:
+            for _ in range(3):
+                t18b.call("autoui_type", element_id=iid18,
+                          text="TARGETCURSOR", clear_first=True)
+                time.sleep(0.5)
+                eff = state_str(t18b.state("find_effective"),
+                                "find_effective")
+                if "TARGETCURSOR" in eff:
+                    typed18 = True
+                    break
+        nxt18 = find_button_by_text(t18b.snapshot(), "下一处")
+        if nxt18:
+            t18b.click(nxt18)
+            time.sleep(0.8)
+        st18 = {}
+        for _ in range(6):
+            st18 = t18b.state("line", "col")
+            if state_int(st18, "line") == 3:
+                break
+            time.sleep(0.5)
+        line_set = state_int(st18, "line")
+        col_set = state_int(st18, "col")
+        q18 = None
+        menu18 = find_button_by_text(t18b.snapshot(), "文件")
+        if menu18:
+            t18b.click(menu18)
+            time.sleep(1.0)
+            q18 = find_button_by_text(t18b.snapshot(), "退出")
+        if q18:
+            try:
+                t18b.click(q18)
+            except (requests.ConnectionError, requests.Timeout):
+                pass
+        for _ in range(30):
+            if p18b.poll() is not None:
+                break
+            time.sleep(0.5)
+        if p18b.poll() is None:
+            try:
+                disc18 = find_button_by_text(t18b.snapshot(), "不保存退出")
+                if disc18:
+                    t18b.click(disc18)
+            except (requests.ConnectionError, requests.Timeout):
+                pass
+            for _ in range(20):
+                if p18b.poll() is not None:
+                    break
+                time.sleep(0.5)
+        exited18 = p18b.poll() is not None
+        _kill_proc_tree(p18b)
+        p18c, t18c = _t18_app({}, appdata=ad18)
+        ok_rs = _t17_wait_loaded(t18c, "cursor_restore.txt")
+        time.sleep(1.0)
+        tb18 = None
+        for _ in range(3):
+            tb18 = find_button_by_text(t18c.snapshot(), "cursor_restore.txt")
+            if tb18:
+                t18c.click(tb18)
+            time.sleep(0.8)
+            if state_int(t18c.state("line", "col"), "line") == 3:
+                break
+        st18r = t18c.state("line", "col", "tab_count")
+        line_rs = state_int(st18r, "line")
+        col_rs = state_int(st18r, "col")
+        result.check("T18.2 光标恢复 E2E（find 跳持久位=重启 TabActivate 读回）",
+                     ok18 and typed18 and exited18 and ok_rs
+                     and state_int(st18r, "tab_count") == 1
+                     and line_set == 3
+                     and line_rs == 3 and col_rs == col_set,
+                     f"set=({line_set},{col_set}) restored=({line_rs},"
+                     f"{col_rs}) typed={typed18} exited={exited18}")
+        _kill_proc_tree(p18c)
+    except Exception as e:
+        result.check("T18.2 光标恢复 E2E", False, repr(e))
+
+    # 18.3 scroll 条件形现状注记（会话 JSON 无 scroll 字段=「滚动不恢复」
+    # 现状维持——供② 读投影生态证据归后续，Q-3 注记）
+    try:
+        import glob as _glob
+        sess = None
+        cands = sorted(_glob.glob(os.path.join(
+            tempfile.gettempdir(), "auto014_t18_sess_*",
+            "auto-edit-session.json")))
+        if cands:
+            sess = cands[-1]
+        ok_no_scroll = False
+        note18 = "session file absent"
+        if sess and os.path.exists(sess):
+            with open(sess, encoding="utf-8") as fh:
+                body = fh.read()
+            ok_no_scroll = '"scroll' not in body and 'scroll_' not in body
+            note18 = f"scroll_keys_absent={ok_no_scroll} tabs={body.count('path')}"
+        result.check("T18.3 scroll 条件形注记（会话无 scroll 字段=现状）",
+                     ok_no_scroll, note18)
+    except Exception as e:
+        result.check("T18.3 scroll 条件形注记", False, repr(e))
 
     print()
     print("T8: ActQuit (menu item)")

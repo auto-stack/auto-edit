@@ -98,6 +98,26 @@ rope 化前架构性不可达——此前禁止对该路径调优；bench 只记
   480MB 内存），不再作单 iced 形态的回归对照基线；480MB 线性放大
   锚点对 rope 前后对照仍有效（同属 store 镜像缺口）。
 
+## 观测通道（PLAN-014 T-07，2026-09-25——供④ time 族消费）
+
+- **BENCH 标记双录机制（在册）**：`_spawn_tracked` 解析标记行下一裸
+  数字行=app 内 epoch 毫秒（供④ `time.now_ms` VM 轨 shim，PLAN-701；
+  print 直出 i64 实证形）——`app_epoch` 字段入返回面，`open_ms` 主源
+  切 app 侧差值、host `perf_counter` 差降对照列（`open_ms_host`，一跑
+  双录）。
+- **当前源=host 回退（上游缺口在册）**：供④ vue 臂无 `time.*` 模块
+  映射（ts_adapter TS2304×4——front ms 行撤回，docs/upstream §17 新
+  want）；front 恢复裸 epoch 行后 app 源自动接管（机制零改动）。
+  VM 轨直出形勘定（probe_upstream_consume）：`print(time.now_ms())`
+  裸行 ✓；`.str()`/字符串拼接/双参 print=平台缺口不用（i64 算术同缺
+  ——701 time-natives spec 桥面节）。
+- **F-RV6 口径勘误（供③ T-01 根因回执，随 §17）**：矩阵「进程级早
+  崩竞态」根因=**跨会话 `taskkill /IM auto.exe` 清扫误伤**（tools/perf
+  /README.md:65 清扫指导+他会话实活实证——watcher 实捕同秒双进程蒸
+  发），非工具链快照面竞态；新工具链无干扰五连跑零早崩（PLAN-701
+  T-02 谱）。重跑条款维持（干扰不可根除=共享环境常量），归因注记升
+  级：早崩先查并行会话清扫（watcher/日志双证），非盲重跑。
+
 ## 上游阻塞登记（供料面）
 
 上游供料包文档：`docs/upstream/2026-09-m1-supply.md`（F-R1 a2r 生成器
