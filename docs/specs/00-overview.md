@@ -163,6 +163,25 @@ diff）。核心形态：**引擎无关**（元数据递归遍历走 009 search_
 不入矩阵计数。上游件（copy 保留字阻断/folder picker want/file-hash
 比对 want/sort-hash 原语 want）登记 docs/upstream 2026-09 供料 §15。
 
+## M3 第三件注记（PLAN-015，2026-09-26）
+
+M3 第三件已落：**文件 diff 内联（unified）视图——完全体两视图收尾**
+（战略 §2.3「并排+内联两视图」后半）。核心形态：**纯视图件**——
+irows 投影派生自既有渲染行（pair 行两行展开 del 先 add 后、三段按源侧
+继承、行号双列缺席空串），切换=纯 front 状态重建（**零 back 调用零
+重比**，矩阵断言 envelope 派生面不变），hunk 导航 vmode 条件扫 irows
+（24px 偏移公式共用），双 cap 独立截断（信封 600+内联 600 并列注记，
+拦腰形合法——big_reorder 298 全 pair+1 孤 del 实证）。**envelope/
+back 零改动=PLAN-011 替换缝红利首兑现**（内核引擎落地仍仅换
+`fsys.diff_files_json` 实现体）。边界如实成文：**本件后 M3 本仓面在
+引擎落地前再无无阻塞验收项**——histogram/100MB ≤2s/差异侧直接编辑
+重比/与编辑缓冲区比较全数门控于上游供料包
+（docs/upstream/2026-09-diff-engine-supply.md 五件，**截至本件无承接
+立项**——M3 后续件排期实质由上游承接时序决定，PLAN-015 §10 Q-1 在案）。
+规范详 [modules/diff-view.md](modules/diff-view.md) 内联视图节（SD-01
+追加）+ README 矩阵 T15 组 P15 断言族（完成态 139 检查=120+19；决策
+探针 probe_diff.py ⑥推导器 58/0 为前置决策门不入矩阵计数）。
+
 **兄弟仓 Q1 裁定摘要（2026-09-22，战略补注十收口）**：jade-edit 与
 auto-edit **两产品长期并存**（auto=原生旗舰轻量编辑器、jade=web 轻量
 版并向知识库发展），组件尽量共用（未来插件级共用）。jade 侧战略文档

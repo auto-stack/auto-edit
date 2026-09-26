@@ -10,6 +10,9 @@
 > PLAN-012 追加「目录 diff」节（M3-02——同一视图态族同册归口；
 > 来源=PLAN-012 交付 + `diff_dirs_json` + editor_store/app dirs 段 +
 > probe_dirdiff.py 27/0 决策，T-00 定案见 §10）。
+> PLAN-015 追加「内联视图」节（M3-03——完全体两视图后半；来源=
+> PLAN-015 交付 + DiffBuildIrows/DiffToggleView + probe ⑥推导器 58/0
+> + smoke P15 四断言族 37/37；envelope/back 零改动=替换缝红利首兑现）。
 
 ## envelope 契约（back `diff_files(path_a, path_b, ctx) str`）
 
@@ -208,3 +211,64 @@ copy_r/copy_l/del_a/del_b）、`dir_bypass_done`。
   find 唯一）。
 - 同步动作走 tmp 生成树（fixtures 保 pristine——008 先例）；
   >2MB 未比对注记=生成式 fixture+快照「未比」断言。
+
+## 内联视图（PLAN-015 SD-01，M3-03）
+
+> 来源：PLAN-015 交付 + editor_store.at DiffBuildIrows/DiffToggleView +
+> app.at vmode 条件双视图段 + probe_diff.py ⑥推导器（58/0）+
+> smoke_t234 P15 四断言族（37/37）。战略 §2.3「并排+内联两视图」后半
+> 落账——**envelope/back 零改动**（替换缝红利首兑现：011 声明的
+> 计算层↔视图层唯一接口在本件未破一寸）。
+
+### 投影契约（store 纯派生，派生自 capped diff_rows）
+
+| 源行（diff_rows） | 内联展开 | d_lo/d_ro | pre/mid/post | lo/ro（导航归属） |
+|---|---|---|---|---|
+| sx_pair（lk=del+rk=add） | **两行：del 先、add 后**（统一 diff 惯例） | del 行=d_lo/""；add 行=""/d_ro | del 行取 l\*；add 行取 r\* | del 行=lo/0；add 行=0/ro |
+| sx_ctx | 一行 | 双在 | l\*（信封 ctx 行 lpre=全文本 mid 空） | lo/ro 双在 |
+| sx_del（单侧删） | 一行 | d_lo/"" | l\* | lo/0 |
+| sx_add（单侧增） | 一行 | ""/d_ro | r\* | 0/ro |
+
+- irows 记录字段：`d_lo/d_ro`（行号串缺席空串——视图零条件格式化）
+  + `pre/mid/post`（三段，mid 着重）+ `lo/ro int` + `ix_ctx/ix_del/
+  ix_add` 三形状旗标（**pdel≡del-only、padd≡add-only 渲染同构合形**
+  ——三旗标非五）。
+- **双 cap 语义**：irows 派生自强截断的 diff_rows（600 信封行），自身
+  再独立 cap **600 显示行**（pair 展开最坏 ×2；**拦腰形合法**——pair
+  的 del 行入列后 add 行可弃，本件 smoke big_reorder=298 全 pair+1 孤 del
+  实证）；注记双列（`渲染截断（600）`信封级 + `内联截断（600）`
+  内联级，互斥不抵消）；截断尾 hunk 导航零动作=并排态同语义。
+- 状态字段族：`diff_vmode`（契约字段 "side"/"inline"）+ 
+  `diff_vmode_inline`（视图旗标，handler 组维护 ⟺ 不变式——dir_mode
+  同款）+ `diff_irows/_count/_truncated` + `diff_dbg_ictx/idel/iadd`
+  （显示域口径形状计数，矩阵断言面）。
+
+### 切换与生命周期（G-2：纯态零重比）
+
+- handler `DiffToggleView`（action `diff.view-mode` + diff 工具栏钮
+  ——bool 旗标双钮形态，钮文「内联」/「并排」随态翻转）：切换=vmode
+  翻转 + irows 重建/清空，**零 back 调用零重比**（矩阵断言=envelope
+  派生面 diff_dbg_pair/del/add/ctx、diff_hunk_count、adds/dels 切换
+  前后逐字段不变）。仅文件 diff 态开放（dir_mode 守卫零动作）。
+- 生命周期：**跨 DiffCompute 保持**（重算尾段 vmode=inline 时投影重建
+  ——handler 组维护不变式）；**DiffClose 复位 side**+投影清空。
+
+### 导航（irows 域）
+
+DiffScrollToHunk 增 vmode 条件扫描源：inline 态扫 `diff_irows`
+（irows 携带 lo/ro 整数，命中式同式 lo-1∈[a1,a2) ∨ ro-1∈[b1,b2)）；
+并排态扫 diff_rows。偏移公式共用（行高 24px=h-6 双态同款，T-00③
+定标延续）。空 hunk/截断尾零动作守卫不变。
+
+### 视图断言口径（P15 实证）
+
+- 内联态=**三独立 for 循环×单 bool 旗标 if**（ix_del/ix_add/ix_ctx
+  ——011 四循环同款结构首位规避）；与并排四循环=vmode 条件互斥包裹
+  （并排态零改动）。
+- 行布局=行号双列继承（缺席空串零宽保列对齐——w-12×2）+单文本列
+  三段；着色与并排态同系（del 红/add 绿/ctx 无底色，mid 着重 amber）。
+- 矩阵断言面：irows 计数+dbg_i\* 三计数=**golden 推导器**期望
+  （probe_diff.py `derive_inline`——与 011 参考实现同源族，纯 python
+  先行决策门）；零重比=切换前后 envelope 派生面 state 对照；双 cap=
+  big_reorder 现役 fixture（信封 600+内联 600+双注记快照）；着色断言
+  归截图/人工视觉门（a11y 快照不携 style 行——T-15 口径延续）。

@@ -295,6 +295,27 @@ vue 映射供件，§17 新 want；open_ms 现 host 回退源）。vue 臂**双 
 恢复**（strict gen 33 组件+pnpm build；print 遮蔽缓解件退役——上游供⑤
 吸收）。上游消费收据+新 want 登记 docs/upstream §17。
 
+PLAN-015 口径更新（2026-09-26，工具链=auto-lang master 重建
+[v2156-g1d597e3f4 target/debug——PATH 旧二进制 g86b56884b 系并行分支
+构建**不含 PLAN-701 native**（shell_add_recent 链接炸），判据前核
+`auto --version` 含供料提交的坑位二度应验]；组依赖=`.wt/edit-015/
+auto-lang`@3e3e1e297 钉版 worktree[014 Q-1b 惯例——pac `../../../`
+路径在组目录下解析为组兄弟]）：矩阵扩 T15 组 **P15 内联视图断言族**
+（①irows 计数+形状计数 dbg_i\*×3=golden 推导器期望[probe_diff.py
+`derive_inline`——六形态行数恒等式/计数恒等式/三段继承+行号全行核/
+pair 邻接/双 cap 模拟 58/0 前置门]②切换零重比[envelope 派生面八字段
+切换前后不变+钮文翻转快照]③内联态导航[推进+回绕 2→0+位次串]④双
+cap=big_reorder 现役 fixture[信封 600+内联 600 拦腰形+双注记快照+
+关闭复原]；关闭复位 vmode=side+投影清空；重建幂等）——T15 组
+smoke_t234 18→**37 检查**，完成态 **139**（120 + 19 新检查）。**判绿
+口径=≥131 passed / 0 failed**（已知 blocked 集不计：T12.6[menubar-sub
+MCP 失明]+T17.2/17.3/17.4/17.8[大文件实例 UI 硬卡死=上游回归，清偿后
+自动复绿]——口径承 014；本件新增检查无 blocked 项）。P15 侧写：
+**envelope/back 零改动**（替换缝红利首兑现——diff 链仍零
+`code_editor_text`，检测器白名单零变更）；T16 下钻复用面回归绿
+（smoke_t345 ALL PASS）。vue 臂 build-green 复验=T-06（014 双 exit 0
+基线上，本件新面=基础件 for/if/button 族已证面）。
+
 注：Plan 451 起 T10「热重载」走 DSL 源路径（reload 工具或 mtime 轮询重读
 app.at 重新提取 actions + generation bump → 视图重建），实测 50/0 全绿。
 OS 用户键位层（`%APPDATA%/auto/keymaps/auto-edit.at`）保持外部文件——那是
