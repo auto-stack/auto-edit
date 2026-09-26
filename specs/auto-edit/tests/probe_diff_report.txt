@@ -1,4 +1,4 @@
-toolchain: auto 0.1.0+v0.4.2-2046-g02ae0ac1c-dirty
+toolchain: auto 0.1.0+v0.4.2-2156-g1d597e3f4
 
 ============================================================
 ② 朴素分层原型对拍（python 参考实现 × fixtures golden 逐字段）
@@ -31,6 +31,33 @@ Q-4 删多增少形态渲染示意（配对行 <mid> 高亮；不成对行整行
   PASS  [②] unbalanced 不成对行存在（Q-4 判据面）
 
 ============================================================
+⑥ 内联投影推导器 × fixtures 六形态（store DiffBuildIrows 同构）
+============================================================
+  PASS  [⑥] 行数恒等式（显示+pair 展开）: add_only
+  PASS  [⑥] 形状计数一致（del/add/ctx 域同和）: add_only
+  PASS  [⑥] 三段继承+行号语义（全行核）: add_only
+  PASS  [⑥] 行数恒等式（显示+pair 展开）: del_only
+  PASS  [⑥] 形状计数一致（del/add/ctx 域同和）: del_only
+  PASS  [⑥] 三段继承+行号语义（全行核）: del_only
+  PASS  [⑥] 行数恒等式（显示+pair 展开）: modify
+  PASS  [⑥] 形状计数一致（del/add/ctx 域同和）: modify
+  PASS  [⑥] 三段继承+行号语义（全行核）: modify
+  PASS  [⑥] 行数恒等式（显示+pair 展开）: scattered
+  PASS  [⑥] 形状计数一致（del/add/ctx 域同和）: scattered
+  PASS  [⑥] 三段继承+行号语义（全行核）: scattered
+  PASS  [⑥] 行数恒等式（显示+pair 展开）: big_reorder
+  PASS  [⑥] 形状计数一致（del/add/ctx 域同和）: big_reorder
+  PASS  [⑥] 三段继承+行号语义（全行核）: big_reorder
+  PASS  [⑥] 行数恒等式（显示+pair 展开）: unbalanced
+  PASS  [⑥] 形状计数一致（del/add/ctx 域同和）: unbalanced
+  PASS  [⑥] 三段继承+行号语义（全行核）: unbalanced
+  PASS  [⑥] pair 展开 del-先-add-后邻接: modify
+  PASS  [⑥] pair 展开 del-先-add-后邻接: scattered
+  PASS  [⑥] pair 展开 del-先-add-后邻接: big_reorder
+  PASS  [⑥] 双 cap 模拟（big_reorder 信封截断→内联截断）
+  PASS  [⑥] unbalanced del-only 内联单行（整行 mid 继承）
+
+============================================================
 ⑤ 入口链预演：env 旁路 AUTO_DIFF_A/B 消费形态（Phase A back HTTP）
 ============================================================
   PASS  [⑤] env 注入→env_str 读回: AUTO_DIFF_A
@@ -59,21 +86,21 @@ Phase B: probe_diff_app（B1 微基准 / B2 scroll+onscroll——双会话）
 ============================================================
 
 ① AutoVM 算力微基准（秒；python 墙钟口径 click→完成）
-       bl4: {'loop1e4': '67.8ms'}
-       bl5: {'loop1e5': '74.9ms'}
-       bp4: {'push1e4': '75.8ms'}
-       bp5: {'push1e5': '69.7ms'}
-       bg5: {'get1e5': '67.3ms', 'acc': '704982704'}
-       bs5: {'str1e5': '54.1ms', 'c': '-100000'}
-       dp200: {'dp200': '55.3ms', 'dp200_acc': '0'}
-       dp300: {'dp300': '68.0ms', 'dp300_acc': '0'}
-       bld: {'bld': '77.8ms'}
-       bspl: {'split5k_lines': '5001', 'split5k': '57.2ms'}
-       brows: {'rows600': '53.2ms'}
+       bl4: {'loop1e4': '75.3ms'}
+       bl5: {'loop1e5': '69.6ms'}
+       bp4: {'push1e4': '51.7ms'}
+       bp5: {'push1e5': '52.0ms'}
+       bg5: {'get1e5': '171.0ms', 'acc': '704982704'}
+       bs5: {'str1e5': '52.2ms', 'c': '-100000'}
+       dp200: {'dp200': '249.6ms', 'dp200_acc': '0'}
+       dp300: {'dp300': '1155.8ms', 'dp300_acc': '0'}
+       bld: {'bld': '2514.1ms'}
+       bspl: {'split5k_lines': '5001', 'split5k': '70.9ms'}
+       brows: {'rows600': '51.6ms'}
   PASS  [①] 微基准 dp400
   PASS  [①] 吞吐健全性 loop1e4≤1e5（墙钟口径）
   PASS  [①] 单消息算力墙勘定（10M steps/源码+首轮实证双锚）
-  PASS  [①] DP-LCS 中间区上限定参 = 1029
+  PASS  [①] DP-LCS 中间区上限定参 = 249
   PASS  [①] 全览渲染 cap 定参 = 600
   PASS  [①] split 定标前置：5000 行 body 构建在档
   PASS  [①] 文件上限复核 = 50k 行/2MB
@@ -102,22 +129,22 @@ Phase B: probe_diff_app（B1 微基准 / B2 scroll+onscroll——双会话）
     "design_rule": "diff_files 单 handler 全链（split+DP+rows 构建+JSON 拼装）总步数 <10M——T-01 实现约束"
   },
   "dp_cap": {
-    "value": 1029,
+    "value": 249,
     "measured_tier": 300,
-    "measured_dp_fill_scan_s": 0.06798648834228516,
+    "measured_dp_fill_scan_s": 1.155776023864746,
     "budget_s": 0.8,
     "rule": "fill+scan≤0.8s 维持 400，超则 cap=档×√(0.8/t)"
   },
   "render_cap": {
     "value": 600,
-    "measured_rows600_build_s": 0.05315589904785156,
+    "measured_rows600_build_s": 0.05162239074707031,
     "budget_s": 0.2,
     "rule": "rows 构建≤0.2s 维持 600（渲染侧成本不含，口径注记）"
   },
   "file_cap": {
     "value": "50k 行 / 2MB",
-    "measured_split5k_s": 0.05722212791442871,
-    "split50k_est_s": 0.5722212791442871,
+    "measured_split5k_s": 0.07088398933410645,
+    "split50k_est_s": 0.7088398933410645,
     "rule": "split 线性外推 ≤1.5s → 维持预判上限"
   },
   "scroll": {
@@ -138,7 +165,7 @@ Phase B: probe_diff_app（B1 微基准 / B2 scroll+onscroll——双会话）
     "unpaired_visual": "不成对行整行 mid 染色（整行红/绿），ASCII 见上",
     "judgment": "可接受——不成对行语义=整段删除/新增，整行染色与 VS Code/BC 同款形态；三段数据保留在 envelope 供引擎时代 refine"
   },
-  "toolchain": "auto 0.1.0+v0.4.2-2046-g02ae0ac1c-dirty"
+  "toolchain": "auto 0.1.0+v0.4.2-2156-g1d597e3f4"
 }
 
-RESULT: 35 passed, 0 failed
+RESULT: 58 passed, 0 failed

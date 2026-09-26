@@ -284,6 +284,58 @@ def naive_layered_diff(a_text, b_text, ctx=DIFF_CTX, cap=DIFF_CAP):
             "truncated": truncated, "degraded": degraded, "err": err}
 
 
+def derive_inline(rows, row_cap=600, inline_cap=600):
+    """PLAN-015 ⑥ 内联投影推导器（store DiffBuildIrows 同构参考实现）。
+
+    输入=envelope 渲染就绪行（信封级 cap 先行——与 .at 侧 capped
+    diff_rows 同源）；输出=(irows, truncated)。pair 行两行展开（del 先
+    add 后）；行号串缺席侧 ""；三段按源侧继承（ctx 行取 l*——信封 ctx
+    行 lpre=全文本 mid 空）；内联级 cap 独立截断（pair 展开行可被拦腰
+    ——首行入列次行弃，与 .at 实现同语义）。字段 k ∈ del/add/ctx=渲染
+    形状（ix_* 旗标推导面）。
+    """
+    capped = rows[:row_cap]
+    out = []
+    for r in capped:
+        lk, rk = r["lk"], r["rk"]
+        lo, ro = r["lo"], r["ro"]
+        if lk == "del" and rk == "add":
+            out.append({"d_lo": str(lo) if lo else "", "d_ro": "",
+                        "lo": lo, "ro": 0,
+                        "pre": r["lpre"], "mid": r["lmid"], "post": r["lpost"],
+                        "k": "del"})
+            out.append({"d_lo": "", "d_ro": str(ro) if ro else "",
+                        "lo": 0, "ro": ro,
+                        "pre": r["rpre"], "mid": r["rmid"], "post": r["rpost"],
+                        "k": "add"})
+        elif lk == "del":
+            out.append({"d_lo": str(lo) if lo else "", "d_ro": "",
+                        "lo": lo, "ro": 0,
+                        "pre": r["lpre"], "mid": r["lmid"], "post": r["lpost"],
+                        "k": "del"})
+        elif rk == "add":
+            out.append({"d_lo": "", "d_ro": str(ro) if ro else "",
+                        "lo": 0, "ro": ro,
+                        "pre": r["rpre"], "mid": r["rmid"], "post": r["rpost"],
+                        "k": "add"})
+        else:
+            out.append({"d_lo": str(lo) if lo else "",
+                        "d_ro": str(ro) if ro else "",
+                        "lo": lo, "ro": ro,
+                        "pre": r["lpre"], "mid": r["lmid"], "post": r["lpost"],
+                        "k": "ctx"})
+    return out[:inline_cap], len(out) > inline_cap
+
+
+def inline_shape_counts(irows):
+    """显示域形状计数（.at 侧 diff_dbg_i* 同构）。"""
+    return {
+        "del": sum(1 for r in irows if r["k"] == "del"),
+        "add": sum(1 for r in irows if r["k"] == "add"),
+        "ctx": sum(1 for r in irows if r["k"] == "ctx"),
+    }
+
+
 # ─────────────────────────────────────────────────────────────────────
 # fixtures 六形态（五形态 golden + 删多增少 Q-4 视觉件）
 # ─────────────────────────────────────────────────────────────────────
@@ -446,6 +498,124 @@ def main():
                if r["lk"] == "del" and r["rk"] == ""]
     check("②", "unbalanced 不成对行存在（Q-4 判据面）", len(q4_rows) >= 2,
           f"unpaired={q4_rows}")
+
+    # ============ ⑥ 内联投影推导（PLAN-015 T-01v，纯 python 先行） ============
+    emit("\n" + "=" * 60)
+    emit("⑥ 内联投影推导器 × fixtures 六形态（store DiffBuildIrows 同构）")
+    emit("=" * 60)
+    for name, g in golden.items():
+        env = g["env"]
+        rows_capped = env["rows"][:600]
+        n_pair = sum(1 for r in rows_capped
+                     if r["lk"] == "del" and r["rk"] == "add")
+        irows, itrunc = derive_inline(env["rows"])
+        cnts = inline_shape_counts(irows)
+        # 行数恒等式：内联行数 = 信封显示行数 + pair 数（截断前域）
+        expect_total = len(rows_capped) + n_pair
+        total_ok = len(irows) == min(expect_total, 600)
+        check("⑥", f"行数恒等式（显示+pair 展开）: {name}",
+              total_ok and itrunc == (expect_total > 600),
+              f"irows={len(irows)} expect={expect_total} trunc={itrunc}")
+        # 计数恒等式：idel=del-only+pair、iadd=add-only+pair、ictx=ctx
+        #（非截断域恒等；big_reorder 截断域以推导器输出自核）
+        n_delonly = sum(1 for r in rows_capped
+                        if r["lk"] == "del" and r["rk"] != "add")
+        n_addonly = sum(1 for r in rows_capped
+                        if r["rk"] == "add" and r["lk"] != "del")
+        n_ctx = sum(1 for r in rows_capped
+                    if r["lk"] != "del" and r["rk"] != "add")
+        if expect_total <= 600:
+            cnt_ok = (cnts["del"] == n_delonly + n_pair and
+                      cnts["add"] == n_addonly + n_pair and
+                      cnts["ctx"] == n_ctx)
+        else:
+            cnt_ok = (cnts["del"] + cnts["add"] + cnts["ctx"] == len(irows))
+        check("⑥", f"形状计数一致（del/add/ctx 域同和）: {name}", cnt_ok,
+              f"cnts={cnts} irows={len(irows)}")
+        # 三段继承+行号语义（全行核：del 行取源 l* 段 d_ro 空 / add 行
+        # 取源 r* 段 d_lo 空 / ctx 行双号+全文本 pre）
+        sema_ok = True
+        src_by_pos = {}
+        idx_out = 0
+        for r in rows_capped:
+            lk, rk = r["lk"], r["rk"]
+            if lk == "del" and rk == "add":
+                src_by_pos[idx_out] = (r, "del")
+                src_by_pos[idx_out + 1] = (r, "add")
+                idx_out += 2
+            else:
+                src_by_pos[idx_out] = (r, lk if lk == "del" else
+                                       (rk if rk == "add" else "ctx"))
+                idx_out += 1
+        for k, ir in enumerate(irows):
+            if k not in src_by_pos:
+                break
+            src, kind = src_by_pos[k]
+            if ir["k"] != kind:
+                sema_ok = False
+                break
+            if kind == "del":
+                if not (ir["pre"] == src["lpre"] and ir["mid"] == src["lmid"]
+                        and ir["post"] == src["lpost"] and ir["d_ro"] == ""
+                        and ir["lo"] == src["lo"]):
+                    sema_ok = False
+                    break
+            elif kind == "add":
+                if not (ir["pre"] == src["rpre"] and ir["mid"] == src["rmid"]
+                        and ir["post"] == src["rpost"] and ir["d_lo"] == ""
+                        and ir["ro"] == src["ro"]):
+                    sema_ok = False
+                    break
+            else:
+                if not (ir["pre"] == src["lpre"] and ir["mid"] == src["lmid"]
+                        and ir["post"] == src["lpost"]
+                        and ir["lo"] == src["lo"] and ir["ro"] == src["ro"]
+                        and ir["d_lo"] != "" and ir["d_ro"] != ""):
+                    sema_ok = False
+                    break
+        check("⑥", f"三段继承+行号语义（全行核）: {name}", sema_ok,
+              f"first_fail@{k}" if not sema_ok else "")
+    # pair 展开 del-先-add-后邻接（pair 行内联形态=add 前邻必 del；
+    # 期望值按 .at cap 语义精确步进——pair 可被拦腰：del 行入列后
+    # add 行不保证在列）
+    for name in ("modify", "scattered", "big_reorder"):
+        env_n = golden[name]["env"]
+        irows, _ = derive_inline(env_n["rows"])
+        pairs = sum(1 for i in range(1, len(irows))
+                    if irows[i]["k"] == "add" and irows[i - 1]["k"] == "del"
+                    and irows[i]["d_lo"] == "" and irows[i - 1]["d_ro"] == "")
+        nc = 0
+        full_pairs = 0
+        for r in env_n["rows"][:600]:
+            if r["lk"] == "del" and r["rk"] == "add":
+                if nc < 600:
+                    nc += 1
+                    if nc < 600:
+                        nc += 1
+                        full_pairs += 1
+            else:
+                if nc < 600:
+                    nc += 1
+        adj_ok = pairs == full_pairs
+        check("⑥", f"pair 展开 del-先-add-后邻接: {name}", adj_ok,
+              f"adjacent_pairs={pairs} expect={full_pairs}")
+    # 双 cap 模拟（big_reorder：610+610 降级块 → 信封 600 截断 → 内联
+    # 600 截断——拦腰形：300 pair 恰满）
+    env_b = golden["big_reorder"]["env"]
+    irows_b, itrunc_b = derive_inline(env_b["rows"])
+    check("⑥", "双 cap 模拟（big_reorder 信封截断→内联截断）",
+          itrunc_b and len(irows_b) == 600
+          and len(env_b["rows"]) > 600,
+          f"env_rows={len(env_b['rows'])} irows={len(irows_b)} "
+          f"trunc={itrunc_b}")
+    # unbalanced 不成对行（del-only 行内联单行——整行 mid 继承）
+    irows_u, _ = derive_inline(golden["unbalanced"]["env"]["rows"])
+    u_del = [ir for ir in irows_u if ir["k"] == "del"]
+    check("⑥", "unbalanced del-only 内联单行（整行 mid 继承）",
+          len(u_del) >= 2 and all(ir["d_ro"] == "" and ir["mid"] != ""
+                                  and ir["pre"] == "" and ir["post"] == ""
+                                  for ir in u_del[:2]),
+          f"del_only={len(u_del)}")
 
     # ============ ⑤ Phase A：env 旁路链（真实 app，back HTTP） ============
     emit("\n" + "=" * 60)

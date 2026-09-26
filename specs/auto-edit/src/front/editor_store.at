@@ -230,6 +230,23 @@ store EditorStore {
         var diff_dbg_del int = 0
         var diff_dbg_add int = 0
         var diff_dbg_ctx int = 0
+        // PLAN-015 T-01: 内联视图状态面（SD-01）。diff_vmode=契约字段
+        // （"side"/"inline"，矩阵断言面）；diff_vmode_inline=视图旗标
+        // （dir_mode 同款 handler 组维护不变式 vmode=="inline" ⟺ 旗标）；
+        // diff_irows=内联显示行投影（派生自 capped diff_rows——pair 行
+        // 两行展开 del 先 add 后，三段按源侧继承，行号串缺席侧 ""）+
+        // 独立 cap 600 截断注记（信封级 diff_rows_truncated 并列双注记；
+        // hunks 导航仍信封全量语义=截断尾 hunk 零动作，与并排态一致）；
+        // diff_dbg_i*=内联形状计数（矩阵断言面——显示域口径，diff_dbg_*
+        // 同款）。
+        var diff_vmode str = "side"
+        var diff_vmode_inline bool = false
+        var diff_irows list = []
+        var diff_irows_count int = 0
+        var diff_irows_truncated bool = false
+        var diff_dbg_ictx int = 0
+        var diff_dbg_idel int = 0
+        var diff_dbg_iadd int = 0
         // PLAN-012 T-03: 目录 diff 状态面（SD-01 契约扩展）。diff_mode=
         // 契约字段（"file"/"dirs"，矩阵断言面）；dir_mode=视图旗标
         // （dirs 面板条件——bool 已证面，diff_open 保持 011 语义=任意
@@ -326,6 +343,10 @@ store EditorStore {
         DiffOpen, DiffCompute, DiffClose, DiffNext, DiffPrev,
         // PLAN-011 T-04: 导航内部收口（当前 hunk 首渲染行定位+scroll_to）。
         DiffScrollToHunk,
+        // PLAN-015 T-01: 内联视图链。DiffToggleView=并排↔内联切换（纯
+        // front 投影重建——零 back 调用零重比，AC-02 断言面）；DiffBuild
+        // Irows=投影重建内部收口（toggle/compute 尾段双调用位）。
+        DiffToggleView, DiffBuildIrows,
         // PLAN-011 T-02: env 旁路 Tick 消费臂（AUTO_DIFF_A 在档时首拍
         // 自开——矩阵驱动面确定性保障；menubar 展开项不进 vtree 实勘
         // 2044 复认+键盘路径 AltGr 疑虑，双双不可作矩阵依赖）。
@@ -1496,6 +1517,11 @@ store EditorStore {
                         .diff_title_a = file_basename(.diff_a)
                         .diff_title_b = file_basename(.diff_b)
                         .diff_open = true
+                        // PLAN-015: 内联态跨 compute 保持（vmode 不复位）
+                        // ——重算后投影重建。
+                        if .diff_vmode_inline {
+                            store.DiffBuildIrows()
+                        }
                         var msg0 str = "diff: +" + .diff_adds.str() + "/-" + .diff_dels.str() + " hunks=" + nh.str()
                         if .diff_rows_truncated {
                             msg0 = msg0 + "（渲染截断 600）"
@@ -1534,6 +1560,13 @@ store EditorStore {
             .diff_dels = 0
             .diff_degraded = false
             .diff_err = ""
+            // PLAN-015: 视图模式复位 side+投影清空（会话内跨 compute
+            // 保持、close 复位）。
+            .diff_vmode = "side"
+            .diff_vmode_inline = false
+            .diff_irows = []
+            .diff_irows_count = 0
+            .diff_irows_truncated = false
             console_log("diff: closed")
             // PLAN-012: 下钻来源归位目录面板；目录态 Esc=整个 dirdiff
             // 出口（dir_from_dirs 门——011 直用路径零扰动）。
@@ -1596,9 +1629,18 @@ store EditorStore {
                         var b2 int = hk.b2 ?? 0
                         var target int = -1
                         var ri int = 0
-                        while ri < .diff_rows_count {
+                        // PLAN-015 T-03: 内联态扫 irows（归属整数随投影
+                        // 携带，命中式同式）；并排态扫 diff_rows——偏移
+                        // 公式共用（行高 24px 双态同款）。
+                        var src = .diff_rows
+                        var srcn int = .diff_rows_count
+                        if .diff_vmode_inline {
+                            src = .diff_irows
+                            srcn = .diff_irows_count
+                        }
+                        while ri < srcn {
                             if target < 0 {
-                                var r = .diff_rows[ri]
+                                var r = src[ri]
                                 var lov int = r.lo ?? 0
                                 var rov int = r.ro ?? 0
                                 var hit bool = false
@@ -1636,6 +1678,89 @@ store EditorStore {
                     }
                 }
             }
+        }
+
+        // ---- PLAN-015 T-01: 内联视图切换+投影（G-1/G-2）。切换=纯
+        // front 状态（envelope 信封行与派生计数零变化——零重比断言面
+        // AC-02）；仅文件 diff 态开放（dir_mode 守卫零动作）。
+        .DiffToggleView -> {
+            if .diff_open {
+                if !.dir_mode {
+                    if .diff_vmode_inline {
+                        .diff_vmode = "side"
+                        .diff_vmode_inline = false
+                        .diff_irows = []
+                        .diff_irows_count = 0
+                        .diff_irows_truncated = false
+                        console_log("diff: view side")
+                    } else {
+                        .diff_vmode = "inline"
+                        .diff_vmode_inline = true
+                        store.DiffBuildIrows()
+                        console_log("diff: view inline")
+                    }
+                }
+            }
+            .console = console_lines()
+        }
+        // 投影重建：pair 行两行展开（del 先 add 后）+单侧/ctx 行单行；
+        // 三段按源侧继承（del 行取 l*、add 行取 r*、ctx 行取 l*——信封
+        // ctx 行 lpre=全文本）；行号串缺席侧 ""；cap 600 显示行独立截断
+        // （pair 展开×2 最坏形——nt=全量行数计双 cap 注记）；dbg 计数=
+        // 显示域口径（diff_dbg_* 同款）。
+        .DiffBuildIrows -> {
+            var out list = []
+            var nc int = 0
+            var nt int = 0
+            var ictx int = 0
+            var idel int = 0
+            var iadd int = 0
+            for r in .diff_rows {
+                var p bool = r.sx_pair
+                var d bool = r.sx_del
+                var a bool = r.sx_add
+                var lov int = r.lo ?? 0
+                var rov int = r.ro ?? 0
+                var dlo str = r.d_lo
+                var dro str = r.d_ro
+                if p {
+                    nt = nt + 2
+                } else {
+                    nt = nt + 1
+                }
+                if nc < 600 {
+                    if p {
+                        out.push({d_lo: dlo, d_ro: "", lo: lov, ro: 0, pre: r.lpre, mid: r.lmid, post: r.lpost, ix_ctx: false, ix_del: true, ix_add: false})
+                        idel = idel + 1
+                        nc = nc + 1
+                        if nc < 600 {
+                            out.push({d_lo: "", d_ro: dro, lo: 0, ro: rov, pre: r.rpre, mid: r.rmid, post: r.rpost, ix_ctx: false, ix_del: false, ix_add: true})
+                            iadd = iadd + 1
+                            nc = nc + 1
+                        }
+                    } else {
+                        if d {
+                            out.push({d_lo: dlo, d_ro: dro, lo: lov, ro: 0, pre: r.lpre, mid: r.lmid, post: r.lpost, ix_ctx: false, ix_del: true, ix_add: false})
+                            idel = idel + 1
+                        } else {
+                            if a {
+                                out.push({d_lo: dlo, d_ro: dro, lo: 0, ro: rov, pre: r.rpre, mid: r.rmid, post: r.rpost, ix_ctx: false, ix_del: false, ix_add: true})
+                                iadd = iadd + 1
+                            } else {
+                                out.push({d_lo: dlo, d_ro: dro, lo: lov, ro: rov, pre: r.lpre, mid: r.lmid, post: r.lpost, ix_ctx: true, ix_del: false, ix_add: false})
+                                ictx = ictx + 1
+                            }
+                        }
+                        nc = nc + 1
+                    }
+                }
+            }
+            .diff_irows = out
+            .diff_irows_count = nc
+            .diff_irows_truncated = nt > nc
+            .diff_dbg_ictx = ictx
+            .diff_dbg_idel = idel
+            .diff_dbg_iadd = iadd
         }
 
         .DiffBypassTick -> {

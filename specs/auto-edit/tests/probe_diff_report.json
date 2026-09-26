@@ -1,5 +1,5 @@
 {
-  "toolchain": "auto 0.1.0+v0.4.2-2046-g02ae0ac1c-dirty",
+  "toolchain": "auto 0.1.0+v0.4.2-2156-g1d597e3f4",
   "decisions": {
     "step_budget": {
       "per_handler_steps": 10000000,
@@ -9,22 +9,22 @@
       "design_rule": "diff_files 单 handler 全链（split+DP+rows 构建+JSON 拼装）总步数 <10M——T-01 实现约束"
     },
     "dp_cap": {
-      "value": 1029,
+      "value": 249,
       "measured_tier": 300,
-      "measured_dp_fill_scan_s": 0.06798648834228516,
+      "measured_dp_fill_scan_s": 1.155776023864746,
       "budget_s": 0.8,
       "rule": "fill+scan≤0.8s 维持 400，超则 cap=档×√(0.8/t)"
     },
     "render_cap": {
       "value": 600,
-      "measured_rows600_build_s": 0.05315589904785156,
+      "measured_rows600_build_s": 0.05162239074707031,
       "budget_s": 0.2,
       "rule": "rows 构建≤0.2s 维持 600（渲染侧成本不含，口径注记）"
     },
     "file_cap": {
       "value": "50k 行 / 2MB",
-      "measured_split5k_s": 0.05722212791442871,
-      "split50k_est_s": 0.5722212791442871,
+      "measured_split5k_s": 0.07088398933410645,
+      "split50k_est_s": 0.7088398933410645,
       "rule": "split 线性外推 ≤1.5s → 维持预判上限"
     },
     "scroll": {
@@ -45,7 +45,7 @@
       "unpaired_visual": "不成对行整行 mid 染色（整行红/绿），ASCII 见上",
       "judgment": "可接受——不成对行语义=整段删除/新增，整行染色与 VS Code/BC 同款形态；三段数据保留在 envelope 供引擎时代 refine"
     },
-    "toolchain": "auto 0.1.0+v0.4.2-2046-g02ae0ac1c-dirty"
+    "toolchain": "auto 0.1.0+v0.4.2-2156-g1d597e3f4"
   },
   "checks": [
     {
@@ -109,16 +109,154 @@
       "detail": "unpaired=[(8, 0), (9, 0)]"
     },
     {
+      "item": "⑥",
+      "name": "行数恒等式（显示+pair 展开）: add_only",
+      "ok": true,
+      "detail": "irows=9 expect=9 trunc=False"
+    },
+    {
+      "item": "⑥",
+      "name": "形状计数一致（del/add/ctx 域同和）: add_only",
+      "ok": true,
+      "detail": "cnts={'del': 0, 'add': 3, 'ctx': 6} irows=9"
+    },
+    {
+      "item": "⑥",
+      "name": "三段继承+行号语义（全行核）: add_only",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "item": "⑥",
+      "name": "行数恒等式（显示+pair 展开）: del_only",
+      "ok": true,
+      "detail": "irows=9 expect=9 trunc=False"
+    },
+    {
+      "item": "⑥",
+      "name": "形状计数一致（del/add/ctx 域同和）: del_only",
+      "ok": true,
+      "detail": "cnts={'del': 3, 'add': 0, 'ctx': 6} irows=9"
+    },
+    {
+      "item": "⑥",
+      "name": "三段继承+行号语义（全行核）: del_only",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "item": "⑥",
+      "name": "行数恒等式（显示+pair 展开）: modify",
+      "ok": true,
+      "detail": "irows=12 expect=12 trunc=False"
+    },
+    {
+      "item": "⑥",
+      "name": "形状计数一致（del/add/ctx 域同和）: modify",
+      "ok": true,
+      "detail": "cnts={'del': 3, 'add': 3, 'ctx': 6} irows=12"
+    },
+    {
+      "item": "⑥",
+      "name": "三段继承+行号语义（全行核）: modify",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "item": "⑥",
+      "name": "行数恒等式（显示+pair 展开）: scattered",
+      "ok": true,
+      "detail": "irows=24 expect=24 trunc=False"
+    },
+    {
+      "item": "⑥",
+      "name": "形状计数一致（del/add/ctx 域同和）: scattered",
+      "ok": true,
+      "detail": "cnts={'del': 3, 'add': 3, 'ctx': 18} irows=24"
+    },
+    {
+      "item": "⑥",
+      "name": "三段继承+行号语义（全行核）: scattered",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "item": "⑥",
+      "name": "行数恒等式（显示+pair 展开）: big_reorder",
+      "ok": true,
+      "detail": "irows=600 expect=1197 trunc=True"
+    },
+    {
+      "item": "⑥",
+      "name": "形状计数一致（del/add/ctx 域同和）: big_reorder",
+      "ok": true,
+      "detail": "cnts={'del': 299, 'add': 298, 'ctx': 3} irows=600"
+    },
+    {
+      "item": "⑥",
+      "name": "三段继承+行号语义（全行核）: big_reorder",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "item": "⑥",
+      "name": "行数恒等式（显示+pair 展开）: unbalanced",
+      "ok": true,
+      "detail": "irows=8 expect=8 trunc=False"
+    },
+    {
+      "item": "⑥",
+      "name": "形状计数一致（del/add/ctx 域同和）: unbalanced",
+      "ok": true,
+      "detail": "cnts={'del': 3, 'add': 1, 'ctx': 4} irows=8"
+    },
+    {
+      "item": "⑥",
+      "name": "三段继承+行号语义（全行核）: unbalanced",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "item": "⑥",
+      "name": "pair 展开 del-先-add-后邻接: modify",
+      "ok": true,
+      "detail": "adjacent_pairs=3 expect=3"
+    },
+    {
+      "item": "⑥",
+      "name": "pair 展开 del-先-add-后邻接: scattered",
+      "ok": true,
+      "detail": "adjacent_pairs=3 expect=3"
+    },
+    {
+      "item": "⑥",
+      "name": "pair 展开 del-先-add-后邻接: big_reorder",
+      "ok": true,
+      "detail": "adjacent_pairs=298 expect=298"
+    },
+    {
+      "item": "⑥",
+      "name": "双 cap 模拟（big_reorder 信封截断→内联截断）",
+      "ok": true,
+      "detail": "env_rows=616 irows=600 trunc=True"
+    },
+    {
+      "item": "⑥",
+      "name": "unbalanced del-only 内联单行（整行 mid 继承）",
+      "ok": true,
+      "detail": "del_only=3"
+    },
+    {
       "item": "⑤",
       "name": "env 注入→env_str 读回: AUTO_DIFF_A",
       "ok": true,
-      "detail": "got='\"D:\\\\\\\\autostack\\\\\\\\.wt\\\\\\\\plan-011\\\\\\\\auto-edit\\\\\\\\specs\\\\\\\\auto-edit\\\\\\\\tests\\\\\\\\fixtures\\\\\\\\diff\\\\\\\\modify.a.txt\"'"
+      "detail": "got='\"D:\\\\\\\\autostack\\\\\\\\.wt\\\\\\\\edit-015\\\\\\\\auto-edit\\\\\\\\specs\\\\\\\\auto-edit\\\\\\\\tests\\\\\\\\fixtures\\\\\\\\diff\\\\\\\\modify.a.txt\"'"
     },
     {
       "item": "⑤",
       "name": "env 注入→env_str 读回: AUTO_DIFF_B",
       "ok": true,
-      "detail": "got='\"D:\\\\\\\\autostack\\\\\\\\.wt\\\\\\\\plan-011\\\\\\\\auto-edit\\\\\\\\specs\\\\\\\\auto-edit\\\\\\\\tests\\\\\\\\fixtures\\\\\\\\diff\\\\\\\\modify.b.txt\"'"
+      "detail": "got='\"D:\\\\\\\\autostack\\\\\\\\.wt\\\\\\\\edit-015\\\\\\\\auto-edit\\\\\\\\specs\\\\\\\\auto-edit\\\\\\\\tests\\\\\\\\fixtures\\\\\\\\diff\\\\\\\\modify.b.txt\"'"
     },
     {
       "item": "⑤",
@@ -196,7 +334,7 @@
       "item": "①",
       "name": "吞吐健全性 loop1e4≤1e5（墙钟口径）",
       "ok": true,
-      "detail": "{'loop1e4': 0.06776070594787598, 'loop1e5': 0.07489681243896484}"
+      "detail": "{'loop1e4': 0.07532572746276855, 'loop1e5': 0.06955504417419434}"
     },
     {
       "item": "①",
@@ -206,15 +344,15 @@
     },
     {
       "item": "①",
-      "name": "DP-LCS 中间区上限定参 = 1029",
+      "name": "DP-LCS 中间区上限定参 = 249",
       "ok": true,
-      "detail": "dp300 fill+scan=0.068s"
+      "detail": "dp300 fill+scan=1.156s"
     },
     {
       "item": "①",
       "name": "全览渲染 cap 定参 = 600",
       "ok": true,
-      "detail": "rows600_build=0.053s"
+      "detail": "rows600_build=0.052s"
     },
     {
       "item": "①",
@@ -226,7 +364,7 @@
       "item": "①",
       "name": "文件上限复核 = 50k 行/2MB",
       "ok": true,
-      "detail": "split5k=0.057s → 50k 估 0.57s"
+      "detail": "split5k=0.071s → 50k 估 0.71s"
     },
     {
       "item": "③",

@@ -75,6 +75,10 @@ widget App {
                 enabled_if: ".store.diff_open")
         action (id: "diff.close",   handler: .DiffClose, title: "关闭比较", shortcut: "Escape",
                 enabled_if: ".store.diff_open")
+        // PLAN-015 T-02: 内联视图切换（diff 态工具栏钮同源；dir_mode 守卫
+        // 在 handler——enabled_if 单条件已证面；v1 无快捷键）。
+        action (id: "diff.view-mode", handler: .DiffToggleView, title: "切换并排/内联",
+                enabled_if: ".store.diff_open")
         action (id: "help.about",      handler: .ActAbout,      title: "关于 auto-edit")
 
         toolbar {
@@ -496,10 +500,23 @@ widget App {
                                 if .store.diff_degraded {
                                     text "大段降级" { style: "text-[12px] text-amber-400 mr-1 shrink-0" }
                                 }
+                                if .store.diff_irows_truncated {
+                                    text "内联截断（600）" { style: "text-[12px] text-amber-400 mr-1 shrink-0" }
+                                }
                                 button (text: "上一处", variant: "text") { onclick: .DiffPrev
                                     style: "h-6 px-2 text-[11px] text-muted-foreground" }
                                 button (text: "下一处", variant: "text") { onclick: .DiffNext
                                     style: "h-6 px-2 text-[11px] text-muted-foreground" }
+                                // PLAN-015 T-02: 模式切换钮（bool 旗标双钮
+                                // 形态——旗标翻转钮文互斥，双态同 handler）。
+                                if .store.diff_vmode_inline {
+                                    button (text: "并排", variant: "text") { onclick: .DiffToggleView
+                                        style: "h-6 px-2 text-[11px] text-muted-foreground" }
+                                }
+                                if !.store.diff_vmode_inline {
+                                    button (text: "内联", variant: "text") { onclick: .DiffToggleView
+                                        style: "h-6 px-2 text-[11px] text-muted-foreground" }
+                                }
                                 if .store.dir_from_dirs {
                                     button (text: "返回目录", variant: "text") { onclick: .DirBackToDirs
                                         style: "h-6 px-2 text-[11px] text-muted-foreground" }
@@ -510,6 +527,52 @@ widget App {
                             container (style: "flex-1 w-full") {
                                 scroll-pane (controller: .store.diff_scroll, style: "h-full w-full") {
                                     col (style: "gap-0 p-0 w-full") {
+                                        // PLAN-015 T-02: vmode 条件双视图
+                                        //（互斥包裹——并排四循环零改动）。
+                                        // 内联态=三独立 for 循环（ix_del 含
+                                        // pair 展开 del 行 / ix_add 含 add
+                                        // 行 / ix_ctx——pdel≡del-only、
+                                        // padd≡add-only 渲染同构合形）；
+                                        // 行号双列继承（缺席空串零宽保列
+                                        // 对齐），单文本列三段 mid 着重，
+                                        // 色系与并排态一致（del 红/add 绿/
+                                        // ctx 无底色）。
+                                        if .store.diff_vmode_inline {
+                                            for ri, r in .store.diff_irows {
+                                                if r.ix_del {
+                                                    row (style: "h-6 w-full gap-0 shrink-0") {
+                                                        text "${r.d_lo}" { style: "h-6 w-12 px-1 text-right text-xs font-mono text-red-300 shrink-0" }
+                                                        text "${r.d_ro}" { style: "h-6 w-12 px-1 text-right text-xs font-mono text-muted-foreground shrink-0" }
+                                                        text "${r.pre}" { style: "h-6 text-xs font-mono bg-red-100 shrink-0" }
+                                                        text "${r.mid}" { style: "h-6 text-xs font-mono text-amber-300 bg-red-100 shrink-0" }
+                                                        text "${r.post}" { style: "h-6 flex-1 text-xs font-mono bg-red-100 shrink-0" }
+                                                    }
+                                                }
+                                            }
+                                            for ri, r in .store.diff_irows {
+                                                if r.ix_add {
+                                                    row (style: "h-6 w-full gap-0 shrink-0") {
+                                                        text "${r.d_lo}" { style: "h-6 w-12 px-1 text-right text-xs font-mono text-muted-foreground shrink-0" }
+                                                        text "${r.d_ro}" { style: "h-6 w-12 px-1 text-right text-xs font-mono text-emerald-300 shrink-0" }
+                                                        text "${r.pre}" { style: "h-6 text-xs font-mono bg-emerald-100 shrink-0" }
+                                                        text "${r.mid}" { style: "h-6 text-xs font-mono text-amber-300 bg-emerald-100 shrink-0" }
+                                                        text "${r.post}" { style: "h-6 flex-1 text-xs font-mono bg-emerald-100 shrink-0" }
+                                                    }
+                                                }
+                                            }
+                                            for ri, r in .store.diff_irows {
+                                                if r.ix_ctx {
+                                                    row (style: "h-6 w-full gap-0 shrink-0") {
+                                                        text "${r.d_lo}" { style: "h-6 w-12 px-1 text-right text-xs font-mono text-muted-foreground shrink-0" }
+                                                        text "${r.d_ro}" { style: "h-6 w-12 px-1 text-right text-xs font-mono text-muted-foreground shrink-0" }
+                                                        text "${r.pre}" { style: "h-6 text-xs font-mono shrink-0" }
+                                                        text "${r.mid}" { style: "h-6 text-xs font-mono shrink-0" }
+                                                        text "${r.post}" { style: "h-6 flex-1 text-xs font-mono shrink-0" }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        if !.store.diff_vmode_inline {
                                         // 四独立 for 循环（每循环单 bool 旗标
                                         // if——同循环多兄弟 if 对 record 字段
                                         // 仅首个生效实勘 T-03[ctx 渲染 pair 哑
@@ -570,6 +633,7 @@ widget App {
                                                     text "${r.rpost}" { style: "h-6 flex-1 text-xs font-mono bg-emerald-100 shrink-0" }
                                                 }
                                             }
+                                        }
                                         }
                                     }
                                 }
@@ -790,6 +854,8 @@ widget App {
         .DiffClose -> { store.DiffClose() }
         .DiffNext -> { store.DiffNext() }
         .DiffPrev -> { store.DiffPrev() }
+        // PLAN-015 T-02: 内联视图切换薄委托。
+        .DiffToggleView -> { store.DiffToggleView() }
         // PLAN-012 T-03/T-04: 目录 diff 链薄委托。
         .DirDiffOpen -> { store.DirDiffOpen() }
         .DirAInput(v) -> { store.DirAInput(v) }
