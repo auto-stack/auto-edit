@@ -9,22 +9,22 @@
       "design_rule": "diff_files 单 handler 全链（split+DP+rows 构建+JSON 拼装）总步数 <10M——T-01 实现约束"
     },
     "dp_cap": {
-      "value": 249,
+      "value": 250,
       "measured_tier": 300,
-      "measured_dp_fill_scan_s": 1.155776023864746,
+      "measured_dp_fill_scan_s": 1.1429171562194824,
       "budget_s": 0.8,
       "rule": "fill+scan≤0.8s 维持 400，超则 cap=档×√(0.8/t)"
     },
     "render_cap": {
       "value": 600,
-      "measured_rows600_build_s": 0.05162239074707031,
+      "measured_rows600_build_s": 0.07226276397705078,
       "budget_s": 0.2,
       "rule": "rows 构建≤0.2s 维持 600（渲染侧成本不含，口径注记）"
     },
     "file_cap": {
       "value": "50k 行 / 2MB",
-      "measured_split5k_s": 0.07088398933410645,
-      "split50k_est_s": 0.7088398933410645,
+      "measured_split5k_s": 0.0752713680267334,
+      "split50k_est_s": 0.752713680267334,
       "rule": "split 线性外推 ≤1.5s → 维持预判上限"
     },
     "scroll": {
@@ -334,7 +334,7 @@
       "item": "①",
       "name": "吞吐健全性 loop1e4≤1e5（墙钟口径）",
       "ok": true,
-      "detail": "{'loop1e4': 0.07532572746276855, 'loop1e5': 0.06955504417419434}"
+      "detail": "{'loop1e4': 0.05346560478210449, 'loop1e5': 0.05168461799621582}"
     },
     {
       "item": "①",
@@ -344,15 +344,15 @@
     },
     {
       "item": "①",
-      "name": "DP-LCS 中间区上限定参 = 249",
+      "name": "DP-LCS 中间区上限定参 = 250",
       "ok": true,
-      "detail": "dp300 fill+scan=1.156s"
+      "detail": "dp300 fill+scan=1.143s"
     },
     {
       "item": "①",
       "name": "全览渲染 cap 定参 = 600",
       "ok": true,
-      "detail": "rows600_build=0.052s"
+      "detail": "rows600_build=0.072s"
     },
     {
       "item": "①",
@@ -364,7 +364,7 @@
       "item": "①",
       "name": "文件上限复核 = 50k 行/2MB",
       "ok": true,
-      "detail": "split5k=0.071s → 50k 估 0.71s"
+      "detail": "split5k=0.075s → 50k 估 0.75s"
     },
     {
       "item": "③",

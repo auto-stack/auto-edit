@@ -1727,8 +1727,11 @@ def run_tests(mcp_url, proc):
     #   15.6 关闭复原（tab 集零扰动+状态清零）
     #   15.7 unbalanced 形态（del-only/add-only 行+dbg 4/1/2/0）
     #   15.8 错误形（缺文件 → err 态零视图+console 记录）
-    #   15.9 超限拒绝（>10000 行 fixture → err 形架构阻塞注记）
-    #   15.10 渲染截断（700 行全换 → cap 600+truncated+degraded）
+        #   15.9 超限拒绝（>10000 行 fixture → err 形架构阻塞注记）
+        #   15.10 渲染截断（700 行全换 → cap 600+truncated+degraded）
+        #   15.11-15.15 PLAN-015 内联视图组（复审 F-1 落位；详见组内
+        #         注释——投影对照/零重比+console/内联导航/双 cap/内联态
+        #         重算-下钻路径）
     print("\nT15: PLAN-011 file diff")
     diff_fix = os.path.join(fixtures_dir, "diff")
     if os.path.isdir(diff_fix):
@@ -1898,6 +1901,197 @@ def run_tests(mcp_url, proc):
             _kill_proc_tree(p15)
         except Exception as e:
             result.check("T15.10 渲染截断", False, repr(e))
+
+        # 15.11-15.15: PLAN-015 —— 内联视图检查组（复审 F-1 承载面落位；
+        # 期望值=probe_diff 推导器链 golden/参考实现同源——惰性导入规避
+        # desktop_mcp↔probe_diff 循环）。
+        #   15.11 内联投影对照（scattered：irows 计数+dbg_i* 三计数）
+        #   15.12 切换零重比（双向：envelope 八字段不变+console 增量无
+        #         compute 行——F-3 硬证明；回切投影清空）
+        #   15.13 内联态 hunk 导航（推进 [1,2]+位次 3/3）
+        #   15.14 双 cap（big_reorder 现役 fixture：信封 600+内联 600
+        #         拦腰形+双注记快照）
+        #   15.15 内联态重算（dirdiff 旁路→下钻→切内联→返回→再下钻：
+        #         vmode 保持+投影按新文件重建——F-2 生命周期覆盖）
+        def _t15_golden_irows(name):
+            from probe_diff import derive_inline, inline_shape_counts
+            with open(os.path.join(diff_fix, f"{name}.golden.json"),
+                      encoding="utf-8") as f:
+                rows = json.load(f)["rows"]
+            ir, tr = derive_inline(rows)
+            return len(ir), tr, inline_shape_counts(ir)
+
+        # 15.11-13 共享实例（scattered）
+        try:
+            from probe_diff import derive_inline
+            exp_n, exp_tr, exp_c = _t15_golden_irows("scattered")
+            p15, t15 = _t15_app({
+                "AUTO_DIFF_A": os.path.join(diff_fix, "scattered.a.txt"),
+                "AUTO_DIFF_B": os.path.join(diff_fix, "scattered.b.txt")})
+            ok_open = _t15_wait_open(t15)
+            b_inline = find_button_by_text(t15.snapshot(), "内联")
+            cons0 = state_str(t15.state("console"), "console") or ""
+            env_f = ("diff_rows_count", "diff_hunk_count", "diff_adds",
+                     "diff_dels", "diff_dbg_pair", "diff_dbg_del",
+                     "diff_dbg_add", "diff_dbg_ctx")
+            base = {f: state_int(t15.state(f), f) for f in env_f}
+            if b_inline:
+                t15.click(b_inline)
+                time.sleep(0.8)
+            st = t15.state("diff_vmode", "diff_irows_count",
+                           "diff_irows_truncated", "diff_dbg_idel",
+                           "diff_dbg_iadd", "diff_dbg_ictx", *env_f)
+            result.check("T15.11 内联投影对照（irows/dbg_i*=golden 推导）",
+                         ok_open and bool(b_inline)
+                         and (state_str(st, "diff_vmode") or "").strip('"') == "inline"
+                         and state_int(st, "diff_irows_count") == exp_n
+                         and state_int(st, "diff_dbg_idel") == exp_c["del"]
+                         and state_int(st, "diff_dbg_iadd") == exp_c["add"]
+                         and state_int(st, "diff_dbg_ictx") == exp_c["ctx"],
+                         f"irows={state_int(st, 'diff_irows_count')}"
+                         f"/{exp_n} dbg=({state_int(st, 'diff_dbg_idel')},"
+                         f"{state_int(st, 'diff_dbg_iadd')},"
+                         f"{state_int(st, 'diff_dbg_ictx')})/{exp_c}")
+            # 15.12 双向零重比：console=滚动尾窗（前缀差量不可靠——首跑
+            # 实证 fallback 误吞全量含 compute 行），改标记计数法：
+            # compute 行计数不增 + view 行计数 +1（追加一行不滚出）。
+            cons1 = state_str(t15.state("console"), "console") or ""
+            n1p, n1i = cons1.count("diff: +"), cons1.count("view inline")
+            zero1 = (all(state_int(st, f) == base[f] for f in env_f)
+                     and n1p == cons0.count("diff: +")
+                     and n1i == cons0.count("view inline") + 1)
+            b_side = find_button_by_text(t15.snapshot(), "并排")
+            env_m = {f: state_int(st, f) for f in env_f}
+            n1s = cons1.count("view side")
+            if b_side:
+                t15.click(b_side)
+                time.sleep(0.8)
+            st2 = t15.state("diff_vmode", "diff_irows_count",
+                            "diff_irows_truncated", *env_f)
+            cons2 = state_str(t15.state("console"), "console") or ""
+            zero2 = (all(state_int(st2, f) == env_m[f] for f in env_f)
+                     and cons2.count("diff: +") == n1p
+                     and cons2.count("view side") == n1s + 1)
+            result.check("T15.12 切换零重比（双向：八字段不变+console 无"
+                         " compute 行+回切投影清空）",
+                         zero1 and zero2
+                         and (state_str(st2, "diff_vmode") or "").strip('"') == "side"
+                         and state_int(st2, "diff_irows_count") == 0,
+                         f"zero={zero1}/{zero2} "
+                         f"compute+={cons2.count('diff: +') - cons0.count('diff: +')} "
+                         f"vInl={n1i} vSide={cons2.count('view side')}")
+            # 15.13 内联态导航：再切内联 → 下一处×2 → [1,2]+位次 3/3
+            b_inline2 = find_button_by_text(t15.snapshot(), "内联")
+            if b_inline2:
+                t15.click(b_inline2)
+                time.sleep(0.8)
+            snap15 = t15.snapshot()
+            b_next = find_button_by_text(snap15, "下一处")
+            seq = []
+            for _ in range(2):
+                if b_next:
+                    t15.click(b_next)
+                    time.sleep(0.5)
+                seq.append(state_int(t15.state("diff_hunk_idx"), "diff_hunk_idx"))
+            pos = (state_str(t15.state("diff_hunk_pos"), "diff_hunk_pos")
+                   or "").strip('"')
+            v13 = (state_str(t15.state("diff_vmode"), "diff_vmode")
+                   or "").strip('"')
+            result.check("T15.13 内联态导航推进 [1,2]+位次 3/3",
+                         v13 == "inline" and seq == [1, 2] and pos == "3/3",
+                         f"seq={seq} pos={pos!r} vmode={v13!r}")
+            _kill_proc_tree(p15)
+        except Exception as e:
+            result.check("T15.11-13 内联主链", False, repr(e))
+
+        # 15.14 双 cap（big_reorder：信封 600+内联 600 拦腰形+双注记）
+        try:
+            from probe_diff import derive_inline
+            with open(os.path.join(diff_fix, "big_reorder.golden.json"),
+                      encoding="utf-8") as f:
+                rows = json.load(f)["rows"]
+            ir14, exp_tr = derive_inline(rows)
+            exp_n = len(ir14)
+            p15, t15 = _t15_app({
+                "AUTO_DIFF_A": os.path.join(diff_fix, "big_reorder.a.txt"),
+                "AUTO_DIFF_B": os.path.join(diff_fix, "big_reorder.b.txt")})
+            ok_open = _t15_wait_open(t15, 25)
+            st0 = t15.state("diff_rows_count", "diff_rows_truncated")
+            b_inline = find_button_by_text(t15.snapshot(), "内联")
+            if b_inline:
+                t15.click(b_inline)
+                time.sleep(1.0)
+            st = t15.state("diff_irows_count", "diff_irows_truncated",
+                           "diff_vmode")
+            snap15 = t15.snapshot()
+            result.check("T15.14 双 cap（信封 600+内联 600+双注记快照）",
+                         ok_open
+                         and state_int(st0, "diff_rows_count") == 600
+                         and state_bool(st0, "diff_rows_truncated") is True
+                         and state_int(st, "diff_irows_count") == exp_n
+                         and state_int(st, "diff_irows_count") == 600
+                         and state_bool(st, "diff_irows_truncated") is True
+                         and "渲染截断" in snap15 and "内联截断" in snap15,
+                         f"rows={state_int(st0, 'diff_rows_count')} "
+                         f"irows={state_int(st, 'diff_irows_count')}/{exp_n} "
+                         f"trunc={state_bool(st, 'diff_irows_truncated')}")
+            _kill_proc_tree(p15)
+        except Exception as e:
+            result.check("T15.14 双 cap", False, repr(e))
+
+        # 15.15 内联态重算（F-2 生命周期：下钻→内联→返回→再下钻——
+        # vmode 保持+投影按新文件重建；期望=probe 参考实现推导链）
+        try:
+            from probe_diff import naive_layered_diff, derive_inline
+            d115 = tempfile.mkdtemp(prefix="p015_t15_d_")
+            ta = os.path.join(d115, "a")
+            tb = os.path.join(d115, "b")
+            os.makedirs(ta)
+            os.makedirs(tb)
+            m1a, m1b = "one\n", "two\n"
+            m2a, m2b = "p\nq\nr\ns\nt\nu\nv\n", "p\nQ\nr\ns\nt\nU\nv\n"
+            for rel, xa, xb in (("mod1.txt", m1a, m1b), ("mod2.txt", m2a, m2b)):
+                with open(os.path.join(ta, rel), "w", encoding="utf-8") as f:
+                    f.write(xa)
+                with open(os.path.join(tb, rel), "w", encoding="utf-8") as f:
+                    f.write(xb)
+            e1 = len(derive_inline(naive_layered_diff(m1a, m1b)["rows"])[0])
+            e2 = len(derive_inline(naive_layered_diff(m2a, m2b)["rows"])[0])
+            p15, t15 = _t15_app({"AUTO_DIRDIFF_A": ta, "AUTO_DIRDIFF_B": tb})
+            ok_open = _t15_wait_open(t15)
+            b_m1 = find_button_by_text(t15.snapshot(), "mod1.txt")
+            if b_m1:
+                t15.click(b_m1)
+                time.sleep(1.5)
+            b_inline = find_button_by_text(t15.snapshot(), "内联")
+            if b_inline:
+                t15.click(b_inline)
+                time.sleep(0.8)
+            st1 = t15.state("diff_mode", "diff_vmode", "diff_irows_count")
+            back = find_button_by_text(t15.snapshot(), "返回目录")
+            if back:
+                t15.click(back)
+                time.sleep(1.0)
+            b_m2 = find_button_by_text(t15.snapshot(), "mod2.txt")
+            if b_m2:
+                t15.click(b_m2)
+                time.sleep(1.5)
+            st2 = t15.state("diff_mode", "diff_vmode", "diff_rows_count",
+                            "diff_irows_count")
+            result.check("T15.15 内联态重算（再下钻 vmode 保持+投影重建）",
+                         ok_open and bool(b_m1) and bool(b_inline) and bool(b_m2)
+                         and (state_str(st1, "diff_mode") or "").strip('"') == "file"
+                         and state_int(st1, "diff_irows_count") == e1
+                         and (state_str(st2, "diff_mode") or "").strip('"') == "file"
+                         and (state_str(st2, "diff_vmode") or "").strip('"') == "inline"
+                         and state_int(st2, "diff_rows_count") > 0
+                         and state_int(st2, "diff_irows_count") == e2,
+                         f"e1={e1}/{state_int(st1, 'diff_irows_count')} "
+                         f"e2={e2}/{state_int(st2, 'diff_irows_count')} "
+                         f"vmode={state_str(st2, 'diff_vmode')}")
+            _kill_proc_tree(p15)
+        except Exception as e:
+            result.check("T15.15 内联态重算", False, repr(e))
     else:
         print("  NOTE  tests/fixtures/diff missing; skipping T15")
 

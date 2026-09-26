@@ -344,8 +344,8 @@ store EditorStore {
         // PLAN-011 T-04: 导航内部收口（当前 hunk 首渲染行定位+scroll_to）。
         DiffScrollToHunk,
         // PLAN-015 T-01: 内联视图链。DiffToggleView=并排↔内联切换（纯
-        // front 投影重建——零 back 调用零重比，AC-02 断言面）；DiffBuild
-        // Irows=投影重建内部收口（toggle/compute 尾段双调用位）。
+        // front 投影重建——零 back 调用零重比，AC-02 断言面）；
+        // DiffBuildIrows=投影重建内部收口（toggle/compute 尾段双调用位）。
         DiffToggleView, DiffBuildIrows,
         // PLAN-011 T-02: env 旁路 Tick 消费臂（AUTO_DIFF_A 在档时首拍
         // 自开——矩阵驱动面确定性保障；menubar 展开项不进 vtree 实勘

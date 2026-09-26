@@ -86,21 +86,21 @@ Phase B: probe_diff_app（B1 微基准 / B2 scroll+onscroll——双会话）
 ============================================================
 
 ① AutoVM 算力微基准（秒；python 墙钟口径 click→完成）
-       bl4: {'loop1e4': '75.3ms'}
-       bl5: {'loop1e5': '69.6ms'}
-       bp4: {'push1e4': '51.7ms'}
-       bp5: {'push1e5': '52.0ms'}
-       bg5: {'get1e5': '171.0ms', 'acc': '704982704'}
-       bs5: {'str1e5': '52.2ms', 'c': '-100000'}
-       dp200: {'dp200': '249.6ms', 'dp200_acc': '0'}
-       dp300: {'dp300': '1155.8ms', 'dp300_acc': '0'}
-       bld: {'bld': '2514.1ms'}
-       bspl: {'split5k_lines': '5001', 'split5k': '70.9ms'}
-       brows: {'rows600': '51.6ms'}
+       bl4: {'loop1e4': '53.5ms'}
+       bl5: {'loop1e5': '51.7ms'}
+       bp4: {'push1e4': '52.0ms'}
+       bp5: {'push1e5': '72.8ms'}
+       bg5: {'get1e5': '179.2ms', 'acc': '704982704'}
+       bs5: {'str1e5': '73.4ms', 'c': '-100000'}
+       dp200: {'dp200': '253.4ms', 'dp200_acc': '0'}
+       dp300: {'dp300': '1142.9ms', 'dp300_acc': '0'}
+       bld: {'bld': '2544.0ms'}
+       bspl: {'split5k_lines': '5001', 'split5k': '75.3ms'}
+       brows: {'rows600': '72.3ms'}
   PASS  [①] 微基准 dp400
   PASS  [①] 吞吐健全性 loop1e4≤1e5（墙钟口径）
   PASS  [①] 单消息算力墙勘定（10M steps/源码+首轮实证双锚）
-  PASS  [①] DP-LCS 中间区上限定参 = 249
+  PASS  [①] DP-LCS 中间区上限定参 = 250
   PASS  [①] 全览渲染 cap 定参 = 600
   PASS  [①] split 定标前置：5000 行 body 构建在档
   PASS  [①] 文件上限复核 = 50k 行/2MB
@@ -129,22 +129,22 @@ Phase B: probe_diff_app（B1 微基准 / B2 scroll+onscroll——双会话）
     "design_rule": "diff_files 单 handler 全链（split+DP+rows 构建+JSON 拼装）总步数 <10M——T-01 实现约束"
   },
   "dp_cap": {
-    "value": 249,
+    "value": 250,
     "measured_tier": 300,
-    "measured_dp_fill_scan_s": 1.155776023864746,
+    "measured_dp_fill_scan_s": 1.1429171562194824,
     "budget_s": 0.8,
     "rule": "fill+scan≤0.8s 维持 400，超则 cap=档×√(0.8/t)"
   },
   "render_cap": {
     "value": 600,
-    "measured_rows600_build_s": 0.05162239074707031,
+    "measured_rows600_build_s": 0.07226276397705078,
     "budget_s": 0.2,
     "rule": "rows 构建≤0.2s 维持 600（渲染侧成本不含，口径注记）"
   },
   "file_cap": {
     "value": "50k 行 / 2MB",
-    "measured_split5k_s": 0.07088398933410645,
-    "split50k_est_s": 0.7088398933410645,
+    "measured_split5k_s": 0.0752713680267334,
+    "split50k_est_s": 0.752713680267334,
     "rule": "split 线性外推 ≤1.5s → 维持预判上限"
   },
   "scroll": {
