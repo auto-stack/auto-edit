@@ -112,3 +112,102 @@
 收口后 M3 diff 提前开工、大文件模式压后（与 M3 并行/随后收口）。本件
 「供料先行」路径与供料面（五件）不变，重排裁定使其从「不改路线图」
 升级为「路线图重排的第一步」。
+
+---
+
+## 6. PLAN-016 增量：消费回执 + 双缺陷登记（2026-09-27，执行期勘定）
+
+PLAN-016（M3-04 diff 引擎消费件，形态 B 消费件；供料=auto-lang
+PLAN-703 五件供料包，delivery 46efa926a，2026-09-27 delivered 归档）
+替换缝兑现执行期（worktree plan-016-dev，消费侧探针+产品仓全量对账）
+回执。**六供件逐项核销 + 两枚上游缺陷（D-1/D-2，rows 面与 anchor 分
+块面——消费侧实证，根因已定位到源码行级）**。
+
+### 6.1 六供件逐项核销
+
+- **供①a 行级引擎——rows 面缺陷在案（D-1，见 6.2），hunks/counts 面
+  核销**：native 裸名 `diff_files`（9915）直调替换 `fsys.diff_files_json`
+  过渡实现体（~520 行三门+朴素分层整体退役——1MB 尺寸门/10k 行门/
+  DP-200 降级/「等待内核引擎」err 文案族全退场）；hunks/counts 面
+  六形态探针对账全等（modify 逐字段零漂移；>10k 行/1MB 超限文件正常
+  出结果=门退场实证；全等 1.2MB 对 trim 快路 0 hunk）。degraded 恒
+  false（引擎时代无降级语义——上游成文兑现）。
+- **供①b refinement（三段标记 refine 恒开）——核销**：modify 形配对
+  行三段逐字段全等（`let x = <1>/<2>` 形在档）；100k 字符预算随 VM 步
+  墙退场（引擎侧无预算——refine 恒开实证）。
+- **供② rope 哈希——间接核销**：快照快路消费面=供⑤ diff_snapshots
+  （缓冲区比较 v1 落位——PLAN-011 边界注记「零全文 tab 铁律正解」；
+  merged 臂 tab.key registry 直读净形 envelope，probe_bufdiff 8/0）。
+- **供③ 分块并行——核销受阻（D-1 连带）**：bench diff_100mb 档判定
+  **blocked**——D-1 rows 面在多 hunk 大文件上切片错位放大（rows 数
+  随 hunk 数二次方积累），envelope 体量失真，≤2s 预算判定不可测；
+  上游 release 档 0.35-0.9s 相对量在档（SD 文档基准节），绝对量判定
+  待 D-1 修复后下游 L2 重推（703 Q-2 口径不变）。
+- **供④ 目录比对——核销（语义零漂移）**：`diff_dirs`（9917）直调
+  替换 `fsys.diff_dirs_json` 过渡实现体（长度桶对齐+桶积 700k 护栏+
+  「对齐超限」err 形退役）；dirdiff 五形态 golden 语义零漂移
+  （entries statuses/counts/note 逐字段全等；同长 900 文件巨桶正常出
+  结果=护栏退场实证；>2MB 同尺寸 uncompared 注记保持；条目**序**漂移
+  =引擎每目录排序定序 vs 过渡遍历序——断言面序不敏感，证据在档）。
+- **供⑤ 端点——核销**：三 natives 五面注册实勘在册
+  （native_catalog.rs:58-60/codegen.rs:556-558/ui_gen rust 臂）；裸名
+  解析探针 split 臂 6/6（df/dd 正路径+ctx=0 钳 3 逐字节同形+缺文件/
+  缺目录/缺键 err 形=非 Undefined 绑定证明）；第 15 端点
+  `diff_buffers` 落位（净形 rows:[]+缺键 err 形「编辑器不存在: …」+
+  tab.key 键语义）。
+
+### 6.2 缺陷登记（消费侧实证，本仓不修——upstream 修订件清偿）
+
+**D-1 rows 面流位错配（`build_rows` × `group_hunks_annotated` 单位
+不一致）**：`group_hunks_annotated`（diff/mod.rs:348 起）向
+`GroupedHunk.fc/lc` 写入的是**changes 向量下标**（`fc: idx, lc: idx`
+——`changes.iter().enumerate()` 的 idx），而 `build_rows`
+（diff/envelope.rs:178 起）按**keep+change 流下标**消费（`lo = fc -
+(fi - a1)`、`hi = lc + 1` 后沿流跳 keep——011 下游实现的 fc/lc 契约=
+流位「si」）。凡变更前存在 keep 域的形状，两套下标错位：
+
+- 纯增/纯删/删多增少形**变更行整块丢失**（add_only：adds=3 而 rows
+  仅 5 条 ctx——变更行零投影；unbalanced：rows 6 vs 参考 7，pair/
+  del 行丢失；视图层=用户看不到增删内容——功能性破坏，非显示偏好）。
+- 多 hunk 形**前导 ctx 重复**（scattered：rows 41 vs 参考 21——每
+  hunk 切片 lo 饱和回 0，重复渲染先前 hunk 的上下文行，且越界 hunk
+  窗）。
+- 大文件多 hunk 形 rows 数随 hunk 数二次方积累（1% 散布改 100MB 形
+  估算 O(H²)≈10^10 行量级）——**供③ bench 判定连带阻塞**。
+
+最小复现：`diff_files_envelope("L1\n…L10\n", "L1\n…L5\nE1\nE2\nE3\n
+L6\n…L10\n", 3)`（fixtures add_only）→ adds=3、rows 全 ctx。修法
+建议：fc/lc 改携流下标（分组期记录流位），或 build_rows 改由 changes
+直接推导切片域（两处任一单源化即可）。
+
+**D-2 anchor 分块非单调（`anchor_partition` 缺单调过滤）**：
+`anchor_partition`（diff/mod.rs:180 起）收集「双侧恰一次」行后仅
+`sort_unstable()`（a 位升序），**未过滤出 b 位也单调的子序列**——
+换位/移动族形状（中段 ≥512 行）锚集 b 位往返非单调，
+`engine_changes` 段构建把锚当单调走（`cursor = (ai+1, bj+1)` 倒退）
+→ 退化段（空 a 段/空 b 段错置）→ **编辑脚本本身错误**（counts 面）。
+
+最小复现：620 行全换位（P5+A300+M10+B300+S5 vs P5+B300+M10+A300+S5，
+fixtures big_reorder）→ **adds=620/dels=0 双向对称**（b→a 同 +620/-
+0；等长文件双向纯增=内部不一致实证；参考实现+上游自身 golden 面语
+义=300/300 或 310/310 配对形）。703 探针面未覆盖此形（八形态 golden
+走 `diff_lines` 的 hunks/counts——恰好此形 counts 即错；探针 7 项断
+言的 rows 面用 modify 形——恰为 D-1 不触发形），两缺陷自交付即在。
+修法建议：anchor_partition 尾部增最长单调递增子序列（a、b 双坐标）
+过滤——锚点内容决定性保持（同输入必同锚），O(n log n)。
+
+**消费面影响矩阵（PLAN-016 矩阵注记同步）**：hunks/counts 正确面
+（小中段 <512 形）不受累；rows 面（除「变更前零 keep 域」形）与
+换位族 counts 面在上游修复前=已知 blocked 集（不 golden 化缺陷输出，
+golden 保持过渡时代原样——同步≠放宽）。
+
+### 6.3 残留 want（执行期勘定，非缺陷）
+
+- **全异形 envelope 体量治理**：rows 全量投影在 100% 全换形=巨串
+  （上游 v1 形）——观察件在案（PLAN-016 §10 Q-2），体量治理属后续件。
+- **快照面尾行语义**：buffer 快照切行保尾空行（3 行+尾换行文件出
+  [0,4) 窗）vs 文件面尾空吸收（[0,3)）——两面差异=上游内部行为，
+  下游按实测真值断言；如需两面同形请随修订件裁定（非阻塞）。
+- **bench diff 档解锁**：D-1 修复后下游重推（diff_100mb 生成式散点
+  改档+门拒档通过形改造+budgets.json 实测回填——PLAN-016 blocked
+  尾巴，修复轮一并清偿）。
