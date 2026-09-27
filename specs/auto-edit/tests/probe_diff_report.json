@@ -1,5 +1,5 @@
 {
-  "toolchain": "auto 0.1.0+v0.4.2-2156-g1d597e3f4",
+  "toolchain": "auto 0.1.0+v0.4.2-2175-g5c558778f",
   "decisions": {
     "step_budget": {
       "per_handler_steps": 10000000,
@@ -9,22 +9,22 @@
       "design_rule": "diff_files 单 handler 全链（split+DP+rows 构建+JSON 拼装）总步数 <10M——T-01 实现约束"
     },
     "dp_cap": {
-      "value": 250,
+      "value": 251,
       "measured_tier": 300,
-      "measured_dp_fill_scan_s": 1.1429171562194824,
+      "measured_dp_fill_scan_s": 1.1402997970581055,
       "budget_s": 0.8,
       "rule": "fill+scan≤0.8s 维持 400，超则 cap=档×√(0.8/t)"
     },
     "render_cap": {
       "value": 600,
-      "measured_rows600_build_s": 0.07226276397705078,
+      "measured_rows600_build_s": 0.0756981372833252,
       "budget_s": 0.2,
       "rule": "rows 构建≤0.2s 维持 600（渲染侧成本不含，口径注记）"
     },
     "file_cap": {
       "value": "50k 行 / 2MB",
-      "measured_split5k_s": 0.0752713680267334,
-      "split50k_est_s": 0.752713680267334,
+      "measured_split5k_s": 0.054032087326049805,
+      "split50k_est_s": 0.540320873260498,
       "rule": "split 线性外推 ≤1.5s → 维持预判上限"
     },
     "scroll": {
@@ -45,7 +45,7 @@
       "unpaired_visual": "不成对行整行 mid 染色（整行红/绿），ASCII 见上",
       "judgment": "可接受——不成对行语义=整段删除/新增，整行染色与 VS Code/BC 同款形态；三段数据保留在 envelope 供引擎时代 refine"
     },
-    "toolchain": "auto 0.1.0+v0.4.2-2156-g1d597e3f4"
+    "toolchain": "auto 0.1.0+v0.4.2-2175-g5c558778f"
   },
   "checks": [
     {
@@ -250,13 +250,13 @@
       "item": "⑤",
       "name": "env 注入→env_str 读回: AUTO_DIFF_A",
       "ok": true,
-      "detail": "got='\"D:\\\\\\\\autostack\\\\\\\\.wt\\\\\\\\edit-015\\\\\\\\auto-edit\\\\\\\\specs\\\\\\\\auto-edit\\\\\\\\tests\\\\\\\\fixtures\\\\\\\\diff\\\\\\\\modify.a.txt\"'"
+      "detail": "got='\"D:\\\\\\\\autostack\\\\\\\\.wt\\\\\\\\edit-016\\\\\\\\auto-edit\\\\\\\\specs\\\\\\\\auto-edit\\\\\\\\tests\\\\\\\\fixtures\\\\\\\\diff\\\\\\\\modify.a.txt\"'"
     },
     {
       "item": "⑤",
       "name": "env 注入→env_str 读回: AUTO_DIFF_B",
       "ok": true,
-      "detail": "got='\"D:\\\\\\\\autostack\\\\\\\\.wt\\\\\\\\edit-015\\\\\\\\auto-edit\\\\\\\\specs\\\\\\\\auto-edit\\\\\\\\tests\\\\\\\\fixtures\\\\\\\\diff\\\\\\\\modify.b.txt\"'"
+      "detail": "got='\"D:\\\\\\\\autostack\\\\\\\\.wt\\\\\\\\edit-016\\\\\\\\auto-edit\\\\\\\\specs\\\\\\\\auto-edit\\\\\\\\tests\\\\\\\\fixtures\\\\\\\\diff\\\\\\\\modify.b.txt\"'"
     },
     {
       "item": "⑤",
@@ -272,39 +272,39 @@
     },
     {
       "item": "①′",
-      "name": "diff_files×golden: add_only",
+      "name": "diff_files×golden[D-1-rows]: add_only",
       "ok": true,
-      "detail": ""
+      "detail": "observed=D-1-rows expected=D-1-rows hunks 1 vs 1 / rows 5 vs 9 / adds 3 vs 3"
     },
     {
       "item": "①′",
-      "name": "diff_files×golden: del_only",
+      "name": "diff_files×golden[D-1-rows]: del_only",
       "ok": true,
-      "detail": ""
+      "detail": "observed=D-1-rows expected=D-1-rows hunks 1 vs 1 / rows 4 vs 9 / adds 0 vs 0"
     },
     {
       "item": "①′",
-      "name": "diff_files×golden: modify",
+      "name": "diff_files×golden[equal]: modify",
       "ok": true,
-      "detail": ""
+      "detail": "observed=equal expected=equal hunks 1 vs 1 / rows 9 vs 9 / adds 3 vs 3"
     },
     {
       "item": "①′",
-      "name": "diff_files×golden: scattered",
+      "name": "diff_files×golden[D-1-rows]: scattered",
       "ok": true,
-      "detail": ""
+      "detail": "observed=D-1-rows expected=D-1-rows hunks 3 vs 3 / rows 41 vs 21 / adds 3 vs 3"
     },
     {
       "item": "①′",
-      "name": "diff_files×golden: big_reorder",
+      "name": "diff_files×golden[D-2-counts]: big_reorder",
       "ok": true,
-      "detail": ""
+      "detail": "observed=D-2-counts expected=D-2-counts hunks 2 vs 1 / rows 943 vs 616 / adds 620 vs 610"
     },
     {
       "item": "①′",
-      "name": "diff_files×golden: unbalanced",
+      "name": "diff_files×golden[D-1-rows]: unbalanced",
       "ok": true,
-      "detail": ""
+      "detail": "observed=D-1-rows expected=D-1-rows hunks 1 vs 1 / rows 6 vs 7 / adds 1 vs 1"
     },
     {
       "item": "①′",
@@ -314,15 +314,51 @@
     },
     {
       "item": "①′",
-      "name": "行数超限拒绝（>10000 行，架构阻塞注记）",
+      "name": "行数超限通过（>10000 行正常 envelope，引擎时代）",
       "ok": true,
-      "detail": "'文件超限（A 10500 行 >10000）——等待内核引擎 diff_snapshots（架构阻塞）'"
+      "detail": "err='' dels=10493"
     },
     {
       "item": "①′",
-      "name": "尺寸超限拒绝（>1MB pre-read 即时拒）",
+      "name": "尺寸超限通过（>1MB 全等 trim 快路 0 hunk）",
       "ok": true,
-      "detail": "'文件超限（A 1048577B >1MB）——等待内核引擎 diff_snapshots（架构阻塞）'"
+      "detail": "err='' hunks=[]"
+    },
+    {
+      "item": "⑦",
+      "name": "引擎对账=D-1 rows-face: add_only",
+      "ok": true,
+      "detail": "observed=rows-face wrong drift=['rows_len']"
+    },
+    {
+      "item": "⑦",
+      "name": "引擎对账=D-1 rows-face: del_only",
+      "ok": true,
+      "detail": "observed=rows-face wrong drift=['rows_len']"
+    },
+    {
+      "item": "⑦",
+      "name": "引擎对账=zero-drift: modify",
+      "ok": true,
+      "detail": "observed=zero-drift drift=[]"
+    },
+    {
+      "item": "⑦",
+      "name": "引擎对账=D-1 rows-face: scattered",
+      "ok": true,
+      "detail": "observed=rows-face wrong drift=['rows_len']"
+    },
+    {
+      "item": "⑦",
+      "name": "引擎对账=D-2 anchor-monotonicity (counts wrong): big_reorder",
+      "ok": true,
+      "detail": "observed=counts+hunks wrong drift=['hunks', 'adds', 'dels', 'degraded', 'rows_len']"
+    },
+    {
+      "item": "⑦",
+      "name": "引擎对账=D-1 rows-face: unbalanced",
+      "ok": true,
+      "detail": "observed=rows-face wrong drift=['rows_len']"
     },
     {
       "item": "①",
@@ -334,7 +370,7 @@
       "item": "①",
       "name": "吞吐健全性 loop1e4≤1e5（墙钟口径）",
       "ok": true,
-      "detail": "{'loop1e4': 0.05346560478210449, 'loop1e5': 0.05168461799621582}"
+      "detail": "{'loop1e4': 0.06488323211669922, 'loop1e5': 0.05286550521850586}"
     },
     {
       "item": "①",
@@ -344,15 +380,15 @@
     },
     {
       "item": "①",
-      "name": "DP-LCS 中间区上限定参 = 250",
+      "name": "DP-LCS 中间区上限定参 = 251",
       "ok": true,
-      "detail": "dp300 fill+scan=1.143s"
+      "detail": "dp300 fill+scan=1.140s"
     },
     {
       "item": "①",
       "name": "全览渲染 cap 定参 = 600",
       "ok": true,
-      "detail": "rows600_build=0.072s"
+      "detail": "rows600_build=0.076s"
     },
     {
       "item": "①",
@@ -364,7 +400,7 @@
       "item": "①",
       "name": "文件上限复核 = 50k 行/2MB",
       "ok": true,
-      "detail": "split5k=0.075s → 50k 估 0.75s"
+      "detail": "split5k=0.054s → 50k 估 0.54s"
     },
     {
       "item": "③",

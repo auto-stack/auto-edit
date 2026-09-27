@@ -663,8 +663,22 @@ def main():
         check("⑤", "未设 AUTO_DIFF_C = 空串（取消语义面）",
               http_scalar(r) == "", repr(r.text))
 
-        # ---- ①′ T-01 验证：back diff_files × golden 逐字段（AC-02）----
-        emit("\n①′ back diff_files 端点（朴素分层 golden 对照+上限门/错误形）")
+        # ---- ①′ T-01 验证：back diff_files 端点（PLAN-016 引擎时代）----
+        # 六形态逐字段对照改为**文档态绊线**（同步≠放宽）：golden 保持
+        # 过渡时代原样（上游 D-1/D-2 修复前不 golden 化缺陷输出）——
+        # modify 零漂移=严格全等；D-1 形=hunks/counts 全等+rows 漂移
+        # （缺陷面受控）；D-2 形=counts/hunks 漂移在档。上游修复后本段
+        # FAIL→强制 golden 重定轮（与 ⑦ 对账段同纪律）。
+        emit("\n①′ back diff_files 端点（文档态绊线：modify 全等/D-1 rows"
+             "面/D-2 counts 面——供料档 §6.2）")
+        p016_state = {
+            "modify": "equal",
+            "add_only": "D-1-rows",
+            "del_only": "D-1-rows",
+            "scattered": "D-1-rows",
+            "unbalanced": "D-1-rows",
+            "big_reorder": "D-2-counts",
+        }
         for name, (ta, tb) in fx.items():
             r = requests.get(
                 base + "/api/diff_files",
@@ -682,23 +696,24 @@ def main():
                     gold = json.load(f)
                 if gold.get("err") is None:
                     gold["err"] = ""
-                ok_env = (env == gold)
-                if not ok_env:
-                    hint = (f"hunks {len(env.get('hunks', []))} vs "
-                            f"{len(gold.get('hunks', []))} / rows "
-                            f"{len(env.get('rows', []))} vs "
-                            f"{len(gold.get('rows', []))} / adds "
-                            f"{env.get('adds')} vs {gold.get('adds')} / "
-                            f"err={env.get('err', '')[:40]!r}")
-                    if hint.count("0 vs 0") >= 2:
-                        for ri, (er, gr) in enumerate(
-                                zip(env.get("rows", []), gold.get("rows", []))):
-                            if er != gr:
-                                hint += f" first-row-diff@{ri}: {er} vs {gr}"
-                                break
+                hunks_eq = env.get("hunks") == gold.get("hunks")
+                counts_eq = (env.get("adds") == gold.get("adds")
+                             and env.get("dels") == gold.get("dels"))
+                rows_eq = env.get("rows") == gold.get("rows")
+                observed = ("equal" if (hunks_eq and counts_eq and rows_eq)
+                            else ("D-2-counts" if not (hunks_eq and counts_eq)
+                                  else "D-1-rows"))
+                ok_env = (observed == p016_state[name])
+                hint = (f"observed={observed} expected={p016_state[name]} "
+                        f"hunks {len(env.get('hunks', []))} vs "
+                        f"{len(gold.get('hunks', []))} / rows "
+                        f"{len(env.get('rows', []))} vs "
+                        f"{len(gold.get('rows', []))} / adds "
+                        f"{env.get('adds')} vs {gold.get('adds')}")
             except Exception as e:  # noqa: BLE001
                 hint = f"decode fail: {e!r} text={r.text[:120]!r}"
-            check("①′", f"diff_files×golden: {name}", ok_env, hint)
+            check("①′", f"diff_files×golden[{p016_state[name]}]: {name}",
+                  ok_env, hint)
         # 错误形：缺文件
         r = requests.get(
             base + "/api/diff_files",
@@ -714,7 +729,9 @@ def main():
                   repr(env.get("err"))[:100])
         except Exception as e:  # noqa: BLE001
             check("①′", "缺文件 err 形（不静默）", False, repr(e))
-        # 行数超限（>10000 行且 <1MB——行数门专属路径）
+        # 行数超限（>10000 行且 <1MB）——PLAN-016 G-2 翻转：行数门退场，
+        # 超限文件正常出结果（通过形延迟证明；期望=引擎实测——锚点
+        # L1,L2,L7,L8,L9,L10 共 7 行 keep → dels=10500-7=10493）。
         over = os.path.join(tempfile.gettempdir(), "p011_over_lines.txt")
         with open(over, "w", encoding="utf-8") as f:
             f.write("\n".join(f"L{i}" for i in range(10500)))
@@ -727,29 +744,126 @@ def main():
             env = json.loads(r.text)
             if isinstance(env, str):
                 env = json.loads(env)
-            check("①′", "行数超限拒绝（>10000 行，架构阻塞注记）",
-                  "超限" in env.get("err", ""), repr(env.get("err"))[:100])
+            check("①′", "行数超限通过（>10000 行正常 envelope，引擎时代）",
+                  env.get("err", "") == "" and env.get("dels") == 10493
+                  and len(env.get("hunks", [])) >= 1,
+                  f"err={env.get('err')!r} dels={env.get('dels')}")
         except Exception as e:  # noqa: BLE001
-            check("①′", "行数超限拒绝", False, repr(e))
-        # 尺寸超限（>1MB——pre-read 即时拒）
+            check("①′", "行数超限通过", False, repr(e))
+        # 尺寸超限（>1MB）——PLAN-016 G-2 翻转：尺寸门退场；全等对走
+        # trim 快路（0 hunk——上游基准同款形态）。
         big = os.path.join(tempfile.gettempdir(), "p011_over_size.txt")
         with open(big, "w", encoding="utf-8") as f:
             f.write("x" * 1048577)
         r = requests.get(base + "/api/diff_files",
                          params={"path_a": big,
-                                 "path_b": os.path.join(FIXDIR,
-                                                        "modify.b.txt"),
+                                 "path_b": big,
                                  "ctx": 3}, timeout=60)
         try:
             env = json.loads(r.text)
             if isinstance(env, str):
                 env = json.loads(env)
-            check("①′", "尺寸超限拒绝（>1MB pre-read 即时拒）",
-                  "超限" in env.get("err", ""), repr(env.get("err"))[:100])
+            check("①′", "尺寸超限通过（>1MB 全等 trim 快路 0 hunk）",
+                  env.get("err", "") == "" and env.get("hunks") == []
+                  and env.get("adds") == 0 and env.get("dels") == 0,
+                  f"err={env.get('err')!r} hunks={env.get('hunks')}")
         except Exception as e:  # noqa: BLE001
-            check("①′", "尺寸超限拒绝", False, repr(e))
+            check("①′", "尺寸超限通过", False, repr(e))
         os.remove(over)
         os.remove(big)
+
+        # ---- ⑦ 引擎对账段（PLAN-016 T-03）：引擎 envelope × python 参考
+        # 实现逐字段对账——漂移逐字段证据入档（evidence-p016-recon.json，
+        # 014 evidence 命名先例）。golden 同步纪律：同步≠放宽——上游缺陷
+        # 修复前 golden 保持过渡时代原样（不 golden 化缺陷输出）；本段
+        # 断言=「实测态与文档态一致」的绊线（上游修复后此处 FAIL，强制
+        # 重推对账+golden 重定轮）。
+        #
+        # 文档态（2026-09-27 勘定，docs/upstream/2026-09-diff-engine-supply.md
+        # 消费回执节 D-1/D-2）：
+        #   modify            零漂移（变更前零 keep 域——流位错配不触发）
+        #   add_only          D-1 rows 面（hunks/counts 等，rows 丢 add 行）
+        #   del_only          D-1 rows 面（同上，del 行丢失）
+        #   scattered         D-1 rows 面（hunk 前导 ctx 重复——rows 41 vs 21）
+        #   unbalanced        D-1 rows 面（pair/del 行丢失——rows 6 vs 7）
+        #   big_reorder       D-2 anchor 非单调（counts 本身错：+620/-0；
+        #                     双向对称 +620/-0=内部不一致实证）
+        emit("\n⑦ 引擎对账段（引擎 envelope × python 参考逐字段——漂移证据入档）")
+        recon = {}
+        expected_state = {
+            "modify": "zero-drift",
+            "add_only": "D-1 rows-face",
+            "del_only": "D-1 rows-face",
+            "scattered": "D-1 rows-face",
+            "unbalanced": "D-1 rows-face",
+            "big_reorder": "D-2 anchor-monotonicity (counts wrong)",
+        }
+        for name, (ta, tb) in fx.items():
+            r = requests.get(
+                base + "/api/diff_files",
+                params={"path_a": os.path.join(FIXDIR, f"{name}.a.txt"),
+                        "path_b": os.path.join(FIXDIR, f"{name}.b.txt"),
+                        "ctx": 3}, timeout=60)
+            try:
+                eng = json.loads(r.text)
+                if isinstance(eng, str):
+                    eng = json.loads(eng)
+            except Exception as e:  # noqa: BLE001
+                check("⑦", f"引擎对账: {name}", False, f"decode fail {e!r}")
+                continue
+            ref = naive_layered_diff(ta, tb)
+            if ref.get("err") is None:
+                ref["err"] = ""
+            drift = {"hunks": eng.get("hunks") != ref["hunks"],
+                     "adds": eng.get("adds") != ref["adds"],
+                     "dels": eng.get("dels") != ref["dels"],
+                     "degraded": eng.get("degraded") != ref["degraded"],
+                     "rows_len": len(eng.get("rows", [])) != len(ref["rows"])}
+            row_diffs = []
+            if not drift["rows_len"]:
+                for ri, (er, gr) in enumerate(zip(eng.get("rows", []),
+                                                  ref["rows"])):
+                    if er != gr and len(row_diffs) < 8:
+                        row_diffs.append(
+                            {"row": ri,
+                             "fields": [k for k in gr if er.get(k) != gr[k]],
+                             "engine": {k: er.get(k) for k in gr
+                                        if er.get(k) != gr[k]},
+                             "reference": {k: gr[k] for k in gr
+                                           if er.get(k) != gr[k]}})
+            any_drift = any(drift.values()) or bool(row_diffs)
+            observed = ("zero-drift" if not any_drift else
+                        ("counts+hunks wrong" if (drift["adds"] or
+                                                  drift["dels"] or
+                                                  drift["hunks"]) else
+                         "rows-face wrong"))
+            recon[name] = {"expected": expected_state[name],
+                           "observed": observed,
+                           "hunks_match": not drift["hunks"],
+                           "counts_match": not (drift["adds"] or
+                                                drift["dels"]),
+                           "engine_hunks_n": len(eng.get("hunks", [])),
+                           "ref_hunks_n": len(ref["hunks"]),
+                           "engine_rows_n": len(eng.get("rows", [])),
+                           "ref_rows_n": len(ref["rows"]),
+                           "engine_adds_dels": [eng.get("adds"),
+                                                eng.get("dels")],
+                           "row_field_diffs": row_diffs,
+                           "drift_flags": drift}
+            check("⑦", f"引擎对账={expected_state[name]}: {name}",
+                  observed == expected_state[name]
+                  or (expected_state[name].startswith("D-2")
+                      and observed == "counts+hunks wrong")
+                  or (expected_state[name].startswith("D-1")
+                      and observed == "rows-face wrong"),
+                  f"observed={observed} drift={[k for k, v in drift.items() if v]}")
+        with open(os.path.join(TESTS, "evidence-p016-recon.json"), "w",
+                  encoding="utf-8") as f:
+            json.dump({"toolchain": toolchain, "note":
+                       "PLAN-016 T-03 引擎×参考对账——漂移逐字段证据；"
+                       "golden 同步=上游 D-1/D-2 修复后重定（同步≠放宽）",
+                       "shapes": recon}, f, ensure_ascii=False, indent=2)
+        emit("       证据档 → tests/evidence-p016-recon.json")
     finally:
         _kill_proc_tree(proc_a)
     emit("  dialog_open×2 手动路径（rfd 阻塞式，矩阵不可驱动——人工步骤）：")

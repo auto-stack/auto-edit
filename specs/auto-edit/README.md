@@ -323,6 +323,37 @@ MCP 失明]+T17.2/17.3/17.4/17.8[大文件实例 UI 硬卡死=上游回归，清
 （smoke_t345 ALL PASS）。vue 臂 build-green 复验=T-06（014 双 exit 0
 基线上，本件新面=基础件 for/if/button 族已证面）。
 
+PLAN-016 口径更新（2026-09-27，工具链=auto-lang master 重建
+[v0.4.2-2175-g5c558778f target/debug——含 PLAN-703 交付 46efa926a；
+PATH 旧二进制 v2156-g1d597e3f4 早于交付实勘重建，**「判据前核
+`auto --version` 哈希含供料提交」坑位三度应验**]；组依赖=
+`.wt/edit-016/auto-lang`@5c558778f 钉版 detached worktree[014 Q-1b
+惯例——pac `../../../` 组兄弟解析]）：矩阵扩 T15 组 **15.16–15.19
+缓冲区比较子组**（旁路自开+装载轮转[load_key 单槽 B→A 固定序——
+序错置互抢槽位死锁，首轮烟测实勘]/跳转 set_cursor 切走切回读回
+[18.2 契约读回面]/旁路单边残缺/关闭复原 tab 零扰动——缺键端点
+err 形由 probe_bufdiff.py 探针承载），**T15.9/T15.10 期望翻转**
+（>10k 行从 err 拒转正常 envelope[dels=10493 实证]；700 全换形
+degraded=false+700/700+降级注记退役）——完成态 **129**（125 + 4
+新检查）。**判绿口径=≥118 passed / 0 failed**（已知 blocked 集
+不计：014 承接集 T12.6[menubar-sub MCP 失明]+T17.2/17.3/17.4/
+17.8[大文件实例 UI 硬卡死=上游回归]+轮换 flake 重跑条款[T13.6/
+T12 BOM 族]；**新增上游缺陷集 D-1/D-2**[供料档 §6.2——引擎 rows
+面流位错配/anchor 分块非单调：T15.1/15.2/15.3/15.7/15.11/15.14/
+15.15 rows 承载断言 blocked——hunks/counts 面正确，15.4/15.5/
+15.6/15.8/15.9/15.10/15.13 不受累；上游修复后自动复绿并随
+probe_diff ⑦对账绊线触发 golden 重定]）。执行期谱
+（v2175-g5c558778f）：全矩阵单跑 **118 passed / 11 failed**——失败
+集=T13.6+T17.2/17.3/17.8（已知族 4）+T15.1/15.2/15.3/15.7/15.11/
+15.14/15.15（D 族 7）逐项全中**零新失败**；15.9/15.10 翻转绿、
+15.16–15.19 全绿、T16 组 12/12 绿（目录面语义零漂移实证）。决策探针
+双门：probe_bufdiff.py（裸名解析+缓冲区消费形 8/0——不入矩阵计数）
++probe_diff.py ⑦引擎对账段（64/0——evidence-p016-recon.json 漂移
+逐字段在档，golden 保持过渡时代原样不 golden 化缺陷输出）。T-05
+bench diff_100mb 判定 blocked（D-1 连带 envelope 体量失真——供料档
+§6.3）；上游消费收据+双缺陷登记 docs/upstream/2026-09-diff-engine-
+supply.md §6。
+
 注：Plan 451 起 T10「热重载」走 DSL 源路径（reload 工具或 mtime 轮询重读
 app.at 重新提取 actions + generation bump → 视图重建），实测 50/0 全绿。
 OS 用户键位层（`%APPDATA%/auto/keymaps/auto-edit.at`）保持外部文件——那是

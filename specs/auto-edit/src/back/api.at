@@ -151,3 +151,15 @@ pub fn sync_copy(src str, dst str, is_dir bool) bool {
 pub fn sync_delete(path str, is_dir bool) bool {
     return fsys.sync_delete_impl(path, is_dir)
 }
+
+/// 缓冲区 diff（PLAN-016 T-04，第 15 端点）：双已开编辑器快照对打
+/// （native diff_snapshots 9916 裸名直调——buffer registry 直读，零
+/// 全文 VM 往返）。envelope 净形：`{hunks:[{a1,a2,b1,b2}],rows:[],
+/// adds,dels,truncated,degraded,err}`（rows=文件面渲染投影，缓冲区面
+/// 供 hunk 导航——上游口径）；缺键 err 形（「编辑器不存在: …」）。
+/// 键语义=tab.key（registry normalize 对齐——T-00 探针②实证）。
+/// GET /api/diff_buffers?key_a=..&key_b=..
+#[api(method = "GET", path = "/api/diff_buffers")]
+pub fn diff_buffers(key_a str, key_b str) str {
+    return fsys.diff_buffers_json(key_a, key_b)
+}

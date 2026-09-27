@@ -13,6 +13,13 @@
 > PLAN-015 追加「内联视图」节（M3-03——完全体两视图后半；来源=
 > PLAN-015 交付 + DiffBuildIrows/DiffToggleView + probe ⑥推导器 58/0
 > + smoke P15 四断言族 37/37；envelope/back 零改动=替换缝红利首兑现）。
+> PLAN-016 追加「引擎时代与缓冲区比较」节（M3-04——替换缝兑现：fsys
+> 双实现体换 native 直调、上限门全套退场、diff_snapshots 缓冲区比较
+> v1；来源=PLAN-703 供料包 46efa926a + probe_bufdiff.py 8/0 + 对账
+> evidence-p016-recon.json。**上游双缺陷 D-1/D-2 在案**（供料档 §6.2
+> ——rows 面流位错配/anchor 非单调）：rows 面语义以下游过渡参考实现
+> 为规范锚，缺陷面在上游修复前=已知 blocked 集（不 golden 化缺陷输出
+> ——同步≠放宽），修复轮重推对账+golden 重定）。
 
 ## envelope 契约（back `diff_files(path_a, path_b, ctx) str`）
 
@@ -42,6 +49,13 @@ GET `/api/diff_files?path_a=..&path_b=..&ctx=..` → JSON 字符串
 
 ## 过渡计算定位（朴素分层，非 histogram/patience）
 
+> **【退役·PLAN-016】**本节算法已随引擎时代退役（历史口径保留）：
+> `fsys.diff_files_json` 实现体=native `diff_files`（9915）裸名直调
+> 纯转发（PLAN-011 替换缝声明兑现），计算层入内核 Rust
+> （auto-lang `ui/code_editor/diff/`——histogram+patience 锚点分块，
+> 703 SD-02）。DP-200 降级/100k 字符预算/10M VM 步墙=VM 过渡期约束，
+> 引擎侧均不存在（refine 恒开）。现行算法契约见尾部「引擎时代」节。
+
 ① 公共前后缀行裁剪 → ② 中间区 ≤200 行/侧 **DP-LCS**（O(N·M) 行级，
 del 优先确定性回溯）→ ③ 大中段降级**整块 replace**（degraded=true，
 视觉=一大段红绿无细粒度——内核引擎清偿后消失）→ ④ replace 区**索引
@@ -53,18 +67,22 @@ O(n²) 排序/hash 类算法出局；单 handler **10M VM steps 硬墙**
 （engine.rs:2145，T-00 WARN[budget]×4 实证），全链 ~2.2M steps ✓。
 三段数据恒在 envelope 供引擎时代 refine。
 
-## 上限门（T-00 §10 保守定参，跨工具链稳健）
+## 上限门（~~T-00 §10 保守定参~~ **PLAN-016 起全套退场**）
 
-| 门 | 值 | 语义 |
+> **【退役·PLAN-016】**计算域三门（尺寸 1MB/行数 10k/DP 中间区 200）
+> 随实现体替换消亡——超限文件**正常出结果**（>10k 行 dels=10493 实
+> 证、>1MB 全等对 trim 快路 0 hunk 实证）；degraded **恒 false**
+> （引擎时代无降级语义，上游成文）；「等待内核引擎 diff_snapshots
+> （架构阻塞）」err 文案族退役（grep 零残留）。
+> **保留=渲染 cap 600**（front store 显示域截断+`渲染截断（600）`
+> 注记——显示预算，非计算门；015 内联级 600 截断注记并列保留）。
+
+| 门（历史口径） | 值 | 语义 |
 |---|---|---|
-| 尺寸 | **1MB**（pre-read，fs.metadata） | 即时拒防长等（1914 类解释器 split 0.52ms/行，50k 行=26s 冻结保护） |
-| 行数 | **10k 行**（post-split） | 拒绝于读后 DP 前 |
-| DP 中间区 | **200 行/侧** | 超出降级整块 replace |
-| 渲染 cap | **600 行**（front store 侧） | 超出截断+truncated 注记（fif 面板 500 按钮先例量级） |
-
-错误形注记均含「等待内核引擎 diff_snapshots（架构阻塞）」指引；
-1/10/100MB 全文 diff=架构阻塞（供料 §5 时代清偿），bench diff 档
-以门拒延迟证明即时性（tools/bench `diff` 子命令 JSONL）。
+| 尺寸 | ~~1MB~~（pre-read，fs.metadata） | **已退役**——即时拒防长等（VM 时代） |
+| 行数 | ~~10k 行~~（post-split） | **已退役**——拒绝于读后 DP 前（VM 时代） |
+| DP 中间区 | ~~200 行/侧~~ | **已退役**——超出降级整块 replace（VM 时代） |
+| 渲染 cap | **600 行**（front store 侧） | **保留**——超出截断+truncated 注记（显示域） |
 
 ## front 状态面（EditorStore，SD-01 字段清单）
 
@@ -272,3 +290,82 @@ DiffScrollToHunk 增 vmode 条件扫描源：inline 态扫 `diff_irows`
   先行决策门）；零重比=切换前后 envelope 派生面 state 对照；双 cap=
   big_reorder 现役 fixture（信封 600+内联 600+双注记快照）；着色断言
   归截图/人工视觉门（a11y 快照不携 style 行——T-15 口径延续）。
+
+## 引擎时代与缓冲区比较（PLAN-016 SD-01，M3-04）
+
+> 来源：auto-lang PLAN-703 供料包（delivery 46efa926a，五件 SD 三册
+> docs/specs/auto-lang/ui/design/{diff-engine,diff-endpoints,
+> rope-subtree-hash}.md）+ 消费侧 probe_bufdiff.py（8/0）+
+> probe_diff.py ⑦引擎对账段 + evidence-p016-recon.json。
+> **替换缝兑现**：`fsys.diff_files_json`/`fsys.diff_dirs_json` 实现体
+> =native 裸名直调纯转发（envelope 契约/视图既有路径/导入名零改动
+> ——PLAN-011 声明在本件兑现）；裸名解析落位 fsys.at（模块内无同名
+> 本地符号——api.at 契约 fn/editor_store 导入名零歧义，T-00 探针
+> 实证绑定 9915/9916/9917）。
+
+### 文件/目录 diff（native 直调语义）
+
+- **envelope 同形面**：12 字段 rows/hunks 0 基半开/ctx 钳 3（上游
+  envelope 构建器 `ctx==0→3`，shim 层 `max(0)` 双保险）/CR 容忍/
+  universal-newlines 尾空吸收/err 形（「文件不存在: …」/「读取失败:
+  …」/「目录不存在: …」，值不 raise）。**degraded/truncated 恒
+  false**（引擎时代语义）。
+- **目录面语义零漂移**（对账实证）：五态分类序/counts 同域/skip-list
+  />2MB 同尺寸 uncompared 注记/cap 5000 全保持；**长度桶对齐+桶积
+  700k 护栏退役**（对齐在 Rust 侧——同长巨桶目录正常出结果）；
+  **条目序漂移**：引擎每目录排序定序 vs 过渡遍历序——断言面序不
+  敏感（T16 组/probe_dirdiff 均按 rel→status 映射消费），零语义差。
+- **rows 面规范锚与缺陷态**：rows 投影语义（逐 hunk 切片无重复/变更
+  行必在/域不越 hunk 窗）以 011 过渡参考实现为规范锚。上游双缺陷
+  **D-1**（`build_rows` 按 changes 下标消费 `group_hunks_annotated`
+  的流位字段——变更行丢失/前导 ctx 重复）与 **D-2**（
+  `anchor_partition` 锚集未做单调过滤——换位族 counts 本身错，如
+  big_reorder +620/-0）在案（供料档 §6.2，源码行级根因+最小复现）；
+  修复前：矩阵 rows 承载断言=已知 blocked 集、golden 保持过渡时代
+  原样、bench diff_100mb 判定 blocked（D-1 连带 O(H²) 体量失真）。
+  **同步≠放宽**：不 golden 化缺陷输出；上游修复后重推 ⑦对账→golden
+  重定→判绿口径恢复。
+
+### 缓冲区比较 v1（diff_snapshots 解锁件）
+
+- **back**：第 15 端点 `GET /api/diff_buffers?key_a=..&key_b=..` →
+  `fsys.diff_buffers_json` → native `diff_snapshots`（9916）——
+  buffer registry 直读，**零全文 VM 往返**（011 边界注记「零全文
+  tab 铁律正解」落位）。envelope **净形**：`{hunks:[{a1,a2,b1,b2}],
+  rows:[],adds,dels,truncated:false,degraded:false,err}`（rows=文件
+  面渲染投影，缓冲区面供 hunk 导航）；缺键 err 形「编辑器不存在: …」。
+  键语义=**tab.key**（code_editor 族同形；registry storage_key 前缀
+  normalize 上游对齐——T-00 merged 臂 tab-N 逐字面实证）。快照面尾
+  行语义=尾空行保留（与文件面吸收语义不同——上游内部行为，按实测
+  真值断言）。
+- **front 状态面**：`diff_buf_open`（独立面板开关——fif 面板先例，
+  与 diff 视图互斥由 handler 组维护：DiffBufOpen 先关 diff 视图、
+  DiffOpen/DirDiffOpen 先关本面板）+ `diff_buf_ka/kb/na/nb`（键与
+  显示名）+ `diff_buf_ia/ib`（双 tab 序号输入，str 域）+
+  `diff_buf_hunks/rows/_count/_adds/_dels/_err/_has_err`（净形+计数
+  ——rows=label 预变换渲染行 `L{a1+1}–{a2} ↔ R{b1+1}–{b2}`，模板
+  算术插值未证面规避）+ `diff_buf_bypass_done/diff_buf_pend`。
+- **handler 族**：`DiffBufOpen`（面板开+默认序号=active 与次 tab；
+  <2 tab console 记录面板仍开）/`DiffBufAInput`/`DiffBufBInput`/
+  `DiffBufCompute`（to_int 平式解析→1 基序号→0 基下标→键解析；越界/
+  空序号 console 记零动作）/`DiffBufRun`（端点消费内部收口——err 形
+  不静默）/`DiffBufJump`（hunk 行点击→切 ka 对应 tab+
+  `code_editor_set_cursor(ka, a1, 0)`——A 侧首位左锚，014 先例 1 基
+  →0 基换算；B 侧跳转=后续件）/`DiffBufClose`（清态+tab 零扰动）/
+  `DiffBufBypassTick`。
+- **矩阵旁路**：env `AUTO_DIFFBUF_A/B` 双设→Tick 消费（011/012 同款
+  消费形）——双路径 `OpenPath`×2 装载成 tab→**跨 Tick 装载等待**
+  （`diff_buf_pend`+`tabs[].loaded` 双真门；load_key 单槽协议=**B→A
+  固定序轮转**——B 后开占槽先装、A 经激活重排队，序错置互抢槽位
+  死锁，首轮烟测实勘）→ `DiffBufRun` 预填；单边残缺 console 记零
+  动作（防矩阵悬挂）。
+- **视图**：独立面板（BUFDIFF 头+双序号输入+比较钮+双缓冲区名+±
+  计数+hunk 数+err 行+净形行按钮列表——裸循环索引载荷
+  FifResultClick 已证面）；编辑区条件零改动（面板与编辑器并存，
+  跳转切 tab 后编辑器同屏可见）。
+- **矩阵断言口径（15.16-15.19）**：旁路自开+装载轮转+净形计数/跳转
+  set_cursor 生效（切走再切回 TabActivate SyncCursor 读回——不
+  republish on_cursor 契约的读回面，014 18.2 同款）/旁路单边残缺
+  （console+零动作）/关闭复原+tab 零扰动。**缺键端点 err 形由
+  probe_bufdiff.py 承载**（矩阵 MCP 面不可达裸键——面板序号输入恒
+  解析为现存 tab 键）。

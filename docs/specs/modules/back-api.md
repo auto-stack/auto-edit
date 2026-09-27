@@ -2,14 +2,15 @@
 
 > 来源：PLAN-003 交付 + src/back/{api.at,fsys.at}；计数勘正与 IO 字节
 > 语义节=PLAN-008 SD-02；搜索服务端点节=PLAN-009 SD-02；目录 diff 与
-> 同步端点节=PLAN-012 SD-02；file_size 端点节=PLAN-013 SD-02。
+> 同步端点节=PLAN-012 SD-02；file_size 端点节=PLAN-013 SD-02；
+> diff_buffers 第 15 端点节+diff 双端点引擎时代注记=PLAN-016 SD-02。
 
-## 契约（src/back/api.at，**十四 #[api]**——PLAN-013 勘正：PLAN-012
-十三件基础上增 file_size）
+## 契约（src/back/api.at，**十五 #[api]**——PLAN-016 勘正：PLAN-013
+十四件基础上增 diff_buffers）
 
 `ws_root / tree / read_text / read_text_range / file_size / write_text /
 exists / env_str / regex_replace / search_files / diff_files / diff_dirs /
-sync_copy / sync_delete`——路由前缀 /api，GET 走 query、
+sync_copy / sync_delete / diff_buffers`——路由前缀 /api，GET 走 query、
 POST 走 body。消费形态：`use back.api: <fns>` 裸函数直调（013-todo/
 015-notes 形态）：
 
@@ -86,39 +87,41 @@ a2r server 生成器模板假设 api::Db 状态注入 + 契约 fn 转译为空�
   `auto.fs.size`（int 字节长；metadata JSON 的 is_dir/len 字段访问不可
   用）——三件登记 upstream §12 供料。is_dir 用 `fs.is_dir`(1009)。
 
-## 文件 diff 端点（PLAN-011 SD-02，M3-01）
+## 文件 diff 端点（PLAN-011 SD-02，M3-01；**引擎时代注记=PLAN-016**）
 
 - **`diff_files(path_a, path_b, ctx) str`**（GET `/api/diff_files`）：
-  朴素分层过渡计算层（envelope 契约=替换缝——内核引擎落地仅换
-  `fsys.diff_files_json` 实现体，front/矩阵零改动）。返回 JSON
-  `{hunks:[{a1,a2,b1,b2}],rows:[{lo,ro,ln,rn,lk,rk,lpre,lmid,lpost,
-  rpre,rmid,rpost}],adds,dels,truncated,degraded,err}`——hunk 区间
-  0 基半开；rows.lo/ro 1 基缺席侧 0；三段标记=配对行公共前后缀裁剪；
-  CR 容忍（
+  返回 JSON `{hunks:[{a1,a2,b1,b2}],rows:[{lo,ro,ln,rn,lk,rk,lpre,
+  lmid,lpost,rpre,rmid,rpost}],adds,dels,truncated,degraded,err}`——
+  hunk 区间 0 基半开；rows.lo/ro 1 基缺席侧 0；三段标记=配对行公共
+  前后缀裁剪；CR 容忍（
 ≡
-）；`ctx<=0` 兜底 3。上限门：尺寸 **1MB pre-read**
-  （fs.metadata 即时拒）+ 行数 **10k** post-split——错误形 err 含
-  「等待内核引擎 diff_snapshots（架构阻塞）」注记，hunks/rows 空数组。
-  实现约束：单 handler ≤10M VM steps（engine.rs:2145；全链 ~2.2M 实
-  测），重计算全内联单函数（2044 文件局部 fn 返回值丢失疑回归缓解，
-  upstream §14）；三段标记全局字符预算 100k（超预算行整行 mid）。
-  **rows 预计算归 back 的理由**：VM view 不能调函数（Plan 402）——
-  front 拿到即渲染。完整契约（含渲染就绪形与视图断言口径）见
-  modules/diff-view.md（SD-01 主册）。
+）；`ctx<=0` 兜底 3。
+  **引擎时代（PLAN-016 替换缝兑现）**：`fsys.diff_files_json` 实现
+  体=native `diff_files`（9915）裸名直调**纯转发**——PLAN-011 过渡
+  朴素分层实现体与上限门三门（1MB/10k/DP-200 降级）退役，超限文件
+  正常出结果、degraded 恒 false、「等待内核引擎」err 文案族退役；
+  上限门节重写与 rows 面缺陷态（D-1——上游修复前 golden 保持过渡
+  时代）见 modules/diff-view.md 引擎时代节（SD-01 主册）。
+  **rows 预计算归 back 的理由**（历史口径，机制不变）：VM view 不能
+  调函数（Plan 402）——front 拿到即渲染。
 
-## 目录 diff 与同步端点（PLAN-012 SD-02，M3-02）
+## 目录 diff 与同步端点（PLAN-012 SD-02，M3-02；**引擎时代注记=
+PLAN-016**）
 
-- **`diff_dirs(path_a, path_b) str`**（GET `/api/diff_dirs`）：递归
-  遍历+五态分类。返回 JSON `{entries:[{rel,status,size_a,size_b,
-  is_dir,note}],counts:{same,added,deleted,modified,binary},truncated,
-  err}`——左=旧（deleted=只在左）右=新（added=只在右，BC 同款）；
-  分类序=存在性→kind 冲突→二进制启发式（size>0 且 read_text==""，
-  ≤2MB 全文域，任一侧命中=binary）→尺寸差→≤2MB 全等→>2MB 同尺寸=
-  same+note=uncompared（未比对注记）。条目上限 **5000**（truncated
-  注记，counts 与 entries 同域）；skip-list=Explorer/find 同语义；
-  **对齐=长度桶+桶积护栏 Σk²≤700k**（同长巨桶超 VM 10M steps 墙——
-  定标 N=800 单桶 0.94s ✓/N=1000 WARN[budget] 死——超限 err 形架构
-  注记；正解=sort/hash 原语 upstream §15 want）。根缺失→err 不静默。
+- **`diff_dirs(path_a, path_b) str`**（GET `/api/diff_dirs`）：
+  返回 JSON `{entries:[{rel,status,size_a,size_b,is_dir,note}],
+  counts:{same,added,deleted,modified,binary},truncated,err}`——左=
+  旧（deleted=只在左）右=新（added=只在右，BC 同款）；分类序=存在性
+  →kind 冲突→二进制启发式（size>0 且 read_text==""，≤2MB 全文域，
+  任一侧命中=binary）→尺寸差→≤2MB 全等→>2MB 同尺寸=same+note=
+  uncompared（未比对注记）。条目上限 **5000**（truncated 注记，
+  counts 与 entries 同域）；skip-list=Explorer/find 同语义；根缺失→
+  err 不静默。
+  **引擎时代（PLAN-016 替换缝兑现）**：`fsys.diff_dirs_json` 实现
+  体=native `diff_dirs`（9917）裸名直调纯转发——过渡长度桶对齐+
+  桶积 700k 护栏+「对齐超限」err 形退役（对齐在 Rust 侧，同长巨桶
+  目录正常出结果）；五态分类/注记/cap 5000 语义零漂移（对账实证）；
+  条目序=引擎每目录排序定序（断言面序不敏感）。
 - **`sync_copy(src, dst, is_dir) bool`**（POST `/api/sync_copy`）：
   文件=字节往返 read_bytes(1005)→write_bytes(1006)（**fs.copy(1007)
   表面被 `copy` 保留字阻断**[Plan 122 废弃 token 词法收编]——T-00①a
@@ -150,3 +153,16 @@ a2r server 生成器模板假设 api::Db 状态注入 + 契约 fn 转译为空�
   双轨形（search_files count 同款），本端点从之。want=HTTP 层 int 返回
   序列化修复（清偿后 envelope 可简化，front 侧零行为依赖——`?? -1`
   兜底形保持）。
+
+## diff_buffers 端点（PLAN-016 SD-02，M3-04 缓冲区比较 v1，第 15 端点）
+
+- **`diff_buffers(key_a, key_b) str`**（GET `/api/diff_buffers`）：双
+  已开编辑器快照对打——`fsys.diff_buffers_json` → native
+  `diff_snapshots`（9916）裸名直调，**buffer registry 直读，零全文
+  VM 往返**（PLAN-011 边界注记「零全文 tab 铁律正解」落位）。返回
+  净形 envelope `{hunks:[{a1,a2,b1,b2}],rows:[],adds,dels,truncated:
+  false,degraded:false,err}`（rows=文件面渲染投影，缓冲区面供 hunk
+  导航）；缺键 err 形「编辑器不存在: …」（值不 raise）。键语义=
+  tab.key（code_editor 族同形；registry storage_key 前缀 normalize
+  上游对齐——T-00 探针 merged 臂实证）。front 消费面（面板/跳转/
+  旁路）见 modules/diff-view.md 缓冲区比较节（SD-01 主册）。

@@ -1727,11 +1727,19 @@ def run_tests(mcp_url, proc):
     #   15.6 关闭复原（tab 集零扰动+状态清零）
     #   15.7 unbalanced 形态（del-only/add-only 行+dbg 4/1/2/0）
     #   15.8 错误形（缺文件 → err 态零视图+console 记录）
-        #   15.9 超限拒绝（>10000 行 fixture → err 形架构阻塞注记）
-        #   15.10 渲染截断（700 行全换 → cap 600+truncated+degraded）
-        #   15.11-15.15 PLAN-015 内联视图组（复审 F-1 落位；详见组内
-        #         注释——投影对照/零重比+console/内联导航/双 cap/内联态
-        #         重算-下钻路径）
+    #   15.9 超限通过（PLAN-016 翻转：>10000 行正常 envelope——引擎时代）
+    #   15.10 全换形重定（PLAN-016：degraded=false+700/700+降级注记退役）
+    #   15.11-15.15 PLAN-015 内联视图组（复审 F-1 落位；详见组内
+    #         注释——投影对照/零重比+console/内联导航/双 cap/内联态
+    #         重算-下钻路径）
+    #   15.16-15.19 PLAN-016 缓冲区比较组（旁路自开+装载轮转 B→A 序/
+    #         跳转 set_cursor 读回/旁路残缺 err 形/关闭复原——缺键端点
+    #         err 形由 probe_bufdiff.py 探针承载）
+    # 上游缺陷注记（PLAN-016 执行期勘定，docs/upstream 供料档 §消费回执）：
+    # 引擎 rows 面流位错配（D-1）+anchor 分块非单调（D-2）——15.1/15.2/
+    # 15.3/15.7/15.11/15.14 的 rows 承载断言在上游修复前按已知 blocked
+    # 集注记（hunks/counts 面正确——15.4/15.5/15.6/15.8/15.9/15.10/
+    # 15.13/15.15/15.16-15.19 不受累）。
     print("\nT15: PLAN-011 file diff")
     diff_fix = os.path.join(fixtures_dir, "diff")
     if os.path.isdir(diff_fix):
@@ -1858,7 +1866,11 @@ def run_tests(mcp_url, proc):
         except Exception as e:
             result.check("T15.8 错误形", False, repr(e))
 
-        # 15.9 超限拒绝（>10000 行）
+        # 15.9 超限通过（PLAN-016 G-2 翻转面：>10000 行从 err 拒转正常
+        # envelope——尺寸门/行数门随实现体替换消亡，引擎 native 直调）。
+        # 期望值=引擎实测（10500 行 L0-based vs modify.b：锚点 L1,L2,L7,
+        # L8,L9,L10 共 7 行 keep → dels=10500-7=10493，单 hunk——行数门
+        # 专属路径的通过形延迟证明）。
         try:
             over = os.path.join(tempfile.mkdtemp(prefix="auto011_t15_over_"),
                                 "over.txt")
@@ -1867,18 +1879,25 @@ def run_tests(mcp_url, proc):
             p15, t15 = _t15_app({
                 "AUTO_DIFF_A": over,
                 "AUTO_DIFF_B": os.path.join(diff_fix, "modify.b.txt")})
-            time.sleep(3)
-            st = t15.state("diff_open", "diff_err")
-            err = (state_str(st, "diff_err") or "").strip('"')
-            result.check("T15.9 行数超限拒绝（>10000 行架构阻塞注记）",
-                         state_bool(st, "diff_open") is False
-                         and "超限" in err,
-                         f"err={err[:80]!r}")
+            ok_open = _t15_wait_open(t15, 30)
+            st = t15.state("diff_open", "diff_err", "diff_dels",
+                           "diff_hunk_count")
+            result.check("T15.9 行数超限通过（>10000 行正常 envelope+计数到位）",
+                         ok_open
+                         and state_bool(st, "diff_open") is True
+                         and (state_str(st, "diff_err") or "").strip('"') == ""
+                         and state_int(st, "diff_dels") == 10493
+                         and state_int(st, "diff_hunk_count") >= 1,
+                         f"open={state_bool(st, 'diff_open')} "
+                         f"err={state_str(st, 'diff_err')!r} "
+                         f"dels={state_int(st, 'diff_dels')}")
             _kill_proc_tree(p15)
         except Exception as e:
-            result.check("T15.9 超限拒绝", False, repr(e))
+            result.check("T15.9 超限通过", False, repr(e))
 
-        # 15.10 渲染截断（700 行全换 → cap 600+truncated+degraded）
+        # 15.10 全换形重定（PLAN-016 G-2：degraded 退场——700 行全换从
+        # 「降级整块 replace」转「引擎正常配对」：degraded=false+700/700
+        # 计数+cap 600 截断+渲染注记在、降级注记退役）。
         try:
             d15 = tempfile.mkdtemp(prefix="auto011_t15_big_")
             pa = os.path.join(d15, "big.a.txt")
@@ -1892,15 +1911,23 @@ def run_tests(mcp_url, proc):
             p15, t15 = _t15_app({"AUTO_DIFF_A": pa, "AUTO_DIFF_B": pb})
             ok_open = _t15_wait_open(t15, 25)
             st = t15.state("diff_rows_count", "diff_rows_truncated",
-                           "diff_hunk_count", "diff_degraded")
-            result.check("T15.10 渲染截断（cap 600+truncated+degraded）",
+                           "diff_hunk_count", "diff_degraded",
+                           "diff_adds", "diff_dels", "diff_dbg_pair")
+            snap15 = t15.snapshot()
+            result.check("T15.10 全换形重定（degraded=false+700/700+cap 600"
+                         "+降级注记退役）",
                          ok_open and state_int(st, "diff_rows_count") == 600
                          and state_bool(st, "diff_rows_truncated") is True
-                         and state_bool(st, "diff_degraded") is True,
+                         and state_bool(st, "diff_degraded") is False
+                         and state_int(st, "diff_adds") == 700
+                         and state_int(st, "diff_dels") == 700
+                         and state_int(st, "diff_hunk_count") == 1
+                         and "渲染截断（600）" in snap15
+                         and "大段降级" not in snap15,
                          st.replace("\n", " ")[:200])
             _kill_proc_tree(p15)
         except Exception as e:
-            result.check("T15.10 渲染截断", False, repr(e))
+            result.check("T15.10 全换形重定", False, repr(e))
 
         # 15.11-15.15: PLAN-015 —— 内联视图检查组（复审 F-1 承载面落位；
         # 期望值=probe_diff 推导器链 golden/参考实现同源——惰性导入规避
@@ -2092,6 +2119,108 @@ def run_tests(mcp_url, proc):
             _kill_proc_tree(p15)
         except Exception as e:
             result.check("T15.15 内联态重算", False, repr(e))
+
+        # 15.16-15.19: PLAN-016 —— 缓冲区比较子组（T15 形态：独立新鲜
+        # 进程+APPDATA 隔离；驱动面=env 旁路 AUTO_DIFFBUF_A/B Tick 自开
+        # ——011/012 同款消费形）。缺键端点 err 形（「编辑器不存在」）
+        # 由 T-00 探针 probe_bufdiff.py ② 承载（矩阵 MCP 面不可达裸键
+        # ——面板序号输入恒解析为现存 tab 键），本组 15.18=消费可见
+        # 残缺形（单边 env→console 记录+零动作+面板不开）。
+        #   15.16 旁路自开+装载轮转（B→A load_key 单槽序）+净形计数
+        #   15.17 hunk 行跳转（切 ka tab+set_cursor A 侧首位——切走再
+        #         切回读光标，set_cursor 不 republish on_cursor 契约的
+        #         读回面=014 18.2 同款）
+        #   15.18 旁路单边残缺（console 记录+面板零开）
+        #   15.19 关闭复原（面板关+tab 零扰动）
+        print("\nT15.P16: buffer diff subgroup")
+        try:
+            d16 = tempfile.mkdtemp(prefix="auto016_t15_buf_")
+            fa = os.path.join(d16, "smoke.a.txt")
+            fb = os.path.join(d16, "smoke.b.txt")
+            with open(fa, "w", encoding="utf-8", newline="") as f:
+                f.write("\n".join(f"L{i}" for i in range(1, 9)) + "\n")
+            with open(fb, "w", encoding="utf-8", newline="") as f:
+                f.write("\n".join(
+                    f"L{i}" if i != 5 else "L5-CHANGED"
+                    for i in range(1, 9)) + "\n")
+            p15, t15 = _t15_app({"AUTO_DIFFBUF_A": fa, "AUTO_DIFFBUF_B": fb})
+            ok_open = False
+            st = ""
+            for _ in range(30):
+                st = t15.state("diff_buf_open", "diff_buf_count",
+                               "diff_buf_adds", "diff_buf_dels",
+                               "diff_buf_has_err", "tab_count", "tab")
+                if state_bool(st, "diff_buf_open"):
+                    ok_open = True
+                    break
+                time.sleep(0.5)
+            result.check("T15.16 旁路自开+装载轮转+净形计数（1 hunk/+1/-1/双开）",
+                         ok_open
+                         and state_int(st, "diff_buf_count") == 1
+                         and state_int(st, "diff_buf_adds") == 1
+                         and state_int(st, "diff_buf_dels") == 1
+                         and state_bool(st, "diff_buf_has_err") is False
+                         and state_int(st, "tab_count") == 4
+                         and state_int(st, "tab") == 2,
+                         st.replace("\n", " ")[:200])
+            # 15.17 跳转：净形行点击 → tab=2（ka=tab-3=smoke.a）→ 切走
+            # 再切回（TabActivate SyncCursor 读回）→ line=2（a1+1）。
+            row = find_button_by_text(t15.snapshot(), "L2–8 ↔ R2–8")
+            jumped = False
+            if row:
+                t15.click(row)
+                time.sleep(1.0)
+                jumped = state_int(t15.state("tab"), "tab") == 2
+                sb = t15.snapshot()
+                ba = find_button_by_text(sb, "smoke.a.txt")
+                bb = find_button_by_text(sb, "smoke.b.txt")
+                if bb:
+                    t15.click(bb)
+                    time.sleep(0.8)
+                if ba:
+                    t15.click(ba)
+                    time.sleep(0.8)
+            line = state_int(t15.state("line"), "line")
+            result.check("T15.17 hunk 行跳转（切 tab+set_cursor 生效读回）",
+                         bool(row) and jumped and line == 2,
+                         f"row={bool(row)} jumped={jumped} line={line}")
+            # 15.19 关闭复原（先于 15.18 独立实例前，在本实例收尾）。
+            tabs_before = state_int(t15.state("tab_count"), "tab_count")
+            b_close = find_button_by_text(t15.snapshot(), "×")
+            closed = False
+            if b_close:
+                t15.click(b_close)
+                time.sleep(0.8)
+            st3 = t15.state("diff_buf_open", "tab_count")
+            closed = state_bool(st3, "diff_buf_open") is False
+            result.check("T15.19 关闭复原（面板关+tab 零扰动）",
+                         closed
+                         and state_int(st3, "tab_count") == tabs_before,
+                         f"closed={closed} tabs={state_int(st3, 'tab_count')}")
+            _kill_proc_tree(p15)
+        except Exception as e:
+            result.check("T15.16-19 缓冲区主链", False, repr(e))
+
+        # 15.18 旁路单边残缺（独立实例——A 设 B 缺：console 记录+面板
+        # 零开+tab 零扰动；DiffBypassTick 防重入）。
+        try:
+            d18 = tempfile.mkdtemp(prefix="auto016_t15_buf1_")
+            fa1 = os.path.join(d18, "solo.a.txt")
+            with open(fa1, "w", encoding="utf-8", newline="") as f:
+                f.write("solo\n")
+            p15, t15 = _t15_app({"AUTO_DIFFBUF_A": fa1})
+            time.sleep(4)
+            st = t15.state("diff_buf_open", "tab_count")
+            con = state_str(t15.state("console"), "console") or ""
+            result.check("T15.18 旁路单边残缺（console 记录+面板零开）",
+                         state_bool(st, "diff_buf_open") is False
+                         and state_int(st, "tab_count") == 2
+                         and "bufdiff: bypass 残缺" in con,
+                         f"open={state_bool(st, 'diff_buf_open')} "
+                         f"con={con[-120:]!r}")
+            _kill_proc_tree(p15)
+        except Exception as e:
+            result.check("T15.18 旁路残缺", False, repr(e))
     else:
         print("  NOTE  tests/fixtures/diff missing; skipping T15")
 

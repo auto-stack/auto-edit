@@ -79,6 +79,9 @@ widget App {
         // 在 handler——enabled_if 单条件已证面；v1 无快捷键）。
         action (id: "diff.view-mode", handler: .DiffToggleView, title: "切换并排/内联",
                 enabled_if: ".store.diff_open")
+        // PLAN-016 T-04: 缓冲区比较入口（工具菜单同源；v1 无快捷键——
+        // 面板序号输入面）。
+        action (id: "diff.buf-compare", handler: .DiffBufOpen, title: "比较缓冲区…", icon: "git-compare")
         action (id: "help.about",      handler: .ActAbout,      title: "关于 auto-edit")
 
         toolbar {
@@ -162,6 +165,9 @@ widget App {
                             // PLAN-012 T-03: 目录 diff 入口（静态 item 同款
                             // ——v1 路径输入框路径，folder picker=§15 want）。
                             menubar-item (title: "比较目录…", icon: "git-compare") { onclick: .DirDiffOpen }
+                            // PLAN-016 T-04: 缓冲区比较入口（静态 item 同款
+                            // ——双已开 tab 序号输入面板）。
+                            menubar-item (title: "比较缓冲区…", icon: "git-compare") { onclick: .DiffBufOpen }
                             menubar-separator
                             menubar-item (title: "下一处差异", shortcut: "F7") { onclick: .DiffNext }
                             menubar-item (title: "上一处差异", shortcut: "Shift+F7") { onclick: .DiffPrev }
@@ -467,6 +473,54 @@ widget App {
                                                         style: "h-6 w-6 px-0 py-0 text-[11px] shrink-0" }
                                                 }
                                             }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // PLAN-016 T-04: 缓冲区比较面板（根视图独立面板——
+                    // fif 面板先例：与 diff 视图互斥由 handler 组维护，
+                    // tab 集零扰动）。头=双缓冲区名+±计数+hunk 数+err 行；
+                    // 行=hunk 净形按钮（label 预变换串，裸循环索引载荷
+                    // ——FifResultClick 已证面）→ DiffBufJump 切 tab+
+                    // set_cursor A 侧首位。
+                    if .store.diff_buf_open {
+                        col (style: "flex-1 w-full overflow-hidden") {
+                            row (style: "h-9 items-center bg-muted/30 shrink-0 w-full gap-1 px-2") {
+                                text "BUFDIFF" { style: "text-[11px] font-bold text-muted-foreground shrink-0" }
+                                input {
+                                    value: .store.diff_buf_ia
+                                    oninput: .DiffBufAInput
+                                    placeholder: "Tab 序号 A（左）"
+                                    style: "h-7 w-28 shrink-0 px-2 text-[12px]"
+                                }
+                                input {
+                                    value: .store.diff_buf_ib
+                                    oninput: .DiffBufBInput
+                                    placeholder: "Tab 序号 B（右）"
+                                    style: "h-7 w-28 shrink-0 px-2 text-[12px]"
+                                }
+                                button (text: "比较", variant: "outline") { onclick: .DiffBufCompute
+                                    style: "h-7 px-2 text-[11px] shrink-0" }
+                                text "${.store.diff_buf_na} ↔ ${.store.diff_buf_nb}" { style: "text-[11px] text-muted-foreground shrink-0" }
+                                text "+${.store.diff_buf_adds} −${.store.diff_buf_dels}" { style: "text-[11px] text-emerald-400 shrink-0" }
+                                button (text: "×", variant: "text") { onclick: .DiffBufClose
+                                    style: "h-7 w-6 px-0 py-0 ml-auto shrink-0" }
+                            }
+                            row (style: "h-7 items-center bg-muted/30 shrink-0 w-full gap-2 px-2") {
+                                text "hunk ${.store.diff_buf_count}" { style: "text-[11px] text-muted-foreground shrink-0" }
+                                if .store.diff_buf_has_err {
+                                    text .store.diff_buf_err { style: "text-[12px] text-red-400 mr-1 shrink-0" }
+                                }
+                            }
+                            container (style: "flex-1 w-full") {
+                                scroll-pane (style: "h-full w-full") {
+                                    col (style: "gap-0 p-0 w-full") {
+                                        for hi, h in .store.diff_buf_rows {
+                                            button (text: h.label, variant: "text") { onclick: .DiffBufJump(hi)
+                                                style: "h-6 flex-1 min-w-0 justify-start text-left text-[12px] font-mono text-amber-300 shrink-0" }
                                         }
                                     }
                                 }
@@ -799,6 +853,9 @@ widget App {
             // PLAN-012 T-03: 目录 diff env 旁路自开（AUTO_DIRDIFF_A/B——
             // 同款消费形）。
             store.DirBypassTick()
+            // PLAN-016 T-04: 缓冲区比较 env 旁路（AUTO_DIFFBUF_A/B——
+            // 双路径装载成 tab→跨 Tick 装载等待→DiffBufRun 预填）。
+            store.DiffBufBypassTick()
         }
         .TabActivate(i) -> { store.TabActivate(i) }
         .SrcChanged(i) -> { store.SrcChanged(i) }
@@ -876,6 +933,13 @@ widget App {
         .DirConfirmGo -> { store.DirConfirmGo() }
         .DirConfirmCancel -> { store.DirConfirmCancel() }
         .DirBackToDirs -> { store.DirBackToDirs() }
+        // PLAN-016 T-04: 缓冲区比较链薄委托。
+        .DiffBufOpen -> { store.DiffBufOpen() }
+        .DiffBufAInput(v) -> { store.DiffBufAInput(v) }
+        .DiffBufBInput(v) -> { store.DiffBufBInput(v) }
+        .DiffBufCompute -> { store.DiffBufCompute() }
+        .DiffBufJump(i) -> { store.DiffBufJump(i) }
+        .DiffBufClose -> { store.DiffBufClose() }
         .ActCut -> { store.ActCut() }
         .ActCopy -> { store.ActCopy() }
         .ActPaste -> { store.ActPaste() }

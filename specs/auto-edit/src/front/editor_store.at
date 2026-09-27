@@ -51,7 +51,8 @@ fn json_escape(s str) str {
 // (vue 轨 ts_adapter 将其拦为 __vmOnly 抛错桩,拆 back 动机);fs.join 亦
 // 在拦截面(T-00 P-5),TreeSelect 改本地字符串拼接。
 // PLAN-010 T-02: read_text 加入（会话文件读取——恢复链）。
-use back.api: ws_root, tree, write_text, exists, env_str, read_text_range, regex_replace, search_files, read_text, diff_files, diff_dirs, sync_copy, sync_delete, file_size
+// PLAN-016 T-04: diff_buffers 加入（缓冲区比较第 15 端点——净形消费）。
+use back.api: ws_root, tree, write_text, exists, env_str, read_text_range, regex_replace, search_files, read_text, diff_files, diff_dirs, sync_copy, sync_delete, file_size, diff_buffers
 
 store EditorStore {
     model {
@@ -288,6 +289,32 @@ store EditorStore {
         var dir_pending_op str = ""
         var dir_pending_rel str = ""
         var dir_pending_dir bool = false
+        // PLAN-016 T-04: 缓冲区比较状态面（SD-01 契约）。diff_buf_open=
+        // 独立面板开关（fif 面板先例——与 diff_open 视图互斥由 handler
+        // 组维护：DiffBufOpen 先关 diff 视图、DiffOpen/DirDiffOpen 先关
+        // 本面板）；ka/kb=双缓冲区键（tab.key）、na/nb=显示名（tab
+        // title）；ia/ib=面板双 tab 序号输入（input 值域 str——to_int
+        // 解析，charts-gallery 平式先例）；rows=hunk 净形渲染行（label
+        // 预变换——模板串算术插值未证面，011 行号预变换同款）；计数+
+        // err；bypass_done=env 防重入（DiffBypassTick 同款）、pend=跨
+        // Tick 装载等待旗标（load_key 单槽协议：OpenPath×2 后 B 先装、
+        // A 经 TabActivate 懒装载轮转，tabs[].loaded 双真后 compute）。
+        var diff_buf_open bool = false
+        var diff_buf_ka str = ""
+        var diff_buf_kb str = ""
+        var diff_buf_na str = ""
+        var diff_buf_nb str = ""
+        var diff_buf_ia str = ""
+        var diff_buf_ib str = ""
+        var diff_buf_hunks list = []
+        var diff_buf_rows list = []
+        var diff_buf_count int = 0
+        var diff_buf_adds int = 0
+        var diff_buf_dels int = 0
+        var diff_buf_err str = ""
+        var diff_buf_has_err bool = false
+        var diff_buf_bypass_done bool = false
+        var diff_buf_pend bool = false
     }
 
     msg {
@@ -371,6 +398,17 @@ store EditorStore {
         DirRowClick(int), DirCopyRight(int), DirCopyLeft(int),
         DirDeleteA(int), DirDeleteB(int), DirConfirmGo, DirConfirmCancel,
         DirBackToDirs,
+        // PLAN-016 T-04: 缓冲区比较链。DiffBufOpen=入口（menubar 静态
+        // item——面板开+默认序号=active 与次 tab）；DiffBufAInput/
+        // DiffBufBInput=双序号输入行（handler 首参形）；DiffBufCompute=
+        // 序号解析→键解析收口；DiffBufRun=端点消费内部收口（净形+
+        // rows 预变换入 store）；DiffBufJump=hunk 行点击跳转（切 tab+
+        // set_cursor A 侧首位）；DiffBufClose=清态（tab 零扰动）；
+        // DiffBufBypassTick=env 旁路 Tick 消费臂（AUTO_DIFFBUF_A/B——
+        // 双路径装载成 tab→跨 Tick 装载等待→DiffBufRun）。
+        DiffBufOpen, DiffBufAInput(str), DiffBufBInput(str),
+        DiffBufCompute, DiffBufRun, DiffBufJump(int), DiffBufClose,
+        DiffBufBypassTick,
     }
 
     on {
@@ -1376,6 +1414,9 @@ store EditorStore {
         // 矩阵不可驱动）；单边残缺 → console 记录零动作（防矩阵悬挂）；
         // 双缺 → dialog_open×2 手动路径（任一取消=整链零动作）。
         .DiffOpen -> {
+            // PLAN-016: 缓冲区面板互斥（flag 已假时赋值零差异——既有
+            // diff 行为路径零改动）。
+            .diff_buf_open = false
             var pa str = env_str("AUTO_DIFF_A")
             var pb str = env_str("AUTO_DIFF_B")
             if pa != "" {
@@ -1778,6 +1819,8 @@ store EditorStore {
         // 齐 → 直达 DirDiffCompute；单边残缺 → console 记录零动作；双缺
         // → 开输入面板（v1 路径输入框——folder picker 无，T-00④ 定案）。
         .DirDiffOpen -> {
+            // PLAN-016: 缓冲区面板互斥（同 DiffOpen 位——零行为差异面）。
+            .diff_buf_open = false
             var pa str = env_str("AUTO_DIRDIFF_A")
             var pb str = env_str("AUTO_DIRDIFF_B")
             if pa != "" {
@@ -2101,6 +2144,225 @@ store EditorStore {
                     store.DirDiffOpen()
                 }
             }
+        }
+
+        // ---- PLAN-016 T-04: 缓冲区比较入口（G-4）。面板开+默认序号=
+        // active 与次 tab（tab_count≥2 时）；diff 视图开态先关（互斥——
+        // DiffClose 对 dir 链的归位语义随行）。面板保持显示 err 行
+        // （dirs 输入面板同款）。
+        .DiffBufOpen -> {
+            if .diff_open {
+                store.DiffClose()
+            }
+            if .tab_count >= 2 {
+                .diff_buf_ia = (.tab + 1).str()
+                var nx int = .tab + 1
+                if nx >= .tab_count {
+                    nx = 0
+                }
+                .diff_buf_ib = (nx + 1).str()
+            } else {
+                .diff_buf_ia = ""
+                .diff_buf_ib = ""
+                console_log("bufdiff: 需双开 tab（当前 " + .tab_count.str() + "）")
+            }
+            .diff_buf_open = true
+            console_log("bufdiff: 双 tab 序号输入后点比较")
+            .console = console_lines()
+        }
+
+        .DiffBufAInput(v) -> {
+            .diff_buf_ia = v
+        }
+        .DiffBufBInput(v) -> {
+            .diff_buf_ib = v
+        }
+
+        // ---- PLAN-016 T-04: 序号解析→键解析收口。to_int 平式（解析败
+        // =0→空序号分支）；1 基序号→0 基下标；越界/空序号 console 记零
+        // 动作（绝不静默）。
+        .DiffBufCompute -> {
+            var na int = .diff_buf_ia.to_int()
+            var nb int = .diff_buf_ib.to_int()
+            if na >= 1 {
+                if nb >= 1 {
+                    if na <= .tab_count {
+                        if nb <= .tab_count {
+                            .diff_buf_ka = .tabs[na - 1].key
+                            .diff_buf_kb = .tabs[nb - 1].key
+                            .diff_buf_na = .tabs[na - 1].title
+                            .diff_buf_nb = .tabs[nb - 1].title
+                            store.DiffBufRun()
+                        } else {
+                            console_log("bufdiff: B 序号越界（1.." + .tab_count.str() + "）")
+                        }
+                    } else {
+                        console_log("bufdiff: A 序号越界（1.." + .tab_count.str() + "）")
+                    }
+                } else {
+                    console_log("bufdiff: B 序号空")
+                }
+            } else {
+                console_log("bufdiff: A 序号空")
+            }
+            .console = console_lines()
+        }
+
+        // ---- PLAN-016 T-04: 端点消费收口（G-4）。diff_buffers 净形
+        // envelope → json.to_value 内联包裹（DiffCompute 同款）→ hunks
+        // 净形+渲染行预变换（label=L{a1+1}–{a2} ↔ R{b1+1}–{b2}——模板
+        // 串算术插值未证面，store 预变换惯例）→ 面板开。err 形不静默
+        // （console 记录+面板 err 行）。
+        .DiffBufRun -> {
+            if .diff_buf_ka != "" {
+                if .diff_buf_kb != "" {
+                    let v = json.to_value(diff_buffers(.diff_buf_ka, .diff_buf_kb))
+                    .diff_buf_err = v.err ?? ""
+                    .diff_buf_has_err = .diff_buf_err != ""
+                    if .diff_buf_err == "" {
+                        .diff_buf_hunks = v.hunks ?? []
+                        var nh int = 0
+                        var rows list = []
+                        for h in .diff_buf_hunks {
+                            var a1 int = h.a1 ?? 0
+                            var a2 int = h.a2 ?? 0
+                            var b1 int = h.b1 ?? 0
+                            var b2 int = h.b2 ?? 0
+                            rows.push({label: "L" + (a1 + 1).str() + "–" + a2.str() + " ↔ R" + (b1 + 1).str() + "–" + b2.str()})
+                            nh = nh + 1
+                        }
+                        .diff_buf_rows = rows
+                        .diff_buf_count = nh
+                        .diff_buf_adds = v.adds ?? 0
+                        .diff_buf_dels = v.dels ?? 0
+                        console_log("bufdiff: hunks=" + nh.str() + " +" + .diff_buf_adds.str() + "/-" + .diff_buf_dels.str())
+                    } else {
+                        .diff_buf_hunks = []
+                        .diff_buf_rows = []
+                        .diff_buf_count = 0
+                        .diff_buf_adds = 0
+                        .diff_buf_dels = 0
+                        console_log("bufdiff: " + .diff_buf_err)
+                    }
+                    .diff_buf_open = true
+                }
+            }
+            .console = console_lines()
+        }
+
+        // ---- PLAN-016 T-04: hunk 行跳转。切 ka 对应 tab + 光标落 A 侧
+        // 首位（hunk a1 为 0 基=set_cursor 线参数直用——014 先例 1 基
+        // →0 基换算的存储位形态）；v1 跳转=A 侧左锚（净形行双侧区间
+        // 并呈，B 侧跳转=后续件）。tab 缺失零动作守卫。
+        .DiffBufJump(idx) -> {
+            if idx >= 0 {
+                if .diff_buf_count > idx {
+                    let hk = .diff_buf_hunks[idx]
+                    var a1 int = hk.a1 ?? 0
+                    var found int = -1
+                    var ii int = 0
+                    while ii < .tabs.len() {
+                        if .tabs[ii].key == .diff_buf_ka {
+                            found = ii
+                        }
+                        ii = ii + 1
+                    }
+                    if found >= 0 {
+                        store.TabActivate(found)
+                        code_editor_set_cursor(.diff_buf_ka, a1, 0)
+                        console_log("bufdiff: 跳转 A 侧行 " + (a1 + 1).str())
+                    } else {
+                        console_log("bufdiff: 跳转 tab 缺失（" + .diff_buf_ka + "）")
+                    }
+                }
+            }
+            .console = console_lines()
+        }
+
+        // ---- PLAN-016 T-04: 关闭清态（tab 零扰动——面板条件复原，
+        // tabs/dirty/光标全部不动；键/序号/净形一并清零）。
+        .DiffBufClose -> {
+            .diff_buf_open = false
+            .diff_buf_hunks = []
+            .diff_buf_rows = []
+            .diff_buf_count = 0
+            .diff_buf_adds = 0
+            .diff_buf_dels = 0
+            .diff_buf_err = ""
+            .diff_buf_has_err = false
+            console_log("bufdiff: closed")
+            .console = console_lines()
+        }
+
+        // ---- PLAN-016 T-04: env 旁路 Tick 消费臂（AUTO_DIFFBUF_A/B——
+        // 矩阵驱动面，DiffBypassTick 同款消费形）。双路径装载成 tab
+        // （OpenPath×2——键=tab-{open_count} 递增，active_key 即新键）；
+        // 装载递延协议（load_key 单槽）：B 后开先装，A 经 TabActivate
+        // 懒装载轮转——pend 旗标跨 Tick 等 tabs[].loaded 双真后
+        // DiffBufRun。单边残缺 console 记零动作（防矩阵悬挂）。
+        .DiffBufBypassTick -> {
+            if !.diff_buf_bypass_done {
+                var pa str = env_str("AUTO_DIFFBUF_A")
+                if pa != "" {
+                    .diff_buf_bypass_done = true
+                    var pb str = env_str("AUTO_DIFFBUF_B")
+                    if pb != "" {
+                        store.OpenPath(pa)
+                        .diff_buf_ka = .active_key
+                        .diff_buf_na = .title_active
+                        store.OpenPath(pb)
+                        .diff_buf_kb = .active_key
+                        .diff_buf_nb = .title_active
+                        .diff_buf_pend = true
+                    } else {
+                        console_log("bufdiff: bypass 残缺（AUTO_DIFFBUF_B 空）")
+                    }
+                }
+            } else {
+                if .diff_buf_pend {
+                    // 装载轮转门（序固定 B→A——load_key 单槽协议：B 后开
+                    // 占槽先装；A 的槽被 B 顶掉后经激活重排队。先激活未装
+                    // 的 B 直至 loaded，再轮 A，双真后 compute——顺序错置
+                    // 会互抢槽位死锁，首轮烟测实勘）。
+                    var la bool = false
+                    var lb bool = false
+                    var ia int = -1
+                    var ib int = -1
+                    var ii int = 0
+                    while ii < .tabs.len() {
+                        if .tabs[ii].key == .diff_buf_ka {
+                            la = .tabs[ii].loaded
+                            ia = ii
+                        }
+                        if .tabs[ii].key == .diff_buf_kb {
+                            lb = .tabs[ii].loaded
+                            ib = ii
+                        }
+                        ii = ii + 1
+                    }
+                    if !lb {
+                        if ib >= 0 {
+                            store.TabActivate(ib)
+                        } else {
+                            .diff_buf_pend = false
+                            console_log("bufdiff: 旁路 tab 丢失（" + .diff_buf_kb + "）")
+                        }
+                    } else {
+                        if !la {
+                            if ia >= 0 {
+                                store.TabActivate(ia)
+                            } else {
+                                .diff_buf_pend = false
+                                console_log("bufdiff: 旁路 tab 丢失（" + .diff_buf_ka + "）")
+                            }
+                        } else {
+                            .diff_buf_pend = false
+                            store.DiffBufRun()
+                        }
+                    }
+                }
+            }
+            .console = console_lines()
         }
 
         // ---- PLAN-012 T-04: 条目主点击（G-4 下钻）。「改」→ 拼双 abs →
