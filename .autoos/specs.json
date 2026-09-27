@@ -228,6 +228,18 @@
           ],
           "superseded_by": null,
           "content": "- 段一：T-01 probe_jumplist 五面探针（源/二进制/注册/动态四层全零）裁定 (b)——壳自动 Recent 未备，SHAddToRecentDocs shim=供料段扩件[用户确认改道，PLAN-701 供⑥]；T-03 F-01 修（stage_assert 重放行序取记录 mode）+F-02 勘定（已消失零命中）。\n- 段二（供料=auto-lang PLAN-701 六件 delivered 归档）：save 解禁=WriteFidelity big 分支改道 code_editor_save 直写（probe 字节四变体全等[LF/CRLF/BOM/50MB]+50MB save≈46ms；readonly 外层先行兜底；normal 链零变更；检测器白名单零变更[读出位随 normal 链保留——原「四→三」预记不成立]）；光标恢复转正=RunPendingLoad 成功位 set_cursor（1→0 基换算+端点钳位；T18.2 断言×5 轮绿；scroll 条形=注记维持待读投影生态证据[T18.3 锚]）；跳转列表消费=OpenPath 公共核直调 shell_add_recent；time 族=bench app_epoch 双录机制（front ms 行待供④ vue 映射供件——upstream §17 新 want，现 host 回退源[100MB 双录实绩 4173ms(app)/4183ms(host) 在案]）；vue strict=双 exit 0（S002 清零+pnpm build）+regen_vue print 遮蔽缓解件退役；F-RV6=五连跑零早崩谱（114/6·115/5·114/6·116/4·115/5，frv6_run*.spect watcher）+归因勘误=跨会话 /IM auto.exe 清扫[15→0 实例实录]（重跑条款维持+归因注记升级）；矩阵完成态 120 检查，判绿口径 ≥112/0（blocked 集=T12.6+T17 交互簇×4——**上游大文件实例 UI 硬卡死回归**[2046→83c4621b5 窗引入，二分+消费面全摘实证非 701/非本件面，§17 登记，清偿自动复绿]）；SD-01..04+upstream §17 六件消费收据落账。\n- 复审 r2 pass：评审基线 HEAD=2c43889（依赖钉版 v2155@729dd4f2f）；内核级 probe 复现（四变体全等/shell true）+HEAD 态 proxy 复现（50.8/434.3/4518.7ms 回退源双字段）+五轮谱复用（runs 3-5=HEAD 码态）；偏差 F-1[AC-03 app 级 E2E blocked-on-upstream]/F-2[AC-05 app 源切换待供件+回退态标签化妆缺陷]/F-3[probe_jumplist 现态自指漂移——v2 后续件]均非阻断在案。\n- merge：rebase main（6209622）7/7+range-diff 全等 `=`（663548d→a98f42f/14474a0→c0dc4ed/402d3f6→211b5ba/2a1c7f6→7c048f8/c9cd333→62078ab/54a542e→5ed68f8/2c43889→0142e28）+纯证据后代 ea6c8c5=delivery+ff-only TIP-MATCH+落位烟测 bench check 绿（构建 2127）。"
+        },
+        {
+          "id": "P015-1",
+          "section": "reviews",
+          "status": "stable",
+          "title": "PLAN-015 — M3-03 文件 diff 内联视图收据（reviewed pass @ r1 762fbf6→delivery 73f47bc：两轮复审 needs_fix 修复/矩阵承载面 15.11-15.15 落位/完成态 125 检查 ≥117/0/envelope-back 零改动=替换缝红利首兑现）",
+          "file": "docs/plans/archived/015-m3-file-diff-inline-view.md",
+          "related": [
+            "PLAN-015"
+          ],
+          "superseded_by": null,
+          "content": "- 实现：store DiffBuildIrows/DiffToggleView（irows 投影派生自 capped diff_rows——pair 行两行展开 del 先 add 后/三段按源侧继承/行号双列缺席空串）+DiffScrollToHunk vmode 条件扫+视图三独立 for 循环+diff.view-mode action/薄委托；双 cap 独立截断（信封 600+内联 600 并列注记，拦腰形合法）。\n- 复审两轮：首轮 needs_fix（F-1 P15 断言族未进矩阵主跑器 desktop_mcp.py——smoke_t234 系开发期烟测件不入计数，README 139/131 数字失据/F-2 内联态重算生命周期零覆盖/F-3 零重比证明弱）；修复 762fbf6：T15 组 15.11-15.15 五子组（投影对照/零重比 console 标记计数/内联导航/双 cap big_reorder/下钻重算），再复审 pass 六 AC 全绿。\n- 矩阵：完成态 125（120+5）/判绿 ≥117/0；修复轮 120 passed/5 failed=已知 blocked 集逐项全中零新失败（T13.6+T17.2/3/4/8——上游 UI 卡死回归 v2156 仍未复绿）。检查器教训在档：console=滚动尾窗，前缀差量不可靠须标记计数法。\n- 边界：envelope/back 零改动（011 替换缝红利首兑现——内核引擎落地仍仅换 fsys.diff_files_json 实现体）；M3 本仓面引擎前清单清零，剩余主面（histogram/100MB ≤2s/差异侧编辑重比）全门控上游供料包（仍无 auto-lang 承接立项）。\n- 环境：工具链 v2156-g1d597e3f4（PATH 旧二进制 86b56884b 并行分支缺 701 native 坑二度应验）；组依赖=.wt/edit-015/auto-lang@3e3e1e297 钉版 worktree（014 Q-1b 惯例）。"
         }
       ],
       "status": "Empty",
