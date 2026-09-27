@@ -338,7 +338,12 @@ target×24.0 float 累加偏移（行高 24px=并排态 T-00③ 定标共用）�
     file 指归档路径。提交（ledger_refreshed 收据 commit）。
   - **archived**：本行所在提交——git mv 至 docs/plans/archived/ +
     status: archived + completion_kind: delivered。
-  - **cleaned**：随后行回填。
+  - **cleaned**：git 侧全净实证——wt-guard clean ✓（pnpm 晶格 493 枚
+    junction 链接级摘除后复扫零 reparse point——py3.14 isjunction 枚举
+    +cmd rmdir 链接级，014 坑位复用）；worktree 注销 ✓（git worktree
+    list 零 edit-015 条目）/branch plan-015-dev 删 ✓（was 73f47bc）/
+    组依赖 worktree .wt/edit-015/auto-lang 注销 ✓/组目录 .wt/edit-015
+    rmdir ✓。五检查点全落，completion_kind=delivered。
 
 ## 10. 待澄清事项
 
