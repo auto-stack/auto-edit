@@ -1,0 +1,26 @@
+// back/api.at — PLAN-016 T-00 探针 back 契约（产品 api.at 同形最小面：
+// 三个 #[api] GET 端点 → fsys 转发。split 臂 HTTP 面=probe_bufdiff.py
+// Phase S 直接驱动；merged 臂由 front use back.api 直调）。
+
+use fsys
+
+/// 文件 diff envelope（native 9915 裸名转发）
+/// GET /api/df?path_a=..&path_b=..&ctx=..
+#[api(method = "GET", path = "/api/df")]
+pub fn df(path_a str, path_b str, ctx int) str {
+    return fsys.df_json(path_a, path_b, ctx)
+}
+
+/// 目录 diff envelope（native 9917 裸名转发）
+/// GET /api/dd?path_a=..&path_b=..
+#[api(method = "GET", path = "/api/dd")]
+pub fn dd(path_a str, path_b str) str {
+    return fsys.dd_json(path_a, path_b)
+}
+
+/// 缓冲区 diff envelope（native 9916 裸名转发——registry 直读）
+/// GET /api/ds?key_a=..&key_b=..
+#[api(method = "GET", path = "/api/ds")]
+pub fn ds(key_a str, key_b str) str {
+    return fsys.ds_json(key_a, key_b)
+}

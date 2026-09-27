@@ -1,0 +1,31 @@
+toolchain: auto 0.1.0+v0.4.2-2175-g5c558778f
+
+============================================================
+① 裸名解析探针（split 臂 back HTTP：df/dd 正路径+err 形+ctx 钳）
+============================================================
+  PASS  [①] df 正路径（1 hunk/[0,3)×2/+1/-1/rows=3/零注记）
+  PASS  [①] ctx=0 钳 3（与 ctx=3 输出逐字节同形）
+  PASS  [①] df 缺文件 err 形（文件不存在+空 hunks）
+  PASS  [①] dd 正路径（counts 1/1/0/1/0+entries 3）
+  PASS  [①] dd 缺目录 err 形（目录不存在）
+  PASS  [①] ds split 臂缺键 err 形（编辑器不存在，非 Undefined）
+
+============================================================
+② 缓冲区消费形勘定（merged 臂 MCP：tab-N 键 registry 直读正路径）
+============================================================
+  PASS  [②] bufdiff 正路径（净形 rows:[]/1 hunk/+1/-1/tab-N 键直读）
+  PASS  [②] bufmiss 缺键 err 形（编辑器不存在: tab-nope）
+
+决策产物（T-00）
+============================================================
+{
+  "buf_consumption_form": {
+    "form": "(a) 双已开 tab 比较+面板双 tab 序号输入",
+    "evidence": "merged 臂 tab.key 形键（tab-1/tab-2 逐字面）registry 直读出净形 envelope——键语义=tab.key 直接可用（VM 轨 normalize_payload_key 对齐）；零装载面（已开 tab 即快照源）；v1 跳转=A 侧首位（set_cursor(key, a1, 0)——014 先例 1 基→0 基换算）",
+    "bypass": "AUTO_DIFFBUF_A/B→OpenPath×2→跨 Tick 装载等待（tabs[].loaded 双真门）→DiffBufCompute（011/012 Tick 消费先例——load_key 单槽协议：B 先装、A 经 TabActivate 懒装载轮转）",
+    "probe": "①② 双臂全绿=裸名绑定 native + 消费形成立"
+  },
+  "toolchain": "auto 0.1.0+v0.4.2-2175-g5c558778f"
+}
+
+RESULT: 8 passed, 0 failed

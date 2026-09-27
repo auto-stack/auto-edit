@@ -1,0 +1,60 @@
+// app.at — PLAN-016 T-00 探针 front 面（merged 臂缓冲区消费形勘定）。
+//
+// 双 code_editor（键=tab.key 同形「tab-N」——产品键形态逐字面）+ 按钮
+// handler 经 use back.api 直调 ds（bare import 名=产品 editor_store 同款
+// 消费形）→ envelope 原串入 state（MCP autoui_state 读回断言面）。
+// 快照正路径（净形 hunks/rows:[]/计数）+ 缺键 err 形（「编辑器不存在」）
+// 双断言。split 臂（/api/df /api/dd /api/ds）由 probe_bufdiff.py 直驱。
+
+use back.api: ds
+
+store BufProbeStore {
+    model {
+        var snap_out str = ""
+        var snap_miss str = ""
+        var ka str = "tab-1"
+        var kb str = "tab-2"
+        var runs int = 0
+    }
+    msg { BufDiff, BufDiffMissing }
+    on {
+        // 正路径：双编辑器快照对打（净形 envelope 原串）。
+        .BufDiff -> {
+            .snap_out = ds(.ka, .kb)
+            .runs = .runs + 1
+        }
+        // 缺键 err 形：key_a 不存在、key_b 在——err 应点名缺席侧。
+        .BufDiffMissing -> {
+            .snap_miss = ds("tab-nope", .kb)
+            .runs = .runs + 1
+        }
+    }
+}
+
+widget App {
+    msg { BufDiff, BufDiffMissing }
+    view {
+        col (style: "h-full w-full p-2 gap-2") {
+            row (style: "gap-1 shrink-0") {
+                button (text: "bufdiff", variant: "outline") { onclick: .BufDiff }
+                button (text: "bufmiss", variant: "outline") { onclick: .BufDiffMissing }
+            }
+            code_editor (key: "tab-1", style: "h-40 w-full") {
+                content: "alpha\nbeta\ngamma\n"
+            }
+            code_editor (key: "tab-2", style: "h-40 w-full") {
+                content: "alpha\ndelta\ngamma\n"
+            }
+            text "out=${.store.snap_out}" {
+                style: "text-xs font-mono text-muted-foreground shrink-0"
+            }
+            text "miss=${.store.snap_miss}" {
+                style: "text-xs font-mono text-muted-foreground shrink-0"
+            }
+        }
+    }
+    on {
+        .BufDiff -> { store.BufDiff() }
+        .BufDiffMissing -> { store.BufDiffMissing() }
+    }
+}

@@ -1,0 +1,63 @@
+{
+  "toolchain": "auto 0.1.0+v0.4.2-2175-g5c558778f",
+  "decisions": {
+    "buf_consumption_form": {
+      "form": "(a) 双已开 tab 比较+面板双 tab 序号输入",
+      "evidence": "merged 臂 tab.key 形键（tab-1/tab-2 逐字面）registry 直读出净形 envelope——键语义=tab.key 直接可用（VM 轨 normalize_payload_key 对齐）；零装载面（已开 tab 即快照源）；v1 跳转=A 侧首位（set_cursor(key, a1, 0)——014 先例 1 基→0 基换算）",
+      "bypass": "AUTO_DIFFBUF_A/B→OpenPath×2→跨 Tick 装载等待（tabs[].loaded 双真门）→DiffBufCompute（011/012 Tick 消费先例——load_key 单槽协议：B 先装、A 经 TabActivate 懒装载轮转）",
+      "probe": "①② 双臂全绿=裸名绑定 native + 消费形成立"
+    },
+    "toolchain": "auto 0.1.0+v0.4.2-2175-g5c558778f"
+  },
+  "checks": [
+    {
+      "item": "①",
+      "name": "df 正路径（1 hunk/[0,3)×2/+1/-1/rows=3/零注记）",
+      "ok": true,
+      "detail": "{\"hunks\": [{\"a1\": 0, \"a2\": 3, \"b1\": 0, \"b2\": 3}], \"rows\": [{\"lo\": 1, \"ro\": 1, \"ln\": \"alpha\", \"rn\": \"alpha\", \"lk\": \"ctx\", \"rk\": \"ctx\", \"lpre\": \"alpha\", \"lmid\": \"\", \"lpost\": \"\", \"rpre\": \"alpha\", \"rmid\":"
+    },
+    {
+      "item": "①",
+      "name": "ctx=0 钳 3（与 ctx=3 输出逐字节同形）",
+      "ok": true,
+      "detail": "len 676 vs 676"
+    },
+    {
+      "item": "①",
+      "name": "df 缺文件 err 形（文件不存在+空 hunks）",
+      "ok": true,
+      "detail": "'文件不存在: C:\\\\Users\\\\zhaop\\\\AppData\\\\Local\\\\Temp\\\\p016_probe_fx__pq3tqzs\\\\nope.txt'"
+    },
+    {
+      "item": "①",
+      "name": "dd 正路径（counts 1/1/0/1/0+entries 3）",
+      "ok": true,
+      "detail": "{\"entries\": [{\"rel\": \"added.txt\", \"status\": \"added\", \"size_a\": 0, \"size_b\": 1, \"is_dir\": false, \"note\": \"\"}, {\"rel\": \"mod.txt\", \"status\": \"modified\", \"size_a\": 5, \"size_b\": 5, \"is_dir\": false, \"note\":"
+    },
+    {
+      "item": "①",
+      "name": "dd 缺目录 err 形（目录不存在）",
+      "ok": true,
+      "detail": "'目录不存在: C:\\\\Users\\\\zhaop\\\\AppData\\\\Local\\\\Temp\\\\p016_probe_fx__pq3tqzs\\\\nodir'"
+    },
+    {
+      "item": "①",
+      "name": "ds split 臂缺键 err 形（编辑器不存在，非 Undefined）",
+      "ok": true,
+      "detail": "'编辑器不存在: tab-1'"
+    },
+    {
+      "item": "②",
+      "name": "bufdiff 正路径（净形 rows:[]/1 hunk/+1/-1/tab-N 键直读）",
+      "ok": true,
+      "detail": "{\"hunks\": [{\"a1\": 0, \"a2\": 4, \"b1\": 0, \"b2\": 4}], \"rows\": [], \"adds\": 1, \"dels\": 1, \"truncated\": false, \"degraded\": false, \"err\": \"\"}"
+    },
+    {
+      "item": "②",
+      "name": "bufmiss 缺键 err 形（编辑器不存在: tab-nope）",
+      "ok": true,
+      "detail": "{\"hunks\": [], \"rows\": [], \"adds\": 0, \"dels\": 0, \"truncated\": false, \"degraded\": false, \"err\": \"编辑器不存在: tab-nope\"}"
+    }
+  ],
+  "pass": true
+}

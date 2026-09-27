@@ -1,0 +1,8 @@
+// pac.at — PLAN-016 T-00 消费勘定探针 app（probe_bufdiff.py 载具，vm 轨
+// 专用脚手架，非产品件）。零依赖最小面：back fsys 形模块裸调 diff 三
+// natives（9915-9917——裸名解析面勘定）+ front 双 code_editor 快照正路径
+// （merged 臂——缓冲区消费形勘定）。与产品 auto-edit 完全隔离。
+name: "probe-bufdiff"
+version: "0.1.0"
+scene: "ui"
+render: "vm"

@@ -1,0 +1,24 @@
+// back/fsys.at — PLAN-016 T-00 探针实现体：native 裸名直调解析面。
+//
+// 本模块内无 diff_files/diff_dirs/diff_snapshots 本地符号——三裸名应
+// 绑定 codegen intrinsics（PLAN-703 供⑤ natives 9915/9916/9917）而非
+// 未定义符号。断言形：app 可运行（链接期解析过）+ 端点出引擎 envelope
+// （字段族/err 形/ctx 钳制=上游同形）——若裸名未注册，VM 运行期报
+// Undefined symbol（端点 500/server 不起），探针红。
+
+/// 裸名 diff_files（native 9915）直调——签名同产品契约
+/// (path_a str, path_b str, ctx int) → 文件 envelope JSON
+pub fn df_json(path_a str, path_b str, ctx int) str {
+    return diff_files(path_a, path_b, ctx)
+}
+
+/// 裸名 diff_dirs（native 9917）直调
+pub fn dd_json(path_a str, path_b str) str {
+    return diff_dirs(path_a, path_b)
+}
+
+/// 裸名 diff_snapshots（native 9916）直调——buffer registry 直读
+/// （键语义=编辑器 key；VM 轨 normalize_payload_key 对齐）
+pub fn ds_json(key_a str, key_b str) str {
+    return diff_snapshots(key_a, key_b)
+}
