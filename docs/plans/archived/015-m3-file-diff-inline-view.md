@@ -1,11 +1,12 @@
 ---
 plan_id: PLAN-015
-status: reviewed
+status: archived
 feature_name: M3-03 文件 diff 内联（unified）视图——完全体两视图收尾
 author: [agent]
 created_at: 2026-09-26T00:18:21Z
 updated_at: 2026-09-26T00:18:21Z
 plan_revision: 1
+completion_kind: delivered
 current_step: 6
 total_steps: 6
 supersedes_spec_components: []
@@ -320,6 +321,24 @@ target×24.0 float 累加偏移（行高 24px=并排态 T-00③ 定标共用）�
   复用上轮复审独立复现（py 文件零变化、.at 仅注释改后 vue 复跑绿——
   重跑假设未变，复用理由明示）；grep 锚全中。| next: merge`。
   status=reviewed。
+- 2026-09-26 merge 收据（PLAN-015:r1，五检查点）：
+  - **prepared**：评审基线=reviewed pass @r1（reviewed_commit 762fbf6，
+    两轮复审记录在案）；canonical Spec 三件已随交付提交在档
+    （diff-view.md 内联节/00-overview M3 第三件注记/README PLAN-015
+    口径段）；账本投影目标=.autoos/specs.json reviews 段；主检出簿记
+    提交 e23c511（计划入册 reviewed 态）。
+  - **landed**：dev 分支 rebase 上 main（簿记位在先）——旧→新映射
+    4c33da4→0006394/1490f45→7a07d20/762fbf6→73f47bc，`git range-diff`
+    3/3 全等（安全改写证明）；main `git merge --ff-only plan-015-dev`
+    → tip=73f47bc=delivery commit（零合并提交）；落地后主检出
+    smoke_t234 ALL PASS（known-good）。stylekit 两删除 WIP 保全未触。
+  - **ledger_refreshed**：.autoos/specs.json reviews 段 P015-1 外科
+    插入（14→15 items）——roundtrip 字节等价先证（indent=2/
+    ascii=false/尾换行）；回读断言前 14 项零扰动+他五段零扰动；
+    file 指归档路径。提交（ledger_refreshed 收据 commit）。
+  - **archived**：本行所在提交——git mv 至 docs/plans/archived/ +
+    status: archived + completion_kind: delivered。
+  - **cleaned**：随后行回填。
 
 ## 10. 待澄清事项
 
