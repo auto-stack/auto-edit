@@ -1,5 +1,5 @@
 {
-  "toolchain": "auto 0.1.0+v0.4.2-2175-g5c558778f",
+  "toolchain": "auto 0.1.0+v0.4.2-2183-gc8f86ef92",
   "decisions": {
     "buf_consumption_form": {
       "form": "(a) 双已开 tab 比较+面板双 tab 序号输入",
@@ -7,7 +7,15 @@
       "bypass": "AUTO_DIFFBUF_A/B→OpenPath×2→跨 Tick 装载等待（tabs[].loaded 双真门）→DiffBufCompute（011/012 Tick 消费先例——load_key 单槽协议：B 先装、A 经 TabActivate 懒装载轮转）",
       "probe": "①② 双臂全绿=裸名绑定 native + 消费形成立"
     },
-    "toolchain": "auto 0.1.0+v0.4.2-2175-g5c558778f"
+    "probe_load_track": {
+      "never_mounted_load": "fail(err/-1)",
+      "unmount_survival": "alive",
+      "hidden_widget_load": "ok",
+      "reload_idempotent": "ok",
+      "set_text_drive": "ok",
+      "badge_form": "probe-hidden-widget 轨形成立——badge 随件落"
+    },
+    "toolchain": "auto 0.1.0+v0.4.2-2183-gc8f86ef92"
   },
   "checks": [
     {
@@ -26,7 +34,7 @@
       "item": "①",
       "name": "df 缺文件 err 形（文件不存在+空 hunks）",
       "ok": true,
-      "detail": "'文件不存在: C:\\\\Users\\\\zhaop\\\\AppData\\\\Local\\\\Temp\\\\p016_probe_fx__pq3tqzs\\\\nope.txt'"
+      "detail": "'文件不存在: C:\\\\Users\\\\zhaop\\\\AppData\\\\Local\\\\Temp\\\\p016_probe_fx_26ug_d0t\\\\nope.txt'"
     },
     {
       "item": "①",
@@ -38,7 +46,7 @@
       "item": "①",
       "name": "dd 缺目录 err 形（目录不存在）",
       "ok": true,
-      "detail": "'目录不存在: C:\\\\Users\\\\zhaop\\\\AppData\\\\Local\\\\Temp\\\\p016_probe_fx__pq3tqzs\\\\nodir'"
+      "detail": "'目录不存在: C:\\\\Users\\\\zhaop\\\\AppData\\\\Local\\\\Temp\\\\p016_probe_fx_26ug_d0t\\\\nodir'"
     },
     {
       "item": "①",
@@ -57,6 +65,36 @@
       "name": "bufmiss 缺键 err 形（编辑器不存在: tab-nope）",
       "ok": true,
       "detail": "{\"hunks\": [], \"rows\": [], \"adds\": 0, \"dels\": 0, \"truncated\": false, \"degraded\": false, \"err\": \"编辑器不存在: tab-nope\"}"
+    },
+    {
+      "item": "③",
+      "name": "P1 未实化键装载=否定面（err 形或 load 负值）",
+      "ok": true,
+      "detail": "ret=-1 env={\"hunks\": [], \"rows\": [], \"adds\": 0, \"dels\": 0, \"truncated\": false, \"degraded\": false, \"err\": \"编辑器不存在: probe-never\"}"
+    },
+    {
+      "item": "③",
+      "name": "P2 卸载后快照存活（registry 卸载语义勘定）",
+      "ok": true,
+      "detail": "{\"hunks\": [{\"a1\": 0, \"a2\": 4, \"b1\": 0, \"b2\": 4}], \"rows\": [], \"adds\": 1, \"dels\": 1, \"truncated\": false, \"degraded\": false, \"err\": \"\"}"
+    },
+    {
+      "item": "③",
+      "name": "P3 隐藏 widget 装载轨形（净形 1 hunk/+1/-1+ret 全字节）",
+      "ok": true,
+      "detail": "ret=18 env={\"hunks\": [{\"a1\": 0, \"a2\": 4, \"b1\": 0, \"b2\": 4}], \"rows\": [], \"adds\": 1, \"dels\": 1, \"truncated\": false, \"degraded\": false, \"err\": \"\"}"
+    },
+    {
+      "item": "③",
+      "name": "P3b 重装载幂等（probe 键生命周期可刷新）",
+      "ok": true,
+      "detail": "{\"hunks\": [{\"a1\": 0, \"a2\": 4, \"b1\": 0, \"b2\": 4}], \"rows\": [], \"adds\": 1, \"dels\": 1, \"truncated\": false, \"degraded\": false, \"err\": \"\"}"
+    },
+    {
+      "item": "③",
+      "name": "P4 set_text 内容驱动（快照计数随内容变化）",
+      "ok": true,
+      "detail": "{\"hunks\": [{\"a1\": 0, \"a2\": 4, \"b1\": 0, \"b2\": 5}], \"rows\": [], \"adds\": 1, \"dels\": 0, \"truncated\": false, \"degraded\": false, \"err\": \"\"}"
     }
   ],
   "pass": true

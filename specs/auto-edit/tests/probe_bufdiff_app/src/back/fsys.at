@@ -22,3 +22,9 @@ pub fn dd_json(path_a str, path_b str) str {
 pub fn ds_json(key_a str, key_b str) str {
     return diff_snapshots(key_a, key_b)
 }
+
+/// 环境变量读（PLAN-017 T-00 探针——AUTO_PROBE_FILE 供料路径；产品
+/// fsys.env_lookup 同形最小拷贝：Env.get 内建直通）
+pub fn env_lookup(name str) str {
+    return Env.get(name)
+}

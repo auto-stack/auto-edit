@@ -1,4 +1,4 @@
-toolchain: auto 0.1.0+v0.4.2-2175-g5c558778f
+toolchain: auto 0.1.0+v0.4.2-2183-gc8f86ef92
 
 ============================================================
 ① 裸名解析探针（split 臂 back HTTP：df/dd 正路径+err 形+ctx 钳）
@@ -16,6 +16,15 @@ toolchain: auto 0.1.0+v0.4.2-2175-g5c558778f
   PASS  [②] bufdiff 正路径（净形 rows:[]/1 hunk/+1/-1/tab-N 键直读）
   PASS  [②] bufmiss 缺键 err 形（编辑器不存在: tab-nope）
 
+============================================================
+③ PLAN-017 T-00 勘定（probe 装载轨形/卸载存活/隐藏 widget/live 驱动）
+============================================================
+  PASS  [③] P1 未实化键装载=否定面（err 形或 load 负值）
+  PASS  [③] P2 卸载后快照存活（registry 卸载语义勘定）
+  PASS  [③] P3 隐藏 widget 装载轨形（净形 1 hunk/+1/-1+ret 全字节）
+  PASS  [③] P3b 重装载幂等（probe 键生命周期可刷新）
+  PASS  [③] P4 set_text 内容驱动（快照计数随内容变化）
+
 决策产物（T-00）
 ============================================================
 {
@@ -25,7 +34,15 @@ toolchain: auto 0.1.0+v0.4.2-2175-g5c558778f
     "bypass": "AUTO_DIFFBUF_A/B→OpenPath×2→跨 Tick 装载等待（tabs[].loaded 双真门）→DiffBufCompute（011/012 Tick 消费先例——load_key 单槽协议：B 先装、A 经 TabActivate 懒装载轮转）",
     "probe": "①② 双臂全绿=裸名绑定 native + 消费形成立"
   },
-  "toolchain": "auto 0.1.0+v0.4.2-2175-g5c558778f"
+  "probe_load_track": {
+    "never_mounted_load": "fail(err/-1)",
+    "unmount_survival": "alive",
+    "hidden_widget_load": "ok",
+    "reload_idempotent": "ok",
+    "set_text_drive": "ok",
+    "badge_form": "probe-hidden-widget 轨形成立——badge 随件落"
+  },
+  "toolchain": "auto 0.1.0+v0.4.2-2183-gc8f86ef92"
 }
 
-RESULT: 8 passed, 0 failed
+RESULT: 13 passed, 0 failed

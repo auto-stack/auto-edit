@@ -5,19 +5,43 @@
 // 消费形）→ envelope 原串入 state（MCP autoui_state 读回断言面）。
 // 快照正路径（净形 hunks/rows:[]/计数）+ 缺键 err 形（「编辑器不存在」）
 // 双断言。split 臂（/api/df /api/dd /api/ds）由 probe_bufdiff.py 直驱。
+//
+// PLAN-017 T-00 扩段（probe 装载轨形勘定——016 §10 Q-1(b) 遗项）：
+//   P1 probe-never  —— 未实化键 code_editor_load_file（非 UI 键装载——
+//                      badge 轨形候选的否定面勘定；err 形/-1=轨形不成立）
+//   P2 unmount      —— tab-1 widget 经 if 门卸载后 ds 快照存活勘定
+//                      （diff 视图开态编辑器卸载面——保存钩子/live 面
+//                      的 registry 语义前提）
+//   P3 probe-a      —— 隐藏 widget（h-0 实化键）装载轨形+重装载幂等
+//                      （badge 轨形成立面勘定：隐藏 probe 编辑器键）
+//   P4 set_text     —— 内容驱动面（code_editor_set_text→ds 计数变化
+//                      ——live 预览链的模拟驱动形）
 
-use back.api: ds
+use back.api: ds, env_str
 
 store BufProbeStore {
     model {
         var snap_out str = ""
         var snap_miss str = ""
+        var snap_never str = ""
+        var snap_unmount str = ""
+        var snap_hidden str = ""
+        var snap_reload str = ""
+        var snap_live str = ""
+        var load_ret int = -99
         var ka str = "tab-1"
         var kb str = "tab-2"
         var runs int = 0
+        var hide1 bool = false
+        var fx str = ""
     }
-    msg { BufDiff, BufDiffMissing }
+    msg { EnvLoad, BufDiff, BufDiffMissing, ProbeNever, ProbeHide1,
+          ProbeUnmount, ProbeHidden, ProbeReload, ProbeLive }
     on {
+        .EnvLoad -> {
+            .fx = env_str("AUTO_PROBE_FILE")
+            .hide1 = env_str("AUTO_PROBE_HIDE") == "1"
+        }
         // 正路径：双编辑器快照对打（净形 envelope 原串）。
         .BufDiff -> {
             .snap_out = ds(.ka, .kb)
@@ -28,22 +52,69 @@ store BufProbeStore {
             .snap_miss = ds("tab-nope", .kb)
             .runs = .runs + 1
         }
+        // P1: 未实化键装载（badge 轨形否定面）——load 返回值+快照 err 形。
+        .ProbeNever -> {
+            .load_ret = code_editor_load_file("probe-never", .fx)
+            .snap_never = ds("probe-never", .kb)
+            .runs = .runs + 1
+        }
+        // P2 前置：if 门翻真——视图重建卸载 tab-1 widget。
+        .ProbeHide1 -> {
+            .hide1 = true
+            .runs = .runs + 1
+        }
+        // P2: 卸载后快照（registry 存活勘定——存活=envelope 正路径）。
+        .ProbeUnmount -> {
+            .snap_unmount = ds(.ka, .kb)
+            .runs = .runs + 1
+        }
+        // P3: 隐藏 widget（h-0 实化键 probe-a）装载轨形（badge 轨形成立面）。
+        .ProbeHidden -> {
+            .load_ret = code_editor_load_file("probe-a", .fx)
+            .snap_hidden = ds("probe-a", .kb)
+            .runs = .runs + 1
+        }
+        // P3b: 重装载幂等（probe 键生命周期——badge 刷新位复用形）。
+        .ProbeReload -> {
+            .load_ret = code_editor_load_file("probe-a", .fx)
+            .snap_reload = ds("probe-a", .kb)
+            .runs = .runs + 1
+        }
+        // P4: set_text 内容驱动→快照计数变化（live 预览模拟驱动形）。
+        .ProbeLive -> {
+            code_editor_set_text(.kb, "alpha\nbeta\nOMEGA\ngamma\n")
+            .snap_live = ds(.ka, .kb)
+            .runs = .runs + 1
+        }
     }
 }
 
 widget App {
-    msg { BufDiff, BufDiffMissing }
+    msg { EnvLoad, BufDiff, BufDiffMissing, ProbeNever, ProbeHide1,
+          ProbeUnmount, ProbeHidden, ProbeReload, ProbeLive }
     view {
         col (style: "h-full w-full p-2 gap-2") {
             row (style: "gap-1 shrink-0") {
                 button (text: "bufdiff", variant: "outline") { onclick: .BufDiff }
                 button (text: "bufmiss", variant: "outline") { onclick: .BufDiffMissing }
+                button (text: "probe-never", variant: "outline") { onclick: .ProbeNever }
+                button (text: "hide1", variant: "outline") { onclick: .ProbeHide1 }
+                button (text: "probe-unmount", variant: "outline") { onclick: .ProbeUnmount }
+                button (text: "probe-hidden", variant: "outline") { onclick: .ProbeHidden }
+                button (text: "probe-reload", variant: "outline") { onclick: .ProbeReload }
+                button (text: "probe-live", variant: "outline") { onclick: .ProbeLive }
             }
-            code_editor (key: "tab-1", style: "h-40 w-full") {
-                content: "alpha\nbeta\ngamma\n"
+            if !.store.hide1 {
+                code_editor (key: "tab-1", style: "h-40 w-full") {
+                    content: "alpha\nbeta\ngamma\n"
+                }
             }
             code_editor (key: "tab-2", style: "h-40 w-full") {
                 content: "alpha\ndelta\ngamma\n"
+            }
+            // P3 载体：隐藏 probe 编辑器（h-0 实化——badge 轨形勘定件）。
+            code_editor (key: "probe-a", style: "h-0 w-0 overflow-hidden") {
+                content: ""
             }
             text "out=${.store.snap_out}" {
                 style: "text-xs font-mono text-muted-foreground shrink-0"
@@ -51,10 +122,32 @@ widget App {
             text "miss=${.store.snap_miss}" {
                 style: "text-xs font-mono text-muted-foreground shrink-0"
             }
+            text "never=${.store.snap_never} ret=${.store.load_ret}" {
+                style: "text-xs font-mono text-muted-foreground shrink-0"
+            }
+            text "unmount=${.store.snap_unmount}" {
+                style: "text-xs font-mono text-muted-foreground shrink-0"
+            }
+            text "hidden=${.store.snap_hidden}" {
+                style: "text-xs font-mono text-muted-foreground shrink-0"
+            }
+            text "reload=${.store.snap_reload}" {
+                style: "text-xs font-mono text-muted-foreground shrink-0"
+            }
+            text "live=${.store.snap_live}" {
+                style: "text-xs font-mono text-muted-foreground shrink-0"
+            }
         }
     }
     on {
+        .Init -> { store.EnvLoad() }
         .BufDiff -> { store.BufDiff() }
         .BufDiffMissing -> { store.BufDiffMissing() }
+        .ProbeNever -> { store.ProbeNever() }
+        .ProbeHide1 -> { store.ProbeHide1() }
+        .ProbeUnmount -> { store.ProbeUnmount() }
+        .ProbeHidden -> { store.ProbeHidden() }
+        .ProbeReload -> { store.ProbeReload() }
+        .ProbeLive -> { store.ProbeLive() }
     }
 }

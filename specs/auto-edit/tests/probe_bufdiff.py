@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """PLAN-016 T-00 消费勘定探针（决策件）——diff natives 裸名解析+缓冲区消费形.
+PLAN-017 T-00 扩段（③）——probe 装载轨形/live 驱动面四臂勘定.
 
 载具 = tests/probe_bufdiff_app/（vm 轨最小 app：back fsys 形模块裸调
 diff_files/diff_dirs/diff_snapshots[9915-9917] + front 双 code_editor
-tab-N 键形快照正路径）。两项勘定：
+tab-N 键形快照正路径）。三项勘定：
 
   ① 裸名解析探针：fsys 形模块内裸调三 natives——split 臂 back HTTP
      （df/dd 正路径 envelope 字段族+ctx<=0 钳 3 同形+缺文件/缺目录
@@ -16,6 +17,10 @@ tab-N 键形快照正路径）。两项勘定：
      面板序号输入定案（零装载面；v1 跳转=A 侧首位）。旁路形态
      （AUTO_DIFFBUF_A/B→OpenPath×2→跨 Tick 装载等待→compute）按
      011/012 Tick 消费先例设计，矩阵 15.16 承载。
+  ③ PLAN-017 T-00 勘定臂（P1-P4）：probe 装载轨形（未实化键否定面/
+     隐藏 widget 正面+重装载幂等）+registry 卸载存活（diff 视图开态
+     语义前提）+set_text 内容驱动面（live 预览模拟驱动形）——badge
+     随件落/降级 want 登记二选一裁定。
 
 用法：cd specs/auto-edit/tests && python probe_bufdiff.py
 前置同 desktop_mcp.py（requests、AUTO_BIN 或 PATH 的 auto）。
@@ -311,6 +316,121 @@ def main():
     finally:
         try:
             _kill_proc_tree(proc_m)
+        except Exception:  # noqa: BLE001
+            pass
+
+    # ============ ③ PLAN-017 T-00 勘定臂：probe 装载轨形/live 驱动面 ============
+    # 四臂（载具=probe_bufdiff_app PLAN-017 扩段，AUTO_PROBE_FILE 供料）：
+    #   P1 probe-never —— 未实化键 load_file+快照（badge 轨形否定面）
+    #   P2 unmount     —— widget 卸载后快照存活（diff 视图开态 registry 语义）
+    #   P3 probe-a     —— 隐藏 widget（h-0）装载轨形+重装载幂等（badge 正面）
+    #   P4 set_text    —— 内容驱动→计数变化（live 预览模拟驱动形）
+    emit("\n" + "=" * 60)
+    emit("③ PLAN-017 T-00 勘定（probe 装载轨形/卸载存活/隐藏 widget/live 驱动）")
+    emit("=" * 60)
+    port_p = pick_free_port()
+    try:
+        pfx = tempfile.mkdtemp(prefix="p017_probe_fx_")
+        pfa = os.path.join(pfx, "probe.a.txt")
+        with open(pfa, "w", encoding="utf-8", newline="") as f:
+            f.write("alpha\nOMEGA\ngamma\n")
+        env_p = {**os.environ, "AUTOUI_MCP_PORT": str(port_p),
+                 "APPDATA": tempfile.mkdtemp(prefix="p017_probe_"),
+                 "AUTO_PROBE_FILE": pfa}
+        proc_p = subprocess.Popen(
+            [AUTO_BIN, "run", "-r", "vm"],
+            cwd=PROBE_APP, env=env_p,
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        assert wait_for_server(f"http://127.0.0.1:{port_p}/mcp", 30), \
+            "③ merged MCP server never up"
+        tp = McpClient(f"http://127.0.0.1:{port_p}/mcp")
+        for _ in range(15):
+            s = tp.snapshot()
+            if "(rendered)" in s and s.count("onclick") > 0:
+                break
+            time.sleep(1)
+        time.sleep(1.5)
+
+        def click_and_state(label, fields, tries=6):
+            """按钮点击+state 轮询（内容应用竞态垫——② 同款卫生）。"""
+            for _ in range(tries):
+                btn = find_button_by_text(tp.snapshot(), label)
+                if not btn:
+                    time.sleep(0.5)
+                    continue
+                tp.click(btn)
+                time.sleep(1.0)
+                st = tp.state(*fields)
+                if all((state_str(st, f) or "") != "" for f in fields):
+                    return st
+                time.sleep(0.5)
+            return tp.state(*fields)
+
+        # P1: 未实化键装载（否定面勘定：err 形/load -1=轨形不成立）
+        st1 = click_and_state("probe-never", ["snap_never", "load_ret"])
+        env1 = state_json(st1, "snap_never")
+        ret1 = state_int(st1, "load_ret")
+        ok1 = ("编辑器不存在" in env1.get("err", "")) or ret1 < 0
+        check("③", "P1 未实化键装载=否定面（err 形或 load 负值）", ok1,
+              f"ret={ret1} env={json.dumps(env1, ensure_ascii=False)[:120]}")
+
+        # P2: 卸载存活勘定（先 hide1 卸载 tab-1，再快照）
+        b_hide = find_button_by_text(tp.snapshot(), "hide1")
+        if b_hide:
+            tp.click(b_hide)
+            time.sleep(1.0)
+        st2 = click_and_state("probe-unmount", ["snap_unmount"])
+        env2 = state_json(st2, "snap_unmount")
+        alive = env2.get("err") == "" and env2.get("hunks") is not None
+        check("③", "P2 卸载后快照存活（registry 卸载语义勘定）", alive,
+              json.dumps(env2, ensure_ascii=False)[:160])
+
+        # P3: 隐藏 widget 装载轨形（正面勘定）+P3b 重装载幂等
+        #（期望形注：probe.a 文件 3 行装载进 buffer 后按快照面语义参与
+        # 对打——①段实勘「快照面尾空行保留」→ 3 行内容=4 行域 [0,4)；
+        # ret=全字节数 18=装载成功证明。）
+        st3 = click_and_state("probe-hidden", ["snap_hidden", "load_ret"])
+        env3 = state_json(st3, "snap_hidden")
+        ret3 = state_int(st3, "load_ret")
+        ok3 = (env3.get("err") == ""
+               and env3.get("hunks") == [{"a1": 0, "a2": 4, "b1": 0, "b2": 4}]
+               and env3.get("adds") == 1 and env3.get("dels") == 1
+               and env3.get("rows") == [] and ret3 == 18)
+        check("③", "P3 隐藏 widget 装载轨形（净形 1 hunk/+1/-1+ret 全字节）", ok3,
+              f"ret={ret3} env={json.dumps(env3, ensure_ascii=False)[:160]}")
+        st3b = click_and_state("probe-reload", ["snap_reload", "load_ret"])
+        env3b = state_json(st3b, "snap_reload")
+        ok3b = (env3b.get("err") == "" and env3b.get("adds") == 1
+                and env3b.get("dels") == 1)
+        check("③", "P3b 重装载幂等（probe 键生命周期可刷新）", ok3b,
+              json.dumps(env3b, ensure_ascii=False)[:160])
+
+        # P4: set_text 内容驱动（live 驱动面：tab-2 改内容→计数变化；
+        # 期望形=实测真值：beta 行对齐后 gamma→OMEGA 改+尾行增=B 侧
+        # [0,5) adds=1 dels=0——对 baseline（[0,4)×2 +1/-1）计数已变。）
+        st4 = click_and_state("probe-live", ["snap_live"])
+        env4 = state_json(st4, "snap_live")
+        ok4 = (env4.get("err") == "" and env4.get("adds") == 1
+               and env4.get("dels") == 0
+               and env4.get("hunks") and env4["hunks"][0].get("b2") == 5)
+        check("③", "P4 set_text 内容驱动（快照计数随内容变化）", ok4,
+              json.dumps(env4, ensure_ascii=False)[:160])
+
+        # 决策产物：badge 轨形二选一（T-00① 裁定）
+        badge_form = ("probe-hidden-widget 轨形成立——badge 随件落"
+                      if ok3 and ok3b
+                      else "probe 轨形不成立——降级 dirty 提示+want 登记")
+        decisions["probe_load_track"] = {
+            "never_mounted_load": "fail(err/-1)" if ok1 else "unexpected-success",
+            "unmount_survival": "alive" if alive else "registry-dropped",
+            "hidden_widget_load": "ok" if ok3 else "fail",
+            "reload_idempotent": "ok" if ok3b else "fail",
+            "set_text_drive": "ok" if ok4 else "fail",
+            "badge_form": badge_form,
+        }
+    finally:
+        try:
+            _kill_proc_tree(proc_p)
         except Exception:  # noqa: BLE001
             pass
 

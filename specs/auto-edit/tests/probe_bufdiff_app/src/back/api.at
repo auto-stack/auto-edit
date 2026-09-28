@@ -1,8 +1,17 @@
 // back/api.at — PLAN-016 T-00 探针 back 契约（产品 api.at 同形最小面：
 // 三个 #[api] GET 端点 → fsys 转发。split 臂 HTTP 面=probe_bufdiff.py
 // Phase S 直接驱动；merged 臂由 front use back.api 直调）。
+// PLAN-017 T-00：env_str 端点加入（探针供料路径/env 门读取——产品
+// api.at 同形转发 fsys.env_lookup）。
 
 use fsys
+
+/// 环境变量读（未设 = ""；AUTO_PROBE_FILE 探针供料路径通道）
+/// GET /api/env_str?name=..
+#[api(method = "GET", path = "/api/env_str")]
+pub fn env_str(name str) str {
+    return fsys.env_lookup(name)
+}
 
 /// 文件 diff envelope（native 9915 裸名转发）
 /// GET /api/df?path_a=..&path_b=..&ctx=..
