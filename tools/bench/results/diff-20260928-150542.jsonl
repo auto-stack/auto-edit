@@ -1,0 +1,6 @@
+{"type": "diff_timing", "toolchain": {"auto_path": "D:\\autostack\\auto-lang\\target\\debug\\auto.EXE", "auto_version": "auto 0.1.0+v0.4.2-2183-gc8f86ef92", "auto_mtime": "2026-09-28T15:02", "psutil": true, "project": "D:\\autostack\\.wt\\edit-016\\auto-edit\\specs\\auto-edit", "os": "win32"}}
+{"id": "diff_small", "kind": "baseline", "wall_ms_runs": [22.4, 4.6, 4.5], "wall_ms_median": 4.6, "adds": 28, "dels": 28, "degraded": false, "err": "", "verdict": "baseline"}
+{"id": "diff_mid", "kind": "baseline", "wall_ms_runs": [33.1, 21.3, 17.8], "wall_ms_median": 21.3, "adds": 68, "dels": 68, "degraded": false, "err": "", "verdict": "baseline"}
+{"id": "diff_over_size", "kind": "pass-latency", "wall_ms_runs": [25.9, 32.1, 16.3], "wall_ms_median": 25.9, "adds": 0, "dels": 0, "degraded": false, "err": "", "verdict": "pass-latency (引擎时代：门退场——超限文件正常出结果 err=''；PLAN-704 修复轮改造)"}
+{"id": "diff_over_lines", "kind": "pass-latency", "wall_ms_runs": [315.8, 348.7, 290.0], "wall_ms_median": 315.8, "adds": 1, "dels": 10500, "degraded": false, "err": "", "verdict": "pass-latency (引擎时代：门退场——超限文件正常出结果 err=''；PLAN-704 修复轮改造)"}
+{"id": "diff_100mb", "kind": "budget", "wall_ms_runs": [15216.9, 14860.2, 14221.8], "wall_ms_median": 14860.2, "adds": 18079, "dels": 18079, "degraded": false, "err": "", "verdict": "budget FAIL (≤2000ms 战略 §2.1 预算行——全链墙钟)"}
