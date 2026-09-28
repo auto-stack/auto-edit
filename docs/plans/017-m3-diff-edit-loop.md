@@ -1,6 +1,6 @@
 ---
 plan_id: PLAN-017
-status: executing
+status: reviewed
 feature_name: M3-05 差异侧编辑回路——差异侧直接编辑 v1（diff 视图双侧跳转编辑+保存自动重比+净形即时预览+B 侧跳转补全）
 author: [agent]
 created_at: 2026-09-28T17:31:25+08:00
@@ -357,6 +357,38 @@ specs.json reviews 段 P017-1 投影（015/016 外科插入先例）。
   合并退化（改 scattered 非平凡锚）。矩阵首轮 T14.2/14.3 未渲染
   疑负载 flake——复跑全绿未入失败集。| blockers: 无 | next:
   review`。status=execution_done。
+- 2026-09-28 复审 handoff：`stage: review | PLAN-017 | plan_revision 1
+  | outcome: **pass** | reviewed_commit: worktree plan-017-dev@
+  9d1d1127fa4a6073c74d5bb80eed546c78d0730f（worktree 清洁态实证）|
+  base_commit: master main@f20882e（主检出簿记 dc1bfa2/93070b2 在先
+  ——docs/plans 簿记件，与 worktree 分支无交叠）|
+  dependency_revisions: 工具链 auto v0.4.2-2183-gc8f86ef92（含
+  PLAN-704 b2f8761e0 祖先链核验）；组依赖 .wt/edit-017/auto-lang
+  @c8f86ef92 钉版 detached | spec_inputs: diff-view.md 差异侧编辑
+  回路节（SD-01）+00-overview M3 第五件注记（SD-02）+README
+  PLAN-017 口径（SD-03）+供料档 §6.3（SD-04）——均随 9d1d112 在档 |
+  acceptance_results: AC-01..07 全 pass（①15.20a-d PASS[run2 证据
+  入库]+smoke P17②③ 新鲜复现@9d1d112 ②15.21/15.22 PASS+big 直写
+  臂同钩=单挂点两 call site grep 锚（2 处）+big 变体 blocked 承接
+  [计划 §6 T-05 预授权——T17 已知族零新增红] ③15.23 PASS+smoke
+  P17④ 新鲜 ④15.24 PASS+15.17（期望同步后）/15.18 回归绿 ⑤产品
+  back（src/back/）`git diff f20882e..9d1d112` **0 文件**（新鲜断言；
+  probe 载具 back=测试基建非产品件——SD-03 注记一致）⑥SD-01..03
+  锚核验+README 数字=证据真值（137/≥125/133-4↔run2 RESULT 行逐字）
+  ⑦供料档 §6.3 want 锚 2 处在档；P017-1 账本投影=merge 期项
+  [复审期不改账本纪律——016 先例同款]）| findings: 无阻塞项。
+  双轨口径核验：split HTTP 面=back 零 diff+probe ① split 臂（df/dd/
+  ds HTTP）新鲜 13/0=「端点零新增——既有面回归」达成；矩阵 T15 子
+  组 merged 轨主验（016 同款惯例——T15 无 split 挂具）。复审限制
+  声明=实现会话自审（独立会话不可用）——判定自工件重构：被审提交
+  上新鲜复现（probe_bufdiff **13/0**+smoke **ALL PASS**@9d1d112）+
+  已提交证据文件（matrix_out_p017_run2.txt RESULT 行=133/4 与 README
+  逐字对上）+78110cf→9d1d112 仅 docs/证据（git diff --stat 证明
+  ——run2 矩阵证据对被审提交代码行为绑定的理由在案）+静态锚核验，
+  非执行期汇报采信。| evidence: tests/probe_bufdiff_report.{txt,
+  json}（9d1d112 提交面）+tests/matrix_out_p017_run{1,2}.txt+
+  tests/vue_build_p017.log（均入仓可溯——worktree 移除后仍可溯于
+  落地后主检出路径）| next: merge`。status=reviewed。
 
 ## 10. 待澄清事项
 
