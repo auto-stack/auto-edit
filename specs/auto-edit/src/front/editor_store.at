@@ -315,6 +315,29 @@ store EditorStore {
         var diff_buf_has_err bool = false
         var diff_buf_bypass_done bool = false
         var diff_buf_pend bool = false
+        // PLAN-017 T-01: 差异侧编辑跳转链（G-1）。diff_edit_pend=装载
+        // 等待旗标（load_key 单槽协议——016 旁路 B→A 轮转先例 handler
+        // 化：新开/未装载 tab 的装载递延，DiffEditTick 等 tabs[].loaded
+        // 真后落光标）；diff_edit_key/line=待落目标（key=tab 键、line=
+        // 0 基 set_cursor 直用）；diff_edit_return=跳转来源旗标——跳转
+        // 即藏 diff 视图（编辑器区还原=装载/编辑 widget 实化前提；
+        // vmode/rows 态原样保留），保存钩子经本旗标重开视图自动重比
+        // （「保存自动重比零手动」闭环）；用户 DiffClose 显式清除
+        // （主动放弃=不重开）。
+        var diff_edit_pend bool = false
+        var diff_edit_key str = ""
+        var diff_edit_line int = 0
+        var diff_edit_return bool = false
+        // PLAN-017 T-03: 净形 live 预览（G-3）。diff_buf_live_pend=
+        // 内容变更防抖旗标（内容变更位单行标记，Tick 单拍合并消费——
+        // 面板 DiffBufRun/文件视图 badge 刷新二域）；diff_badge=文件
+        // diff 视图保存前预览串（probe 隐藏键装载轨形——T-00③ 勘定
+        // 成立：h-0 实化键 load_file 全字节+快照净形+重装载幂等）；
+        // diff_badge_gate=A 侧体积门（DiffCompute 尾一次探测，>50MB
+        // 大文件模式阈值跳过 probe 装载——装载成本界）。
+        var diff_buf_live_pend bool = false
+        var diff_badge str = ""
+        var diff_badge_gate bool = false
     }
 
     msg {
@@ -402,13 +425,34 @@ store EditorStore {
         // item——面板开+默认序号=active 与次 tab）；DiffBufAInput/
         // DiffBufBInput=双序号输入行（handler 首参形）；DiffBufCompute=
         // 序号解析→键解析收口；DiffBufRun=端点消费内部收口（净形+
-        // rows 预变换入 store）；DiffBufJump=hunk 行点击跳转（切 tab+
-        // set_cursor A 侧首位）；DiffBufClose=清态（tab 零扰动）；
-        // DiffBufBypassTick=env 旁路 Tick 消费臂（AUTO_DIFFBUF_A/B——
-        // 双路径装载成 tab→跨 Tick 装载等待→DiffBufRun）。
+        // rows 预变换入 store）；DiffBufJumpA/DiffBufJumpB=hunk 行跳转
+        // 双臂（PLAN-017 T-04 B 侧补全——A 臂=016 既有语义，B 臂对称
+        // kb 激活+b1 锚；原单臂 DiffBufJump 退役）；DiffBufClose=清态
+        // （tab 零扰动）；DiffBufBypassTick=env 旁路 Tick 消费臂
+        // （AUTO_DIFFBUF_A/B——双路径装载成 tab→跨 Tick 装载等待→
+        // DiffBufRun）。
         DiffBufOpen, DiffBufAInput(str), DiffBufBInput(str),
-        DiffBufCompute, DiffBufRun, DiffBufJump(int), DiffBufClose,
-        DiffBufBypassTick,
+        DiffBufCompute, DiffBufRun, DiffBufJumpA(int), DiffBufJumpB(int),
+        DiffBufClose, DiffBufBypassTick,
+        // PLAN-017 T-01: 差异侧编辑跳转链（G-1）。DiffEditJumpA/B=
+        // 工具栏双侧钮（静态钮零字面量实参边界——DirFilter* 拆分先例，
+        // 双 msg 薄委托同核）；DiffRowEditA/B(diff)=hunk 变更行内联钮
+        // （裸循环索引载荷+唯一 label——FifResultClick/15.17 先例；并排
+        // 态读 diff_rows、内联态 DiffIRowEditA/B 读 irows 投影）；
+        // DiffEditJumpAt/DiffEditOpen=内部核（side 分派+tab 查径/装载
+        // 等待公共收口——handler 互调两参先例 WriteFidelity 同款）；
+        // DiffEditTick=装载落点轮转（Tick 尾——RunPendingLoad 之后）。
+        DiffEditJumpA, DiffEditJumpB, DiffRowEditA(int), DiffRowEditB(int),
+        DiffIRowEditA(int), DiffIRowEditB(int),
+        DiffEditJumpAt(str), DiffEditOpen(str, int), DiffEditTick,
+        // PLAN-017 T-02: 保存感知钩子（WriteFidelity 两臂保存完成位
+        // 调用——三域分派见 handler 注）。
+        DiffSaveHook(int),
+        // PLAN-017 T-03: 净形 live 预览（G-3）。DiffBufLiveMark=内容
+        // 变更位单行标记（键入/替换/行尾转换/剪切粘贴族同源）；
+        // DiffBufLiveTick=Tick 单拍合并消费（防抖）；DiffBadgeRefresh=
+        // 文件视图保存前预览 badge 重算（probe 隐藏键轨形——T-00③）。
+        DiffBufLiveMark(int), DiffBufLiveTick, DiffBadgeRefresh,
     }
 
     on {
@@ -614,6 +658,9 @@ store EditorStore {
         .SrcChanged(i) -> {
             .edits = .edits + 1
             .tabs[i].dirty = true
+            // PLAN-017 T-03: 净形 live 预览标记（键入主源——Tick 单拍
+            // 合并消费）。
+            store.DiffBufLiveMark(i)
             .console = console_lines()
         }
         .CursorMoved(i) -> {
@@ -699,6 +746,7 @@ store EditorStore {
             if .tab_count > 0 {
                 code_editor_cut(.active_key)
                 .tabs[.tab].dirty = true
+                store.DiffBufLiveMark(.tab)
             }
             console_log("ctx cut")
             .console = console_lines()
@@ -1113,6 +1161,8 @@ store EditorStore {
                         .tabs[.tab].eol = target
                         .tabs[.tab].dirty = true
                         store.SyncByteMeta()
+                        // PLAN-017 T-03: live 预览标记（全文重写面同源）。
+                        store.DiffBufLiveMark(.tab)
                         console_log("eol: converted to " + target)
                     }
                 }
@@ -1319,6 +1369,9 @@ store EditorStore {
                                 code_editor_delta(.active_key)
                                 .tabs[.tab].dirty = true
                                 store.SyncCursor(.active_key)
+                                // PLAN-017 T-03: live 预览标记（MCP 可驱动
+                                // 内容变更面——矩阵 15.23 驱动源）。
+                                store.DiffBufLiveMark(.tab)
                                 console_log("replace all: " + count.str() + " 处")
                             } else {
                                 console_log("replace all: 0 matches")
@@ -1563,6 +1616,22 @@ store EditorStore {
                         if .diff_vmode_inline {
                             store.DiffBuildIrows()
                         }
+                        // PLAN-017 T-03: badge 体积门一次探测（A 侧
+                        // >50MB=大文件模式阈值跳过 probe 装载成本；-1=
+                        // 缺席/IO 亦跳过）+badge 重算（probe 隐藏键轨形
+                        // ——T-00③ 勘定成立随件落）。
+                        .diff_badge_gate = true
+                        try {
+                            let vs = json.to_value(file_size(.diff_a))
+                            var fsz int = vs.size ?? -1
+                            if fsz >= 0 {
+                                if fsz < 52428800 {
+                                    .diff_badge_gate = false
+                                }
+                            }
+                        } catch {
+                        }
+                        store.DiffBadgeRefresh()
                         var msg0 str = "diff: +" + .diff_adds.str() + "/-" + .diff_dels.str() + " hunks=" + nh.str()
                         if .diff_rows_truncated {
                             msg0 = msg0 + "（渲染截断 600）"
@@ -1601,6 +1670,11 @@ store EditorStore {
             .diff_dels = 0
             .diff_degraded = false
             .diff_err = ""
+            // PLAN-017 T-01/T-03: 编辑跳转来源旗标清除（用户显式关闭=
+            // 放弃保存重开面）+badge/probe 态清零。
+            .diff_edit_return = false
+            .diff_badge = ""
+            .diff_badge_gate = false
             // PLAN-015: 视图模式复位 side+投影清空（会话内跨 compute
             // 保持、close 复位）。
             .diff_vmode = "side"
@@ -2162,14 +2236,16 @@ store EditorStore {
                 }
                 .diff_buf_ib = (nx + 1).str()
             } else {
-                .diff_buf_ia = ""
-                .diff_buf_ib = ""
-                console_log("bufdiff: 需双开 tab（当前 " + .tab_count.str() + "）")
-            }
-            .diff_buf_open = true
-            console_log("bufdiff: 双 tab 序号输入后点比较")
-            .console = console_lines()
+            .diff_buf_ia = ""
+            .diff_buf_ib = ""
+            console_log("bufdiff: 需双开 tab（当前 " + .tab_count.str() + "）")
         }
+        .diff_buf_open = true
+        // PLAN-017 T-03: 开面板清残留防抖旗标（开态 DiffBufRun 即新鲜）。
+        .diff_buf_live_pend = false
+        console_log("bufdiff: 双 tab 序号输入后点比较")
+        .console = console_lines()
+    }
 
         .DiffBufAInput(v) -> {
             .diff_buf_ia = v
@@ -2228,7 +2304,10 @@ store EditorStore {
                             var a2 int = h.a2 ?? 0
                             var b1 int = h.b1 ?? 0
                             var b2 int = h.b2 ?? 0
-                            rows.push({label: "L" + (a1 + 1).str() + "–" + a2.str() + " ↔ R" + (b1 + 1).str() + "–" + b2.str()})
+                            // PLAN-017 T-04: 双钮 label 预变换（「→A L…」
+                            // 「→B R…」嵌区间——find 唯一性矩阵锚；
+                            // label=016 全区间串保留[快照/调试面]）。
+                            rows.push({label: "L" + (a1 + 1).str() + "–" + a2.str() + " ↔ R" + (b1 + 1).str() + "–" + b2.str(), d_a: "→A L" + (a1 + 1).str() + "–" + a2.str(), d_b: "→B R" + (b1 + 1).str() + "–" + b2.str()})
                             nh = nh + 1
                         }
                         .diff_buf_rows = rows
@@ -2250,11 +2329,12 @@ store EditorStore {
             .console = console_lines()
         }
 
-        // ---- PLAN-016 T-04: hunk 行跳转。切 ka 对应 tab + 光标落 A 侧
-        // 首位（hunk a1 为 0 基=set_cursor 线参数直用——014 先例 1 基
-        // →0 基换算的存储位形态）；v1 跳转=A 侧左锚（净形行双侧区间
-        // 并呈，B 侧跳转=后续件）。tab 缺失零动作守卫。
-        .DiffBufJump(idx) -> {
+        // ---- PLAN-017 T-04: hunk 行跳转双臂（G-4——016 尾注「B 侧跳转
+        // =后续件」清偿）。A 臂=016 既有语义（切 ka tab+光标落 a1 首位
+        // ——0 基 set_cursor 直用）；B 臂对称（kb 激活+b1 锚——0 基换算
+        // 同款）。净形行双钮（「→A L…」「→B R…」label 嵌区间——find
+        // 唯一性矩阵锚，T-00③ 定案）。tab 缺失零动作守卫（016 同款）。
+        .DiffBufJumpA(idx) -> {
             if idx >= 0 {
                 if .diff_buf_count > idx {
                     let hk = .diff_buf_hunks[idx]
@@ -2278,6 +2358,30 @@ store EditorStore {
             }
             .console = console_lines()
         }
+        .DiffBufJumpB(idx) -> {
+            if idx >= 0 {
+                if .diff_buf_count > idx {
+                    let hk = .diff_buf_hunks[idx]
+                    var b1 int = hk.b1 ?? 0
+                    var found int = -1
+                    var ii int = 0
+                    while ii < .tabs.len() {
+                        if .tabs[ii].key == .diff_buf_kb {
+                            found = ii
+                        }
+                        ii = ii + 1
+                    }
+                    if found >= 0 {
+                        store.TabActivate(found)
+                        code_editor_set_cursor(.diff_buf_kb, b1, 0)
+                        console_log("bufdiff: 跳转 B 侧行 " + (b1 + 1).str())
+                    } else {
+                        console_log("bufdiff: 跳转 tab 缺失（" + .diff_buf_kb + "）")
+                    }
+                }
+            }
+            .console = console_lines()
+        }
 
         // ---- PLAN-016 T-04: 关闭清态（tab 零扰动——面板条件复原，
         // tabs/dirty/光标全部不动；键/序号/净形一并清零）。
@@ -2290,6 +2394,8 @@ store EditorStore {
             .diff_buf_dels = 0
             .diff_buf_err = ""
             .diff_buf_has_err = false
+            // PLAN-017 T-03: 关面板清防抖残留（Tick 消费位守卫双保险）。
+            .diff_buf_live_pend = false
             console_log("bufdiff: closed")
             .console = console_lines()
         }
@@ -2363,6 +2469,299 @@ store EditorStore {
                 }
             }
             .console = console_lines()
+        }
+
+        // ---- PLAN-017 T-01: 差异侧编辑跳转链（G-1）。工具栏双侧钮薄
+        // 入口（静态钮零字面量实参边界——DirFilter* 拆分先例，双 msg
+        // 同核分派；下钻态同权——diff_a/diff_b 即下钻对）。
+        .DiffEditJumpA -> {
+            store.DiffEditJumpAt("a")
+            .console = console_lines()
+        }
+        .DiffEditJumpB -> {
+            store.DiffEditJumpAt("b")
+            .console = console_lines()
+        }
+        // 当前 hunk 首行锚（a1/b1——envelope 0 基=set_cursor 同域直读）。
+        .DiffEditJumpAt(side) -> {
+            if .diff_open {
+                if .diff_hunk_count > 0 {
+                    if .diff_hunk_idx >= 0 {
+                        let hk = .diff_hunks[.diff_hunk_idx]
+                        var line0 int = hk.a1 ?? 0
+                        var path str = .diff_a
+                        if side == "b" {
+                            line0 = hk.b1 ?? 0
+                            path = .diff_b
+                        }
+                        store.DiffEditOpen(path, line0)
+                    }
+                }
+            }
+            .console = console_lines()
+        }
+        // 行级动作（hunk 变更行内联钮——裸循环索引载荷+label 嵌行号
+        // 唯一性矩阵锚，FifResultClick/15.17 先例；行归属侧判定：del/
+        // pair 行→A 锚 lo、add 行→B 锚 ro；1 基行号→0 基换算 -1；ctx
+        // 行零钮=T-00② 定案变更行域）。
+        .DiffRowEditA(vi) -> {
+            if vi >= 0 {
+                if .diff_rows_count > vi {
+                    var r = .diff_rows[vi]
+                    var lov int = r.lo ?? 0
+                    if lov > 0 {
+                        store.DiffEditOpen(.diff_a, lov - 1)
+                    }
+                }
+            }
+            .console = console_lines()
+        }
+        .DiffRowEditB(vi) -> {
+            if vi >= 0 {
+                if .diff_rows_count > vi {
+                    var r = .diff_rows[vi]
+                    var rov int = r.ro ?? 0
+                    if rov > 0 {
+                        store.DiffEditOpen(.diff_b, rov - 1)
+                    }
+                }
+            }
+            .console = console_lines()
+        }
+        // 内联态行级动作（irows 投影同构——ix_del 行 lo 锚/ix_add 行
+        // ro 锚；投影记录携带原行号，0 基换算同款）。
+        .DiffIRowEditA(vi) -> {
+            if vi >= 0 {
+                if .diff_irows_count > vi {
+                    var r = .diff_irows[vi]
+                    var lov int = r.lo ?? 0
+                    if lov > 0 {
+                        store.DiffEditOpen(.diff_a, lov - 1)
+                    }
+                }
+            }
+            .console = console_lines()
+        }
+        .DiffIRowEditB(vi) -> {
+            if vi >= 0 {
+                if .diff_irows_count > vi {
+                    var r = .diff_irows[vi]
+                    var rov int = r.ro ?? 0
+                    if rov > 0 {
+                        store.DiffEditOpen(.diff_b, rov - 1)
+                    }
+                }
+            }
+            .console = console_lines()
+        }
+        // 公共核：目标文件 tab 查径（path 精确匹配→TabActivate 激活，
+        // OpenPath 既有去重语义同源；未开→OpenPath 新建）+装载等待
+        // （pend 旗标+tabs[].loaded 双真门——load_key 单槽协议 016 旁
+        // 路轮转先例 handler 化，DiffEditTick 消费）+落点（set_cursor
+        // 0 基+console 记录）。跳转即藏 diff 视图（diff_open=false——
+        // 编辑器区还原=装载/编辑 widget 实化前提；rows/vmode/dirs 态
+        // 原样保留），diff_edit_return 旗标=保存钩子重开视图面；文件
+        // 缺失=零动作+旗标回退（绝不静默）。
+        .DiffEditOpen(path, line0) -> {
+            if path != "" {
+                var found int = -1
+                var i int = 0
+                while i < .tabs.len() {
+                    if .tabs[i].path == path {
+                        found = i
+                    }
+                    i = i + 1
+                }
+                .diff_edit_return = true
+                .diff_open = false
+                if found >= 0 {
+                    store.TabActivate(found)
+                    .diff_edit_key = .tabs[found].key
+                    if .tabs[found].loaded {
+                        .diff_edit_pend = false
+                        code_editor_set_cursor(.diff_edit_key, line0, 0)
+                        console_log("diff: 编辑跳转（" + path + " 行 " + (line0 + 1).str() + "）")
+                    } else {
+                        .diff_edit_pend = true
+                        .diff_edit_line = line0
+                        console_log("diff: 编辑跳转（装载中——" + path + "）")
+                    }
+                } else {
+                    if exists(path) {
+                        store.OpenPath(path)
+                        .diff_edit_key = .active_key
+                        .diff_edit_pend = true
+                        .diff_edit_line = line0
+                        console_log("diff: 编辑跳转（新开——" + path + "）")
+                    } else {
+                        .diff_edit_return = false
+                        console_log("diff: 编辑跳转失败（文件缺失——" + path + "）")
+                    }
+                }
+            }
+            .console = console_lines()
+        }
+        // 装载等待消费（Tick 尾——RunPendingLoad 之后：装载完成与落点
+        // 同拍收口）。tab 中途关闭=清 pend 记录（绝不悬挂）。
+        .DiffEditTick -> {
+            if .diff_edit_pend {
+                var idx int = -1
+                var i int = 0
+                while i < .tabs.len() {
+                    if .tabs[i].key == .diff_edit_key {
+                        idx = i
+                    }
+                    i = i + 1
+                }
+                if idx < 0 {
+                    .diff_edit_pend = false
+                    console_log("diff: 编辑跳转目标丢失（" + .diff_edit_key + "）")
+                } else {
+                    if .tabs[idx].loaded {
+                        code_editor_set_cursor(.diff_edit_key, .diff_edit_line, 0)
+                        .diff_edit_pend = false
+                        console_log("diff: 编辑跳转落点（行 " + (.diff_edit_line + 1).str() + "——" + .tabs[idx].path + "）")
+                    }
+                }
+                .console = console_lines()
+            }
+        }
+
+        // ---- PLAN-017 T-02: 保存感知钩子（G-2）——WriteFidelity 两臂
+        // 保存完成位（dirty=false 后、console 记录前）单一挂钩点，三域
+        // 分派：①文件 diff（path ∈ {diff_a, diff_b} 精确匹配）→
+        // DiffCompute（envelope 原地刷新/vmode 保持/导航位既有复位语义
+        // ——015 生命周期不变式）+下钻态 DirDiffRefresh 双刷新（012 同
+        // 步动作协议复用；DirDiffCompute 成功臂翻回目录面板的既有语义
+        // 由三行旗标复原覆盖=下钻视图保持，失败臂让位归位语义）；视图
+        // 隐藏态（跳转来源 diff_edit_return）→重比+视图自动复原（保存
+        // 自动重比零手动闭环）；②缓冲区面板（键 ∈ {ka, kb}）→
+        // DiffBufRun；③无命中=零动作零 console（矩阵断言面：无关保存
+        // console 增量无重比行）。保存失败臂不进本钩（WriteFidelity
+        // 既有错误面不动）。
+        .DiffSaveHook(i) -> {
+            var hit bool = false
+            if .tabs[i].path == .diff_a {
+                hit = true
+            }
+            if .tabs[i].path == .diff_b {
+                hit = true
+            }
+            if hit {
+                if .diff_open {
+                    store.DiffCompute()
+                    console_log("diff: 已重比（保存触发）")
+                    if .dir_from_dirs {
+                        store.DirDiffRefresh()
+                        if .diff_err == "" {
+                            .dir_mode = false
+                            .diff_mode = "file"
+                            .dir_from_dirs = true
+                            console_log("diff: 目录面板已同步刷新（下钻保持）")
+                        }
+                    }
+                } else {
+                    if .diff_edit_return {
+                        store.DiffCompute()
+                        .diff_edit_return = false
+                        console_log("diff: 已重比（保存触发——视图复原）")
+                    }
+                }
+            }
+            if .diff_buf_open {
+                if .tabs[i].key == .diff_buf_ka {
+                    hit = true
+                    store.DiffBufRun()
+                    console_log("bufdiff: 已重比（保存触发）")
+                }
+                if .tabs[i].key == .diff_buf_kb {
+                    hit = true
+                    store.DiffBufRun()
+                    console_log("bufdiff: 已重比（保存触发）")
+                }
+            }
+            if hit {
+                store.DiffBadgeRefresh()
+            }
+        }
+
+        // ---- PLAN-017 T-03: 净形 live 预览标记（G-3）。内容变更位单
+        // 行标记（SrcChanged=键入主源；ReplaceAll/EolConvert/剪切粘贴
+        // 族=MCP 可驱动面同源——P4 set_text 驱动面同域）；双域感知：
+        // 缓冲区面板键匹配+文件 diff path 匹配（badge live 刷新——
+        // diff 视图开态的注册表级内容变更面）。
+        .DiffBufLiveMark(i) -> {
+            if .diff_buf_open {
+                if .tabs[i].key == .diff_buf_ka {
+                    .diff_buf_live_pend = true
+                }
+                if .tabs[i].key == .diff_buf_kb {
+                    .diff_buf_live_pend = true
+                }
+            }
+            if .diff_open {
+                if .tabs[i].path == .diff_a {
+                    .diff_buf_live_pend = true
+                }
+                if .tabs[i].path == .diff_b {
+                    .diff_buf_live_pend = true
+                }
+            }
+        }
+        // Tick 单拍合并消费（防抖——多次变更一拍一次刷新）。面板开→
+        // DiffBufRun（净形计数/hunk 列表 live）；文件 diff 开（非目录
+        // 面板）→badge 重算（保存前净形预览）。
+        .DiffBufLiveTick -> {
+            if .diff_buf_live_pend {
+                .diff_buf_live_pend = false
+                if .diff_buf_open {
+                    store.DiffBufRun()
+                }
+                if .diff_open {
+                    if !.dir_mode {
+                        store.DiffBadgeRefresh()
+                    }
+                }
+            }
+        }
+        // 文件 diff 视图保存前预览 badge（probe 隐藏键装载轨形——
+        // T-00③ 勘定成立：h-0 实化键「diff-probe-a」load_file 磁盘 A
+        // 全字节+diff_snapshots vs B 侧 tab 缓冲净形）。装载协议②对齐
+        // 位先 set_text("")（last_external 对齐——content:"" 绑定推送
+        // no-op 防清场）再 load。B 侧未开 tab/不脏=磁盘 diff 与主视图
+        // 同形 badge 冗余→清空；big 门跳过（装载成本界）；A 侧体积门
+        // （diff_badge_gate）不过=零装载零 badge。
+        .DiffBadgeRefresh -> {
+            .diff_badge = ""
+            if .diff_open {
+                if !.dir_mode {
+                    var tb int = -1
+                    var i int = 0
+                    while i < .tabs.len() {
+                        if .tabs[i].path == .diff_b {
+                            tb = i
+                        }
+                        i = i + 1
+                    }
+                    if tb >= 0 {
+                        if .tabs[tb].dirty {
+                            if !.tabs[tb].big {
+                                if !.diff_badge_gate {
+                                    try {
+                                        code_editor_set_text("diff-probe-a", "")
+                                    } catch {
+                                    }
+                                    code_editor_load_file("diff-probe-a", .diff_a)
+                                    let v = json.to_value(diff_snapshots("diff-probe-a", .tabs[tb].key))
+                                    if v.err == "" {
+                                        .diff_badge = "预览 +" + (v.adds ?? 0).str() + "/-" + (v.dels ?? 0).str() + "（未保存）"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         // ---- PLAN-012 T-04: 条目主点击（G-4 下钻）。「改」→ 拼双 abs →
@@ -2612,6 +3011,9 @@ store EditorStore {
                         if code_editor_save(.tabs[i].key, .tabs[i].path) {
                             .tabs[i].dirty = false
                             .big_hint = ""
+                            // PLAN-017 T-02: 保存感知钩子（两臂同位——big
+                            // 直写臂同钩；保存失败臂不进=零动作）。
+                            store.DiffSaveHook(i)
                             console_log("saved (direct): " + .tabs[i].path)
                         } else {
                             .big_hint = "大文件：直写保存失败"
@@ -2632,6 +3034,8 @@ store EditorStore {
                         }
                         write_text(.tabs[i].path, out)
                         .tabs[i].dirty = false
+                        // PLAN-017 T-02: 保存感知钩子（normal 臂同位）。
+                        store.DiffSaveHook(i)
                         console_log("saved: " + .tabs[i].path)
                     }
                 }
@@ -2664,6 +3068,7 @@ store EditorStore {
             if .tab_count > 0 {
                 code_editor_cut(.active_key)
                 .tabs[.tab].dirty = true
+                store.DiffBufLiveMark(.tab)
             }
             console_log("cut")
             .console = console_lines()
@@ -2679,6 +3084,7 @@ store EditorStore {
             if .tab_count > 0 {
                 code_editor_paste(.active_key)
                 .tabs[.tab].dirty = true
+                store.DiffBufLiveMark(.tab)
             }
             console_log("paste")
             .console = console_lines()

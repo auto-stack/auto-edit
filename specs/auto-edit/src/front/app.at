@@ -518,9 +518,17 @@ widget App {
                             container (style: "flex-1 w-full") {
                                 scroll-pane (style: "h-full w-full") {
                                     col (style: "gap-0 p-0 w-full") {
+                                        // PLAN-017 T-04: 净形行双钮（「→A L…」
+                                        // A 臂 016 既有语义[ka 激活+a1 锚]；
+                                        // 「→B R…」B 臂新增[kb 激活+b1 锚]——
+                                        // label 嵌区间唯一性）。
                                         for hi, h in .store.diff_buf_rows {
-                                            button (text: h.label, variant: "text") { onclick: .DiffBufJump(hi)
-                                                style: "h-6 flex-1 min-w-0 justify-start text-left text-[12px] font-mono text-amber-300 shrink-0" }
+                                            row (style: "h-6 w-full gap-1 shrink-0") {
+                                                button (text: h.d_a, variant: "text") { onclick: .DiffBufJumpA(hi)
+                                                    style: "h-6 px-1 text-[12px] font-mono text-amber-300 shrink-0" }
+                                                button (text: h.d_b, variant: "text") { onclick: .DiffBufJumpB(hi)
+                                                    style: "h-6 px-1 text-[12px] font-mono text-emerald-300 shrink-0" }
+                                            }
                                         }
                                     }
                                 }
@@ -548,6 +556,12 @@ widget App {
                                 text "${.store.diff_title_a} ↔ ${.store.diff_title_b}" { style: "text-[11px] text-muted-foreground shrink-0" }
                                 text "+${.store.diff_adds} −${.store.diff_dels}" { style: "text-[11px] text-emerald-400 shrink-0" }
                                 text "hunk ${.store.diff_hunk_pos}" { style: "text-[11px] text-muted-foreground shrink-0" }
+                                // PLAN-017 T-03: 保存前净形预览 badge（B 侧
+                                // 脏 tab 的 probe 快照串——store 预变换，
+                                // 非空才显示）。
+                                if .store.diff_badge != "" {
+                                    text .store.diff_badge { style: "text-[11px] text-amber-400 shrink-0" }
+                                }
                                 if .store.diff_rows_truncated {
                                     text "渲染截断（600）" { style: "text-[12px] text-amber-400 mr-1 shrink-0" }
                                 }
@@ -561,6 +575,13 @@ widget App {
                                     style: "h-6 px-2 text-[11px] text-muted-foreground" }
                                 button (text: "下一处", variant: "text") { onclick: .DiffNext
                                     style: "h-6 px-2 text-[11px] text-muted-foreground" }
+                                // PLAN-017 T-01: 双侧编辑跳转钮（当前 hunk
+                                // 首行锚——静态钮零字面量实参边界，双 msg
+                                // 薄委托；跳转即藏视图落编辑器）。
+                                button (text: "编辑 A 侧", variant: "text") { onclick: .DiffEditJumpA
+                                    style: "h-6 px-2 text-[11px] text-red-300" }
+                                button (text: "编辑 B 侧", variant: "text") { onclick: .DiffEditJumpB
+                                    style: "h-6 px-2 text-[11px] text-emerald-300" }
                                 // PLAN-015 T-02: 模式切换钮（bool 旗标双钮
                                 // 形态——旗标翻转钮文互斥，双态同 handler）。
                                 if .store.diff_vmode_inline {
@@ -577,6 +598,12 @@ widget App {
                                 }
                                 button (text: "×", variant: "text") { onclick: .DiffClose
                                     style: "h-6 w-6 px-0 py-0 ml-auto" }
+                            }
+                            // PLAN-017 T-03: badge probe 隐藏编辑器（h-0
+                            // 实化键「diff-probe-a」——T-00③ 轨形勘定件；
+                            // 随 diff 视图开/关生命周期建/弃，零布局面）。
+                            code_editor (key: "diff-probe-a", style: "h-0 w-0 overflow-hidden") {
+                                content: ""
                             }
                             container (style: "flex-1 w-full") {
                                 scroll-pane (controller: .store.diff_scroll, style: "h-full w-full") {
@@ -595,6 +622,11 @@ widget App {
                                             for ri, r in .store.diff_irows {
                                                 if r.ix_del {
                                                     row (style: "h-6 w-full gap-0 shrink-0") {
+                                                        // PLAN-017 T-01: 行级编辑
+                                                        // 跳转钮（内联态 irows 投影
+                                                        // 同构——del 行 A 锚）。
+                                                        button (text: "A:${r.d_lo}", variant: "text") { onclick: .DiffIRowEditA(ri)
+                                                            style: "h-6 px-1 text-[11px] font-mono text-red-300 shrink-0" }
                                                         text "${r.d_lo}" { style: "h-6 w-12 px-1 text-right text-xs font-mono text-red-300 shrink-0" }
                                                         text "${r.d_ro}" { style: "h-6 w-12 px-1 text-right text-xs font-mono text-muted-foreground shrink-0" }
                                                         text "${r.pre}" { style: "h-6 text-xs font-mono bg-red-100 shrink-0" }
@@ -606,6 +638,8 @@ widget App {
                                             for ri, r in .store.diff_irows {
                                                 if r.ix_add {
                                                     row (style: "h-6 w-full gap-0 shrink-0") {
+                                                        button (text: "B:${r.d_ro}", variant: "text") { onclick: .DiffIRowEditB(ri)
+                                                            style: "h-6 px-1 text-[11px] font-mono text-emerald-300 shrink-0" }
                                                         text "${r.d_lo}" { style: "h-6 w-12 px-1 text-right text-xs font-mono text-muted-foreground shrink-0" }
                                                         text "${r.d_ro}" { style: "h-6 w-12 px-1 text-right text-xs font-mono text-emerald-300 shrink-0" }
                                                         text "${r.pre}" { style: "h-6 text-xs font-mono bg-emerald-100 shrink-0" }
@@ -635,6 +669,15 @@ widget App {
                                         for ri, r in .store.diff_rows {
                                             if r.sx_pair {
                                                 row (style: "h-6 w-full gap-0 shrink-0") {
+                                                    // PLAN-017 T-01: 行级编辑
+                                                    // 跳转钮（label 嵌行号唯一
+                                                    // 性矩阵锚——归属侧判定，
+                                                    // pair 行双侧；裸循环索引
+                                                    // 载荷先例）。
+                                                    button (text: "A:${r.d_lo}", variant: "text") { onclick: .DiffRowEditA(ri)
+                                                        style: "h-6 px-1 text-[11px] font-mono text-red-300 shrink-0" }
+                                                    button (text: "B:${r.d_ro}", variant: "text") { onclick: .DiffRowEditB(ri)
+                                                        style: "h-6 px-1 text-[11px] font-mono text-emerald-300 shrink-0" }
                                                     text "${r.d_lo}" { style: "h-6 w-12 px-1 text-right text-xs font-mono text-red-300 bg-red-100 shrink-0" }
                                                     text "${r.d_ro}" { style: "h-6 w-12 px-1 text-right text-xs font-mono text-emerald-300 bg-emerald-100 shrink-0" }
                                                     text "${r.lpre}" { style: "h-6 text-xs font-mono bg-red-100 shrink-0" }
@@ -663,6 +706,8 @@ widget App {
                                         for ri, r in .store.diff_rows {
                                             if r.sx_del {
                                                 row (style: "h-6 w-full gap-0 shrink-0") {
+                                                    button (text: "A:${r.d_lo}", variant: "text") { onclick: .DiffRowEditA(ri)
+                                                        style: "h-6 px-1 text-[11px] font-mono text-red-300 shrink-0" }
                                                     text "${r.d_lo}" { style: "h-6 w-12 px-1 text-right text-xs font-mono text-red-300 bg-red-100 shrink-0" }
                                                     text "${r.d_ro}" { style: "h-6 w-12 px-1 text-right text-xs font-mono text-muted-foreground shrink-0" }
                                                     text "${r.lpre}" { style: "h-6 text-xs font-mono bg-red-100 shrink-0" }
@@ -677,6 +722,8 @@ widget App {
                                         for ri, r in .store.diff_rows {
                                             if r.sx_add {
                                                 row (style: "h-6 w-full gap-0 shrink-0") {
+                                                    button (text: "B:${r.d_ro}", variant: "text") { onclick: .DiffRowEditB(ri)
+                                                        style: "h-6 px-1 text-[11px] font-mono text-emerald-300 shrink-0" }
                                                     text "${r.d_lo}" { style: "h-6 w-12 px-1 text-right text-xs font-mono text-muted-foreground shrink-0" }
                                                     text "${r.d_ro}" { style: "h-6 w-12 px-1 text-right text-xs font-mono text-emerald-300 bg-emerald-100 shrink-0" }
                                                     text "" { style: "h-6 flex-1 text-xs font-mono shrink-0" }
@@ -856,6 +903,11 @@ widget App {
             // PLAN-016 T-04: 缓冲区比较 env 旁路（AUTO_DIFFBUF_A/B——
             // 双路径装载成 tab→跨 Tick 装载等待→DiffBufRun 预填）。
             store.DiffBufBypassTick()
+            // PLAN-017 T-01: 编辑跳转装载落点轮转（RunPendingLoad 之后
+            // ——装载完成与光标落点同拍收口）。
+            store.DiffEditTick()
+            // PLAN-017 T-03: 净形 live 预览防抖消费（单拍合并）。
+            store.DiffBufLiveTick()
         }
         .TabActivate(i) -> { store.TabActivate(i) }
         .SrcChanged(i) -> { store.SrcChanged(i) }
@@ -933,13 +985,21 @@ widget App {
         .DirConfirmGo -> { store.DirConfirmGo() }
         .DirConfirmCancel -> { store.DirConfirmCancel() }
         .DirBackToDirs -> { store.DirBackToDirs() }
-        // PLAN-016 T-04: 缓冲区比较链薄委托。
+        // PLAN-016 T-04 + PLAN-017 T-01/T-02/T-03/T-04: 缓冲区比较链+
+        // 差异侧编辑回路薄委托（DiffBufJump 单臂退役→双臂）。
         .DiffBufOpen -> { store.DiffBufOpen() }
         .DiffBufAInput(v) -> { store.DiffBufAInput(v) }
         .DiffBufBInput(v) -> { store.DiffBufBInput(v) }
         .DiffBufCompute -> { store.DiffBufCompute() }
-        .DiffBufJump(i) -> { store.DiffBufJump(i) }
+        .DiffBufJumpA(i) -> { store.DiffBufJumpA(i) }
+        .DiffBufJumpB(i) -> { store.DiffBufJumpB(i) }
         .DiffBufClose -> { store.DiffBufClose() }
+        .DiffEditJumpA -> { store.DiffEditJumpA() }
+        .DiffEditJumpB -> { store.DiffEditJumpB() }
+        .DiffRowEditA(i) -> { store.DiffRowEditA(i) }
+        .DiffRowEditB(i) -> { store.DiffRowEditB(i) }
+        .DiffIRowEditA(i) -> { store.DiffIRowEditA(i) }
+        .DiffIRowEditB(i) -> { store.DiffIRowEditB(i) }
         .ActCut -> { store.ActCut() }
         .ActCopy -> { store.ActCopy() }
         .ActPaste -> { store.ActPaste() }
