@@ -416,6 +416,30 @@ diff_buffers 第 15 端点节+计数勘正 14→15+diff 双端点实现体 nativ
   AC-08 双仓 porcelain 全净。复审限制声明=实现会话自审（独立会话
   不可用）——判定自工件与两次独立复现重构，非执行期汇报采信。|
   next: merge`。status=reviewed。
+- 2026-09-28 merge 收据（PLAN-016:r1，五检查点）：
+  - **prepared**：评审基线=reviewed pass @r1（reviewed_commit bce25f0，
+    复审记录在案含 F-1/F-2/F-3 闭合）；canonical Spec 六册已随交付
+    提交在档（SD-01..06@943f0db）；账本投影目标=.autoos/specs.json
+    reviews 段；跨仓关联=auto-lang PLAN-704 delivered（b2f8761e0）。
+  - **landed**：dev 分支 rebase 上 main（簿记位在先 c14b49f..cce1cfe
+    五提交）——旧→新映射 60c8c86→ddbecd6/2beb4f8→3440e3a/6fc1d45→
+    399c36c/2f439ff→c3ae23d/2d94928→8897427/bce25f0→943f0db/
+    b69bf35→a2720c1，`git range-diff` 7/7 全等（安全改写证明）；
+    main `git merge --ff-only plan-016-dev` → tip=a2720c1=delivery
+    commit（零合并提交）；落地后主检出冒烟 smoke_t234 ALL PASS
+    （known-good，含改形后双 cap 面）。
+  - **ledger_refreshed**：.autoos/specs.json reviews 段 P016-1 外科
+    尾插（15→16 项——roundtrip 字节等价先证[indent=2/ascii=false/
+    尾换行]；回读断言前 15 项零扰动+他五段零扰动）；commit a2720c1。
+  - **archived**：本行所在提交——git mv 至 docs/plans/archived/ +
+    status: archived + completion_kind: delivered。
+  - **cleaned**：待回填（guard+worktree×2/branch/组目录移除）。
+  - **部署观察项（landing ≠ deployment）**：三项生产面消费件均当前
+    ——①debug 工具链二进制 v0.4.2-2183-gc8f86ef92（修复轮重建，含
+    PLAN-704）；②release 二进制同版（修复轮 bench 判定构建）；
+    ③vue 生成束（gen/front/vue/dist）=首轮 build 产物+修复轮 .at
+    源零变化（git diff 2beb4f8..HEAD src/ 空实证）——三者无陈旧面，
+    无需重建动作。
 
 ## 10. 待澄清事项
 
