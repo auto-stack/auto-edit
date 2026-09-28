@@ -433,7 +433,12 @@ diff_buffers 第 15 端点节+计数勘正 14→15+diff 双端点实现体 nativ
     尾换行]；回读断言前 15 项零扰动+他五段零扰动）；commit a2720c1。
   - **archived**：本行所在提交——git mv 至 docs/plans/archived/ +
     status: archived + completion_kind: delivered。
-  - **cleaned**：待回填（guard+worktree×2/branch/组目录移除）。
+  - **cleaned**：git 侧全净实证——wt-guard clean ✓×2（edit-016/
+    auto-edit 与组依赖 edit-016/auto-lang 双双零 reparse point；
+    junction 晶格首轮清理后修复轮未重建）；worktree 注销 ✓×2（各属
+    主仓注销；双仓 worktree list 零 edit-016 条目）/branch
+    plan-016-dev 删 ✓（was a2720c1）/组目录 .wt/edit-016 rmdir ✓。
+    五检查点全落，completion_kind=delivered。
   - **部署观察项（landing ≠ deployment）**：三项生产面消费件均当前
     ——①debug 工具链二进制 v0.4.2-2183-gc8f86ef92（修复轮重建，含
     PLAN-704）；②release 二进制同版（修复轮 bench 判定构建）；
