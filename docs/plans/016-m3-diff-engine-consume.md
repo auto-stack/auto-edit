@@ -389,6 +389,33 @@ diff_buffers 第 15 端点节+计数勘正 14→15+diff 双端点实现体 nativ
   余量；writeback 沉降窗卫生学+分解归因在档）+budgets/README/SD-01/
   SD-05/供料档 §6.2 清偿注记回填。| blockers: 无 | next: review`。
   status=execution_done。
+- 2026-09-28 复审 handoff：`stage: review | PLAN-016 | plan_revision 1
+  | outcome: **pass** | reviewed_commit: worktree plan-016-dev@bce25f0
+  （修复轮 2d94928+复审 F-1/F-2/F-3 文档同步）| base_commit: master
+  main@f74542d（簿记 c14b49f/3bcf48e/c25d4d1/4c7a629 在先）|
+  dependency_revisions: 工具链 auto v0.4.2-2183-gc8f86ef92（含
+  PLAN-704 b2f8761e0）；组依赖 .wt/edit-016/auto-lang@5c558778f
+  （blueprint 解析面）| spec_inputs: diff-view.md 引擎时代与缓冲区
+  比较节（SD-01 清偿态）+back-api.md 第 15 端点节（SD-02）+
+  00-overview M3 第四件注记（SD-03，F-1 清偿态）+README PLAN-016/
+  修复轮口径（SD-04，F-2 终数回填）+战略 §2.1/补注十二（SD-05）+
+  供料档 §6 含清偿完成（SD-06）| acceptance_results: AC-01..08 全
+  pass（①native 直调+门符号零残留+五形 zero-drift ②15.9/15.10 绿+
+  err 文案 grep 零残留 ③T16 12/12+巨桶 ④15.16-15.19+第 15 端点
+  ⑤1906/1971ms ≤2s+JSONL×5 入库+回填 ⑥重定漂移行在档+终数 ⑦SD
+  六册+同步 ⑧双仓净+缺陷 upstream 登记实录）| findings: F-1（P2）
+  overview blocked 时代文本未随修复轮更新→已修（bce25f0）；F-2（P2）
+  README 修复轮段缺终数占位→已修（bce25f0）；F-3（P3）bench 判定
+  JSONL 未入库→已修（bce25f0，results 入仓惯例）——三项文档/证据
+  面复审轮内闭合，行为面零改动 | evidence: 复审独立复现（reviewed
+  commit 态）：probe_diff.py **64/0**+全矩阵 **125 passed / 4
+  failed**（T13.6 flake+T17.2/17.3/17.8 已知族，T17.4 本轮翻绿=轮换
+  成员；计 125/0 ≥117 达标）；静态锚=「等待内核引擎」/门内部符号
+  grep 零残留+api 计数 15+diff_buffers 锚 12；vue 臂双 exit 0 证据
+  复用（.at 源自构建后零变化——git diff 2beb4f8..HEAD src/ 空）；
+  AC-08 双仓 porcelain 全净。复审限制声明=实现会话自审（独立会话
+  不可用）——判定自工件与两次独立复现重构，非执行期汇报采信。|
+  next: merge`。status=reviewed。
 
 ## 10. 待澄清事项
 
