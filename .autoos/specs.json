@@ -240,6 +240,18 @@
           ],
           "superseded_by": null,
           "content": "- 实现：store DiffBuildIrows/DiffToggleView（irows 投影派生自 capped diff_rows——pair 行两行展开 del 先 add 后/三段按源侧继承/行号双列缺席空串）+DiffScrollToHunk vmode 条件扫+视图三独立 for 循环+diff.view-mode action/薄委托；双 cap 独立截断（信封 600+内联 600 并列注记，拦腰形合法）。\n- 复审两轮：首轮 needs_fix（F-1 P15 断言族未进矩阵主跑器 desktop_mcp.py——smoke_t234 系开发期烟测件不入计数，README 139/131 数字失据/F-2 内联态重算生命周期零覆盖/F-3 零重比证明弱）；修复 762fbf6：T15 组 15.11-15.15 五子组（投影对照/零重比 console 标记计数/内联导航/双 cap big_reorder/下钻重算），再复审 pass 六 AC 全绿。\n- 矩阵：完成态 125（120+5）/判绿 ≥117/0；修复轮 120 passed/5 failed=已知 blocked 集逐项全中零新失败（T13.6+T17.2/3/4/8——上游 UI 卡死回归 v2156 仍未复绿）。检查器教训在档：console=滚动尾窗，前缀差量不可靠须标记计数法。\n- 边界：envelope/back 零改动（011 替换缝红利首兑现——内核引擎落地仍仅换 fsys.diff_files_json 实现体）；M3 本仓面引擎前清单清零，剩余主面（histogram/100MB ≤2s/差异侧编辑重比）全门控上游供料包（仍无 auto-lang 承接立项）。\n- 环境：工具链 v2156-g1d597e3f4（PATH 旧二进制 86b56884b 并行分支缺 701 native 坑二度应验）；组依赖=.wt/edit-015/auto-lang@3e3e1e297 钉版 worktree（014 Q-1b 惯例）。"
+        },
+        {
+          "id": "P016-1",
+          "section": "reviews",
+          "status": "stable",
+          "title": "PLAN-016 — M3-04 diff 引擎消费件收据（reviewed pass @ r1 bce25f0：替换缝兑现 9915/9917+上限门四门退场+缓冲区比较 v1 第 15 端点+修复轮尾巴清偿[PLAN-704 D-1/D-2]+bench diff_100mb 1906/1971ms ≤2s 达成）",
+          "file": "docs/plans/archived/016-m3-diff-engine-consume.md",
+          "related": [
+            "PLAN-016"
+          ],
+          "superseded_by": null,
+          "content": "- 实现：fsys.diff_files_json/diff_dirs_json=native 9915/9917 裸名直调纯转发（1150→350 行，三门 1MB/10k/DP-200+桶积 700k 护栏+降级面+「等待内核引擎」文案族整体退役——degraded 恒 false，>10k 行/>1MB 正常出结果）；缓冲区比较 v1=第 15 端点 diff_buffers→9916 registry 直读净形 rows:[]+面板双 tab 序号输入+跳转 set_cursor（A 侧首位）+AUTO_DIFFBUF 旁路（load_key 单槽 B→A 固定序轮转——序错置死锁首轮烟测实勘）。\n- 执行期勘定上游双缺陷（D-1 rows 面流位错配/D-2 anchor 非单调——供料档 §6.2 源码行级根因+最小复现，消费侧不修）：缺陷期绊线纪律执行实录（golden 不 golden 化缺陷输出，probe ①′/⑦ 文档态绊线+evidence-p016-recon.json 漂移逐字段在档）。\n- 修复轮（auto-lang PLAN-704 b2f8761e0 清偿）：工具链 v2183-gc8f86ef92→绊线红相八 FAIL 实证→golden 重定（五简单形原样恢复=引擎≡过渡参考全等；big_reorder 按引擎重定 310/310+rows 632——15.14 双 cap 改生成式 700 全换 fixture[big_reorder 引擎时代形 del/add 块分离零 pair 展开前提失效]）→probe 64/0+全矩阵 125/4 已知族全中零新失败（D 族清零，判绿恢复 014/015 原口径 ≥117/0）。\n- bench diff_100mb ≤2s 达成（战略 §2.1 预算行）：release 全链 1906/1971ms——踩线余量 ~5%（引擎计算 ~380ms 在册，链路主耗=2×100MB 读+47MB envelope 全量 rows 投影+49MB 双层 JSON；rows 惰性投影=观察件 want）；计时卫生=fixture writeback 沉降窗 5s（无窗 2034/2054 vs 静置分解 1437=+600ms 失真实证）；over 档通过形+debug 14.9s 在档。\n- 环境：工具链 v2183-gc8f86ef92（PATH 旧二进制 v2156 早于 703 交付坑位三度应验）；组依赖 .wt/edit-016/auto-lang@5c558778f 钉版 detached。复审 F-1/F-2/F-3 文档面闭合（overview 清偿态/README 终数/JSONL 入库）。"
         }
       ],
       "status": "Empty",
