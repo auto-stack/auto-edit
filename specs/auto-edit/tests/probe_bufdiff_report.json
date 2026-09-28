@@ -34,7 +34,7 @@
       "item": "①",
       "name": "df 缺文件 err 形（文件不存在+空 hunks）",
       "ok": true,
-      "detail": "'文件不存在: C:\\\\Users\\\\zhaop\\\\AppData\\\\Local\\\\Temp\\\\p016_probe_fx_26ug_d0t\\\\nope.txt'"
+      "detail": "'文件不存在: C:\\\\Users\\\\zhaop\\\\AppData\\\\Local\\\\Temp\\\\p016_probe_fx_lg6zmrg_\\\\nope.txt'"
     },
     {
       "item": "①",
@@ -46,7 +46,7 @@
       "item": "①",
       "name": "dd 缺目录 err 形（目录不存在）",
       "ok": true,
-      "detail": "'目录不存在: C:\\\\Users\\\\zhaop\\\\AppData\\\\Local\\\\Temp\\\\p016_probe_fx_26ug_d0t\\\\nodir'"
+      "detail": "'目录不存在: C:\\\\Users\\\\zhaop\\\\AppData\\\\Local\\\\Temp\\\\p016_probe_fx_lg6zmrg_\\\\nodir'"
     },
     {
       "item": "①",
