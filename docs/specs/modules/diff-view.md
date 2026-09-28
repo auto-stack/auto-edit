@@ -371,3 +371,95 @@ DiffScrollToHunk 增 vmode 条件扫描源：inline 态扫 `diff_irows`
   （console+零动作）/关闭复原+tab 零扰动。**缺键端点 err 形由
   probe_bufdiff.py 承载**（矩阵 MCP 面不可达裸键——面板序号输入恒
   解析为现存 tab 键）。
+
+## 差异侧编辑回路（PLAN-017 SD-01，M3-05）
+
+> 来源：probe_bufdiff.py ③段（13/0——P1 未实化键否定面/P2 registry
+> 卸载存活/P3 隐藏 widget 装载轨形/P4 set_text 内容驱动面）+ 开发期
+> E2E 实证（跳转落点/保存重开/badge 生命周期/无关保存零扰动）。纯
+> front 件——back 零改动（api.at/fsys.at 零 diff）。战略 §2.3「差异
+> 侧直接编辑（编辑后即时重比）」的 **v1 形态=编辑回路闭环**；BC 同款
+> 「diff 视图内直接键入（in-place）」=上游混源 rows envelope 缺位，
+> 供料 want 登记（供料档 §6.3），不在本件。
+
+### 编辑跳转协议（G-1）
+
+- **入口**：diff 视图头部双侧钮「编辑 A 侧」/「编辑 B 侧」（静态钮
+  零字面量实参边界——DirFilter* 拆分先例，双 msg `DiffEditJumpA/B`
+  薄委托同核 `DiffEditJumpAt(side)`，目标=当前 hunk 首行 a1/b1）+
+  hunk 变更行内联钮（并排态 `DiffRowEditA/B`：pair 行双钮/del 行 A
+  钮/add 行 B 钮、ctx 行零钮=T-00 定案变更行域；内联态
+  `DiffIRowEditA/B` 投影同构；label 嵌行号 `A:{lo}`/`B:{ro}`——find
+  唯一性矩阵锚，1 基→0 基换算 -1）。下钻态（dir_from_dirs）同权。
+- **公共核（`DiffEditOpen(path, line0)`）**：目标 tab 查径（path 精确
+  匹配→TabActivate 激活[OpenPath 去重语义同源]；未开→OpenPath 新建）
+  →装载等待（`diff_edit_pend` 旗标+`tabs[].loaded` 双真门——load_key
+  单槽协议 016 旁路 B→A 轮转先例 handler 化，`DiffEditTick` 于
+  RunPendingLoad 之后同拍收口落光标 `set_cursor(key, line0, 0)`）；
+  tab 中途关闭=清 pend 记录（绝不悬挂）；文件缺失=零动作+旗标回退。
+- **跳转即藏视图**：`diff_open=false`（编辑器区还原=装载/编辑 widget
+  实化前提——diff 视图条件替换编辑区），rows/vmode/dirs 态原样保留；
+  `diff_edit_return` 旗标=保存钩子重开视图面（用户 DiffClose 显式
+  清除=放弃重开）。
+- **registry 实化边界（T-00③ 勘定）**：diff 视图开态覆盖编辑器区，
+  此间经 +/ActOpen 新开的 tab **不实化**（registry 无条目）——装载
+  悬置至视图隐藏；对未实化 tab 的 `diff_snapshots` 报缺键 err（badge
+  优雅空串）、「保存」链 `code_editor_text` 静默死亡（**011 起既有
+  隐患**，矩阵流规避+§10 登记）。registry 条目**卸载存活**（P2——
+  曾挂载的 tab 在 diff 视图开态仍可快照/读出）。
+
+### 保存自动重比钩子（G-2）
+
+- **单一挂钩点**：WriteFidelity 两臂（big 直写/normal write_text）
+  保存完成位（`dirty=false` 后、console 记录前）调 `DiffSaveHook(i)`
+  ——保存失败臂不进（既有错误面不动）。
+- **三域分派**：①文件 diff（`tabs[i].path ∈ {diff_a, diff_b}` 精确
+  匹配）→`DiffCompute`（envelope 原地刷新/vmode 保持[015 生命周期
+  不变式]/导航位既有复位语义）+下钻态 `DirDiffRefresh` 双刷新（012
+  同步动作协议复用；DirDiffCompute 成功臂翻回目录面板的既有语义由
+  旗标三行复原覆盖=下钻视图保持，失败臂让位归位语义）+视图隐藏态
+  （`diff_edit_return`）→重比+视图自动复原（「保存自动重比零手动」
+  闭环，console「diff: 已重比（保存触发[——视图复原]）」）；②缓冲区
+  面板（`tabs[i].key ∈ {ka, kb}`）→`DiffBufRun`（console「bufdiff:
+  已重比（保存触发）」）；③无命中=零动作零 console（矩阵断言面：
+  无关保存 console 增量无重比行）。
+- **big 直写臂同钩**（同一挂钩点）；大文件实例 UI 卡死回归 blocked
+  集（015/016 承接）未清偿——big 变体矩阵注记 blocked 承接，不新增
+  硬红。
+
+### 净形 live 预览与 badge（G-3）
+
+- **live 防抖**：内容变更位单行标记 `DiffBufLiveMark(i)`（SrcChanged
+  =键入主源；ReplaceAll/EolConvert/Cut/Paste 族=MCP 可驱动内容变更
+  面同源——P4 set_text 驱动面同域）→`diff_buf_live_pend` 旗标→
+  `DiffBufLiveTick` 单拍合并消费（面板开→DiffBufRun 净形刷新；文件
+  diff 开[非目录面板]→badge 重算）。
+- **badge（probe 隐藏键轨形——T-00③ 成立随件落）**：`diff-probe-a`
+  h-0 实化键随 diff 视图开/关生命周期建/弃；`DiffBadgeRefresh`：
+  装载协议②对齐位（set_text("") try）+`code_editor_load_file` 磁盘
+  A→`diff_snapshots` vs B 侧脏 tab 缓冲→`diff_badge` 预览串「预览
+  +N/-M（未保存）」（diff 视图头部 amber 显示）。门：B 侧未开 tab/
+  不脏=清空（磁盘 diff 与主视图同形冗余）；B 侧 big=跳过；A 侧体积
+  门 `diff_badge_gate`（DiffCompute 尾一次探测，≥50MB 大文件模式
+  阈值跳过 probe 装载成本）。保存后 B 清空=badge 消退（磁盘 diff 归
+  主视图）。
+
+### B 侧跳转补全（G-4）
+
+- `DiffBufJump` 单臂退役→`DiffBufJumpA/DiffBufJumpB` 双臂（A=016
+  既有语义 ka 激活+a1 锚；B 对称 kb 激活+b1 锚——0 基换算同款；tab
+  缺失零动作守卫）。净形行双钮「→A L{a1+1}–{a2}」「→B R{b1+1}–
+  {b2}」（d_a/d_b label 预变换——嵌区间唯一性；15.17 期望同步一处：
+  全区间单钮→→A 钮，语义不变）。
+
+### 矩阵断言口径（15.20-15.24）
+
+双侧跳转（A 新开/B 菜单重开后新开/行级锚/已开激活——落点读回=切走
+切回 SyncCursor 面）/保存自动重比（jump→cut→菜单重开 badge→ReplaceAll
+live badge→保存→视图自动重开+vmode 保持+计数变形+重比行+落盘）/
+无关保存零扰动（saved 行+console 增量无重比行+重开计数不变）/面板
+live 预览（ReplaceAll→防抖单拍净形保存前变化→保存钩子刷新一致）/
+B 侧跳转（→B kb 激活+b1 光标读回——label 解析行号真值）。**console
+镜像滞后卫生**：`.console` state 相对 handler 执行异步滞后（状态字段
+即时、console 行延后到齐——开发期实证）——console 断言一律
+`wait_console_line` 轮询式。

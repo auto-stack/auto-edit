@@ -379,6 +379,36 @@ fixture（big_reorder 引擎时代形=del/add 块分离换位[632 行、前 600 
 rows 惰性投影/体量治理=观察件 want（红线余量薄根因，登记于供料档
 §6.3）。
 
+PLAN-017 口径更新（2026-09-28，工具链=v0.4.2-2183-gc8f86ef92 现役
+[含 PLAN-704 b2f8761e0，祖先链核验——判据前核 `auto --version` 纪律
+延续]；组依赖=`.wt/edit-017/auto-lang`@c8f86ef92 钉版 detached
+worktree[014 Q-1b 惯例——pac `../../../` 组兄弟解析；上游 master 已
+漂 705 立项在飞，钉版=工具链构建点]）：矩阵扩 T15 组 **15.20–15.24
+差异侧编辑回路子组**（八检查：双侧跳转[A 新开/B 菜单重开新开/行级
+A 锚/已开激活——落点读回=切走切回 SyncCursor 面]/保存自动重比[badge
+live→保存→视图自动重开+vmode 保持+计数变形+重比行+落盘]/无关保存
+零扰动/面板 live 预览[ReplaceAll→防抖单拍保存前变化→钩子刷新一致]/
+B 侧跳转[→B kb 激活+b1 读回——label 解析行号真值]）——完成态
+**137**（129 + 8 新检查）。**判绿口径=≥125 passed / 0 failed**
+（016 修复轮恢复原集 ≥117 基线 + 8 新检查随升；已知 blocked 集不计：
+T12.6[menubar-sub MCP 失明]+T17.2/17.3/17.4/17.8[大文件实例 UI 硬
+卡死=上游回归]+轮换 flake 重跑条款[T13.6/T12 BOM 族]）。执行期谱
+（v2183-gc8f86ef92）：全矩阵单跑 **133 passed / 4 failed**——失败集
+=T13.6 flake+T17.2/17.3/17.8 已知族逐项全中**零新失败**（T17.4 本轮
+翻绿=016 在录轮换成员）；15.20–15.24 全绿、15.16–15.19/T16 组回归
+绿；已知集计零 **133/0 ≥125 达标**。**纯 front 件注记**：产品 back
+（src/back/api.at+fsys.at）零 diff（AC-05 路径断言）；probe 载具
+（tests/probe_bufdiff_app——测试基建非产品件）为 T-00 勘定扩 env
+端点最小面。决策探针 probe_bufdiff.py ③段 **13/0**（badge 轨形/
+registry 卸载存活/set_text 驱动面——不入矩阵计数）；smoke_t234 P17
+断言族 4 检查（开发期烟测不入矩阵计数——015 惯例）+launch APPDATA
+隔离补漏（真实用户会话恢复污染 tab 集=P17② 假红根因）。**console
+镜像滞后卫生**：`.console` state 相对 handler 执行异步滞后（开发期
+实证）——console 断言改 wait_console_line 轮询式。big 直写臂同钩
+（DiffSaveHook 单挂点两臂同位）；big 变体矩阵注记 blocked 承接
+（T17 卡死族未清偿，不新增硬红——AC-02 代码路径同位+钩子单挂点
+证据在档）。
+
 注：Plan 451 起 T10「热重载」走 DSL 源路径（reload 工具或 mtime 轮询重读
 app.at 重新提取 actions + generation bump → 视图重建），实测 50/0 全绿。
 OS 用户键位层（`%APPDATA%/auto/keymaps/auto-edit.at`）保持外部文件——那是

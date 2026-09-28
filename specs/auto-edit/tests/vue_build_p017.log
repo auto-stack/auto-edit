@@ -1,0 +1,232 @@
+---------------------------
+AutoNexus / Auto CLI
+---------------------------
+Loading AmConfig from Some("C:\\Users\\zhaop\\.auto\\auto-man\\am.at")...
+AmConfig: AmConfig {
+  name: default
+  index: {
+    boe: git@codeup.aliyun.com:soutek/boe/index.git
+    soutek: git@codeup.aliyun.com:soutek/auto-stack/auto-index.git
+    default: git@gitee.com:auto-stack/auto-index.git
+  }
+}
+
+
+Loaded port: windows_ninja
+port NAME: windows_ninja
+all index: {"boe": "git@codeup.aliyun.com:soutek/boe/index.git", "soutek": "git@codeup.aliyun.com:soutek/auto-stack/auto-index.git", "default": "git@gitee.com:auto-stack/auto-index.git"}
+used index: ["default"]
+15:23:20 [0m[34m[INFO] [0mloading index store from C:/Users/zhaop/.auto/auto-man/index/default
+setting port builder: windows_ninja ninja, at build
+15:23:20 [0m[34m[INFO] [0mAutoCache initialized for project: auto-edit
+  Frontend dev server port: 4041
+15:23:20 [0m[34m[INFO] [0mDownloading deps
+15:23:20 [0m[34m[INFO] [0mdownload done!
+15:23:20 [0m[34m[INFO] [0m--- pac: auto-edit ---
+
+╭──────────┬──────┬───────────────┬──────╮
+│[94m [39m[94mname[39m[94m    [39m[94m [39m│[94m [39m[94mkind[39m[94m [39m│[94m [39m[94mat[39m[94m           [39m[94m [39m│[94m [39m[94mdirs[39m[94m [39m│
+├──────────┼──────┼───────────────┼──────┤
+│ stylekit │ Dep  │ deps/stylekit │      │
+├──────────┼──────┼───────────────┼──────┤
+│ bps      │ Dep  │ deps/bps      │      │
+╰──────────┴──────┴───────────────┴──────╯
+15:23:20 [0m[34m[INFO] [0mLinking targets with dependencies
+15:23:20 [0m[34m[INFO] [0mScanning targets for srcs and incs, only major targets and their deps are scanned
+15:23:20 [0m[34m[INFO] [0m--- pac: auto-edit ---
+
+╭──────┬──────┬────┬──────╮
+│[94m [39m[94mname[39m[94m [39m│[94m [39m[94mkind[39m[94m [39m│[94m [39m[94mat[39m[94m [39m│[94m [39m[94mdirs[39m[94m [39m│
+╰──────┴──────┴────┴──────╯
+Generating Vue project (backend: vue, gen-only)
+15:23:20 [0m[34m[INFO] [0mDownloading deps
+15:23:20 [0m[34m[INFO] [0mdownload done!
+15:23:20 [0m[34m[INFO] [0m--- pac: auto-edit ---
+
+╭──────────┬──────┬───────────────┬──────╮
+│[94m [39m[94mname[39m[94m    [39m[94m [39m│[94m [39m[94mkind[39m[94m [39m│[94m [39m[94mat[39m[94m           [39m[94m [39m│[94m [39m[94mdirs[39m[94m [39m│
+├──────────┼──────┼───────────────┼──────┤
+│ stylekit │ Dep  │ deps/stylekit │      │
+├──────────┼──────┼───────────────┼──────┤
+│ bps      │ Dep  │ deps/bps      │      │
+╰──────────┴──────┴───────────────┴──────╯
+15:23:20 [0m[34m[INFO] [0mLinking targets with dependencies
+15:23:20 [0m[34m[INFO] [0mScanning targets for srcs and incs, only major targets and their deps are scanned
+  [R010 INFO] EditorStore
+    VM-only native `Process.exit` has no Vue/JS build — emitted as a throwing __vmOnly stub
+
+  [S001 INFO] DashboardOverview
+    prop `value` not declared on `<select>` (schema declares: placeholder, disabled)
+    Fix: 查 schema/aura.at 的 `select` 定义;确属新 prop 请更新 schema(SCHEMA_DRIFT_GENERATE_AT=1)
+  [S001 INFO] DashboardOverview
+    prop `lines` not declared on `<skeleton>` (schema declares: class)
+    Fix: 查 schema/aura.at 的 `skeleton` 定义;确属新 prop 请更新 schema(SCHEMA_DRIFT_GENERATE_AT=1)
+
+Warning: Failed to compile dep file D:\autostack\.wt\edit-017\auto-edit\specs\auto-edit\deps\bps\dashboard\overview\reference\with_charts.at: codegen validation failed (strict mode) for D:\autostack\.wt\edit-017\auto-edit\specs\auto-edit\deps\bps\dashboard\overview\reference\with_charts.at:
+  [S001 INFO] DashboardOverview
+    prop `value` not declared on `<select>` (schema declares: placeholder, disabled)
+    Fix: 查 schema/aura.at 的 `select` 定义;确属新 prop 请更新 schema(SCHEMA_DRIFT_GENERATE_AT=1)
+  [S001 INFO] DashboardOverview
+    prop `lines` not declared on `<skeleton>` (schema declares: class)
+    Fix: 查 schema/aura.at 的 `skeleton` 定义;确属新 prop 请更新 schema(SCHEMA_DRIFT_GENERATE_AT=1)
+  [S001 INFO] DashboardOverview
+    prop `lines` not declared on `<skeleton>` (schema declares: class)
+    Fix: 查 schema/aura.at 的 `skeleton` 定义;确属新 prop 请更新 schema(SCHEMA_DRIFT_GENERATE_AT=1)
+  [S001 INFO] DashboardOverview
+    prop `lines` not declared on `<skeleton>` (schema declares: class)
+    Fix: 查 schema/aura.at 的 `skeleton` 定义;确属新 prop 请更新 schema(SCHEMA_DRIFT_GENERATE_AT=1)
+  [S001 INFO] DashboardOverview
+    prop `lines` not declared on `<skeleton>` (schema declares: class)
+    Fix: 查 schema/aura.at 的 `skeleton` 定义;确属新 prop 请更新 schema(SCHEMA_DRIFT_GENERATE_AT=1)
+  [S003 WARNING] DashboardOverview
+    package load failed: package dir `D:\autostack\.wt\edit-017\auto-edit\specs\auto-edit\deps\bps\dashboard\overview\reference\components` not found: 系统找不到指定的文件。 (os error 2)
+
+  [S001 INFO] DataTableCrud
+    prop `open` not declared on `<dropdown-menu>` (schema declares: text, disabled, shortcut)
+    Fix: 查 schema/aura.at 的 `dropdown-menu` 定义;确属新 prop 请更新 schema(SCHEMA_DRIFT_GENERATE_AT=1)
+
+  [S001 INFO] DataTableCrudDialog
+    prop `open` not declared on `<dropdown-menu>` (schema declares: text, disabled, shortcut)
+    Fix: 查 schema/aura.at 的 `dropdown-menu` 定义;确属新 prop 请更新 schema(SCHEMA_DRIFT_GENERATE_AT=1)
+
+  [S001 INFO] MasterDetail
+    prop `lines` not declared on `<skeleton>` (schema declares: class)
+    Fix: 查 schema/aura.at 的 `skeleton` 定义;确属新 prop 请更新 schema(SCHEMA_DRIFT_GENERATE_AT=1)
+
+  [S001 INFO] NoteList
+    prop `label` not declared on `<button>` (schema declares: text, onclick, class, disabled, variant, size, icon)
+    Fix: 查 schema/aura.at 的 `button` 定义;确属新 prop 请更新 schema(SCHEMA_DRIFT_GENERATE_AT=1)
+
+  [S001 INFO] NoteEditor
+    prop `label` not declared on `<button>` (schema declares: text, onclick, class, disabled, variant, size, icon)
+    Fix: 查 schema/aura.at 的 `button` 定义;确属新 prop 请更新 schema(SCHEMA_DRIFT_GENERATE_AT=1)
+
+  [S001 INFO] LoginForm
+    prop `label` not declared on `<button>` (schema declares: text, onclick, class, disabled, variant, size, icon)
+    Fix: 查 schema/aura.at 的 `button` 定义;确属新 prop 请更新 schema(SCHEMA_DRIFT_GENERATE_AT=1)
+
+  [S001 INFO] LoginFormSso
+    prop `label` not declared on `<button>` (schema declares: text, onclick, class, disabled, variant, size, icon)
+    Fix: 查 schema/aura.at 的 `button` 定义;确属新 prop 请更新 schema(SCHEMA_DRIFT_GENERATE_AT=1)
+
+  [S001 INFO] SettingsScreen
+    prop `value` not declared on `<select>` (schema declares: placeholder, disabled)
+    Fix: 查 schema/aura.at 的 `select` 定义;确属新 prop 请更新 schema(SCHEMA_DRIFT_GENERATE_AT=1)
+
+Warning: Failed to compile dep file D:\autostack\.wt\edit-017\auto-edit\specs\auto-edit\deps\bps\navigation\filetree\tree_util.at: No widget or store declarations found in input file
+  [S001 INFO] SidebarNav
+    prop `label` not declared on `<button>` (schema declares: text, onclick, class, disabled, variant, size, icon)
+    Fix: 查 schema/aura.at 的 `button` 定义;确属新 prop 请更新 schema(SCHEMA_DRIFT_GENERATE_AT=1)
+
+  [S001 INFO] SidebarNav
+    prop `label` not declared on `<button>` (schema declares: text, onclick, class, disabled, variant, size, icon)
+    Fix: 查 schema/aura.at 的 `button` 定义;确属新 prop 请更新 schema(SCHEMA_DRIFT_GENERATE_AT=1)
+
+  [S001 INFO] SidebarShellCompact
+    prop `open` not declared on `<dropdown-menu>` (schema declares: text, disabled, shortcut)
+    Fix: 查 schema/aura.at 的 `dropdown-menu` 定义;确属新 prop 请更新 schema(SCHEMA_DRIFT_GENERATE_AT=1)
+  [S001 INFO] SidebarShellCompact
+    prop `title` not declared on `<button>` (schema declares: text, onclick, class, disabled, variant, size, icon)
+    Fix: 查 schema/aura.at 的 `button` 定义;确属新 prop 请更新 schema(SCHEMA_DRIFT_GENERATE_AT=1)
+
+  [S001 INFO] SidebarShell
+    prop `title` not declared on `<button>` (schema declares: text, onclick, class, disabled, variant, size, icon)
+    Fix: 查 schema/aura.at 的 `button` 定义;确属新 prop 请更新 schema(SCHEMA_DRIFT_GENERATE_AT=1)
+  [S001 INFO] SidebarShell
+    prop `open` not declared on `<dropdown-menu>` (schema declares: text, disabled, shortcut)
+    Fix: 查 schema/aura.at 的 `dropdown-menu` 定义;确属新 prop 请更新 schema(SCHEMA_DRIFT_GENERATE_AT=1)
+
+Warning: Failed to compile dep file D:\autostack\.wt\edit-017\auto-edit\specs\auto-edit\deps\stylekit\src\front\styles.at: No widget or store declarations found in input file
+
+▶ Generating Vue project...
+─────────────────────────────────
+  AURA Workspace → Vue + shadcn-vue
+─────────────────────────────────
+
+Output: D:\autostack\.wt\edit-017\auto-edit\specs\auto-edit\gen\front\vue
+Name: auto-edit
+shadcn-vue: input, pagination, card, tooltip, sheet, avatar, checkbox, button, alert, select, skeleton, alert-dialog, scroll-area, menubar, dropdown-menu, dialog, popover, sidebar, separator, badge, switch
+
+✓ Created directory structure
+  ✓ Bundled ui components: 148 copied, 0 already present
+  ✓ Generated TypeScript client: dist/src/lib/api.ts
+  ⚠ fsys.rs transpile failed (module skipped): Failed to transpile fsys.at: Rust Transpiler: unsupported statement: Try(Try { body: Body { stmts: [Store(Store { kind: Let, name: "content", ty: StrSlice, expr: Call(Call { name: Dot(Ident("File"), "read_text"), args: Args { args: [Pos(Ident("fpath"))] }, ret: Unknown, type_args: [], generic_args: [], pos: Some(Pos { line: 209, at: 51, pos: 9475, len: 1 }) }), attrs: [], is_pub: false }), Store(Store { kind: Let, name: "lines", ty: Unknown, expr: Call(Call { name: Dot(Ident("content"), "split"), args: Args { args: [Pos(Str("\n"))] }, ret: Unknown, type_args: [], generic_args: [], pos: Some(Pos { line: 210, at: 43, pos: 9519, len: 1 }) }), attrs: [], is_pub: false }), Store(Store { kind: Var, name: "lineno", ty: Int, expr: Int(0), attrs: [], is_pub: false }), For(For { iter: Named("ln"), range: Ident("lines"), body: Body { stmts: [Expr(Bina(Ident("lineno"), Asn, Bina(Ident("lineno"), Add, Int(1)))), If(If { branches: [Branch { cond: Bina(Ident("n"), Ge, Ident("maxn")), body: Body { stmts: [Expr(Bina(Ident("truncated"), Asn, Bool(true))), Break], has_new_line: true, source_lines: [215, 216] } }], else_: None }), If(If { branches: [Branch { cond: Call(Call { name: Dot(Ident("Regex"), "test"), args: Args { args: [Pos(Ident("ln")), Pos(Ident("re_case"))] }, ret: Unknown, type_args: [], generic_args: [], pos: Some(Pos { line: 218, at: 42, pos: 9771, len: 1 }) }), body: Body { stmts: [Store(Store { kind: Var, name: "preview", ty: StrSlice, expr: Ident("ln"), attrs: [], is_pub: false }), If(If { branches: [Branch { cond: Bina(Call(Call { name: Dot(Ident("preview"), "len"), args: Args { args: [] }, ret: Unknown, type_args: [], generic_args: [], pos: Some(Pos { line: 220, at: 36, pos: 9851, len: 1 }) }), Gt, Int(200)), body: Body { stmts: [Expr(Bina(Ident("preview"), Asn, Call(Call { name: Dot(Ident("preview"), "substr"), args: Args { args: [Pos(Int(0)), Pos(Int(200))] }, ret: Unknown, type_args: [], generic_args: [], pos: Some(Pos { line: 221, at: 56, pos: 9916, len: 1 }) })))], has_new_line: true, source_lines: [221] } }], else_: None }), Expr(Call(Call { name: Dot(Ident("items"), "push"), args: Args { args: [Pos(Object([Pair { key: NamedKey("file"), value: Ident("fpath") }, Pair { key: NamedKey("line"), value: Ident("lineno") }, Pair { key: NamedKey("preview"), value: Ident("preview") }]))] }, ret: Unknown, type_args: [], generic_args: [], pos: Some(Pos { line: 223, at: 77, pos: 10016, len: 1 }) })), Expr(Bina(Ident("n"), Asn, Bina(Ident("n"), Add, Int(1))))], has_new_line: true, source_lines: [219, 220, 223, 224] } }], else_: None })], has_new_line: true, source_lines: [213, 214, 218] }, new_line: true, init: None })], has_new_line: true, source_lines: [209, 210, 211, 212] }, catch_param: None, catch_body: Body { stmts: [], has_new_line: true, source_lines: [] }, finally_body: None, new_line: true })
+  ✓ Generated Rust server: auto-edit-back/
+  ✓ Store composable: D:\autostack\.wt\edit-017\auto-edit\specs\auto-edit\gen\front\vue\src\stores\useEditorStore.ts
+✓ Generated project files
+
+▶ Generating API client...
+  ✓ Generated TypeScript client: dist/src/lib/api.ts
+  ⚠ fsys.rs transpile failed (module skipped): Failed to transpile fsys.at: Rust Transpiler: unsupported statement: Try(Try { body: Body { stmts: [Store(Store { kind: Let, name: "content", ty: StrSlice, expr: Call(Call { name: Dot(Ident("File"), "read_text"), args: Args { args: [Pos(Ident("fpath"))] }, ret: Unknown, type_args: [], generic_args: [], pos: Some(Pos { line: 209, at: 51, pos: 9475, len: 1 }) }), attrs: [], is_pub: false }), Store(Store { kind: Let, name: "lines", ty: Unknown, expr: Call(Call { name: Dot(Ident("content"), "split"), args: Args { args: [Pos(Str("\n"))] }, ret: Unknown, type_args: [], generic_args: [], pos: Some(Pos { line: 210, at: 43, pos: 9519, len: 1 }) }), attrs: [], is_pub: false }), Store(Store { kind: Var, name: "lineno", ty: Int, expr: Int(0), attrs: [], is_pub: false }), For(For { iter: Named("ln"), range: Ident("lines"), body: Body { stmts: [Expr(Bina(Ident("lineno"), Asn, Bina(Ident("lineno"), Add, Int(1)))), If(If { branches: [Branch { cond: Bina(Ident("n"), Ge, Ident("maxn")), body: Body { stmts: [Expr(Bina(Ident("truncated"), Asn, Bool(true))), Break], has_new_line: true, source_lines: [215, 216] } }], else_: None }), If(If { branches: [Branch { cond: Call(Call { name: Dot(Ident("Regex"), "test"), args: Args { args: [Pos(Ident("ln")), Pos(Ident("re_case"))] }, ret: Unknown, type_args: [], generic_args: [], pos: Some(Pos { line: 218, at: 42, pos: 9771, len: 1 }) }), body: Body { stmts: [Store(Store { kind: Var, name: "preview", ty: StrSlice, expr: Ident("ln"), attrs: [], is_pub: false }), If(If { branches: [Branch { cond: Bina(Call(Call { name: Dot(Ident("preview"), "len"), args: Args { args: [] }, ret: Unknown, type_args: [], generic_args: [], pos: Some(Pos { line: 220, at: 36, pos: 9851, len: 1 }) }), Gt, Int(200)), body: Body { stmts: [Expr(Bina(Ident("preview"), Asn, Call(Call { name: Dot(Ident("preview"), "substr"), args: Args { args: [Pos(Int(0)), Pos(Int(200))] }, ret: Unknown, type_args: [], generic_args: [], pos: Some(Pos { line: 221, at: 56, pos: 9916, len: 1 }) })))], has_new_line: true, source_lines: [221] } }], else_: None }), Expr(Call(Call { name: Dot(Ident("items"), "push"), args: Args { args: [Pos(Object([Pair { key: NamedKey("file"), value: Ident("fpath") }, Pair { key: NamedKey("line"), value: Ident("lineno") }, Pair { key: NamedKey("preview"), value: Ident("preview") }]))] }, ret: Unknown, type_args: [], generic_args: [], pos: Some(Pos { line: 223, at: 77, pos: 10016, len: 1 }) })), Expr(Bina(Ident("n"), Asn, Bina(Ident("n"), Add, Int(1))))], has_new_line: true, source_lines: [219, 220, 223, 224] } }], else_: None })], has_new_line: true, source_lines: [213, 214, 218] }, new_line: true, init: None })], has_new_line: true, source_lines: [209, 210, 211, 212] }, catch_param: None, catch_body: Body { stmts: [], has_new_line: true, source_lines: [] }, finally_body: None, new_line: true })
+  ✓ Generated Rust server: auto-edit-back/
+✓ Generation complete (33 component(s)); npm steps skipped (--gen-only)
+Progress: resolved 1, reused 0, downloaded 0, added 0
+[WARN] deprecated lucide-vue-next@0.312.0: Package deprecated. Please use @lucide/vue instead.
+Progress: resolved 24, reused 22, downloaded 0, added 0
+Progress: resolved 28, reused 26, downloaded 0, added 0
+Progress: resolved 28, reused 28, downloaded 0, added 0
+Progress: resolved 29, reused 28, downloaded 0, added 0
+Progress: resolved 140, reused 114, downloaded 0, added 0
+Progress: resolved 223, reused 174, downloaded 2, added 0
+Progress: resolved 224, reused 175, downloaded 2, added 0
+Progress: resolved 231, reused 182, downloaded 2, added 0
+Packages: +185
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Progress: resolved 232, reused 183, downloaded 2, added 158
+Progress: resolved 232, reused 183, downloaded 2, added 183
+Progress: resolved 232, reused 183, downloaded 2, added 185, done
+
+dependencies:
++ @codemirror/commands 6.11.1
++ @codemirror/lang-javascript 6.2.5
++ @codemirror/lang-json 6.0.2
++ @codemirror/lang-markdown 6.5.2
++ @codemirror/lang-python 6.2.1
++ @codemirror/lang-rust 6.0.2
++ @codemirror/language 6.12.4
++ @codemirror/search 6.7.2
++ @codemirror/state 6.7.6
++ @codemirror/view 6.43.13
++ @vueuse/core 10.11.1 (15.0.0 is available)
++ class-variance-authority 0.7.1
++ clsx 2.1.1
++ codemirror 6.0.2
++ lucide-vue-next 0.312.0 (1.0.0 is available) deprecated
++ prismjs 1.30.0
++ reka-ui 2.10.5
++ tailwind-merge 2.6.1 (3.7.0 is available)
++ vue 3.5.35 (3.5.43 is available)
++ vue-codemirror 6.1.1
+
+devDependencies:
++ @types/prismjs 1.26.6
++ @vitejs/plugin-vue 5.2.4 (6.0.9 is available)
++ autoprefixer 10.6.1
++ postcss 8.5.28
++ tailwindcss 3.4.19 (4.3.3 is available)
++ tailwindcss-animate 1.0.7
++ typescript 5.9.3 (7.0.2 is available)
++ vite 5.4.21 (8.3.1 is available)
++ vue-tsc 2.2.12 (3.3.11 is available)
+
+Done in 11.3s using pnpm v11.6.0
+$ vue-tsc && vite build
+[36mvite v5.4.21 [32mbuilding for production...[36m[39m
+transforming...
+[32m✓[39m 2140 modules transformed.
+rendering chunks...
+computing gzip size...
+[2mdist/[22m[32mindex.html        [39m[1m[2m    0.83 kB[22m[1m[22m[2m │ gzip:   0.49 kB[22m
+[2mdist/[22m[35massets/index.css  [39m[1m[2m   46.21 kB[22m[1m[22m[2m │ gzip:   8.91 kB[22m
+[2mdist/[22m[36massets/index.js   [39m[1m[33m1,105.81 kB[39m[22m[2m │ gzip: 370.87 kB[22m
+[33m
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.[39m
+[32m✓ built in 4.69s[39m
+[regen-vue] $ D:\autostack\auto-lang\target\debug\auto.EXE build --gen-only -r vue
+[regen-vue] $ C:\Users\zhaop\AppData\Local\pnpm\pnpm.CMD install
+[regen-vue] $ C:\Users\zhaop\AppData\Local\pnpm\pnpm.CMD build
+[regen-vue] done
+EXIT=0
