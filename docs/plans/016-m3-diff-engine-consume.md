@@ -4,9 +4,9 @@ status: executing
 feature_name: M3-04 diff 引擎消费件——替换缝兑现（fsys 实现体换内核直调+上限门全套退场+diff_snapshots 缓冲区比较 v1+100MB bench 真跑）
 author: [agent]
 created_at: 2026-09-27T21:26:58+08:00
-updated_at: 2026-09-28T00:30:00+08:00
+updated_at: 2026-09-28T03:40:00+08:00
 plan_revision: 1
-current_step: 7
+current_step: 8
 total_steps: 8
 supersedes_spec_components: []
 new_spec_components:
@@ -328,9 +328,9 @@ diff_buffers 第 15 端点节+计数勘正 14→15+diff 双端点实现体 nativ
 | 0 | [x] T-00 消费勘定决策件（工具链门+裸名探针+缓冲区消费形） [✅ 已完成 2026-09-27，commit 60c8c86：工具链门=PATH 旧二进制 v2156-g1d597e3f4 早于 703 交付实勘[字节级零 diff natives 串]→auto-lang master 重建 v0.4.2-2175-g5c558778f[46efa926a 祖先链核验]——坑位三度应验；probe_bufdiff.py+probe_bufdiff_app 载具 8/0 全绿（split 臂 6：df/dd 正路径+ctx=0 钳 3 逐字节同形+缺文件/缺目录/缺键 err 形=非 Undefined 绑定证明；merged 臂 2：tab-N 键 registry 直读净形+缺键 err 点名缺席侧）；消费形定案 **(a) 双已开 tab 比较+面板双序号输入**（决策产物 report decisions 段在档；两面尾行语义差异[文件面吸收/快照面保留]实勘在档）；组依赖 .wt/edit-016/auto-lang@5c558778f 钉版 detached] | — | 本件 §5 T-00 节+probe 扩段 | 三勘定案+依赖组就位 | AC-01/04 | [x] `auto --version` 含 46efa926a（经祖先链）；裸名探针 exit 0；消费形定案补记 |
 | 1 | [x] T-01 fsys.diff_files_json 替换 [✅ 代码落位 2026-09-27（commit 2beb4f8）：native 裸名直调纯转发+头注引擎时代消费注记；三门与「等待内核引擎」err 文案族随体退役（grep 零残留；实现体内部门常量/降级符号零残留脚本断言）。**验收面部分 blocked 承上游 D-1/D-2**：hunks/counts 面=探针⑦对账 modify 逐字段零漂移+15.9 翻转绿（>10k 行 dels=10493）+超限通过两检绿；rows 面五形态漂移=上游双缺陷受控（见 §9 blockers）——**不 golden 化缺陷输出**，golden 保持过渡时代原样] | T-00 | specs/auto-edit/src/back/fsys.at:250（原 :262） | native 直调+门退场 | AC-01/02 | [x] 探针⑦绊线绿+矩阵 15.9/15.10 新期望绿（rows 面 golden 重定=上游修复轮尾巴） |
 | 2 | [x] T-02 fsys.diff_dirs_json 替换 [✅ 已完成 2026-09-27（commit 2beb4f8）：native 直调纯转发+桶形对齐/桶积 700k 护栏/「对齐超限」err 退役；**验收绿**：dirdiff 五形态 golden 语义零漂移（entries statuses/counts/note 逐字段全等——对账脚本在档）+同长 900 文件巨桶正常出结果（护栏退场实证）+>2MB 同尺寸 uncompared 注记保持+T16 组 12/12 全绿；条目序漂移=引擎每目录排序定序（断言面序不敏感，零语义差）] | T-00 | fsys.at:266（原 :803） | native 直调+护栏退场 | AC-03 | [x] 矩阵 T16 全绿+巨桶探针绿 |
-| 3 | [x] T-03 golden 对账+矩阵期望同步（rows 面 golden 同步=blocked 承上游） [✅ 对账与绊线落位 2026-09-27（commit 2beb4f8）：probe_diff.py ⑦引擎对账段——六形态×引擎 envelope 逐字段对照 python 参考，**漂移逐字段证据 evidence-p016-recon.json 在档**（row 级 fields/engine/reference 三列）；①′对照改文档态绊线+⑦=实测态绊线（上游修复后 FAIL→强制重定轮）；15.9 期望翻转（通过形 dels=10493 推导在档）/15.10 重定（degraded=false+700/700+降级注记退役断言）；15.16-15.19 新增；主链 15.1-15.8+15.11-15.15 复跑=全谱 118/11 零新失败。**golden 同步 blocked**：D-1/D-2 修复前 golden 保持过渡时代（同步≠放宽）] | T-01/02 | probe_diff.py ⑦+desktop_mcp.py T15+fixtures/diff（golden 未动） | 漂移证据重定+判绿口径 | AC-06 | [x] probe 64/0+矩阵全量 118/11（失败集=D 族 7+已知族 4 逐项全中） |
+| 3 | [x] T-03 golden 对账+矩阵期望同步（rows 面 golden 同步=blocked 承上游） [✅ 对账与绊线落位 2026-09-27（commit 2beb4f8）：probe_diff.py ⑦引擎对账段——六形态×引擎 envelope 逐字段对照 python 参考，**漂移逐字段证据 evidence-p016-recon.json 在档**（row 级 fields/engine/reference 三列）；①′对照改文档态绊线+⑦=实测态绊线（上游修复后 FAIL→强制重定轮）；15.9 期望翻转（通过形 dels=10493 推导在档）/15.10 重定（degraded=false+700/700+降级注记退役断言）；15.16-15.19 新增；主链 15.1-15.8+15.11-15.15 复跑=全谱 118/11 零新失败。**修复轮 golden 重定完成**（五简单形原样恢复=引擎≡过渡参考全等；big_reorder 按修复后引擎重定 310/310+rows 632——绊线红相→重定→绿相全谱在档）] | T-01/02 | probe_diff.py ⑦+desktop_mcp.py T15+fixtures/diff（golden 未动） | 漂移证据重定+判绿口径 | AC-06 | [x] probe 64/0+矩阵全量 118/11（失败集=D 族 7+已知族 4 逐项全中） |
 | 4 | [x] T-04 缓冲区比较 v1 [✅ 已完成 2026-09-27（commit 2beb4f8）：back=api.at 第 15 #[api] diff_buffers→fsys.diff_buffers_json→native diff_snapshots（净形 rows:[]+缺键 err 形——T-00 探针实证）；front=editor_store diff_buf_* 状态族+DiffBufOpen/AInput/BInput/Compute/Run/Jump/Close/BypassTick 八 handler（DiffBufRun=消费收口内部件；to_int 平式解析序号）+app.at 面板（双序号输入+净形行按钮 label 预变换——模板算术插值未证面规避）+menubar 静态 item+action diff.buf-compare+Tick 挂臂；**旁路=OpenPath×2→跨 Tick 装载等待（tabs[].loaded 双真门）→DiffBufRun——load_key 单槽协议 B→A 固定序轮转（序错置互抢槽位死锁，首轮烟测实勘修正）**；跳转=切 ka tab+set_cursor(ka,a1,0)（A 侧首位左锚，B 侧=后续件）；矩阵 15.16-15.19 全绿（含切走切回光标读回 line=2）] | T-00 | api.at（第 15 #[api]）+fsys.at+editor_store.at+app.at | 端点+面板+跳转+旁路 | AC-04 | [x] 矩阵 15.16-15.19 绿（缺键端点 err 形=probe_bufdiff ② 承载） |
-| 5 | [ ] T-05 bench 100MB 真跑（**blocked-on-upstream**：D-1 rows 面在多 hunk 大文件上切片错位放大（rows 数 O(H²) 积累——1% 散布改 100MB 形估算 10^10 行量级），envelope 体量失真，≤2s 预算判定不可测；上游 release 相对量 0.35-0.9s 在档不变）。精确解阻=上游 D-1/D-2 修订件交付→工具链重建→bench.py stage_diff 扩 diff_100mb 档+门拒档通过形改造+budgets.json 解锁注记+实测回填（SD-05/README 数字随轮清偿） | T-01 | tools/bench/bench.py stage_diff+budgets.json | 100MB 档+门拒档改造+解锁 | AC-05 | [ ] stage_diff 全档绿（100MB ≤2s）——blocked |
+| 5 | [x] T-05 bench 100MB 真跑 [✅ 修复轮清偿 2026-09-28（commit 2d94928）：stage_diff 扩 diff_100mb 档（生成式 ~100MB 1% 散点改对——上游 T-04 基准形态）+over_size/over_lines 改通过延迟形+**≤2000ms 硬判定**；实测=**release 全链 1906/1971ms ≤2s 达成**（踩线余量 ~5%，四跑谱 1906-2054 在档；计时卫生=fixture writeback 沉降窗 5s——无窗 2034/2054 vs 静置分解 1437=+600ms 失真实证，测量方法修正非放宽）；分解=引擎计算 ~380ms 在册+链路主耗 2×100MB 读+47MB envelope 全量 rows 投影+49MB 双层 JSON（rows 惰性投影=观察件 want，红线余量薄根因）；debug 14.9s 同档在档；budgets.json/README/SD-05 实测回填] | T-01 | tools/bench/bench.py stage_diff+budgets.json | 100MB 档+门拒档改造+解锁 | AC-05 | [x] stage_diff 全档绿（100MB ≤2s——判定谱与卫生学在档 JSONL） |
 | 6 | [x] T-06 规范增量+账本 [✅ 已完成 2026-09-27（commit 2beb4f8）：SD-01 diff-view.md（过渡节/上限门节退役注记+引擎时代与缓冲区比较新节——净形 envelope/状态面/handler 族/旁路 B→A 序/矩阵断言口径/D-1/D-2 规范锚）；SD-02 back-api.md（计数勘正 14→15+第 15 端点节+diff 双端点引擎时代注记）；SD-03 00-overview M3 第四件注记（部分 blocked 如实成文）；SD-04 README PLAN-016 口径（完成态 129/判绿 ≥118/0/D 族集注记/执行谱 118/11）；SD-05 战略 §2.1 预算行 blocked 注记+变更记录补注十二；SD-06 供料档 §6 消费回执（六供件核销+D-1/D-2 登记源码行级+残留 want 三件）] | T-01..05 | SD-01..06 六册 | 引擎时代口径+回执闭环 | AC-07 | [x] 文件在档+grep 锚（P016-1 账本投影=merge 期项，随 review/merge 轮） |
 | 7 | [x] T-07 收尾核查（零越界+判绿真值回填） [✅ 已完成 2026-09-28：README 数字=执行谱真值（129/≥118/0/118-11）；双仓零越界=auto-lang 主树+钉版 worktree porcelain 全净（只读消费：构建/测试执行零源改）；vue 臂双 exit 0（regen+pnpm build，生成物 diff_buf 消费 9 处实证）；本 handoff 记录落 §9] | T-06 | 双仓状态+README 数字 | 消费收据终态 | AC-08 | [x] 双树 clean+README 数字=实测真值 |
 
@@ -371,6 +371,24 @@ diff_buffers 第 15 端点节+计数勘正 14→15+diff 双端点实现体 nativ
   | next: 用户裁定——(i) 上游修复立项后回 work 清偿尾巴（T-05+golden
   重定），或 (ii) 本件先行 review（6.5/8 面完整+证据链在档——rows 面
   blocked 集已注记判绿口径）。status 维持 executing（blocked 未清）。
+- 2026-09-28 修复轮（尾巴清偿）handoff：`stage: work | PLAN-016 |
+  plan_revision 1（契约未变——blocked 尾巴按 PLAN-704 交付清偿）|
+  outcome: pass | code_commit: worktree plan-016-dev@2d94928（修复轮；
+  前序 60c8c86/2beb4f8/6fc1d45/主检出簿记 c14b49f/3bcf48e/c25d4d1）|
+  task_ids: T-03 golden 尾+T-05 全项清偿，T-00..T-08 全落 | evidence:
+  ①工具链 v0.4.2-2183-gc8f86ef92（含 PLAN-704 b2f8761e0 祖先链核验）；
+  ②绊线红相=①′/⑦ 八 FAIL 逐项实证（引擎漂移清零的否定面）→golden
+  重定→probe **64/0** 绿相（①′六形严格全等+⑦五形 zero-drift+
+  big_reorder 引擎时代换位不变量）；③全矩阵 **124 passed / 5 failed**
+  =已知族全中（T13.6 flake+T17.2/17.3/17.4/17.8 上游卡死簇）**零新
+  失败**——T15 全组恢复原口径绿、D 族清零、15.16-15.19 缓冲区组保持；
+  判绿口径恢复 014/015 原集（≥117/0 基线，本轮 124/0 计法达标）；
+  ④15.14 双 cap 改形（生成式 700 全换——big_reorder 引擎时代形
+  del/add 块分离零 pair 展开前提失效，硬断言+smoke 同款，fixtures
+  pristine）；⑤bench diff_100mb **1906/1971ms ≤2s 达成**（踩线 ~5%
+  余量；writeback 沉降窗卫生学+分解归因在档）+budgets/README/SD-01/
+  SD-05/供料档 §6.2 清偿注记回填。| blockers: 无 | next: review`。
+  status=execution_done。
 
 ## 10. 待澄清事项
 
@@ -387,6 +405,9 @@ diff_buffers 第 15 端点节+计数勘正 14→15+diff 双端点实现体 nativ
   流位单源化+D-2 anchor LIS 单调过滤，4 AC/4 T+SD 两册）；交付后
   本件回 work 清偿尾巴（工具链重建→⑦绊线触发 golden 重定+bench
   diff_100mb 真跑+README/SD-05/budgets.json 实测回填）。
+  **【同日清偿完成·Q-3 关闭】**PLAN-704 delivered（b2f8761e0）→本件
+  修复轮三步全落（§9 修复轮 handoff）——本件终态 execution_done，
+  next=review。
 - **Q-1 缓冲区比较手动形态预裁定（已按 T-00 证据定案，结案）**：
   T-00 探针实证候选 (a) 成立（tab.key registry 直读零装载面）——
   面板双 tab 序号输入+默认=active 与次 tab；(b) active vs 磁盘版
