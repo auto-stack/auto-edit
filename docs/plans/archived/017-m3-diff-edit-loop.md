@@ -1,6 +1,7 @@
 ---
 plan_id: PLAN-017
-status: reviewed
+status: archived
+completion_kind: delivered
 feature_name: M3-05 差异侧编辑回路——差异侧直接编辑 v1（diff 视图双侧跳转编辑+保存自动重比+净形即时预览+B 侧跳转补全）
 author: [agent]
 created_at: 2026-09-28T17:31:25+08:00
@@ -389,6 +390,38 @@ specs.json reviews 段 P017-1 投影（015/016 外科插入先例）。
   json}（9d1d112 提交面）+tests/matrix_out_p017_run{1,2}.txt+
   tests/vue_build_p017.log（均入仓可溯——worktree 移除后仍可溯于
   落地后主检出路径）| next: merge`。status=reviewed。
+- 2026-09-28 merge 收据（PLAN-017:r1，五检查点）：
+  - **prepared**：评审基线=reviewed pass @r1（reviewed_commit
+    9d1d112，复审记录在案含新鲜复现 probe 13/0+smoke ALL PASS）；
+    canonical Spec 四册已随交付提交在档（SD-01..04@a4aea4f[重定前
+    9d1d112]）；账本投影目标=.autoos/specs.json reviews 段；跨仓
+    关联=auto-lang PLAN-704 delivered（b2f8761e0）+705 立项在飞
+    （钉版隔离）。规格目标位核验：docs/specs/ 双册正典位+README/
+    供料档=016 已落先例知识库（README=014/015/016 三代判绿单源
+    惯例；供料档=016 SD-06 先例）。
+  - **landed**：dev 分支 rebase 上 main（簿记位在先 dc1bfa2/93070b2/
+    cae899e 三提交）——旧→新映射 6018a93→2e6c412/e1f96e6→5ca990c/
+    78110cf→a287542/9d1d112→a4aea4f/d1e8807→3518e46/973cd12→
+    7c10d70，`git range-diff` **6/6 全等**（安全改写证明；rebase 零
+    冲突——簿记件 docs/plans 与分支无交叠）；main `git merge
+    --ff-only plan-017-dev` → tip=7c10d70=delivery commit（零合并
+    提交）；落地后主检出冒烟 smoke_t234 **ALL PASS**（known-good，
+    P17 断言族+全谱在主检出源上复验）。
+  - **ledger_refreshed**：.autoos/specs.json reviews 段 P017-1 外科
+    尾插（16→17 项——roundtrip 字节等价先证[indent=2/ascii=false/
+    尾换行+二次幂等]；回读断言 reviews 前 16 项深等+他五段深等）；
+    worktree 提交 d1e8807→重定 3518e46；落地后主检出回读断言
+    True（17 项/P017-1 尾/P016-1 前缀完好）。
+  - **archived**：本行所在提交——git mv 至 docs/plans/archived/ +
+    status: archived + completion_kind: delivered。
+  - **cleaned**：（待回填）
+  - **部署观察项（landing ≠ deployment）**：本件=纯 .at front 件
+    ——①debug/release 工具链二进制 v0.4.2-2183-gc8f86ef92 不受
+    影响（VM 轨源解释执行 .at，零重建需求，与 016 期同版=现势）；
+    ②rust-workspace（a2r back 消费件）零 diff 同现势；③vue 生成束
+    （main gen/front/vue/dist）落地时点陈旧于本件 .at 源（worktree
+    内构建绿证据 vue_build_p017.log@9d1d112 在档）——cleaned 后于
+    main 重建回填现势（见 cleaned 注）。
 
 ## 10. 待澄清事项
 
