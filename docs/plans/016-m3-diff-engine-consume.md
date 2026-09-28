@@ -382,6 +382,11 @@ diff_buffers 第 15 端点节+计数勘正 14→15+diff 双端点实现体 nativ
   golden 尾巴一并解阻），下游修复轮回 work 清偿；(ii) 本件先行
   review/merge（部分面交付——rows 面回退态=上游缺陷在案注记，
   判绿口径已按 blocked 集重定）。
+  **【2026-09-28 用户裁定 (i)】**：auto-lang **PLAN-704**
+  （704-diff-rows-anchor-fix）已立项起草（master@ca68427fc——D-1
+  流位单源化+D-2 anchor LIS 单调过滤，4 AC/4 T+SD 两册）；交付后
+  本件回 work 清偿尾巴（工具链重建→⑦绊线触发 golden 重定+bench
+  diff_100mb 真跑+README/SD-05/budgets.json 实测回填）。
 - **Q-1 缓冲区比较手动形态预裁定（已按 T-00 证据定案，结案）**：
   T-00 探针实证候选 (a) 成立（tab.key registry 直读零装载面）——
   面板双 tab 序号输入+默认=active 与次 tab；(b) active vs 磁盘版
