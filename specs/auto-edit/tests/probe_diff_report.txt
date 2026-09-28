@@ -1,4 +1,4 @@
-toolchain: auto 0.1.0+v0.4.2-2175-g5c558778f
+toolchain: auto 0.1.0+v0.4.2-2183-gc8f86ef92
 
 ============================================================
 ② 朴素分层原型对拍（python 参考实现 × fixtures golden 逐字段）
@@ -11,8 +11,8 @@ toolchain: auto 0.1.0+v0.4.2-2175-g5c558778f
        modify: hunks=1 rows=9 +3/-3
   PASS  [②] golden 逐字段对照: scattered
        scattered: hunks=3 rows=21 +3/-3
-  PASS  [②] golden 逐字段对照: big_reorder
-       big_reorder: hunks=1 rows=616 +610/-610
+  PASS  [②] golden 逐字段对照: big_reorder（引擎时代换位形）
+       big_reorder: hunks=1 rows=616 +610/-610（naive 降级形；盘上 golden=引擎时代换位形 310/310）
   PASS  [②] golden 逐字段对照: unbalanced
        unbalanced: hunks=1 rows=7 +1/-3
   PASS  [②] modify 配对行三段标记（let x = <1>/<2>）
@@ -65,24 +65,24 @@ Q-4 删多增少形态渲染示意（配对行 <mid> 高亮；不成对行整行
   PASS  [⑤] AUTO_DIFF_A 路径 exists 复核
   PASS  [⑤] 未设 AUTO_DIFF_C = 空串（取消语义面）
 
-①′ back diff_files 端点（文档态绊线：modify 全等/D-1 rows面/D-2 counts 面——供料档 §6.2）
-  PASS  [①′] diff_files×golden[D-1-rows]: add_only
-  PASS  [①′] diff_files×golden[D-1-rows]: del_only
+①′ back diff_files 端点（文档态绊线：modify 全等/D-1 rows漂移再现=FAIL 强制重定轮）
+  PASS  [①′] diff_files×golden[equal]: add_only
+  PASS  [①′] diff_files×golden[equal]: del_only
   PASS  [①′] diff_files×golden[equal]: modify
-  PASS  [①′] diff_files×golden[D-1-rows]: scattered
-  PASS  [①′] diff_files×golden[D-2-counts]: big_reorder
-  PASS  [①′] diff_files×golden[D-1-rows]: unbalanced
+  PASS  [①′] diff_files×golden[equal]: scattered
+  PASS  [①′] diff_files×golden[equal]: big_reorder
+  PASS  [①′] diff_files×golden[equal]: unbalanced
   PASS  [①′] 缺文件 err 形（不静默）
   PASS  [①′] 行数超限通过（>10000 行正常 envelope，引擎时代）
   PASS  [①′] 尺寸超限通过（>1MB 全等 trim 快路 0 hunk）
 
 ⑦ 引擎对账段（引擎 envelope × python 参考逐字段——漂移证据入档）
-  PASS  [⑦] 引擎对账=D-1 rows-face: add_only
-  PASS  [⑦] 引擎对账=D-1 rows-face: del_only
+  PASS  [⑦] 引擎对账=zero-drift: add_only
+  PASS  [⑦] 引擎对账=zero-drift: del_only
   PASS  [⑦] 引擎对账=zero-drift: modify
-  PASS  [⑦] 引擎对账=D-1 rows-face: scattered
-  PASS  [⑦] 引擎对账=D-2 anchor-monotonicity (counts wrong): big_reorder
-  PASS  [⑦] 引擎对账=D-1 rows-face: unbalanced
+  PASS  [⑦] 引擎对账=zero-drift: scattered
+  PASS  [⑦] 引擎对账=engine-era-swap: big_reorder
+  PASS  [⑦] 引擎对账=zero-drift: unbalanced
        证据档 → tests/evidence-p016-recon.json
   dialog_open×2 手动路径（rfd 阻塞式，矩阵不可驱动——人工步骤）：
     1) 菜单「工具 → 比较文件…」（T-03 静态 menubar item）
@@ -95,21 +95,21 @@ Phase B: probe_diff_app（B1 微基准 / B2 scroll+onscroll——双会话）
 ============================================================
 
 ① AutoVM 算力微基准（秒；python 墙钟口径 click→完成）
-       bl4: {'loop1e4': '64.9ms'}
-       bl5: {'loop1e5': '52.9ms'}
-       bp4: {'push1e4': '51.5ms'}
-       bp5: {'push1e5': '72.8ms'}
-       bg5: {'get1e5': '178.2ms', 'acc': '704982704'}
-       bs5: {'str1e5': '53.0ms', 'c': '-100000'}
-       dp200: {'dp200': '231.3ms', 'dp200_acc': '0'}
-       dp300: {'dp300': '1140.3ms', 'dp300_acc': '0'}
-       bld: {'bld': '2526.6ms'}
-       bspl: {'split5k_lines': '5001', 'split5k': '54.0ms'}
-       brows: {'rows600': '75.7ms'}
+       bl4: {'loop1e4': '76.2ms'}
+       bl5: {'loop1e5': '68.3ms'}
+       bp4: {'push1e4': '68.7ms'}
+       bp5: {'push1e5': '71.4ms'}
+       bg5: {'get1e5': '178.5ms', 'acc': '704982704'}
+       bs5: {'str1e5': '75.4ms', 'c': '-100000'}
+       dp200: {'dp200': '233.8ms', 'dp200_acc': '0'}
+       dp300: {'dp300': '1082.3ms', 'dp300_acc': '0'}
+       bld: {'bld': '2423.4ms'}
+       bspl: {'split5k_lines': '5001', 'split5k': '72.8ms'}
+       brows: {'rows600': '74.8ms'}
   PASS  [①] 微基准 dp400
   PASS  [①] 吞吐健全性 loop1e4≤1e5（墙钟口径）
   PASS  [①] 单消息算力墙勘定（10M steps/源码+首轮实证双锚）
-  PASS  [①] DP-LCS 中间区上限定参 = 251
+  PASS  [①] DP-LCS 中间区上限定参 = 257
   PASS  [①] 全览渲染 cap 定参 = 600
   PASS  [①] split 定标前置：5000 行 body 构建在档
   PASS  [①] 文件上限复核 = 50k 行/2MB
@@ -138,22 +138,22 @@ Phase B: probe_diff_app（B1 微基准 / B2 scroll+onscroll——双会话）
     "design_rule": "diff_files 单 handler 全链（split+DP+rows 构建+JSON 拼装）总步数 <10M——T-01 实现约束"
   },
   "dp_cap": {
-    "value": 251,
+    "value": 257,
     "measured_tier": 300,
-    "measured_dp_fill_scan_s": 1.1402997970581055,
+    "measured_dp_fill_scan_s": 1.0822827816009521,
     "budget_s": 0.8,
     "rule": "fill+scan≤0.8s 维持 400，超则 cap=档×√(0.8/t)"
   },
   "render_cap": {
     "value": 600,
-    "measured_rows600_build_s": 0.0756981372833252,
+    "measured_rows600_build_s": 0.07481551170349121,
     "budget_s": 0.2,
     "rule": "rows 构建≤0.2s 维持 600（渲染侧成本不含，口径注记）"
   },
   "file_cap": {
     "value": "50k 行 / 2MB",
-    "measured_split5k_s": 0.054032087326049805,
-    "split50k_est_s": 0.540320873260498,
+    "measured_split5k_s": 0.07280111312866211,
+    "split50k_est_s": 0.7280111312866211,
     "rule": "split 线性外推 ≤1.5s → 维持预判上限"
   },
   "scroll": {
@@ -174,7 +174,7 @@ Phase B: probe_diff_app（B1 微基准 / B2 scroll+onscroll——双会话）
     "unpaired_visual": "不成对行整行 mid 染色（整行红/绿），ASCII 见上",
     "judgment": "可接受——不成对行语义=整段删除/新增，整行染色与 VS Code/BC 同款形态；三段数据保留在 envelope 供引擎时代 refine"
   },
-  "toolchain": "auto 0.1.0+v0.4.2-2175-g5c558778f"
+  "toolchain": "auto 0.1.0+v0.4.2-2183-gc8f86ef92"
 }
 
 RESULT: 64 passed, 0 failed

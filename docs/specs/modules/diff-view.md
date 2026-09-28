@@ -16,10 +16,12 @@
 > PLAN-016 追加「引擎时代与缓冲区比较」节（M3-04——替换缝兑现：fsys
 > 双实现体换 native 直调、上限门全套退场、diff_snapshots 缓冲区比较
 > v1；来源=PLAN-703 供料包 46efa926a + probe_bufdiff.py 8/0 + 对账
-> evidence-p016-recon.json。**上游双缺陷 D-1/D-2 在案**（供料档 §6.2
-> ——rows 面流位错配/anchor 非单调）：rows 面语义以下游过渡参考实现
-> 为规范锚，缺陷面在上游修复前=已知 blocked 集（不 golden 化缺陷输出
-> ——同步≠放宽），修复轮重推对账+golden 重定）。
+> evidence-p016-recon.json。**上游双缺陷 D-1/D-2 已清偿**
+> （2026-09-28 auto-lang PLAN-704 b2f8761e0——rows 流位单源化+anchor
+> 单调过滤）：修复轮 golden 重定完成（五简单形 golden 原样恢复=
+> 引擎≡过渡参考逐字节全等；big_reorder 按修复后引擎重定=引擎时代
+> 换位语义 310/310），缺陷期绊线纪律（同步≠放宽，不 golden 化缺陷
+> 输出）执行实录保全在档）。
 
 ## envelope 契约（back `diff_files(path_a, path_b, ctx) str`）
 
@@ -315,16 +317,16 @@ DiffScrollToHunk 增 vmode 条件扫描源：inline 态扫 `diff_irows`
   700k 护栏退役**（对齐在 Rust 侧——同长巨桶目录正常出结果）；
   **条目序漂移**：引擎每目录排序定序 vs 过渡遍历序——断言面序不
   敏感（T16 组/probe_dirdiff 均按 rel→status 映射消费），零语义差。
-- **rows 面规范锚与缺陷态**：rows 投影语义（逐 hunk 切片无重复/变更
-  行必在/域不越 hunk 窗）以 011 过渡参考实现为规范锚。上游双缺陷
-  **D-1**（`build_rows` 按 changes 下标消费 `group_hunks_annotated`
-  的流位字段——变更行丢失/前导 ctx 重复）与 **D-2**（
-  `anchor_partition` 锚集未做单调过滤——换位族 counts 本身错，如
-  big_reorder +620/-0）在案（供料档 §6.2，源码行级根因+最小复现）；
-  修复前：矩阵 rows 承载断言=已知 blocked 集、golden 保持过渡时代
-  原样、bench diff_100mb 判定 blocked（D-1 连带 O(H²) 体量失真）。
-  **同步≠放宽**：不 golden 化缺陷输出；上游修复后重推 ⑦对账→golden
-  重定→判绿口径恢复。
+- **rows 面规范锚（缺陷已清偿）**：rows 投影语义（逐 hunk 切片无
+  重复/变更行必在/域不越 hunk 窗）以 011 过渡参考实现为规范锚。缺陷
+  史：上游 D-1（fc/lc 单位错配——变更行丢失/前导 ctx 重复）与 D-2
+  （锚集非单调——换位族 counts 错 620/0）曾致 rows 承载面 blocked
+  （同步≠放宽纪律执行实录：golden 不 golden 化缺陷输出）；**PLAN-704
+  （b2f8761e0）修复后**：四族形状与过渡参考零漂移（golden 原样恢复
+  实证）、换位族=引擎时代正确形（big_reorder 310/310 双向对称+rows
+  632>600 双 cap 场景保持）、判绿口径恢复 014/015 原集。缺陷期对账
+  证据 evidence-p016-recon.json 保全（绊线方法论=漂移再现即 FAIL
+  强制重定轮）。
 
 ### 缓冲区比较 v1（diff_snapshots 解锁件）
 

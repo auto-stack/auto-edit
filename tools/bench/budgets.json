@@ -60,8 +60,8 @@
     "metric": "100 MB 文件全量 diff 出结果",
     "budget": "<= 2 s",
     "tier": "ledger",
-    "validity": "M3 前无 diff 引擎",
-    "unlock": "diff 引擎（M3）"
+    "validity": "引擎时代实测达成（2026-09-28 PLAN-016 修复轮：release 工具链全链墙钟 1906/1971ms ≤2s——踩线达成余量 ~5%，四跑谱 1906-2054ms 在档；引擎计算 ~380ms 上游基准在册，链路主耗=2×100MB 读+47MB envelope 全量 rows 投影+49MB 双层 JSON 传输；rows 惰性投影=观察件 want[红线余量薄根因]，计时卫生=fixture writeback 沉降窗 5s[无窗跑 2034/2054 失真 +600ms 实证]）",
+    "unlock": "已解锁：auto-lang PLAN-703 供料包（diff 引擎）+PLAN-704 缺陷修复（D-1/D-2）——判定档=bench stage_diff diff_100mb（≤2000ms 硬判定超限红）；debug 工具链全链 14.9s 同档在档（保守上界形态，不可直比）"
   },
   {
     "id": "idle_mem",

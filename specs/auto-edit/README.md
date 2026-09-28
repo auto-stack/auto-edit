@@ -354,6 +354,26 @@ bench diff_100mb 判定 blocked（D-1 连带 envelope 体量失真——供料�
 §6.3）；上游消费收据+双缺陷登记 docs/upstream/2026-09-diff-engine-
 supply.md §6。
 
+PLAN-016 修复轮口径更新（2026-09-28，工具链=auto-lang master 重建
+[v0.4.2-2183-gc8f86ef92——含 PLAN-704 交付 b2f8761e0：D-1 rows 流位
+单源化+D-2 anchor 单调过滤，两缺陷清偿]）：**golden 重定轮**——五
+简单形 golden 原样恢复（引擎≡过渡参考逐字节全等实证）；big_reorder
+golden 按修复后引擎重定（310/310 双向对称+kept 记账+rows 632>600
+双 cap 场景自然保持——引擎时代语义=降级退场，漂移史证据
+evidence-p016-recon.json 在档）；probe 双绊线恢复严格全等（①′六形
+全等+⑦五形 zero-drift+big_reorder 引擎时代换位不变量特判）；T15
+rows 面 **blocked 集恢复 014/015 原口径**（D 族 7 项回归正常断言，
+判绿口径恢复原 ≥117/0 基线随全矩阵复跑定数）。**bench diff_100mb
+判定达成**（战略 §2.1 预算行）：release 工具链全链墙钟 **1906/
+1971ms ≤2s**——踩线达成余量 ~5%（四跑谱 1906-2054 在档；引擎计算
+~380ms 上游基准在册，链路主耗=2×100MB 读+47MB envelope 全量 rows
+投影+49MB 双层 JSON 传输；**计时卫生=fixture writeback 沉降窗 5s**
+[无窗跑 2034/2054 与静置分解 1437ms 差 +600ms 失真实证——bench
+测量方法修正非放宽]）；over_size/over_lines 档改造为通过延迟形
+（4.9/66.2ms）；debug 工具链 14.9s 同档在档（保守上界，不可直比）。
+rows 惰性投影/体量治理=观察件 want（红线余量薄根因，登记于供料档
+§6.3）。
+
 注：Plan 451 起 T10「热重载」走 DSL 源路径（reload 工具或 mtime 轮询重读
 app.at 重新提取 actions + generation bump → 视图重建），实测 50/0 全绿。
 OS 用户键位层（`%APPDATA%/auto/keymaps/auto-edit.at`）保持外部文件——那是

@@ -1,5 +1,5 @@
 {
-  "toolchain": "auto 0.1.0+v0.4.2-2175-g5c558778f",
+  "toolchain": "auto 0.1.0+v0.4.2-2183-gc8f86ef92",
   "decisions": {
     "step_budget": {
       "per_handler_steps": 10000000,
@@ -9,22 +9,22 @@
       "design_rule": "diff_files 单 handler 全链（split+DP+rows 构建+JSON 拼装）总步数 <10M——T-01 实现约束"
     },
     "dp_cap": {
-      "value": 251,
+      "value": 257,
       "measured_tier": 300,
-      "measured_dp_fill_scan_s": 1.1402997970581055,
+      "measured_dp_fill_scan_s": 1.0822827816009521,
       "budget_s": 0.8,
       "rule": "fill+scan≤0.8s 维持 400，超则 cap=档×√(0.8/t)"
     },
     "render_cap": {
       "value": 600,
-      "measured_rows600_build_s": 0.0756981372833252,
+      "measured_rows600_build_s": 0.07481551170349121,
       "budget_s": 0.2,
       "rule": "rows 构建≤0.2s 维持 600（渲染侧成本不含，口径注记）"
     },
     "file_cap": {
       "value": "50k 行 / 2MB",
-      "measured_split5k_s": 0.054032087326049805,
-      "split50k_est_s": 0.540320873260498,
+      "measured_split5k_s": 0.07280111312866211,
+      "split50k_est_s": 0.7280111312866211,
       "rule": "split 线性外推 ≤1.5s → 维持预判上限"
     },
     "scroll": {
@@ -45,7 +45,7 @@
       "unpaired_visual": "不成对行整行 mid 染色（整行红/绿），ASCII 见上",
       "judgment": "可接受——不成对行语义=整段删除/新增，整行染色与 VS Code/BC 同款形态；三段数据保留在 envelope 供引擎时代 refine"
     },
-    "toolchain": "auto 0.1.0+v0.4.2-2175-g5c558778f"
+    "toolchain": "auto 0.1.0+v0.4.2-2183-gc8f86ef92"
   },
   "checks": [
     {
@@ -74,9 +74,9 @@
     },
     {
       "item": "②",
-      "name": "golden 逐字段对照: big_reorder",
+      "name": "golden 逐字段对照: big_reorder（引擎时代换位形）",
       "ok": true,
-      "detail": "hunks=1 rows=616 +610/-610"
+      "detail": "盘上 golden +310/-310（naive 降级形 +610/-610=文档化差异）"
     },
     {
       "item": "②",
@@ -272,15 +272,15 @@
     },
     {
       "item": "①′",
-      "name": "diff_files×golden[D-1-rows]: add_only",
+      "name": "diff_files×golden[equal]: add_only",
       "ok": true,
-      "detail": "observed=D-1-rows expected=D-1-rows hunks 1 vs 1 / rows 5 vs 9 / adds 3 vs 3"
+      "detail": "observed=equal expected=equal hunks 1 vs 1 / rows 9 vs 9 / adds 3 vs 3"
     },
     {
       "item": "①′",
-      "name": "diff_files×golden[D-1-rows]: del_only",
+      "name": "diff_files×golden[equal]: del_only",
       "ok": true,
-      "detail": "observed=D-1-rows expected=D-1-rows hunks 1 vs 1 / rows 4 vs 9 / adds 0 vs 0"
+      "detail": "observed=equal expected=equal hunks 1 vs 1 / rows 9 vs 9 / adds 0 vs 0"
     },
     {
       "item": "①′",
@@ -290,21 +290,21 @@
     },
     {
       "item": "①′",
-      "name": "diff_files×golden[D-1-rows]: scattered",
+      "name": "diff_files×golden[equal]: scattered",
       "ok": true,
-      "detail": "observed=D-1-rows expected=D-1-rows hunks 3 vs 3 / rows 41 vs 21 / adds 3 vs 3"
+      "detail": "observed=equal expected=equal hunks 3 vs 3 / rows 21 vs 21 / adds 3 vs 3"
     },
     {
       "item": "①′",
-      "name": "diff_files×golden[D-2-counts]: big_reorder",
+      "name": "diff_files×golden[equal]: big_reorder",
       "ok": true,
-      "detail": "observed=D-2-counts expected=D-2-counts hunks 2 vs 1 / rows 943 vs 616 / adds 620 vs 610"
+      "detail": "observed=equal expected=equal hunks 2 vs 2 / rows 632 vs 632 / adds 310 vs 310"
     },
     {
       "item": "①′",
-      "name": "diff_files×golden[D-1-rows]: unbalanced",
+      "name": "diff_files×golden[equal]: unbalanced",
       "ok": true,
-      "detail": "observed=D-1-rows expected=D-1-rows hunks 1 vs 1 / rows 6 vs 7 / adds 1 vs 1"
+      "detail": "observed=equal expected=equal hunks 1 vs 1 / rows 7 vs 7 / adds 1 vs 1"
     },
     {
       "item": "①′",
@@ -326,15 +326,15 @@
     },
     {
       "item": "⑦",
-      "name": "引擎对账=D-1 rows-face: add_only",
+      "name": "引擎对账=zero-drift: add_only",
       "ok": true,
-      "detail": "observed=rows-face wrong drift=['rows_len']"
+      "detail": "observed=zero-drift drift=[]"
     },
     {
       "item": "⑦",
-      "name": "引擎对账=D-1 rows-face: del_only",
+      "name": "引擎对账=zero-drift: del_only",
       "ok": true,
-      "detail": "observed=rows-face wrong drift=['rows_len']"
+      "detail": "observed=zero-drift drift=[]"
     },
     {
       "item": "⑦",
@@ -344,21 +344,21 @@
     },
     {
       "item": "⑦",
-      "name": "引擎对账=D-1 rows-face: scattered",
+      "name": "引擎对账=zero-drift: scattered",
       "ok": true,
-      "detail": "observed=rows-face wrong drift=['rows_len']"
+      "detail": "observed=zero-drift drift=[]"
     },
     {
       "item": "⑦",
-      "name": "引擎对账=D-2 anchor-monotonicity (counts wrong): big_reorder",
+      "name": "引擎对账=engine-era-swap: big_reorder",
       "ok": true,
-      "detail": "observed=counts+hunks wrong drift=['hunks', 'adds', 'dels', 'degraded', 'rows_len']"
+      "detail": "invariant 310/310 deg=false hunks=2"
     },
     {
       "item": "⑦",
-      "name": "引擎对账=D-1 rows-face: unbalanced",
+      "name": "引擎对账=zero-drift: unbalanced",
       "ok": true,
-      "detail": "observed=rows-face wrong drift=['rows_len']"
+      "detail": "observed=zero-drift drift=[]"
     },
     {
       "item": "①",
@@ -370,7 +370,7 @@
       "item": "①",
       "name": "吞吐健全性 loop1e4≤1e5（墙钟口径）",
       "ok": true,
-      "detail": "{'loop1e4': 0.06488323211669922, 'loop1e5': 0.05286550521850586}"
+      "detail": "{'loop1e4': 0.07618141174316406, 'loop1e5': 0.06828856468200684}"
     },
     {
       "item": "①",
@@ -380,15 +380,15 @@
     },
     {
       "item": "①",
-      "name": "DP-LCS 中间区上限定参 = 251",
+      "name": "DP-LCS 中间区上限定参 = 257",
       "ok": true,
-      "detail": "dp300 fill+scan=1.140s"
+      "detail": "dp300 fill+scan=1.082s"
     },
     {
       "item": "①",
       "name": "全览渲染 cap 定参 = 600",
       "ok": true,
-      "detail": "rows600_build=0.076s"
+      "detail": "rows600_build=0.075s"
     },
     {
       "item": "①",
@@ -400,7 +400,7 @@
       "item": "①",
       "name": "文件上限复核 = 50k 行/2MB",
       "ok": true,
-      "detail": "split5k=0.054s → 50k 估 0.54s"
+      "detail": "split5k=0.073s → 50k 估 0.73s"
     },
     {
       "item": "③",

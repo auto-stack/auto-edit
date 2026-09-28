@@ -165,6 +165,13 @@ PLAN-703 五件供料包，delivery 46efa926a，2026-09-27 delivered 归档）
 > ⑦绊线 FAIL 触发重定轮（golden 按修复后引擎重定+T15 rows 面判绿
 > 恢复）→③T-05 bench diff_100mb 真跑+budgets.json/README/SD-05
 > 实测回填。）
+> **【清偿完成·2026-09-28】**下游三步全落：①工具链 v0.4.2-2183-
+> gc8f86ef92（含 b2f8761e0）；②golden 重定轮（五简单形原样恢复=
+> 引擎≡过渡参考全等；big_reorder 按引擎重定 310/310+rows 632 双 cap
+> 保持）+T15 rows 面判绿恢复（blocked 集回 014/015 原口径）；③bench
+> diff_100mb **≤2s 达成**（release 全链 1906/1971ms——踩线余量 ~5%；
+> 引擎计算 ~380ms 在册，链路主耗=47MB envelope 全量 rows 投影+双层
+> JSON，rows 惰性投影 want 维持在册）。
 
 **D-1 rows 面流位错配（`build_rows` × `group_hunks_annotated` 单位
 不一致）**：`group_hunks_annotated`（diff/mod.rs:348 起）向

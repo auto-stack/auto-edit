@@ -342,7 +342,9 @@ _L0_STATES = {
     "open_1gb": ("arch-blocked", "rope 前架构性不可达，禁调优，只记基线"),
     "type_latency": ("blocked-upstream", "内核帧时间戳插桩（T-03 勘无 .at 层通道）"),
     "scroll_fps": ("blocked-upstream", "帧率测量需内核插桩；大文件满帧率另需 rope"),
-    "diff_100mb": ("blocked-upstream", "M3 diff 引擎"),
+    "diff_100mb": ("ledger", "引擎时代实测判定在案（PLAN-016 修复轮 stage_diff "
+                   "diff_100mb 档 ≤2000ms 全链墙钟，JSONL 在 results/）；L2 "
+                   "硬门禁 M4 收口"),
     "idle_mem": ("ledger", "L0 采样记账不阻塞；预算断言 M4 收口"),
     "installer": ("pending-feature", "Q2 独立 exe 打包路径"),
 }
@@ -819,25 +821,27 @@ def stage_assert(results: str | None) -> int:
 
 
 # ═════════════════════════════════════════════════════════════════════
-# PLAN-011 T-05: diff 计时档（G-5/AC-06）。
+# PLAN-011 T-05: diff 计时档（G-5/AC-06）——PLAN-016 修复轮改造：
+# 引擎时代（PLAN-703 供料+PLAN-704 缺陷修复）门退场，档位重铸。
 #
-# 档位（T-00 §10 校准重定形——file_cap 10k 行/1MB 下原计划预判的
-# 1/10/100MB 档全落上限外；AC-06 本质=计时框架+基线+blocked 标注，
-# 档位按定参重铸，SD-02/§10 同步）：
-#   diff_small      1000 行对·散点改（档内现实态）→ 基线墙钟
-#   diff_mid        2500 行对·散点改（近上限）→ 基线墙钟
-#   diff_over_size  1.2MB 对 → 尺寸门即时拒墙钟 + blocked-on-upstream
-#   diff_over_lines 10500 行对 → 行数门拒墙钟 + blocked-on-upstream
-# blocked 口径：档外全文大文件 diff=架构阻塞（AutoVM str split 上限，
-# T-00 实测 0.01-0.52ms/行随工具链漂移）——引擎 diff_snapshots
-# （docs/upstream/2026-09-diff-engine-supply.md §5）时代清偿；门拒
-# 延迟证明上限门即时性（防长等语义，fsys.at 尺寸门 pre-read）。
-# 退出码 0=记录性基线锚点（无硬预算行——过渡计算层，引擎时代作废）。
+# 档位：
+#   diff_small        1000 行对·散点改（档内现实态）→ 基线墙钟
+#   diff_mid          2500 行对·散点改（近上限）→ 基线墙钟
+#   diff_over_size    1.2MB 全等对 → 通过延迟（trim 快路 0 hunk 实证）
+#   diff_over_lines   10500 行对 → 通过延迟（门退场——超限正常出结果）
+#   diff_100mb        ~100MB 散点改对（生成式，1% 散点=上游 T-04 基准
+#                     形态对齐）→ **预算判定 ≤2000ms**（战略 §2.1 预算
+#                     行——超限=红 EXIT_FAIL，性能是发布门槛）
+# 计时口径=/api/diff_files 全链墙钟（app --server vm，debug 工具链——
+# 保守上界形态：引擎 release 相对量 0.35-0.9s 在档，绝对量判定以此
+# 全链数为准，703 Q-2 口径）。退出码 0=全档绿（基线有数+budget 判定
+# ≤2s）。
 
 def _diff_fixture_pair(d: Path, name: str, n_lines: int, variant: str) -> dict:
     """生成 a/b fixture 对。variant=scatter（每 37 行改一处，行数同）/
-    size（1.2MB 长行）/lines（10500 短行，仅 a 侧足量，b 短——门拒在
-    读前，形态无关）。"""
+    size（1.2MB 长行全等）/lines（10500 短行 vs 短 b——门退场通过形）/
+    mb100（~100MB 散点改对——生成式临时构造不入库，013 先例；每 100
+    行改 1 处=1% 散布改，与上游 diff_bench 基准形态对齐）。"""
     d.mkdir(parents=True, exist_ok=True)
     pa, pb = d / f"{name}.a.txt", d / f"{name}.b.txt"
     if variant == "size":
@@ -847,6 +851,23 @@ def _diff_fixture_pair(d: Path, name: str, n_lines: int, variant: str) -> dict:
     elif variant == "lines":
         pa.write_text(chr(10).join(f"L{i}" for i in range(10500)), encoding="utf-8")
         pb.write_text("short" + chr(10), encoding="utf-8")
+    elif variant == "mb100":
+        line_a = "line {0:07d} of p016-100mb diff benchmark payload content"
+        n = 0
+        written = 0
+        target = 100 * 1024 * 1024
+        with open(pa, "w", encoding="utf-8", newline="") as fa, \
+                open(pb, "w", encoding="utf-8", newline="") as fb:
+            while written < target:
+                for k in range(100):
+                    fa.write(line_a.format(n + k) + chr(10))
+                    if k == 0:
+                        fb.write(line_a.format(n + k) + " CHANGED" + chr(10))
+                    else:
+                        fb.write(line_a.format(n + k) + chr(10))
+                    written += len(line_a.format(n + k)) + 1
+                n += 100
+        return {"a": str(pa), "b": str(pb)}
     else:
         a = [f"line {i:05d} of {name} content" for i in range(n_lines)]
         b = list(a)
@@ -873,9 +894,11 @@ def stage_diff() -> int:
         {"id": "diff_mid", "fx": _diff_fixture_pair(fixdir, "mid", 2500, "scatter"),
          "kind": "baseline"},
         {"id": "diff_over_size", "fx": _diff_fixture_pair(fixdir, "oversize", 0, "size"),
-         "kind": "gate-reject"},
+         "kind": "pass-latency"},
         {"id": "diff_over_lines", "fx": _diff_fixture_pair(fixdir, "overlines", 0, "lines"),
-         "kind": "gate-reject"},
+         "kind": "pass-latency"},
+        {"id": "diff_100mb", "fx": _diff_fixture_pair(fixdir, "big100mb", 0, "mb100"),
+         "kind": "budget"},
     ]
 
     port = None
@@ -904,6 +927,11 @@ def stage_diff() -> int:
             return EXIT_FAIL
 
         rows = []
+        # 计时卫生（PLAN-016 修复轮勘定）：fixture 生成（diff_100mb 档
+        # ~200MB 落盘）与计时之间留 writeback 沉降窗——生成后立即计时
+        # 会与 OS 脏页回写竞争文件读（实测 +600ms 失真：bench 2034ms vs
+        # 静置分解同链 1437ms）。
+        time.sleep(5.0)
         for t in tiers:
             q = urllib.parse.urlencode({"path_a": t["fx"]["a"],
                                         "path_b": t["fx"]["b"], "ctx": 3})
@@ -931,9 +959,15 @@ def stage_diff() -> int:
                     walls.append(round(wall, 1))
                 time.sleep(0.2)
             med = sorted(walls)[len(walls) // 2] if walls else None
-            verdict = ("baseline" if t["kind"] == "baseline"
-                       else "gate-reject (blocked-on-upstream: 全文大文件 "
-                            "diff 待引擎 diff_snapshots，供料 §5)")
+            if t["kind"] == "baseline":
+                verdict = "baseline"
+            elif t["kind"] == "pass-latency":
+                verdict = ("pass-latency (引擎时代：门退场——超限文件正常出"
+                           "结果 err=''；PLAN-704 修复轮改造)")
+            else:
+                ok_budget = med is not None and err_seen == "" and med <= 2000.0
+                verdict = (f"budget {'PASS' if ok_budget else 'FAIL'} "
+                           f"(≤2000ms 战略 §2.1 预算行——全链墙钟)")
             rows.append({"id": t["id"], "kind": t["kind"],
                          "wall_ms_runs": walls, "wall_ms_median": med,
                          "adds": adds, "dels": dels, "degraded": degraded,
@@ -951,6 +985,12 @@ def stage_diff() -> int:
                and r["wall_ms_median"] is None]
         if bad:
             _log(f"FATAL: 基线档无数字：{[r['id'] for r in bad]}")
+            return EXIT_FAIL
+        budget_bad = [r for r in rows if r["kind"] == "budget"
+                      and ("FAIL" in r["verdict"] or r["err"])]
+        if budget_bad:
+            _log(f"FATAL: 预算档超限/错误："
+                 f"{[(r['id'], r['wall_ms_median'], r['err'][:40]) for r in budget_bad]}")
             return EXIT_FAIL
         return EXIT_OK
     finally:

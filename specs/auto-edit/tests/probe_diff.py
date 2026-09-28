@@ -468,6 +468,27 @@ def main():
     fx = build_fixtures()
     golden = item_golden(fx)
     for name, g in golden.items():
+        if name == "big_reorder":
+            # 引擎时代语义（PLAN-704 修复轮）：naive 参考该形走降级单
+            # replace（610/610），盘上 golden=修复后引擎正确换位形
+            # （310/310 多 hunk、degraded=false）——差异=文档化语义非
+            # 漂移；直接断言盘上 golden 的换位不变量（非 naive 全等）。
+            with open(os.path.join(FIXDIR, "big_reorder.golden.json"),
+                      encoding="utf-8") as f:
+                stored = json.load(f)
+            inv_ok = (not g["golden_match"]
+                      and stored.get("adds") == 310
+                      and stored.get("dels") == 310
+                      and stored.get("degraded") is False
+                      and len(stored.get("hunks", [])) == 2)
+            check("②", "golden 逐字段对照: big_reorder（引擎时代换位形）",
+                  inv_ok,
+                  f"盘上 golden +{stored.get('adds')}/-{stored.get('dels')}"
+                  f"（naive 降级形 +610/-610=文档化差异）")
+            emit(f"       big_reorder: hunks={g['hunks']} rows={g['rows']} "
+                 f"+{g['adds']}/-{g['dels']}（naive 降级形；盘上 golden="
+                 f"引擎时代换位形 310/310）")
+            continue
         check("②", f"golden 逐字段对照: {name}",
               g["golden_match"],
               f"hunks={g['hunks']} rows={g['rows']} +{g['adds']}/-{g['dels']}")
@@ -670,14 +691,14 @@ def main():
         # （缺陷面受控）；D-2 形=counts/hunks 漂移在档。上游修复后本段
         # FAIL→强制 golden 重定轮（与 ⑦ 对账段同纪律）。
         emit("\n①′ back diff_files 端点（文档态绊线：modify 全等/D-1 rows"
-             "面/D-2 counts 面——供料档 §6.2）")
+             "漂移再现=FAIL 强制重定轮）")
         p016_state = {
             "modify": "equal",
-            "add_only": "D-1-rows",
-            "del_only": "D-1-rows",
-            "scattered": "D-1-rows",
-            "unbalanced": "D-1-rows",
-            "big_reorder": "D-2-counts",
+            "add_only": "equal",
+            "del_only": "equal",
+            "scattered": "equal",
+            "unbalanced": "equal",
+            "big_reorder": "equal",
         }
         for name, (ta, tb) in fx.items():
             r = requests.get(
@@ -792,11 +813,11 @@ def main():
         recon = {}
         expected_state = {
             "modify": "zero-drift",
-            "add_only": "D-1 rows-face",
-            "del_only": "D-1 rows-face",
-            "scattered": "D-1 rows-face",
-            "unbalanced": "D-1 rows-face",
-            "big_reorder": "D-2 anchor-monotonicity (counts wrong)",
+            "add_only": "zero-drift",
+            "del_only": "zero-drift",
+            "scattered": "zero-drift",
+            "unbalanced": "zero-drift",
+            "big_reorder": "engine-era-swap",
         }
         for name, (ta, tb) in fx.items():
             r = requests.get(
@@ -837,6 +858,23 @@ def main():
                                                   drift["dels"] or
                                                   drift["hunks"]) else
                          "rows-face wrong"))
+            if expected_state[name] == "engine-era-swap":
+                # big_reorder: 差异=引擎时代语义（degraded 退场），断言换位
+                # 正确形不变量（非逐字段对照 naive 降级形 610/610）。
+                inv_ok = (eng.get("adds") == 310 and eng.get("dels") == 310
+                          and eng.get("degraded") is False
+                          and len(eng.get("hunks", [])) == 2)
+                observed = "engine-era-swap" if inv_ok else "INV-FAIL"
+                recon[name] = {"expected": expected_state[name],
+                               "observed": observed,
+                               "engine_hunks_n": len(eng.get("hunks", [])),
+                               "engine_rows_n": len(eng.get("rows", [])),
+                               "engine_adds_dels": [eng.get("adds"),
+                                                    eng.get("dels")]}
+                check("⑦", f"引擎对账={expected_state[name]}: {name}",
+                      observed == "engine-era-swap",
+                      "invariant 310/310 deg=false hunks=2")
+                continue
             recon[name] = {"expected": expected_state[name],
                            "observed": observed,
                            "hunks_match": not drift["hunks"],
@@ -851,11 +889,7 @@ def main():
                            "row_field_diffs": row_diffs,
                            "drift_flags": drift}
             check("⑦", f"引擎对账={expected_state[name]}: {name}",
-                  observed == expected_state[name]
-                  or (expected_state[name].startswith("D-2")
-                      and observed == "counts+hunks wrong")
-                  or (expected_state[name].startswith("D-1")
-                      and observed == "rows-face wrong"),
+                  observed == expected_state[name],
                   f"observed={observed} drift={[k for k, v in drift.items() if v]}")
         with open(os.path.join(TESTS, "evidence-p016-recon.json"), "w",
                   encoding="utf-8") as f:

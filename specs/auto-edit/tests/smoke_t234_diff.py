@@ -233,12 +233,19 @@ def main():
 
 
 def cap_instance():
-    """PLAN-015 T-04 断言族④：双 cap（big_reorder 现役 fixture——信封级
-    600 截断+内联级 600 截断并列注记，拦腰形 pair）。"""
+    """PLAN-015 T-04 断言族④：双 cap（PLAN-016 修复轮改形：生成式 700
+    全换 fixture——700 pair 行>600 双截断；原 big_reorder 形在引擎时代
+    修复后=del/add 块分离换位，pair 展开 ×2 前提失效——改形与矩阵
+    15.14 同款，fixtures 保 pristine）。"""
     port = pick_free_port(9385)
-    proc = launch(port, {
-        "AUTO_DIFF_A": os.path.join(FIX, "big_reorder.a.txt"),
-        "AUTO_DIFF_B": os.path.join(FIX, "big_reorder.b.txt")})
+    dtmp = tempfile.mkdtemp(prefix="p015_cap_")
+    pa = os.path.join(dtmp, "cap.a.txt")
+    pb = os.path.join(dtmp, "cap.b.txt")
+    with open(pa, "w", encoding="utf-8") as f:
+        f.write(chr(10).join(f"old line {i} content" for i in range(700)))
+    with open(pb, "w", encoding="utf-8") as f:
+        f.write(chr(10).join(f"new line {i} content" for i in range(700)))
+    proc = launch(port, {"AUTO_DIFF_A": pa, "AUTO_DIFF_B": pb})
     url = f"http://127.0.0.1:{port}/mcp"
     try:
         if not wait_for_server(url, 30):
@@ -268,12 +275,9 @@ def cap_instance():
         time.sleep(1.2)
         s2 = mcp.state("diff_irows_count", "diff_irows_truncated",
                        "diff_vmode")
-        exp_irows, exp_trunc = derive_inline(golden_rows("big_reorder"))
-        check("P15④ 内联级截断（irows=600=推导期望+truncated）",
+        check("P15④ 内联级截断（irows=600+truncated）",
               state_int(s2, "diff_irows_count") == 600 and
-              state_int(s2, "diff_irows_count") == len(exp_irows) and
-              state_bool(s2, "diff_irows_truncated") is True and
-              exp_trunc is True,
+              state_bool(s2, "diff_irows_truncated") is True,
               f"irows={state_int(s2, 'diff_irows_count')} "
               f"trunc={state_bool(s2, 'diff_irows_truncated')}")
         snap = mcp.snapshot()

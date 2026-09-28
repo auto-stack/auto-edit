@@ -1735,11 +1735,11 @@ def run_tests(mcp_url, proc):
     #   15.16-15.19 PLAN-016 缓冲区比较组（旁路自开+装载轮转 B→A 序/
     #         跳转 set_cursor 读回/旁路残缺 err 形/关闭复原——缺键端点
     #         err 形由 probe_bufdiff.py 探针承载）
-    # 上游缺陷注记（PLAN-016 执行期勘定，docs/upstream 供料档 §消费回执）：
-    # 引擎 rows 面流位错配（D-1）+anchor 分块非单调（D-2）——15.1/15.2/
-    # 15.3/15.7/15.11/15.14 的 rows 承载断言在上游修复前按已知 blocked
-    # 集注记（hunks/counts 面正确——15.4/15.5/15.6/15.8/15.9/15.10/
-    # 15.13/15.15/15.16-15.19 不受累）。
+    # 上游缺陷史（PLAN-016 执行期勘定+修复轮清偿，供料档 §6.2）：引擎
+    # rows 面流位错配（D-1）+anchor 非单调（D-2）曾使 15.1/15.2/15.3/
+    # 15.7/15.11/15.14/15.15 rows 承载断言入已知 blocked 集——auto-lang
+    # PLAN-704（b2f8761e0）修复后 golden 重定轮恢复原口径（工具链
+    # ≥v0.4.2-2183 判据）。
     print("\nT15: PLAN-011 file diff")
     diff_fix = os.path.join(fixtures_dir, "diff")
     if os.path.isdir(diff_fix):
@@ -1936,8 +1936,9 @@ def run_tests(mcp_url, proc):
         #   15.12 切换零重比（双向：envelope 八字段不变+console 增量无
         #         compute 行——F-3 硬证明；回切投影清空）
         #   15.13 内联态 hunk 导航（推进 [1,2]+位次 3/3）
-        #   15.14 双 cap（big_reorder 现役 fixture：信封 600+内联 600
-        #         拦腰形+双注记快照）
+        #   15.14 双 cap（生成式 700 全换 fixture：信封 600+内联 600
+        #         拦腰形+双注记快照——big_reorder 引擎时代换位形零 pair
+        #         展开前提失效，修复轮改形）
         #   15.15 内联态重算（dirdiff 旁路→下钻→切内联→返回→再下钻：
         #         vmode 保持+投影按新文件重建——F-2 生命周期覆盖）
         def _t15_golden_irows(name):
@@ -2031,36 +2032,38 @@ def run_tests(mcp_url, proc):
         except Exception as e:
             result.check("T15.11-13 内联主链", False, repr(e))
 
-        # 15.14 双 cap（big_reorder：信封 600+内联 600 拦腰形+双注记）
+        # 15.14 双 cap（PLAN-016 修复轮改形：生成式 700 全换 fixture——
+        # 700 pair 行>600 触发双截断[600 pair → 内联 1200>600 拦腰]；
+        # 原 big_reorder 形在引擎修复后=del/add 块分离换位[632 行、前
+        # 600 行零 pair——pair 展开 ×2 前提失效]，双 cap 断言改生成式
+        # fixture 硬断言[fixtures 保 pristine——15.9/15.10 同款]，推导
+        # 对照由 15.11 golden 面承载）。
         try:
-            from probe_diff import derive_inline
-            with open(os.path.join(diff_fix, "big_reorder.golden.json"),
-                      encoding="utf-8") as f:
-                rows = json.load(f)["rows"]
-            ir14, exp_tr = derive_inline(rows)
-            exp_n = len(ir14)
-            p15, t15 = _t15_app({
-                "AUTO_DIFF_A": os.path.join(diff_fix, "big_reorder.a.txt"),
-                "AUTO_DIFF_B": os.path.join(diff_fix, "big_reorder.b.txt")})
+            d14 = tempfile.mkdtemp(prefix="auto016_t15_cap_")
+            pa14 = os.path.join(d14, "cap.a.txt")
+            pb14 = os.path.join(d14, "cap.b.txt")
+            with open(pa14, "w", encoding="utf-8") as f:
+                f.write(chr(10).join(f"old line {i} content" for i in range(700)))
+            with open(pb14, "w", encoding="utf-8") as f:
+                f.write(chr(10).join(f"new line {i} content" for i in range(700)))
+            p15, t15 = _t15_app({"AUTO_DIFF_A": pa14, "AUTO_DIFF_B": pb14})
             ok_open = _t15_wait_open(t15, 25)
             st0 = t15.state("diff_rows_count", "diff_rows_truncated")
             b_inline = find_button_by_text(t15.snapshot(), "内联")
             if b_inline:
                 t15.click(b_inline)
                 time.sleep(1.0)
-            st = t15.state("diff_irows_count", "diff_irows_truncated",
-                           "diff_vmode")
+            st = t15.state("diff_irows_count", "diff_irows_truncated")
             snap15 = t15.snapshot()
             result.check("T15.14 双 cap（信封 600+内联 600+双注记快照）",
                          ok_open
                          and state_int(st0, "diff_rows_count") == 600
                          and state_bool(st0, "diff_rows_truncated") is True
-                         and state_int(st, "diff_irows_count") == exp_n
                          and state_int(st, "diff_irows_count") == 600
                          and state_bool(st, "diff_irows_truncated") is True
                          and "渲染截断" in snap15 and "内联截断" in snap15,
                          f"rows={state_int(st0, 'diff_rows_count')} "
-                         f"irows={state_int(st, 'diff_irows_count')}/{exp_n} "
+                         f"irows={state_int(st, 'diff_irows_count')} "
                          f"trunc={state_bool(st, 'diff_irows_truncated')}")
             _kill_proc_tree(p15)
         except Exception as e:

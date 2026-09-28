@@ -1,15 +1,15 @@
 {
-  "toolchain": "auto 0.1.0+v0.4.2-2175-g5c558778f",
+  "toolchain": "auto 0.1.0+v0.4.2-2183-gc8f86ef92",
   "note": "PLAN-016 T-03 引擎×参考对账——漂移逐字段证据；golden 同步=上游 D-1/D-2 修复后重定（同步≠放宽）",
   "shapes": {
     "add_only": {
-      "expected": "D-1 rows-face",
-      "observed": "rows-face wrong",
+      "expected": "zero-drift",
+      "observed": "zero-drift",
       "hunks_match": true,
       "counts_match": true,
       "engine_hunks_n": 1,
       "ref_hunks_n": 1,
-      "engine_rows_n": 5,
+      "engine_rows_n": 9,
       "ref_rows_n": 9,
       "engine_adds_dels": [
         3,
@@ -21,17 +21,17 @@
         "adds": false,
         "dels": false,
         "degraded": false,
-        "rows_len": true
+        "rows_len": false
       }
     },
     "del_only": {
-      "expected": "D-1 rows-face",
-      "observed": "rows-face wrong",
+      "expected": "zero-drift",
+      "observed": "zero-drift",
       "hunks_match": true,
       "counts_match": true,
       "engine_hunks_n": 1,
       "ref_hunks_n": 1,
-      "engine_rows_n": 4,
+      "engine_rows_n": 9,
       "ref_rows_n": 9,
       "engine_adds_dels": [
         0,
@@ -43,7 +43,7 @@
         "adds": false,
         "dels": false,
         "degraded": false,
-        "rows_len": true
+        "rows_len": false
       }
     },
     "modify": {
@@ -69,13 +69,13 @@
       }
     },
     "scattered": {
-      "expected": "D-1 rows-face",
-      "observed": "rows-face wrong",
+      "expected": "zero-drift",
+      "observed": "zero-drift",
       "hunks_match": true,
       "counts_match": true,
       "engine_hunks_n": 3,
       "ref_hunks_n": 3,
-      "engine_rows_n": 41,
+      "engine_rows_n": 21,
       "ref_rows_n": 21,
       "engine_adds_dels": [
         3,
@@ -87,39 +87,27 @@
         "adds": false,
         "dels": false,
         "degraded": false,
-        "rows_len": true
+        "rows_len": false
       }
     },
     "big_reorder": {
-      "expected": "D-2 anchor-monotonicity (counts wrong)",
-      "observed": "counts+hunks wrong",
-      "hunks_match": false,
-      "counts_match": false,
+      "expected": "engine-era-swap",
+      "observed": "engine-era-swap",
       "engine_hunks_n": 2,
-      "ref_hunks_n": 1,
-      "engine_rows_n": 943,
-      "ref_rows_n": 616,
+      "engine_rows_n": 632,
       "engine_adds_dels": [
-        620,
-        0
-      ],
-      "row_field_diffs": [],
-      "drift_flags": {
-        "hunks": true,
-        "adds": true,
-        "dels": true,
-        "degraded": true,
-        "rows_len": true
-      }
+        310,
+        310
+      ]
     },
     "unbalanced": {
-      "expected": "D-1 rows-face",
-      "observed": "rows-face wrong",
+      "expected": "zero-drift",
+      "observed": "zero-drift",
       "hunks_match": true,
       "counts_match": true,
       "engine_hunks_n": 1,
       "ref_hunks_n": 1,
-      "engine_rows_n": 6,
+      "engine_rows_n": 7,
       "ref_rows_n": 7,
       "engine_adds_dels": [
         1,
@@ -131,7 +119,7 @@
         "adds": false,
         "dels": false,
         "degraded": false,
-        "rows_len": true
+        "rows_len": false
       }
     }
   }
