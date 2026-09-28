@@ -252,6 +252,18 @@
           ],
           "superseded_by": null,
           "content": "- 实现：fsys.diff_files_json/diff_dirs_json=native 9915/9917 裸名直调纯转发（1150→350 行，三门 1MB/10k/DP-200+桶积 700k 护栏+降级面+「等待内核引擎」文案族整体退役——degraded 恒 false，>10k 行/>1MB 正常出结果）；缓冲区比较 v1=第 15 端点 diff_buffers→9916 registry 直读净形 rows:[]+面板双 tab 序号输入+跳转 set_cursor（A 侧首位）+AUTO_DIFFBUF 旁路（load_key 单槽 B→A 固定序轮转——序错置死锁首轮烟测实勘）。\n- 执行期勘定上游双缺陷（D-1 rows 面流位错配/D-2 anchor 非单调——供料档 §6.2 源码行级根因+最小复现，消费侧不修）：缺陷期绊线纪律执行实录（golden 不 golden 化缺陷输出，probe ①′/⑦ 文档态绊线+evidence-p016-recon.json 漂移逐字段在档）。\n- 修复轮（auto-lang PLAN-704 b2f8761e0 清偿）：工具链 v2183-gc8f86ef92→绊线红相八 FAIL 实证→golden 重定（五简单形原样恢复=引擎≡过渡参考全等；big_reorder 按引擎重定 310/310+rows 632——15.14 双 cap 改生成式 700 全换 fixture[big_reorder 引擎时代形 del/add 块分离零 pair 展开前提失效]）→probe 64/0+全矩阵 125/4 已知族全中零新失败（D 族清零，判绿恢复 014/015 原口径 ≥117/0）。\n- bench diff_100mb ≤2s 达成（战略 §2.1 预算行）：release 全链 1906/1971ms——踩线余量 ~5%（引擎计算 ~380ms 在册，链路主耗=2×100MB 读+47MB envelope 全量 rows 投影+49MB 双层 JSON；rows 惰性投影=观察件 want）；计时卫生=fixture writeback 沉降窗 5s（无窗 2034/2054 vs 静置分解 1437=+600ms 失真实证）；over 档通过形+debug 14.9s 在档。\n- 环境：工具链 v2183-gc8f86ef92（PATH 旧二进制 v2156 早于 703 交付坑位三度应验）；组依赖 .wt/edit-016/auto-lang@5c558778f 钉版 detached。复审 F-1/F-2/F-3 文档面闭合（overview 清偿态/README 终数/JSONL 入库）。"
+        },
+        {
+          "id": "P017-1",
+          "section": "reviews",
+          "status": "stable",
+          "title": "PLAN-017 — M3-05 差异侧编辑回路收据（reviewed pass @ r1 9d1d112：双侧跳转编辑+保存自动重比三域钩子+净形 live 预览 badge+B 侧跳转补全——M3 本仓面收口）",
+          "file": "docs/plans/archived/017-m3-diff-edit-loop.md",
+          "related": [
+            "PLAN-017"
+          ],
+          "superseded_by": null,
+          "content": "- 实现：双侧跳转编辑链（DiffEditJumpA/B 工具栏钮+DiffRowEditA/B 并排行钮+DiffIRowEditA/B 内联投影钮+DiffEditOpen 公共核[path 查径激活/OpenPath 新建+pend 装载等待 load_key 单槽轮转 016 先例 handler 化+跳转即藏视图 diff_edit_return 旗标+DiffEditTick 落点轮转]）；保存自动重比钩子（WriteFidelity 两臂 dirty=false 后单挂点 DiffSaveHook 三域分派——文件 diff 重比/下钻 DirDiffRefresh 双刷新旗标复原/面板键匹配 DiffBufRun/无命中零动作零 console；return 旗标两臂同清=保存自动重开闭环）；净形 live 预览（DiffBufLiveMark 内容变更位单行标记[SrcChanged+ReplaceAll/EolConvert/Cut/Paste MCP 可驱动族]+DiffBufLiveTick 单拍合并+DiffBadgeRefresh probe 隐藏键 diff-probe-a 保存前预览[体积门 50MB+big 门]）；B 侧跳转补全（DiffBufJumpA/B 双臂+净形行「→A/→B」双钮——016 尾注清偿）。纯 front 件：产品 back（api.at/fsys.at）零 diff。\n- T-00 勘定（probe_bufdiff ③段 13/0）：badge 轨形成立（h-0 隐藏 widget 实化键装载+快照净形+重装载幂等）+未实化键否定面+registry 卸载存活+set_text 驱动面——决策补记五条入计划 §5。\n- 验证：全矩阵 133 passed / 4 failed=已知族全中零新失败（T13.6 flake+T17.2/17.3/17.8 上游卡死族；T17.4 轮换翻绿在录）；完成态 137（129+8）判绿 ≥125/0；15.20-15.24 八检查+15.17 期望同步（→A 钮）+15.16-15.19/T16/T18 回归绿；smoke P17 断言族+launch APPDATA 隔离补漏（真实会话恢复污染=假红根因）；vue 臂 regen+build 双 exit 0。执行期勘定三项在案：console 镜像异步滞后（wait_console_line 卫生）、diff 视图开态新开 tab 未实化边界（011 起既有隐患——保存链静默死亡，§10 Q-3 登记另立小件建议）、15.24 初版 fixture ctx 窗合并退化改 scattered。\n- SD 四册：diff-view.md 差异侧编辑回路节/00-overview M3 第五件注记（M3 本仓面收口——剩语法高亮联动=M4 tree-sitter）/README PLAN-017 口径/供料档 §6.3 in-place 混源 rows want+未实化键语义登记（非阻塞）。\n- 环境：工具链 v0.4.2-2183-gc8f86ef92（704 b2f8761e0 祖先链核验）；组依赖 .wt/edit-017/auto-lang@c8f86ef92 钉版 detached（master 已漂 705 在飞）。复审=实现会话自审（工件重构判定：被审提交新鲜复现+已提交证据文件逐字对账）。"
         }
       ],
       "status": "Empty",
