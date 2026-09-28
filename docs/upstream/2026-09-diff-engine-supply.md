@@ -158,6 +158,14 @@ PLAN-703 五件供料包，delivery 46efa926a，2026-09-27 delivered 归档）
 
 ### 6.2 缺陷登记（消费侧实证，本仓不修——upstream 修订件清偿）
 
+> **【已修复·2026-09-28】auto-lang PLAN-704**（704-diff-rows-anchor-fix
+> ——上游修订件：D-1 rows 流位单源化+D-2 anchor LIS 单调过滤，
+> 回归测试 5 件+plan703 探针 7/0 零回归。下游解阻三步（PLAN-016 §9
+> blockers 清偿序）：①工具链重建（≥704 交付 commit）→②probe_diff
+> ⑦绊线 FAIL 触发重定轮（golden 按修复后引擎重定+T15 rows 面判绿
+> 恢复）→③T-05 bench diff_100mb 真跑+budgets.json/README/SD-05
+> 实测回填。）
+
 **D-1 rows 面流位错配（`build_rows` × `group_hunks_annotated` 单位
 不一致）**：`group_hunks_annotated`（diff/mod.rs:348 起）向
 `GroupedHunk.fc/lc` 写入的是**changes 向量下标**（`fc: idx, lc: idx`
