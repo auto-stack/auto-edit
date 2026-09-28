@@ -1,0 +1,30 @@
+---------------------------
+AutoNexus / Auto CLI
+---------------------------
+Loading AmConfig from Some("C:\\Users\\zhaop\\.auto\\auto-man\\am.at")...
+AmConfig: AmConfig {
+  name: default
+  index: {
+    soutek: git@codeup.aliyun.com:soutek/auto-stack/auto-index.git
+    boe: git@codeup.aliyun.com:soutek/boe/index.git
+    default: git@gitee.com:auto-stack/auto-index.git
+  }
+}
+
+
+Loaded port: windows_ninja
+port NAME: windows_ninja
+all index: {"soutek": "git@codeup.aliyun.com:soutek/auto-stack/auto-index.git", "boe": "git@codeup.aliyun.com:soutek/boe/index.git", "default": "git@gitee.com:auto-stack/auto-index.git"}
+used index: ["default"]
+23:32:43 [0m[34m[INFO] [0mloading index store from C:/Users/zhaop/.auto/auto-man/index/default
+setting port builder: windows_ninja ninja, at build
+23:32:43 [0m[34m[INFO] [0mAutoCache initialized for project: auto-edit
+  Frontend dev server port: 4041
+23:32:43 [0m[34m[INFO] [0mDownloading deps
+[X9] main Err:   × Failed to read config file deps/stylekit\pac.at: 系统找不到指定的文件。
+  │ (os error 2)
+
+Error:   × Failed to read config file deps/stylekit\pac.at: 系统找不到指定的文件。
+  │ (os error 2)
+
+[regen-vue] $ D:\autostack\auto-lang\target\debug\auto.EXE build --gen-only -r vue

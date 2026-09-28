@@ -414,7 +414,26 @@ specs.json reviews 段 P017-1 投影（015/016 外科插入先例）。
     True（17 项/P017-1 尾/P016-1 前缀完好）。
   - **archived**：本行所在提交——git mv 至 docs/plans/archived/ +
     status: archived + completion_kind: delivered。
-  - **cleaned**：（待回填）
+  - **cleaned**：git 侧全净实证——wt-guard clean ✓×2（edit-017/
+    auto-edit 与组依赖 edit-017/auto-lang 双双零 reparse point；
+    junction 晶格[node_modules pnpm 链+deps 2 枚]经 PowerShell 链接
+    语义摘除后复扫零 reparse，链接目标[auto-lang/blueprints+specs/
+    stylekit]存活验证通过）；worktree 注销 ✓×2（各属主仓注销；双仓
+    worktree list 零 edit-017 条目；钉版目录 detached@c8f86ef92 快照
+    一次性弃）/branch plan-017-dev 删 ✓（was 7c10d70）/组目录
+    .wt/edit-017 rmdir ✓（189M 构建残渣一并清除）。auto-lang 主树
+    master 零触碰（705/706 他人会话 worktree 在飞不受扰）。
+  - **部署观察项回填（cleaned 后）**：main gen/front/vue/dist 重建
+    **blocked-on-foreign-WIP**——主检出 specs/stylekit/pac.at 与
+    src/front/styles.at 他人未提交删除（master-zero-WIP 违规面，本
+    件全程零触碰）致 stylekit 包缺 pac.at→`regen_vue.py --build`
+    读 deps/stylekit 失败（证据 vue_build_p017_main_blocked.log 入
+    库）。**解阻动作=stylekit WIP 属主路由后于 main 重跑
+    `python scripts/regen_vue.py --build`**；陈旧面现势注记：①
+    debug/release 工具链二进制 v2183-gc8f86ef92 不受影响（纯 .at
+    front 件——VM 轨源解释执行）；②rust-workspace（a2r back）零
+    diff 现势；③vue 束=worktree 构建绿证据在档[9d1d112]、main 面
+    陈旧待上述解阻（vm 轨消费=源解释零陈旧）。
   - **部署观察项（landing ≠ deployment）**：本件=纯 .at front 件
     ——①debug/release 工具链二进制 v0.4.2-2183-gc8f86ef92 不受
     影响（VM 轨源解释执行 .at，零重建需求，与 016 期同版=现势）；
