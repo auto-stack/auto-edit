@@ -6,7 +6,7 @@ author: [agent]
 created_at: 2026-09-28T17:31:25+08:00
 updated_at: 2026-09-28T18:05:00+08:00
 plan_revision: 1
-current_step: 0
+current_step: 7
 total_steps: 7
 supersedes_spec_components: []
 new_spec_components:
@@ -166,6 +166,45 @@ docs）；**back 零改动**；auto-lang 零改动。无预算/自动续跑授�
 3. **B 侧跳转动作形**：净形行双臂（A 钮/B 钮双钮）vs 单臂+侧切换
    ——默认双钮（矩阵 find 唯一性优先）。
 
+**【决策补记 2026-09-28 执行期，probe_bufdiff ③段 13/0 全绿】**：
+
+- **①badge 轨形：成立——随件落**。probe_bufdiff_app 扩段四臂实证：
+  P3 隐藏 widget（h-0 实化键）`code_editor_load_file` 全字节装载
+  （ret=18）+净形快照（[0,4)×2——**快照面尾空行保留语义**，文件面
+  尾空吸收的两面差异在 ds 全缓冲对打面同样适用）+P3b 重装载幂等
+  （badge 刷新位复用形）；P1 未实化键（非 UI 键直接 load）否定面
+  坐实（err「编辑器不存在」/-1）——badge 必须走隐藏 widget 轨形而
+  非裸键；P4 `code_editor_set_text` 内容驱动→快照计数变化（live
+  预览模拟驱动形成立）。决策产物 `probe_load_track` 段入
+  probe_bufdiff_report.json。
+- **②registry 生命周期勘定（连带，P2）**：条目=widget 首挂创建
+  （未实化键否定面）+**卸载存活**（tab-1 经 if 门卸载后快照仍净形
+  正路径）——diff 视图开态编辑器卸载后内容仍可快照/读出=保存钩子
+  /live 面 registry 语义前提成立。**边界坐实**：diff 视图开态新开
+  tab 不实化（视图覆盖编辑器区）——对该态 tab 的 badge 快照=优雅
+  空、保存链=静默死亡（011 起既有隐患，非本件引入；§10 Q-3 登记，
+  矩阵流规避）。
+- **③入口 UI 形定案**：默认 (a)+(b) 落位——(a)=diff 视图头部双侧
+  钮「编辑 A 侧」「编辑 B 侧」（静态钮零字面量实参边界[DirFilter*
+  拆分先例]→双 msg DiffEditJumpA/B 薄委托同核 DiffEditJumpAt(side)
+  ——计划原文「DiffEditJump(side)」handler 形的实现适配，语义不变）；
+  (b)=hunk 变更行内联钮（**双击不可 MCP 驱动→矩阵可断言面=行内钮**
+  ——T-00 预授权的定夺项；裸循环索引载荷 FifResultClick/DirRowClick
+  先例+label 嵌行号 `A:{lo}`/`B:{ro}` 唯一性[15.17 L2–8 先例同构]；
+  归属侧判定=del/pair→A、add→B、ctx 行零钮[变更行域+渲染面负担
+  权衡]；内联态 DiffIRowEditA/B 投影同构）。
+- **④B 侧动作形定案**：双钮（计划默认）——净形行「→A L{a1+1}–
+  {a2}」「→B R{b1+1}–{b2}」（d_a/d_b label 预变换嵌区间唯一性）；
+  15.17 期望同步一处（全区间单钮「L2–8 ↔ R2–8」→「→A L2–8」，
+  A 臂语义不变）。
+- **⑤跳转视图语义补记（实现期设计定案）**：diff 视图=全幅条件替换
+  编辑区——跳转后装载/编辑需编辑器实化，故**跳转即藏视图**
+  （diff_open=false+rows/vmode 态保留+diff_edit_return 旗标），保存
+  钩子经旗标自动重开视图重比（G-2「原地刷新零手动」的闭环形态；
+  用户 DiffClose 显式清除旗标=放弃重开）。计划 §5 T-01 原文「装载
+  等待+落 hunk 首行」语义全保留，视图藏/重开=编辑器区单视口约束下
+  的实现形态（非目标节「并存同屏」语义在缓冲区面板域不受影响）。
+
 ### T-01 双侧跳转编辑链（G-1）
 
 handler 族：`DiffEditJump(side)`（工具栏钮：side ∈ {a,b}→目标
@@ -279,13 +318,13 @@ specs.json reviews 段 P017-1 投影（015/016 外科插入先例）。
 
 | # | 任务 | 依赖 | 落点（实勘锚） | 产出/意图 | AC | 验证（命令/预期） |
 |---|---|---|---|---|---|---|
-| 0 | T-00 勘定决策件（probe 轨形/入口 UI 形/B 侧动作形） | — | 本件 §5 T-00 节+probe_bufdiff 扩段 | 三勘定案+报告在档 | AC-03/07 | [ ] 探针 exit 0+决策补记 §5 |
-| 1 | T-01 双侧跳转编辑链 | T-00 | editor_store.at（DiffEditJump/DiffRowEdit+装载轮转 handler 化）+app.at（工具栏钮/行动作） | 跳转协议双侧化 | AC-01 | [ ] 矩阵 15.20 绿 |
-| 2 | T-02 保存自动重比钩子 | — | editor_store.at:2604 WriteFidelity 尾+DiffSaveHook | 三域分派+零动作可断言 | AC-02 | [ ] 矩阵 15.21/15.22 绿 |
-| 3 | T-03 净形 live 预览 | T-00 | editor_store.at（SrcChanged/Tick）+（视勘定）badge | 面板 live+badge/want 二选一 | AC-03 | [ ] 矩阵 15.23 绿 |
-| 4 | T-04 B 侧跳转补全 | — | editor_store.at（DiffBufJump）+app.at（双钮） | 016 尾注清偿 | AC-04 | [ ] 矩阵 15.24 绿 |
-| 5 | T-05 矩阵/探针/smoke | T-01..04 | desktop_mcp.py+probe_bufdiff.py+smoke_t234 | 15.20-15.24+判绿重定 | AC-06 | [ ] 全量 ≥新下限/0 failed |
-| 6 | T-06 规范+账本+want | T-05 | SD-01..04+specs.json | 收口注记+供料 want 排队 | AC-06/07 | [ ] 文件在档+P017-1 回读 True |
+| 0 | T-00 勘定决策件（probe 轨形/入口 UI 形/B 侧动作形） [x] ✅ 已完成 2026-09-28（worktree commit 6018a93）：probe_bufdiff ③段四臂 **13/0 全绿**（P3 隐藏 widget h-0 键装载全字节+快照净形+P3b 重装载幂等=badge 轨形**成立随件落**；P1 未实化键否定面坐实；P2 registry 卸载存活勘定；P4 set_text 内容驱动面成立）——决策补记五条落 §5 T-00 节（probe_load_track 段入 report.json） | — | 本件 §5 T-00 节+probe_bufdiff 扩段 | 三勘定案+报告在档 | AC-03/07 | [x] 探针 exit 0+决策补记 §5 |
+| 1 | T-01 双侧跳转编辑链 [x] ✅ 已完成 2026-09-28（commit e1f96e6）：DiffEditJumpA/B+DiffRowEditA/B+DiffIRowEditA/B+DiffEditJumpAt/DiffEditOpen 公共核（path 查径+pend 装载等待 load_key 单槽轮转 016 先例 handler 化+跳转即藏视图 return 旗标）+DiffEditTick Tick 落点——矩阵 15.20a-d 全绿（落点读回 line=2=hunk0 a1=1→1 基；行级 A:5 锚；已开激活 tab 零增长） | T-00 | editor_store.at（DiffEditJump/DiffRowEdit+装载轮转 handler 化）+app.at（工具栏钮/行动作） | 跳转协议双侧化 | AC-01 | [x] 矩阵 15.20 绿 |
+| 2 | T-02 保存自动重比钩子 [x] ✅ 已完成 2026-09-28（commit e1f96e6+78110cf 旗标修复）：WriteFidelity 两臂 dirty=false 后单挂点 DiffSaveHook 三域分派+下钻 DirDiffRefresh 旗标复原+return 旗标两臂同清（首轮 15.21 真红=视图开态臂漏清，已修）——矩阵 15.21/15.22 绿（视图自动重开+vmode 保持+8/-8 变形+重比行+落盘；无关保存零重比行） | — | editor_store.at:2604 WriteFidelity 尾+DiffSaveHook | 三域分派+零动作可断言 | AC-02 | [x] 矩阵 15.21/15.22 绿 |
+| 3 | T-03 净形 live 预览 [x] ✅ 已完成 2026-09-28（commit e1f96e6）：DiffBufLiveMark 内容变更位单行标记（SrcChanged+ReplaceAll/EolConvert/Cut/Paste MCP 可驱动族）+DiffBufLiveTick 单拍合并+DiffBadgeRefresh probe 隐藏键 diff-probe-a（T-00③ 成立随件落——视图头部 amber 串）——矩阵 15.23 绿（ReplaceAll→防抖单拍净形 8/8 保存前→钩子刷新一致）+badge 生命周期实证（15.21 内嵌：预览 +1/-1→live +8/-8→保存后清空） | T-00 | editor_store.at（SrcChanged/Tick）+（视勘定）badge | 面板 live+badge/want 二选一 | AC-03 | [x] 矩阵 15.23 绿 |
+| 4 | T-04 B 侧跳转补全 [x] ✅ 已完成 2026-09-28（commit e1f96e6）：DiffBufJump 单臂退役→DiffBufJumpA/B 双臂（kb 激活+b1 锚对称）+净形行双钮 d_a/d_b「→A L…」「→B R…」（15.17 期望同步一处）——矩阵 15.24 绿（scattered 三 hunk→B R31–38 b1=30→line 31 读回+→A 对称）+15.18 回归绿 | — | editor_store.at（DiffBufJump）+app.at（双钮） | 016 尾注清偿 | AC-04 | [x] 矩阵 15.24 绿 |
+| 5 | T-05 矩阵/探针/smoke [x] ✅ 已完成 2026-09-28（commit 78110cf）：矩阵子组八检查+15.17 期望同步+wait_console_line 助手（console 镜像滞后卫生）+smoke P17 四检查+smoke launch APPDATA 隔离补漏（真实会话恢复污染 tab 集假红根因）——**全矩阵 133 passed / 4 failed=已知族全中零新失败**（T13.6 flake+T17.2/17.3/17.8 已知卡死族；T17.4 本轮翻绿=016 在录轮换成员）；完成态 137（129+8）判绿 ≥125/0 已知集计零 133/0 达标；smoke 两轮 ALL PASS | T-01..04 | desktop_mcp.py+probe_bufdiff.py+smoke_t234 | 15.20-15.24+判绿重定 | AC-06 | [x] 全量 ≥新下限/0 failed |
+| 6 | T-06 规范+账本+want [x] ✅ 已完成 2026-09-28：SD-01 diff-view.md 差异侧编辑回路节+SD-02 00-overview M3 第五件注记（本仓面收口）+SD-03 README PLAN-017 口径（137/≥125/0+133/4 执行谱真值）+SD-04 供料档 §6.3 in-place 混源 rows want+附随 want（badge probe 键退役位）+未实化键语义登记（非阻塞）；P017-1 账本投影=merge 期项（016 先例——随 review/merge 轮） | T-05 | SD-01..04+specs.json | 收口注记+供料 want 排队 | AC-06/07 | [x] 文件在档（P017-1 投影=merge 期项） |
 
 ## 9. 复审记录
 
@@ -296,6 +335,28 @@ specs.json reviews 段 P017-1 投影（015/016 外科插入先例）。
   BC in-place 缺口如实登记供料 want 而非硬做；路径/符号经
   auto-edit@f20882e 实勘锚定[WriteFidelity 两臂/SrcChanged/旁路
   Tick]；授权=起草，执行待用户启动）。`next: work`。
+- 2026-09-28 执行 handoff：`stage: work | PLAN-017 | plan_revision 1
+  | outcome: **pass** | code_commit: worktree plan-017-dev@9d1d112
+  （T-00=6018a93，实现=e1f96e6+旗标修复，矩阵/smoke=78110cf，SD 四
+  册+证据入库=9d1d112；base f20882e）| task_ids: T-00..T-06 全落
+  （current_step 7/7）| evidence: ①工具链门=v0.4.2-2183-gc8f86ef92
+  现役（704 b2f8761e0 祖先链核验）；组依赖 .wt/edit-017/auto-lang
+  @c8f86ef92 钉版 detached（master 已漂 705 在飞）；②probe_bufdiff
+  ③段 13/0（badge 轨形成立/registry 卸载存活/set_text 驱动面——
+  T-00 三决策+补记 §5）；③全矩阵 **133 passed / 4 failed**=已知族
+  全中零新失败（T13.6 flake+T17.2/17.3/17.8 上游卡死族；T17.4 本轮
+  翻绿=016 在录轮换成员）——15.20-15.24 八检查全绿、15.16-15.19/
+  T16/T18 回归绿；完成态 137（129+8）判绿 ≥125/0 已知集计零 133/0
+  达标；④smoke 两轮 ALL PASS（P17 断言族+launch APPDATA 隔离补漏
+  ——真实会话恢复污染 tab 集=假红根因修复）；⑤AC-05 产品 back
+  （api.at/fsys.at）零 diff 路径断言（probe 载具 back=测试基建
+  T-00 最小面，非产品件）；⑥vue 臂 regen+build 双 exit 0（日志
+  入库 9d1d112）；⑦执行期勘定三项如实成文：console 镜像异步滞后
+  （断言卫生 wait_console_line）、diff 视图开态新开 tab 未实化边界
+  （011 起既有隐患——§10 Q-3 登记）、15.24 初版 fixture ctx 窗
+  合并退化（改 scattered 非平凡锚）。矩阵首轮 T14.2/14.3 未渲染
+  疑负载 flake——复跑全绿未入失败集。| blockers: 无 | next:
+  review`。status=execution_done。
 
 ## 10. 待澄清事项
 
@@ -303,7 +364,24 @@ specs.json reviews 段 P017-1 投影（015/016 外科插入先例）。
   （hunk 位次联动）+hunk 行归属侧动作双形态并行（矩阵可断言优先）；
   若用户预裁定只取其一（极简/极全两极），请在执行前示知——否则按
   T-00 探针证据定案。
+  **【2026-09-28 执行期定案（结案）】**：按 T-00 证据落默认双形态
+  ——(a) diff 视图头部双侧钮（DiffEditJumpA/B 双 msg 薄委托）+
+  (b) hunk 变更行内联钮（双击不可 MCP 驱动→行内钮=矩阵可断言面，
+  T-00 预授权定夺）；详见 §5 T-00 决策补记③。
 - **Q-2 文件视图保存前预览（badge）轨形（无需裁定，确认口径）**：
   默认按 T-00① 探针证据二选一——probe 装载轨形成立→随件落 badge；
   不成立→降级 dirty 提示+badge 随 in-place want 一并登记（SD-04
   附注）。两形均不阻塞主链（G-1/G-2/G-4 与此独立）。
+  **【2026-09-28 执行期定案（结案）】**：probe 轨形**成立**（隐藏
+  widget h-0 实化键装载轨形）——badge 随件落（diff-probe-a 键+
+  体积门+big 门），SD-04 附随 want 登记 probe 键的混源端点退役位。
+- **Q-3（执行期新增登记，非阻塞）diff 视图开态新开 tab 的保存链
+  静默死亡（011 起既有隐患——非本件引入）**：diff 视图=全幅条件
+  替换编辑区，此间经 +/ActOpen 新开的 tab 不实化（registry 无条目
+  ——T-00③ P1 勘定），对该态 tab 触发 ActSave →
+  WriteFidelity normal 臂 `code_editor_text(未实化键)` 异常 →
+  handler 静默终止（零 console 零落盘）。本件矩阵流规避（15.22 经
+  视图关闭路径就位第三文件）；修复方向=WriteFidelity 读出位
+  try/catch 兜底（可观测错误面）或上游 registry 读族显式缺键 err
+  形（供料档 §6.3 已登记非阻塞 want）——属既有产品面修复，建议
+  另立小件或随 in-place 消费件一并清偿，本件不扩界。
