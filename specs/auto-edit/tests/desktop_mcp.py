@@ -230,6 +230,20 @@ def state_bool(state_text, field):
     return m.group(1) == "true" if m else None
 
 
+def wait_console_line(mcp, substr, timeout=8):
+    """PLAN-017: console 镜像（.console state）相对 handler 执行有异步
+    滞后（状态字段即时、console 行延后到齐——开发期实证）——轮询至
+    目标行出现或超时。返回出现时刻的 console 全文（超时返回 None）。"""
+    deadline = time.time() + timeout
+    con = ""
+    while time.time() < deadline:
+        con = state_str(mcp.state("console"), "console") or ""
+        if substr in con:
+            return con
+        time.sleep(0.5)
+    return None
+
+
 def _kill_proc_tree(proc):
     """Plan 423 P5:terminate 不杀 Windows 子进程树 —— taskkill /T /F 兜底,
     防止失控的 UI 应用(VM 错位 runaway)被留成孤儿。"""
@@ -1735,6 +1749,10 @@ def run_tests(mcp_url, proc):
     #   15.16-15.19 PLAN-016 缓冲区比较组（旁路自开+装载轮转 B→A 序/
     #         跳转 set_cursor 读回/旁路残缺 err 形/关闭复原——缺键端点
     #         err 形由 probe_bufdiff.py 探针承载）
+    #   15.20-15.24 PLAN-017 差异侧编辑回路子组（双侧跳转[新开/激活两
+    #         路径+行级锚]/保存自动重比[badge live→保存→视图自动重开+
+    #         vmode 保持+计数变形]/无关保存零扰动/面板 live 预览/B 侧
+    #         跳转——label 解析行号真值）
     # 上游缺陷史（PLAN-016 执行期勘定+修复轮清偿，供料档 §6.2）：引擎
     # rows 面流位错配（D-1）+anchor 非单调（D-2）曾使 15.1/15.2/15.3/
     # 15.7/15.11/15.14/15.15 rows 承载断言入已知 blocked 集——auto-lang
@@ -2166,9 +2184,11 @@ def run_tests(mcp_url, proc):
                          and state_int(st, "tab_count") == 4
                          and state_int(st, "tab") == 2,
                          st.replace("\n", " ")[:200])
-            # 15.17 跳转：净形行点击 → tab=2（ka=tab-3=smoke.a）→ 切走
-            # 再切回（TabActivate SyncCursor 读回）→ line=2（a1+1）。
-            row = find_button_by_text(t15.snapshot(), "L2–8 ↔ R2–8")
+            # 15.17 跳转：净形行 →A 钮点击 → tab=2（ka=tab-3=smoke.a）→
+            # 切走再切回（TabActivate SyncCursor 读回）→ line=2（a1+1）。
+            # （PLAN-017 T-04 双钮改形：期望同步一处——原全区间单钮
+            # 「L2–8 ↔ R2–8」→「→A L2–8」，语义不变。）
+            row = find_button_by_text(t15.snapshot(), "→A L2–8")
             jumped = False
             if row:
                 t15.click(row)
@@ -2224,6 +2244,360 @@ def run_tests(mcp_url, proc):
             _kill_proc_tree(p15)
         except Exception as e:
             result.check("T15.18 旁路残缺", False, repr(e))
+
+        # 15.20-15.24: PLAN-017 —— 差异侧编辑回路子组（T15 形态：独立
+        # 新鲜进程+APPDATA 隔离）。驱动面=env 旁路自开+视图头部钮/行钮
+        # （label 嵌行号/区间唯一性）+菜单重开（跳转藏视图后的重入面
+        # ——工具→比较文件…=env 旁路同链）+autoui_type 输入注入
+        # （ReplaceAll=MCP 可驱动内容变更面）+ActSave 工具栏保存。
+        # 已勘边界（T-00③+开发期实证）：diff 视图开态新开 tab 未实化
+        # （registry 无条目）——badge/保存链的 tab 必须经跳转（视图藏
+        # →实化）或视图关闭路径就位，子组流程按此设计。
+        #   15.20 双侧跳转（A 新开/B 菜单重开后新开/行级 A 锚/已开激活
+        #         ——落点读回=切走切回 SyncCursor 面，15.17 同款）
+        #   15.21 保存自动重比（jump→cut→菜单重开 badge→ReplaceAll
+        #         live badge→保存→视图自动重开+vmode 保持+8/8 变形+
+        #         重比行+落盘）
+        #   15.22 无关保存零扰动（第三文件保存 saved 行+console 增量无
+        #         重比行+重开计数不变）
+        #   15.23 面板 live 预览（ReplaceAll→防抖单拍净形 8/8 保存前→
+        #         保存钩子刷新一致+重比行）
+        #   15.24 B 侧跳转（→B kb 激活+b1 光标读回——label 解析行号
+        #         真值；A 臂回归=15.17）
+        print("\nT15.P17: diff-side edit loop subgroup")
+
+        def _p17_wait_pend(timeout=12):
+            for _ in range(timeout * 2):
+                if not state_bool(t15.state("diff_edit_pend"), "diff_edit_pend"):
+                    return True
+                time.sleep(0.5)
+            return False
+
+        def _p17_click_text(label, tries=4):
+            for _ in range(tries):
+                b = find_button_by_text(t15.snapshot(), label)
+                if b:
+                    t15.click(b)
+                    time.sleep(1.0)
+                    return True
+                time.sleep(0.6)
+            return False
+
+        def _p17_readback_line(tab_title):
+            # 切走再切回（TabActivate SyncCursor 读回——set_cursor 不
+            # republish on_cursor 契约的读回面，014/15.17 同款）。
+            seed = find_button_by_text(t15.snapshot(), "main.at")
+            if seed:
+                t15.click(seed)
+                time.sleep(0.6)
+            tb = find_button_by_text(t15.snapshot(), tab_title)
+            if tb:
+                t15.click(tb)
+                time.sleep(0.6)
+            return state_int(t15.state("line"), "line")
+
+        def _p17_reopen_diff():
+            # 菜单重开（工具→比较文件…——AUTO_DIFF_A/B 在档=旁路同链）。
+            m = find_button_by_text(t15.snapshot(), "工具")
+            if not m:
+                return False
+            t15.click(m)
+            time.sleep(0.8)
+            return _p17_click_text("比较文件…")
+
+        def _p17_replace_all(query, replacement):
+            # 编辑菜单→替换…→autoui_type 双输入→全部替换（MCP 可驱动
+            # 内容变更面——handler 首参形）。
+            m = find_button_by_text(t15.snapshot(), "编辑")
+            if not m:
+                return False
+            t15.click(m)
+            time.sleep(0.8)
+            if not _p17_click_text("替换…"):
+                return False
+            snap = t15.snapshot()
+            qi = find_element_by_event(snap, "FindInput", attr="oninput")
+            ri = find_element_by_event(snap, "FindReplaceInput", attr="oninput")
+            if not qi or not ri:
+                return False
+            t15.call("autoui_type", text=query, element_id=qi, clear_first=True)
+            time.sleep(0.4)
+            t15.call("autoui_type", text=replacement, element_id=ri, clear_first=True)
+            time.sleep(0.4)
+            return _p17_click_text("全部替换")
+
+        def _p17_save_active(tries=4):
+            for _ in range(tries):
+                sb = find_button_by_onclick(t15.snapshot(), "ActSave")
+                if sb:
+                    t15.click(sb)
+                    time.sleep(1.5)
+                    return True
+                time.sleep(0.8)
+            return False
+
+        # 15.20 双侧跳转编辑（scattered：hunk0 a1=b1=1 → 期望行 2；
+        # 行级=首 pair 行 lo=5 → 期望行 5）
+        try:
+            p15, t15 = _t15_app({
+                "AUTO_DIFF_A": os.path.join(diff_fix, "scattered.a.txt"),
+                "AUTO_DIFF_B": os.path.join(diff_fix, "scattered.b.txt")})
+            ok_open = _t15_wait_open(t15)
+            with open(os.path.join(diff_fix, "scattered.golden.json"),
+                      encoding="utf-8") as f:
+                h0 = json.load(f)["hunks"][0]
+            want_line = h0["a1"] + 1
+            ok_a = _p17_click_text("编辑 A 侧") and state_bool(
+                t15.state("diff_edit_return"), "diff_edit_return")
+            pend_a = _p17_wait_pend()
+            line_a = _p17_readback_line("scattered.a.txt") if ok_a else -1
+            st = t15.state("diff_open", "tab_count")
+            result.check("T15.20a A 侧跳转（新开 tab+装载落点 line=%d+视图藏）" % want_line,
+                         ok_open and ok_a and pend_a
+                         and state_bool(st, "diff_open") is False
+                         and state_int(st, "tab_count") == 3
+                         and line_a == want_line,
+                         f"ok={ok_a} pend={pend_a} line={line_a} "
+                         f"open={state_bool(st, 'diff_open')} "
+                         f"tabs={state_int(st, 'tab_count')}")
+            ok_re = _p17_reopen_diff()
+            time.sleep(1.0)
+            ok_b = _p17_click_text("编辑 B 侧")
+            pend_b = _p17_wait_pend()
+            line_b = _p17_readback_line("scattered.b.txt") if ok_b else -1
+            st = t15.state("tab_count")
+            result.check("T15.20b B 侧跳转（菜单重开→新开+落点 hunk0 b1）",
+                         ok_re and ok_b and pend_b
+                         and state_int(st, "tab_count") == 4
+                         and line_b == h0["b1"] + 1,
+                         f"reopen={ok_re} ok={ok_b} pend={pend_b} line={line_b}")
+            ok_re2 = _p17_reopen_diff()
+            time.sleep(1.0)
+            ok_row = _p17_click_text("A:5")
+            line_r = _p17_readback_line("scattered.a.txt") if ok_row else -1
+            result.check("T15.20c 行级编辑跳转（pair 行 A:5 钮→lo 锚 line=5）",
+                         ok_re2 and ok_row and line_r == 5,
+                         f"reopen={ok_re2} ok={ok_row} line={line_r}")
+            ok_re3 = _p17_reopen_diff()
+            time.sleep(1.0)
+            ok_a2 = _p17_click_text("编辑 A 侧")
+            _p17_wait_pend()
+            line_a2 = _p17_readback_line("scattered.a.txt") if ok_a2 else -1
+            st = t15.state("tab_count")
+            result.check("T15.20d 已开激活路径（tab 零增长+落点复位）",
+                         ok_re3 and ok_a2
+                         and state_int(st, "tab_count") == 4
+                         and line_a2 == want_line,
+                         f"ok={ok_a2} tabs={state_int(st, 'tab_count')} "
+                         f"line={line_a2}")
+            _kill_proc_tree(p15)
+        except Exception as e:
+            result.check("T15.20 双侧跳转", False, repr(e))
+
+        # 15.21 保存自动重比（tmp 8 行对：+1/-1 基线→ReplaceAll L→Z
+        # 全行变形→保存→视图自动重开+8/-8）
+        try:
+            d21 = tempfile.mkdtemp(prefix="auto017_t15_save_")
+            fa21 = os.path.join(d21, "mod.a.txt")
+            fb21 = os.path.join(d21, "mod.b.txt")
+            with open(fa21, "w", encoding="utf-8", newline="") as f:
+                f.write("\n".join(f"L{i}" for i in range(1, 9)) + "\n")
+            with open(fb21, "w", encoding="utf-8", newline="") as f:
+                f.write("\n".join(
+                    f"L{i}" if i != 5 else "L5-CHANGED"
+                    for i in range(1, 9)) + "\n")
+            p15, t15 = _t15_app({"AUTO_DIFF_A": fa21, "AUTO_DIFF_B": fb21})
+            ok_open = _t15_wait_open(t15)
+            ok_inline = _p17_click_text("内联")
+            ok_jump = _p17_click_text("编辑 B 侧")
+            pend = _p17_wait_pend()
+            # 弄脏 B（cut——内容零变化形；B 已实化）
+            cutb = find_button_by_onclick(t15.snapshot(), "ActCut")
+            if cutb:
+                t15.click(cutb)
+                time.sleep(0.5)
+            ok_re = _p17_reopen_diff()
+            time.sleep(1.5)
+            badge1 = state_str(t15.state("diff_badge"), "diff_badge") or ""
+            ok_ra = _p17_replace_all("L", "Z")
+            time.sleep(2.0)
+            badge2 = state_str(t15.state("diff_badge"), "diff_badge") or ""
+            saved = _p17_save_active()
+            time.sleep(1.5)
+            st = t15.state("diff_open", "diff_adds", "diff_dels", "diff_vmode",
+                           "diff_edit_return", "diff_badge")
+            con = wait_console_line(t15, "已重比（保存触发")
+            disk = open(fb21, encoding="utf-8").read()
+            result.check(
+                "T15.21 保存自动重比（badge live→保存→视图自动重开+vmode 保持"
+                "+8/-8 变形+重比行+落盘）",
+                ok_open and ok_inline and ok_jump and pend and ok_re
+                and "预览" in badge1 and ok_ra and "预览 +8/-8" in badge2
+                and saved
+                and state_bool(st, "diff_open") is True
+                and state_int(st, "diff_adds") == 8
+                and state_int(st, "diff_dels") == 8
+                and (state_str(st, "diff_vmode") or "").strip('"') == "inline"
+                and state_bool(st, "diff_edit_return") is False
+                and (state_str(st, "diff_badge") or "").strip('"') == ""
+                and con is not None and "已重比（保存触发" in con
+                and "Z1" in disk and "L5" not in disk,
+                f"open={ok_open} inline={ok_inline} jump={ok_jump} "
+                f"pend={pend} re={ok_re} badge1={badge1!r} ra={ok_ra} "
+                f"badge2={badge2!r} saved={saved} "
+                f"st={st.replace(chr(10), ' ')[:160]} con={con[-100:]!r}")
+            _kill_proc_tree(p15)
+        except Exception as e:
+            result.check("T15.21 保存自动重比", False, repr(e))
+
+        # 15.22 无关保存零扰动（第三文件：开→关视图实化→cut→保存→
+        # saved 行+零重比行+重开计数不变）
+        try:
+            d22 = tempfile.mkdtemp(prefix="auto017_t15_unrel_")
+            fa22 = os.path.join(d22, "u.a.txt")
+            fb22 = os.path.join(d22, "u.b.txt")
+            fc22 = os.path.join(d22, "unrel.txt")
+            with open(fa22, "w", encoding="utf-8", newline="") as f:
+                f.write("\n".join(f"L{i}" for i in range(1, 9)) + "\n")
+            with open(fb22, "w", encoding="utf-8", newline="") as f:
+                f.write("\n".join(
+                    f"L{i}" if i != 5 else "L5-CHANGED"
+                    for i in range(1, 9)) + "\n")
+            with open(fc22, "w", encoding="utf-8", newline="") as f:
+                f.write("other\ncontent\n")
+            p15, t15 = _t15_app({"AUTO_DIFF_A": fa22, "AUTO_DIFF_B": fb22,
+                                 "AUTO_OPEN_PATH": fc22})
+            ok_open = _t15_wait_open(t15)
+            plus = find_button_by_onclick(t15.snapshot(), "ActOpen")
+            opened = False
+            if plus:
+                t15.click(plus)
+                time.sleep(1.5)
+                opened = True
+            xb = find_button_by_onclick(t15.snapshot(), "DiffClose")
+            closed = False
+            if xb:
+                t15.click(xb)
+                time.sleep(1.0)
+                closed = True
+            cutc = find_button_by_onclick(t15.snapshot(), "ActCut")
+            if cutc:
+                t15.click(cutc)
+                time.sleep(0.5)
+            saved = _p17_save_active()
+            time.sleep(1.0)
+            con1 = wait_console_line(t15, "saved: ")
+            ok_re = _p17_reopen_diff()
+            time.sleep(1.5)
+            st2 = t15.state("diff_open", "diff_adds", "diff_dels")
+            result.check(
+                "T15.22 无关保存零扰动（第三文件保存 saved 行+零重比行+重开计数不变）",
+                ok_open and opened and closed and saved
+                and con1 is not None
+                and "已重比" not in con1
+                and ok_re
+                and state_bool(st2, "diff_open") is True
+                and state_int(st2, "diff_adds") == 1
+                and state_int(st2, "diff_dels") == 1,
+                f"open={ok_open} opened={opened} closed={closed} "
+                f"saved={saved} con={con1 is not None and '已重比' in con1!r} "
+                f"re={ok_re} "
+                f"adds={state_int(st2, 'diff_adds')}")
+            _kill_proc_tree(p15)
+        except Exception as e:
+            result.check("T15.22 无关保存零扰动", False, repr(e))
+
+        # 15.23 面板 live 预览（AUTO_DIFFBUF 8 行对：ReplaceAll→防抖
+        # 单拍净形 8/8 保存前→保存钩子刷新一致）
+        try:
+            d23 = tempfile.mkdtemp(prefix="auto017_t15_live_")
+            fa23 = os.path.join(d23, "lv.a.txt")
+            fb23 = os.path.join(d23, "lv.b.txt")
+            with open(fa23, "w", encoding="utf-8", newline="") as f:
+                f.write("\n".join(f"L{i}" for i in range(1, 9)) + "\n")
+            with open(fb23, "w", encoding="utf-8", newline="") as f:
+                f.write("\n".join(
+                    f"L{i}" if i != 5 else "L5-CHANGED"
+                    for i in range(1, 9)) + "\n")
+            p15, t15 = _t15_app({"AUTO_DIFFBUF_A": fa23, "AUTO_DIFFBUF_B": fb23})
+            ok_open = False
+            st = ""
+            for _ in range(30):
+                st = t15.state("diff_buf_open", "diff_buf_adds", "diff_buf_dels")
+                if state_bool(st, "diff_buf_open"):
+                    ok_open = True
+                    break
+                time.sleep(0.5)
+            base_ok = (state_int(st, "diff_buf_adds") == 1
+                       and state_int(st, "diff_buf_dels") == 1)
+            ok_ra = _p17_replace_all("L", "Z")
+            live_ok = False
+            for _ in range(10):
+                st = t15.state("diff_buf_adds", "diff_buf_dels")
+                if (state_int(st, "diff_buf_adds") == 8
+                        and state_int(st, "diff_buf_dels") == 8):
+                    live_ok = True
+                    break
+                time.sleep(0.5)
+            saved = _p17_save_active()
+            time.sleep(1.5)
+            st2 = t15.state("diff_buf_open", "diff_buf_adds", "diff_buf_dels")
+            con = wait_console_line(t15, "bufdiff: 已重比（保存触发）")
+            result.check(
+                "T15.23 面板 live 预览（ReplaceAll→防抖单拍净形 8/8 保存前"
+                "→保存钩子刷新一致+重比行）",
+                ok_open and base_ok and ok_ra and live_ok and saved
+                and state_bool(st2, "diff_buf_open") is True
+                and state_int(st2, "diff_buf_adds") == 8
+                and state_int(st2, "diff_buf_dels") == 8
+                and con is not None and "bufdiff: 已重比（保存触发）" in con,
+                f"open={ok_open} base={base_ok} ra={ok_ra} live={live_ok} "
+                f"saved={saved} st2={st2.replace(chr(10), ' ')[:140]}")
+            _kill_proc_tree(p15)
+        except Exception as e:
+            result.check("T15.23 面板 live 预览", False, repr(e))
+
+        # 15.24 B 侧跳转（scattered 三 hunk fixtures 经缓冲区面板——
+        # label 解析行号真值=引擎形状无关断言；kb 激活+光标读回；→A
+        # 同行对称回归。15.24 初版自造近距变更形被 ctx 窗合并为单
+        # hunk（a1=b1=0 退化为平凡锚）——改用 scattered 非平凡锚形）
+        try:
+            p15, t15 = _t15_app({
+                "AUTO_DIFFBUF_A": os.path.join(diff_fix, "scattered.a.txt"),
+                "AUTO_DIFFBUF_B": os.path.join(diff_fix, "scattered.b.txt")})
+            ok_open = False
+            for _ in range(30):
+                if state_bool(t15.state("diff_buf_open"), "diff_buf_open"):
+                    ok_open = True
+                    break
+                time.sleep(0.5)
+            snap = t15.snapshot()
+            blist = re.findall(r'button #(\w+) "→B R(\d+)–(\d+)"', snap)
+            alist = re.findall(r'button #(\w+) "→A L(\d+)–(\d+)"', snap)
+            ok_parse = len(blist) >= 2 and len(alist) >= 2
+            b_line = a_line = -1
+            b_active = False
+            if ok_parse:
+                bid, bstart = blist[-1][0], int(blist[-1][1])
+                t15.click(bid)
+                time.sleep(1.0)
+                st = t15.state("tab", "tab_count")
+                b_active = state_int(st, "tab") == state_int(st, "tab_count") - 1
+                b_line = _p17_readback_line("scattered.b.txt")
+                aid, astart = alist[-1][0], int(alist[-1][1])
+                t15.click(aid)
+                time.sleep(1.0)
+                a_line = _p17_readback_line("scattered.a.txt")
+            result.check(
+                "T15.24 B 侧跳转（→B kb 激活+b1 光标读回+→A 对称回归）",
+                ok_open and ok_parse and b_active
+                and b_line == int(blist[-1][1]) and a_line == int(alist[-1][1]),
+                f"open={ok_open} parse={ok_parse} b_active={b_active} "
+                f"b_line={b_line}/{blist[-1][1] if blist else '?'} "
+                f"a_line={a_line}/{alist[-1][1] if alist else '?'}")
+            _kill_proc_tree(p15)
+        except Exception as e:
+            result.check("T15.24 B 侧跳转", False, repr(e))
     else:
         print("  NOTE  tests/fixtures/diff missing; skipping T15")
 

@@ -2649,6 +2649,9 @@ store EditorStore {
             }
             if hit {
                 if .diff_open {
+                    // PLAN-017: return 旗标清偿（保存触发重比=跳转-编辑-
+                    // 保存回路闭环——旗标使命完成，两臂同清）。
+                    .diff_edit_return = false
                     store.DiffCompute()
                     console_log("diff: 已重比（保存触发）")
                     if .dir_from_dirs {

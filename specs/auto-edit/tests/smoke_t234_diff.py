@@ -18,7 +18,8 @@ import requests
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from desktop_mcp import (  # noqa: E402
     McpClient, wait_for_server, pick_free_port, _kill_proc_tree,
-    find_button_by_text, state_str, state_int, state_bool,
+    find_button_by_text, find_button_by_onclick, find_element_by_event,
+    wait_console_line, state_str, state_int, state_bool,
 )
 from probe_diff import derive_inline, inline_shape_counts  # noqa: E402
 
@@ -44,6 +45,10 @@ def golden_rows(name):
 
 def launch(port, env_extra):
     env = {**os.environ, **env_extra}
+    # PLAN-017: APPDATA 隔离（矩阵 _t15_app 同款）——真实用户 APPDATA 的
+    # auto-edit-session.json 会被会话恢复链读入（tab 集污染 → P17② tab
+    # 计数假红；跨跑自毒循环）。隔离后零会话恢复，tab 集确定。
+    env["APPDATA"] = tempfile.mkdtemp(prefix="auto011_smoke_ad_")
     return subprocess.Popen(
         [AUTO_BIN, "run", "-r", "vm"],
         cwd=PROJECT, env={**env, "AUTOUI_MCP_PORT": str(port)},
@@ -292,8 +297,136 @@ def cap_instance():
         _kill_proc_tree(proc)
 
 
+def edit_loop_instance():
+    """PLAN-017 P17 断言族（开发期烟测，不入矩阵计数——015 惯例）：
+    差异侧编辑回路主链——jumpB 落点读回→ReplaceAll 编辑（live mark）→
+    保存→视图自动重开重比（vmode 保持+计数变形+重比行+落盘）→面板
+    live 预览域零扰动（diff_buf 面板关态）。矩阵 15.20/15.21 同链
+    E2E（子组全谱以矩阵为准，本烟测=开发期快速回归）。"""
+    port = pick_free_port(9390)
+    dtmp = tempfile.mkdtemp(prefix="p017_loop_")
+    pa = os.path.join(dtmp, "loop.a.txt")
+    pb = os.path.join(dtmp, "loop.b.txt")
+    with open(pa, "w", encoding="utf-8", newline="") as f:
+        f.write("\n".join(f"L{i}" for i in range(1, 9)) + "\n")
+    with open(pb, "w", encoding="utf-8", newline="") as f:
+        f.write("\n".join(
+            f"L{i}" if i != 5 else "L5-CHANGED"
+            for i in range(1, 9)) + "\n")
+    proc = launch(port, {"AUTO_DIFF_A": pa, "AUTO_DIFF_B": pb})
+    url = f"http://127.0.0.1:{port}/mcp"
+    try:
+        if not wait_for_server(url, 30):
+            raise RuntimeError("MCP server did not start (edit loop instance)")
+        mcp = McpClient(url)
+        for _ in range(20):
+            snap = mcp.snapshot()
+            if "(rendered)" in snap and snap.count("onclick") > 0:
+                break
+            time.sleep(1)
+        time.sleep(1.5)
+
+        def st(*fields):
+            return mcp.state(*fields)
+
+        def click_text(label, tries=4):
+            for _ in range(tries):
+                b = find_button_by_text(mcp.snapshot(), label)
+                if b:
+                    mcp.click(b)
+                    time.sleep(1.0)
+                    return True
+                time.sleep(0.6)
+            return False
+
+        s0 = st("diff_open", "diff_adds", "diff_dels", "diff_vmode")
+        check("P17① 旁路自开（+1/-1 side）",
+              state_bool(s0, "diff_open") is True and
+              state_int(s0, "diff_adds") == 1 and
+              state_int(s0, "diff_dels") == 1)
+        # jumpB（新开 B tab+装载落点 line=2）
+        ok_jump = click_text("编辑 B 侧")
+        pend_clear = False
+        for _ in range(20):
+            if not state_bool(st("diff_edit_pend"), "diff_edit_pend"):
+                pend_clear = True
+                break
+            time.sleep(0.5)
+        s1 = st("diff_open", "tab_count", "diff_edit_return", "diff_edit_pend")
+        check("P17② jumpB（视图藏+tab=3+return 旗标+pend 清）",
+              ok_jump and pend_clear and
+              state_bool(s1, "diff_open") is False and
+              state_int(s1, "tab_count") == 3 and
+              state_bool(s1, "diff_edit_return") is True,
+              f"jump={ok_jump} pend_clear={pend_clear} "
+              f"open={state_bool(s1, 'diff_open')} "
+              f"tabs={state_int(s1, 'tab_count')} "
+              f"ret={state_bool(s1, 'diff_edit_return')} "
+              f"pend={state_bool(s1, 'diff_edit_pend')}")
+        # 读回（切走切回 SyncCursor 面）
+        seed = find_button_by_text(mcp.snapshot(), "main.at")
+        if seed:
+            mcp.click(seed)
+            time.sleep(0.6)
+        btab = find_button_by_text(mcp.snapshot(), "loop.b.txt")
+        if btab:
+            mcp.click(btab)
+            time.sleep(0.6)
+        check("P17③ 落点读回（hunk0 b1=1[ctx=3 窗] → line=2）",
+              state_int(st("line"), "line") == 2,
+              state_int(st("line"), "line"))
+        # ReplaceAll L→Z（全行变形）
+        m = find_button_by_text(mcp.snapshot(), "编辑")
+        if m:
+            mcp.click(m)
+            time.sleep(0.8)
+        ok_menu = click_text("替换…")
+        snap = mcp.snapshot()
+        qi = find_element_by_event(snap, "FindInput", attr="oninput")
+        ri = find_element_by_event(snap, "FindReplaceInput", attr="oninput")
+        typed = False
+        if qi and ri:
+            mcp.call("autoui_type", text="L", element_id=qi, clear_first=True)
+            time.sleep(0.4)
+            mcp.call("autoui_type", text="Z", element_id=ri, clear_first=True)
+            time.sleep(0.4)
+            typed = True
+        ok_ra = click_text("全部替换")
+        time.sleep(2.0)
+        # 保存（工具栏 ActSave——B active）→钩子重开视图重比
+        saved = False
+        for _ in range(4):
+            sb = find_button_by_onclick(mcp.snapshot(), "ActSave")
+            if sb:
+                mcp.click(sb)
+                time.sleep(1.5)
+                saved = True
+                break
+            time.sleep(0.8)
+        time.sleep(1.0)
+        s2 = st("diff_open", "diff_adds", "diff_dels", "diff_vmode",
+                "diff_edit_return")
+        con = wait_console_line(mcp, "已重比（保存触发") or ""
+        disk = open(pb, encoding="utf-8").read()
+        check("P17④ 保存自动重比（视图自动重开+8/8 变形+vmode 保持+"
+              "return 清+重比行+落盘）",
+              ok_menu and typed and ok_ra and saved and
+              state_bool(s2, "diff_open") is True and
+              state_int(s2, "diff_adds") == 8 and
+              state_int(s2, "diff_dels") == 8 and
+              state_str(s2, "diff_vmode") in ("side", '"side"') and
+              state_bool(s2, "diff_edit_return") is False and
+              "已重比（保存触发" in con and
+              "Z1" in disk and "L5" not in disk,
+              f"menu={ok_menu} typed={typed} ra={ok_ra} saved={saved} "
+              f"s2={s2[:120]}")
+    finally:
+        _kill_proc_tree(proc)
+
+
 if __name__ == "__main__":
     main()
     cap_instance()
+    edit_loop_instance()
     print(f"\nRESULT: {'ALL PASS' if not fails else str(len(fails)) + ' FAILED: ' + ', '.join(fails)}")
     sys.exit(0 if not fails else 1)
