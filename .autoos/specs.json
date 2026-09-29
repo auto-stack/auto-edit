@@ -276,6 +276,18 @@
           ],
           "superseded_by": null,
           "content": "- 供料包四件（docs/upstream/2026-09-m4-perf-unblock-supply.md）：供① a2r 生成缺口三子件（G-A envelope 成员访问投影 17 行/* expr */+G-B try 块 4 处/* unhandled stmt */+G-C code_editor_delta ui_gen 臂唯一 E0425——read_text_range=687 已解、app 面 19 内建 18 已映射，探针 exit 3 实证）；供② 内核帧时间戳插桩；供③ 大文件卡死回归（执行期矩阵复绿实证改定性「确认复核件」——单跑不定案）；供④ tree-sitter 两段式（现役 syntect 5/two-face 0.4 零 tree-sitter 实勘）。优先级 ①→③→②→④，回执方式同前两包。\n- budgets.json 全表重定（十行处置）：纠偏 2（open 两行「架构性不可达」过期文本→「解锁待测」+禁调优放开仅此两行[rope 673+分块读 687 已交付]）/对齐 1（diff 016 谱）/排队 3（type/scroll→供②、renderer 683 维持）/收口 2（warm/idle→ledger）/steady 数字回填/installer 材料备齐；断言终态 ledger 化——arch-blocked 位 l0 覆盖转缺席=语义退役显影（五态词表/014 行序机制零变更）。\n- bench 三新档（open/steady/warm）：release 工具链全链记账形态（016 先例，frozen 约束① 锚点不冒领——硬判定维持 L2 唯一效力）；锚点=open_100mb median 841.0ms（4 跑谱 816.1-843.0 ≤1s 首实测锚，big 态语义）+513MB/1GB 拒绝位对照双 True+steady 232.6ms>80ms 归因清单（VM boot 段 224.5ms 主导，瘦身=后续件）+warm 恢复净段 1.3ms（≤120ms 绿注记，不读盘=标记单对实证）+idle 空窗 51.4MB/20tab 306.2MB（Δ255MB=单文件装载+语法臂归因）。app 侧 BENCH 补点 2 处门控（bench_session_restored/bench_open_rejected）。\n- 验证：回归三连绿（check 构建 2205/assert 017 谱回放/fresh proxy——assert 默认目标过滤收口多档 JSONL 坑位）+全矩阵单跑 136/1 零新失败（唯一败 T17.4 轮换 flake 在录成员；已知集计零 136/0 ≥125 达标；**T17.2/17.3/17.8 卡死族+T12.6/T13.6 单跑全绿=v2205 复绿实证**）；AC-01..07 全 pass（复审 @0e4dcc3）。\n- 证据：勘定报告 specs/auto-edit/tests/evidence-p018-survey.md（三类缺口定界/标记族盘点/档形裁定/Q2Q3 材料）+谱 JSONL 七件 tools/bench/results/（终谱 open-110820/steady-110735/warm-111040）+SD-01..04 规范节（perf-measurement 预算门 M4 节/00-overview M4 开篇注记/README PLAN-018 口径）。\n- 待裁：Q-1 Q3 安装器裁定=用户件（37.8MB 差距表+两路径成本备齐）。"
+        },
+        {
+          "id": "P019-1",
+          "section": "reviews",
+          "status": "stable",
+          "title": "PLAN-019 — M4-02 portable 单 exe 瘦身件收据（reviewed pass @ r1 17e9893[landed d50d998]：a2r 原生化瘦身+纯 portable 裁定落地——regen 阻塞下 last-good 基面裁定+手段终表+分阶段未达标+two-face want 登记）",
+          "file": "docs/plans/archived/019-m4-portable-exe-slim.md",
+          "related": [
+            "PLAN-019"
+          ],
+          "superseded_by": null,
+          "content": "- Q3 裁定落地（2026-09-29 用户）：打包路径=a2r 原生化瘦身+形态=纯 portable（winget/自动更新后续件）——战略 §9 Q2/Q3 裁定注记落账。\n- 构建通道 tools/portable/ 三脚本：build_portable（regen→[profile]+deps 补丁注入幂等[MARKER 块替换+哈希自证]→release→strip→dist 断言 ≤15MB；regen 上游阻塞快照回退复用 last-good 基面——供① 维持，本件 regen 探针 133 错实录）+probe_surface（产物面护栏）+smoke_portable（四段烟测）。\n- 体积终表：基线 39,411,200B（last-good 基面+依赖钉 5bb3f53be）→终态手段集[lto=fat+cgu1+strip+tokio 子集]29,844,480B（-24.3%）未达标=分阶段语义；门控测量位：panic=abort -7.11MB（back_proxy catch_unwind 语义面）/opt-level=z -7.65MB/组合 16,459,264B 距门仅 714KB（用户裁定面）；剩余大头=上游域（wgpu 4.1MB .text+two-face 全量语法集[.rdata 12.4MB 主项]+image/HTTP/字体栈——evidence-p019-survey §④ 构成表）。\n- G-4 护栏双轨全绿：工具链轨锚点三档复跑 018 对照全容差内（steady 230.3ms/open 844.5ms/warm 1.5ms/idle≈48.5MB）+产物面（21.2ms/38.2ms/10.2MB 大余量）——零「瘦体积肥延迟」。\n- two-face 语法集子集/lazy 装载 want 登记 m4-perf-unblock-supply §5（条件触发兑现；与供④ 退役面协同注记）；budgets.json installer 行 ledger 化+数字回填+bench.py 断言面同步（F-1 复审关闭）。\n- SD-01..05 落档：perf-measurement「installer/portable 形态」节+00-overview M4 第二件注记+specs/auto-edit/README PLAN-019 口径+战略 §9 裁定注记+变更记录追记+供料档 §5。AC-01..07 全过（复审同会话声明+工件独立重构验证）。"
         }
       ],
       "status": "Empty",
