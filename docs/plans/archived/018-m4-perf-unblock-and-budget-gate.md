@@ -420,7 +420,18 @@ results 谱）。
     018-m4-perf-unblock-and-budget-gate.md + status: archived +
     completion_kind: delivered；active/archive 路径与 frontmatter
     一致；P018-1 账本 file 指针解析归档位。
-  - **cleaned**：待回填（清理执行后补记）。
+  - **cleaned**：git 侧全净实证——wt-guard clean ×3（edit-018/
+    auto-edit 与组依赖 edit-018/auto-lang、edit-018/auto-down 三树
+    零 reparse point；junction 晶格[deps/bps→组兄弟 blueprints、
+    deps/stylekit→worktree 内 specs/stylekit]已于评审后 PowerShell
+    DirectoryInfo.Delete() 链接语义摘除[双目标存活验证通过——
+    a2r 探针构建物化，非本件代码]）；worktree 注销 ×3（auto-edit
+    树归 auto-edit 仓注销、auto-lang 树归 auto-lang 仓注销、
+    auto-down 树归 auto-down 仓注销[各属主仓]；三仓 worktree list
+    零 edit-018 条目）/branch plan-018-dev 删 ✓（was 1a4b31d=
+    delivery commit）/组目录 .wt/edit-018 清 ✓（树注销后空目录
+    移除，零残渣）。auto-lang 主树零触碰（master 已漂 e2deb4f8+
+    他属未跟踪 png=复审期观察项，不受扰）。
   - **部署观察（Landing is not deployment）**：main gen/front/vue
     dist 束=陈旧（f4e34c1 在案 foreign-WIP 阻塞——specs/stylekit
     他人未提交删除致 regen_vue 不可跑，属主路由后重建；本件 app 侧
