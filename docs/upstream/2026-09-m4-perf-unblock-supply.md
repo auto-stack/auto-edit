@@ -118,10 +118,35 @@
 
 ---
 
+## 5. two-face 语法集子集/lazy 装载 feature 粒度（installer 瘦身第二段——PLAN-019 条件触发）
+
+- **诉求**：code-editor 的 syntect/two-face 高亮面获得**语法集子集或
+  lazy 装载 feature 粒度**——common 集起步（类似供④ tree-sitter
+  「常见 20 语言」口径），全量集退为 opt-in feature。
+- **触发证据（PLAN-019 T-00 构成精测，2026-09-29）**：portable 产物
+  39.4MB 基线的 **.rdata 数据节 12.4MB**——two-face 全量语法定义集
+  内嵌为主体（`two_face::syntax::extra_no_newlines()` 全量构造实锚
+  auto-lang `crates/auto-lang/src/ui/code_editor/core/highlight.rs:135`，
+  @5bb3f53be 复核在位）；two-face .text 仅 ~65KB——**重量全在数据节**，
+  本仓 profile/feature 通道不可达（终态手段集 29.8MB / 门控组合实测
+  16.46MB 距 ≤15MB 门 714KB——installer 行第二段收口的定量依据，
+  budgets.json installer 行 validity 同源）。
+- **期望形态**：子集 feature（如 `syntax-common`）或运行时按需装载
+  （lazy 反序列化）；大文件 big 态 plain 旁路臂语义保持（013 定参
+  域不受扰）；与 code-editor feature 的启用关系沿现状（ui-iced 路径
+  不回退）。
+- **验收形态建议**：尺寸差值（two-face 全量→common 的产物数据节差）+
+  矩阵语法面回归（高亮正确性抽查档）+ code_editor 装载链不回退。
+- **与供④ 协同（want 生命周期注记）**：供④ tree-sitter 化落地后
+  syntect/two-face 整体退役——本 want 的生命周期可能止于供④（子集
+  粒度若先行落地，其价值=供④ 交付前的过渡期瘦身；两件不冲突，
+  先后由上游排程）。
+
 **优先级建议（auto-edit 视角）**：**§1 最先**（L2 主形态解阻——
 全预算行正式判定前提；三子件可分批，G-C 最小先落）→ §3（交互面
 blocked 族清偿，下游判绿口径恢复全检查）→ §2（两行测量解锁+首帧
-分解补全）→ §4（最大件，勘定先行两段式）。
+分解补全）→ §4（最大件，勘定先行两段式）→ §5（installer 第二段，
+随供④/用户裁定排程——PLAN-019 条件触发件）。
 
 **回执方式**：同 M1/diff-engine 两包——各件落地落上游 plan 后，
 auto-edit 侧以零改动或最小改动复验解阻（669 先例；供① 回执=

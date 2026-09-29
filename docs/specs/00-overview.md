@@ -251,6 +251,21 @@ idle_mem 空窗 51.4MB ≤60MB 行内）。**断言形态分层（frozen）**：
 预算门 M4 节（SD-02）+ specs/auto-edit/README.md PLAN-018 口径
 （SD-04）+ 供料档（SD-01）。
 
+**M4 第二件注记（PLAN-019，2026-09-29）**：installer/portable 瘦身件
+已落（Q3 裁定兑现：**a2r 原生化瘦身+纯 portable**——winget/自动更新
+不入后续件议）。构建通道 `tools/portable/build_portable.py`（regen→
+补丁注入幂等通道→release→strip→dist 断言——regen 现势化=供① 阻塞
+维持，last-good 基面复用+漂移适配在案）。**首件未达标=分阶段语义**
+：基线 39.4MB→终态手段集 29.8MB（lto=fat+cgu1+strip+tokio 子集，
+-24.3%）；门控组合实测 16.46MB 距 ≤15MB 门仅 714KB（panic=abort
+[back_proxy catch_unwind 语义面]/opt-level=z[性能护栏]——用户裁定面）；
+剩余大头=上游域（wgpu 栈 4.1MB .text+two-face 全量语法集[.rdata
+12.4MB 主项]+image/HTTP/字体栈——构成表 evidence-p019-survey §④），
+two-face 子集 want 已登记（供料档 §5 条件触发）。**对比表=下一
+blocker 位**（L2 数字齐后件——供① 解阻+锚点 L2 化前置）。规范详
+modules/perf-measurement.md installer/portable 形态节+budgets.json
+installer 行（数字回填）。
+
 **兄弟仓 Q1 裁定摘要（2026-09-22，战略补注十收口）**：jade-edit 与
 auto-edit **两产品长期并存**（auto=原生旗舰轻量编辑器、jade=web 轻量
 版并向知识库发展），组件尽量共用（未来插件级共用）。jade 侧战略文档

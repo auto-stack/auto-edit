@@ -76,7 +76,7 @@
     "metric": "安装包",
     "budget": "<= 15 MB 单 exe，无运行时依赖",
     "tier": "ledger",
-    "validity": "Q2 前无打包件；裁定材料备齐（PLAN-018 T-00④：exe 现尺寸 37,851,136B=37.8MB 差距表+两路径成本注记[a2r 原生化瘦身 vs 执行打包]+winget 口径——evidence-p018-survey.md §4；Q3 裁定=用户件 §10 Q-1，裁定后另立件）",
-    "unlock": "独立 exe 路径（Q2）"
+    "validity": "Q3 裁定落地（2026-09-29 用户：a2r 原生化瘦身+纯 portable——winget/自动更新不入后续件议，PLAN-019 §4 授权记录）。首件（PLAN-019）**未达标=分阶段语义**：基线 39,411,200B（last-good 基面重测——37.8MB 旧锚同源生成物+依赖钉版 5bb3f53be；37,851,136B 旧锚差 -243KB=依赖代差不可直比）→ 终态手段集[lto=fat+codegen-units=1+strip+tokio 子集]29,844,480B（**-24.3%，超门 14,115,840B**）；门控手段测量位在案：panic=abort -7.11MB（**back_proxy.rs catch_unwind 隔离语义面**——默认不启用）/opt-level=z -7.65MB（性能护栏位）/组合 16,459,264B（**距门仅 714KB**——用户裁定后+上游 want 即可达标）；剩余差距归因=上游域（wgpu 栈 4.1MB .text+two-face 全量语法集[.rdata 12.4MB 主项]+image 2.0/HTTP 1.5/字体 2.4MiB——构成表 evidence-p019-survey §④）；two-face 子集/lazy 装载 want 已登记（m4-perf-unblock-supply §5 条件触发兑现）；构建通道=tools/portable/build_portable.py（regen→补丁注入→release→strip→dist 断言——regen 现势化=供① 阻塞维持，本件 regen 探针 133 错实录）",
+    "unlock": "瘦身第二段收口件（two-face 子集/wgpu 渲染臂裁剪/auto-lang 依赖 diet——上游 want 排队）+（可选）panic=abort/opt-level=z 用户裁定（收益数字在案）"
   }
 ]

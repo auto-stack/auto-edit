@@ -436,6 +436,25 @@ budget_assert 记录的最新文件（results/ 多档 JSONL 命名坑位——
 evidence-p018-survey.md）。矩阵检查集零变更（137/判绿 ≥125/0 承
 017；本件全矩阵回归在谱）。
 
+PLAN-019 口径更新（2026-09-29，工具链=v0.4.2-2205-g5bb3f53be release
+同 018 锚[组依赖钉版 auto-lang@5bb3f53be/auto-down@3373a5c detached
+——`.wt/edit-019` 组三树]）——**M4-02 portable 单 exe 瘦身件=构建
+通道/工具面**（.at 源零 diff、矩阵检查集零变更判绿口径承 018）。
+**portable 构建用法**：`python tools/portable/build_portable.py`
+（一键链=regen[上游阻塞时快照回退复用现势生成物]→[profile.release]+
+deps 补丁注入[幂等——MARKER 块替换+第二遍哈希自证]→cargo release
+→strip→产物 `dist/portable/auto-edit.exe`+sha256→尺寸断言 ≤15MB
+[超限 exit 1+差距数字]）。变体面：`--set lto=fat --set
+codegen-units=1 ...`（手段迭代）/--baseline（零手段对照）/
+--check-idempotent（幂等自证）。产物面护栏探针：
+`python tools/portable/probe_surface.py --variant <tag>`
+（steady 代理/open/idle——供① 阻塞期记录性通道）。**首件数字回填**：
+基线 39,411,200B→终态 29,844,480B（-24.3%，≤15MB 未达标=分阶段
+语义）——手段×尺寸终表/构成占比/门控手段测量位见
+`specs/auto-edit/tests/evidence-p019-survey.md`（regen 探针 133 错
+实录同档 tests/）；budgets.json installer 行已回填。矩阵检查集零
+变更（判绿口径承 018：137/≥125/0——本件抽查档不计入）。
+
 注：Plan 451 起 T10「热重载」走 DSL 源路径（reload 工具或 mtime 轮询重读
 app.at 重新提取 actions + generation bump → 视图重建），实测 50/0 全绿。
 OS 用户键位层（`%APPDATA%/auto/keymaps/auto-edit.at`）保持外部文件——那是

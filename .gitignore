@@ -26,5 +26,8 @@ tools/perf/logs/
 tools/bench/fixtures/
 tools/bench/logs/
 
+# PLAN-019：portable 构建链运行时（构建/探针日志，可再生；results/ 入仓追踪）
+tools/portable/logs/
+
 # PLAN-004：矩阵跑次输出残留（session 产物，收据入计划文档）
 /matrix_*.txt

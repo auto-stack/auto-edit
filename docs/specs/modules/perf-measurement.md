@@ -185,3 +185,38 @@ ui_gen 臂——a2r 探针 exit 3 实证，生成物占位全景在
   `bench_open_rejected`（RunPendingLoad 超大拒绝分支尾——拒绝形
   机读；拒绝在装载标记包夹之前且 console_log 不落 stdout）。未设门
   零行为差异（PLAN-005 纪律，矩阵回归保证）。
+
+## installer/portable 形态（PLAN-019，2026-09-29）
+
+- **Q3 裁定记录（用户 2026-09-29，PLAN-019 §4 授权记录）**：打包路径
+  =**a2r 原生化瘦身**（治本——「单 exe 无运行时依赖」战略语义维持，
+  执行打包/自解压路径否决）；形态=**纯 portable**（winget/自动更新
+  均不入——战略 §9 加分项口径，后续件再议）。
+- **构建通道（tools/portable/build_portable.py 一键链）**：regen
+  （`auto build -r rust`——上游阻塞[供①]时快照回退复用现势生成物，
+  回退语义脚本内建）→ **补丁注入**（[profile.release] 块级替换+依赖
+  行 feature 面+基面漂移适配——生成物 Cargo.toml 无 [profile] 节且
+  gitignored[每次 regen 覆盖]，注入后置于 regen=幂等通道
+  [MARKER 块替换+第二遍哈希等价自证]）→ `cargo build --release` →
+  strip（profile 级——MSVC/PE 外部 strip 不采用[校验和/签名面风险]）→
+  产物 `dist/portable/auto-edit.exe`+sha256 → **尺寸断言**（≤15MB
+  硬判定：达标绿/超限红 exit 1+差距数字；JSONL 记录 tools/portable/
+  results/ 入仓）。构建稳定性配方（执行期实录固化）：sccache 旁路+
+  RUST_MIN_STACK=16MB+-j2+瞬态崩限次重试（增量推进）。
+- **判定口径（frozen ⑤）**：单 exe 直跑（无安装壳/无解压步骤/无外部
+  运行时依赖——烟测即证，T-04）；「无运行时依赖」面=无 DLL 侧车+
+  无解压残留+进程树单进程探测。
+- **分阶段达标语义（用户裁定接受）**：未达标≠失败——差距归因+want
+  排队即交付。首件（PLAN-019）终态手段集[lto=fat+codegen-units=1+
+  strip+tokio 子集]29,844,480B（-24.3%）未达标；剩余大头=上游域
+  （wgpu 渲染栈 4.1MB .text+two-face 全量语法集[.rdata 12.4MB 主项]
+  +image/HTTP/字体栈——构成表 evidence-p019-survey §④）；two-face
+  子集/lazy 装载 want 登记 m4-perf-unblock-supply §5（条件触发兑现）。
+  门控手段测量位在案：panic=abort -7.11MB（back_proxy.rs catch_unwind
+  隔离语义面——默认不启用）/opt-level=z -7.65MB（性能护栏位）/
+  组合 16,459,264B 距门仅 714KB——用户裁定后+上游 want 即可达标。
+- **性能护栏（G-4，防「瘦体积肥延迟」）**：018 锚点档复跑对照
+  （工具链轨=open/steady/warm 档——预算行维持门）+产物 exe 直拉面
+  （probe_surface.py——steady 代理/open 100MB/idle mem，手段敏感面；
+  a2r 门旁路=regen 阻塞期记录性通道，供① 清偿后回归 proxy --mode l2
+  标准链）。锚点=记账不阻塞原则不变（硬判定维持 L2 唯一效力）。
