@@ -395,7 +395,7 @@ logs/probe-*.json）。
   数据本体验证绿后 a99b733 保留）+落地后 main 回读 20 项末项
   P020-1 ✓。**archived**：git mv → docs/plans/archived/020-m4-
   compare-table-competitor-side.md+status: archived+completion_kind:
-  delivered。**cleaned**：待回填（wt-guard→注销→组目录清）。部署
+  delivered。**cleaned**：wt-guard clean（移除前 fresh 复核，reparse point 零发现）→组内路径断言（D:/autostack/.wt/edit-020/ 前缀核对在案）→worktree remove（双净：worktree list 零 edit-020 项）+branch 删 plan-020-dev（was 4c14c8e=已落 main）+组目录 rmdir 清 ✓。部署
   观察：本件=tools/docs 面（compare 工具+规范文档+README）——零
   重建项（无产品二进制/vue 束/依赖仓产物消费面；bench/portable
   工具链零触碰）。
