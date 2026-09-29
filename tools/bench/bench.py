@@ -362,9 +362,10 @@ _L0_STATES = {
                    "硬门禁 M4 收口"),
     "idle_mem": ("ledger", "L0 采样记账不阻塞；锚点在档（PLAN-018 stage "
                  "warm：空窗/20tab 两形态采样）；预算断言 M4 收口"),
-    "installer": ("pending-feature", "Q2 独立 exe 打包路径；裁定材料备齐"
-                  "（PLAN-018 T-00④：37.8MB 差距表+两路径成本——§10 Q-1 "
-                  "用户件）"),
+    "installer": ("ledger", "Q3 裁定落地+首件数字在案（PLAN-019：终态手段集 "
+                  "29,844,480B -24.3% 未达标=分阶段语义——门控组合 16.46MB 距门 "
+                  "714KB 待用户裁定+上游 want 排队[供料档 §5]；构建通道 "
+                  "tools/portable/build_portable.py）——≤15MB 判定 M4 收口"),
 }
 _STATE_ORDER = ["not-armed", "pending-feature", "arch-blocked",
                 "blocked-upstream", "ledger"]
