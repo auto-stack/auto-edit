@@ -372,7 +372,14 @@ specs.json reviews 段 P019-1 投影（015-018 外科插入先例）。
     landed d50d998。
   - **archived**：git mv→docs/plans/archived/019-m4-portable-exe-slim.md
     +status: archived+completion_kind: delivered ✓（本行）。
-  - **cleaned**：（待清理后回填尾行）
+  - **cleaned**：wt-guard 三树 clean（auto-edit 树=guard 曾报 a2r
+    regen 探针物化的依赖 junction 两枚[deps/bps→组 auto-lang
+    blueprints+deps/stylekit→本树 specs/stylekit——双目标均组内
+    git-tracked，链接语义摘除=.NET Directory.Delete 非递归，PS
+    Remove-Item NullReferenceException 曲折在案]后 clean；
+    auto-lang/auto-down 树一次 clean）→三 worktree 注销（各属主仓
+    list 双净）+branch 删 plan-019-dev（was d50d998=已落 main）+
+    组目录 .wt/edit-019 清 ✓。
   - 部署观察：本件=tools/docs/budgets 面（无 .at/无后端/无 vue 束
     改动）——后端 release 二进制/依赖仓产物/生成 web 束零触及
     （无需重建注记）；portable 产物=可再生工件（build_portable
