@@ -288,6 +288,18 @@
           ],
           "superseded_by": null,
           "content": "- Q3 裁定落地（2026-09-29 用户）：打包路径=a2r 原生化瘦身+形态=纯 portable（winget/自动更新后续件）——战略 §9 Q2/Q3 裁定注记落账。\n- 构建通道 tools/portable/ 三脚本：build_portable（regen→[profile]+deps 补丁注入幂等[MARKER 块替换+哈希自证]→release→strip→dist 断言 ≤15MB；regen 上游阻塞快照回退复用 last-good 基面——供① 维持，本件 regen 探针 133 错实录）+probe_surface（产物面护栏）+smoke_portable（四段烟测）。\n- 体积终表：基线 39,411,200B（last-good 基面+依赖钉 5bb3f53be）→终态手段集[lto=fat+cgu1+strip+tokio 子集]29,844,480B（-24.3%）未达标=分阶段语义；门控测量位：panic=abort -7.11MB（back_proxy catch_unwind 语义面）/opt-level=z -7.65MB/组合 16,459,264B 距门仅 714KB（用户裁定面）；剩余大头=上游域（wgpu 4.1MB .text+two-face 全量语法集[.rdata 12.4MB 主项]+image/HTTP/字体栈——evidence-p019-survey §④ 构成表）。\n- G-4 护栏双轨全绿：工具链轨锚点三档复跑 018 对照全容差内（steady 230.3ms/open 844.5ms/warm 1.5ms/idle≈48.5MB）+产物面（21.2ms/38.2ms/10.2MB 大余量）——零「瘦体积肥延迟」。\n- two-face 语法集子集/lazy 装载 want 登记 m4-perf-unblock-supply §5（条件触发兑现；与供④ 退役面协同注记）；budgets.json installer 行 ledger 化+数字回填+bench.py 断言面同步（F-1 复审关闭）。\n- SD-01..05 落档：perf-measurement「installer/portable 形态」节+00-overview M4 第二件注记+specs/auto-edit/README PLAN-019 口径+战略 §9 裁定注记+变更记录追记+供料档 §5。AC-01..07 全过（复审同会话声明+工件独立重构验证）。"
+        },
+        {
+          "id": "P020-1",
+          "section": "reviews",
+          "status": "stable",
+          "title": "PLAN-020 — M4-03 公开对比表竞品侧先行件收据（reviewed pass @ r1 2d77cf8[landed 见归档件]：测量方法论勘定+四通道 harness+三家基线 N=4+我方三态锚点防冒领+README 表位生成区间——median 上中位约定/invalid-run 条款/滚动帧率 v1 后补在案）",
+          "file": "docs/plans/archived/020-m4-compare-table-competitor-side.md",
+          "related": [
+            "PLAN-020"
+          ],
+          "superseded_by": null,
+          "content": "- 方法论定案（tools/compare/METHODOLOGY.md）：t0=CreateProcess 后 host perf_counter；四对象主通道——VS Code=renderer RSS 平台（1.5s 滑窗极差+确认窗分档 5MB=3s/100MB=6s 防分块装载假平台；文本模型物化语义；100MB 密采样曲线=0-2.8s 爆发装载+GC 回落，判据落点偏竞品有利侧）/Zed=Zed.log「Rendered first frame」（首帧语义，rope 惰性 RSS~19MB 注记）/BC5=file-report 非空（& 续行+/silent）/NP++=pending（缺位=用户面 §10 Q-1，装后补跑零改动）；备通道=窗标题/进程退出；跨对象语义直比禁则；滚动帧率=v1 后补（捕获自动化双缺陷实证）；CPU 沉降=诊断对照。\n- harness（tools/compare/compare.py check|run|report）：fresh profile per run+沉降窗 5s+PID 树收编（禁 /IM）；invalid-run 单次重跑条款（VS Code 间歇 rc=0 自退谱在案——014 F-RV6 归因纪律延展，连续两跑无效 abort）；三要素门内建（版本钉版/环境指纹/跑谱+离散缺一拒出数——report 拒出+render 拒出双面实证）；median=上中位 sorted[N//2] frozen 约定（bench.py 家法，018 锚点 841.0 同法）。\n- 官方基线（results/ 入仓，N=4 计入首跑弃暖机）：open 5mb——VS Code 4289.1ms[4256.3-4340.8]/Zed 296.0[272.6-310.0]；open 100mb——VS Code 4677.7[4621.4-4718.5]/Zed 295.6[275.4-310.3]（rope 惰性=与 5mb 同量级）；diff 100mb——BC5 123,279.8[119,849.6-126,246.9]；diff 5mb 备档 BC5 4547.7。VS Code 钉版=文件元数据 1.139.1（CLI --version 直启挂起 63s+自更新中间态 bash 包装器陈旧通道双缺陷实证）。\n- 我方三态锚点（anchors.py 直读 018/019/016 在档 JSONL 零重算，--verify 逐字对照绿）：anchor=open_100mb 841.0ms[VM 形态注记]/surface=open 38.2+steady 21.2ms[last-good 基面注记]/release-judged=diff_100mb 1906.0ms[016 先例仅限 diff]/l2-pending=禁出数（渲染断言+负例拦截实证）——冒领禁则=018 分层纪律表内延伸；L2 正式列待供① 解阻补列（关键路径注记维持，供① 承接路由 auto-lang 侧）。\n- README 表位（render_table.py 数据驱动生成区间禁手改，--check 复现一致绿）：三行表（打开 5MB/100MB/diff 100MB）×语义列×NP++ pending 列；发布动作=数字齐后另行（本节=战略 §5 指定表位落位）。SD-01..03 落档（perf-measurement 公开对比表节/00-overview M4 第三件注记/README PLAN-020 口径段）。范围零越界：.at 源零 diff、矩阵检查集零变更（判绿口径承 018/019）、auto-lang 零触碰、竞品纯黑盒零安装域写入。AC-01..07 全 pass（复审同会话从工件重建+负例双测+独立复算+F-1/F-2 修复轮 2d77cf8）。"
         }
       ],
       "status": "Empty",
