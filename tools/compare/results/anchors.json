@@ -1,0 +1,65 @@
+{
+  "schema": "p020-our-anchors/1",
+  "generated": "tools/compare/anchors.py 直读（零重算——AC-04 逐字对照）",
+  "states": [
+    {
+      "state": "anchor",
+      "metric": "open_100mb",
+      "median_ms": 841.0,
+      "runs_ms": [
+        841.0,
+        843.0,
+        816.1,
+        816.2
+      ],
+      "source": "tools\\bench\\results\\open-20260929-110820.jsonl",
+      "note": "PLAN-018 首批锚点——VM 形态（release 工具链全链记账）；非 L2 正式判定（不冒领）"
+    },
+    {
+      "state": "surface",
+      "metric": "open_100mb",
+      "median_ms": 38.2,
+      "runs_ms": null,
+      "source": "tools\\portable\\results\\surface-20260929-193232.jsonl",
+      "note": "PLAN-019 portable 产物面 probe_surface（final-v2b，last-good 基面——regen 现势化=供① 维持）；非 L2"
+    },
+    {
+      "state": "surface",
+      "metric": "steady_start",
+      "median_ms": 21.2,
+      "runs_ms": [
+        21.2
+      ],
+      "source": "tools\\portable\\results\\surface-20260929-193232.jsonl",
+      "note": "同上——产物面护栏数字（供① 阻塞期记录性通道）"
+    },
+    {
+      "state": "release-judged",
+      "metric": "diff_100mb",
+      "median_ms": 1906.0,
+      "runs_ms": [
+        1905.0,
+        1927.3,
+        1906.0
+      ],
+      "source": "tools\\bench\\results\\diff-20260928-152047.jsonl",
+      "note": "PLAN-016 release 全链判定先例（仅限 diff——018 分层纪律）；budget PASS ≤2000ms；旁证 diff-20260928-152015.jsonl=1971.3ms"
+    },
+    {
+      "state": "l2-pending",
+      "metric": "open_100mb",
+      "median_ms": null,
+      "runs_ms": null,
+      "source": null,
+      "note": "L2 正式判定位虚席——供①（a2r 生成缺口三类残余）解阻后 L2 形态重测补列"
+    },
+    {
+      "state": "l2-pending",
+      "metric": "steady_start",
+      "median_ms": null,
+      "runs_ms": null,
+      "source": null,
+      "note": "同上"
+    }
+  ]
+}

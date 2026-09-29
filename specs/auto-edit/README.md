@@ -455,6 +455,21 @@ codegen-units=1 ...`（手段迭代）/--baseline（零手段对照）/
 实录同档 tests/）；budgets.json installer 行已回填。矩阵检查集零
 变更（判绿口径承 018：137/≥125/0——本件抽查档不计入）。
 
+PLAN-020 口径更新（2026-09-29，竞品侧工具面——.at 源零 diff、矩阵
+检查集零变更判绿口径承 018/019）。**公开对比表竞品侧先行件**：
+测量方法论与四对象计时通道定案见
+`tools/compare/METHODOLOGY.md`（VS Code=renderer RSS 平台+确认窗
+[5MB=3s/100MB=6s]/Zed=首帧日志行/BC5=report 产出/NP++=pending——
+装后补跑即得列；滚动帧率=v1 后补）。竞品基线用法：
+`python tools/compare/compare.py check|run <对象> <5mb|100mb>
+[-n N]|report`（fresh profile per run+沉降窗 5s+invalid-run 重跑
+条款；results/ JSONL 入仓=三要素 {版本钉版,环境指纹,跑谱+离散}）。
+我方三态锚点：`python tools/compare/anchors.py [--verify]`
+（018/019/016 在档 JSONL 直读零重算——锚点[VM 形态]/产物面
+[last-good]/L2-pending[禁出数]）。表格生成：
+`python tools/compare/render_table.py [--check]`（数据驱动——文末
+「公开对比表」节为生成区间**禁手改**，--check 断言复现一致）。
+
 注：Plan 451 起 T10「热重载」走 DSL 源路径（reload 工具或 mtime 轮询重读
 app.at 重新提取 actions + generation bump → 视图重建），实测 50/0 全绿。
 OS 用户键位层（`%APPDATA%/auto/keymaps/auto-edit.at`）保持外部文件——那是
@@ -513,3 +528,25 @@ menubar {
   `onclick`；`menubar-separator` 横向通栏。
 - `menubar {}` **空标签**保持原 actions DSL 合成语义（向后兼容）；actions 块
   仍负责快捷键三源绑定。
+
+## 公开对比表
+
+> 战略 §5 指定表位（M4 关键产出之三——竞品侧先行半件，PLAN-020）。
+> 本节表格由 `tools/compare/render_table.py` 数据驱动生成：
+> **手改禁则**——复跑生成器再提交（`--check` 断言复现一致）。
+
+<!-- COMPARE-TABLE:BEGIN（tools/compare/render_table.py 生成——禁手改） -->
+### 公开对比表（竞品侧先行件——PLAN-020）
+
+同机测量（数据驱动生成，下方区间禁手改；方法论/计时点定义/通道结论见[tools/compare/METHODOLOGY.md](../../../tools/compare/METHODOLOGY.md)）。**可复现三要素**：每数字附 {版本钉版, 环境指纹, 跑谱+离散}（JSONL 在 `tools/compare/results/` 入仓）。**语义注记（直比禁则）**：各对象 t_ready 判据不同——VS Code=renderer RSS 平台（文本模型物化）、Zed=首帧渲染（rope 视口惰性装载，非全量）、BC5=diff 结果产出、auto-edit open=全量装载完成（BENCH 标记包夹）——跨对象数字不可径直排序，语义列随行。
+
+环境：Windows 11 build 10.0.26200 · Visus · 20 核 · 31.8GB（JSONL 头行含全指纹）
+
+| 指标（档） | 计时语义 | VS Code | Zed | Notepad++ | Beyond Compare 5 | auto-edit（本仓） |
+|---|---|---|---|---|---|---|
+| 打开 5 MB | 各对象 t_ready（语义列同左口径） | 4,289.1 ms（N=4，4,256.3–4,340.8） | 296.0 ms（N=4，272.6–310.0） | pending（未装——Q-1） | —（diff 对象不适用） | —（无同档在档谱） |
+| 打开 100 MB | VS Code=RSS 物化；Zed=首帧（rope 惰性）；本仓=全量装载 | 4,677.7 ms（N=4，4,621.4–4,718.5） | 295.6 ms（N=4，275.4–310.3） | pending（未装——Q-1） | —（diff 对象不适用） | **841.0 ms**〔锚点·VM 形态——非 L2〕；38.2 ms〔产物面·last-good 基面——非 L2〕；L2 正式判定=待供① 解阻（位虚席） |
+| diff 100 MB（文件对） | BC=report 产出；本仓=diff 端点全链墙钟 | —（未测） | —（未测） | — | 123,279.8 ms（N=4，119,849.6–126,246.9） | **1,906.0 ms**〔release 全链判定先例（016，仅限 diff）〕 |
+
+Notepad++ 缺位=安装属用户面（PLAN-020 §10 Q-1），装后 harness 补跑即得列（通道与 VS Code 同形）。**我方 L2 正式列**待供①（a2r 生成缺口残余）解阻后 L2 形态重测补列——锚点/产物面数字不冒领（018 分层纪律表内延伸）。发布动作（对外宣传/链接分发）=数字齐后另行；本节=战略 §5 指定表位。
+<!-- COMPARE-TABLE:END -->

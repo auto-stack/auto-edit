@@ -220,3 +220,38 @@ ui_gen 臂——a2r 探针 exit 3 实证，生成物占位全景在
   （probe_surface.py——steady 代理/open 100MB/idle mem，手段敏感面；
   a2r 门旁路=regen 阻塞期记录性通道，供① 清偿后回归 proxy --mode l2
   标准链）。锚点=记账不阻塞原则不变（硬判定维持 L2 唯一效力）。
+
+## 公开对比表（PLAN-020，2026-09-29——竞品侧先行件）
+
+战略 §5 指定表位（README 发布与 NP++/VSCode/Zed[打开/滚动] 及 Beyond
+Compare[diff 计时]的同机对比表——「公开可复现才有说服力」）。本节=竞品
+侧先行半件的规范锚；**我方 L2 正式列待供① 解阻后补**（M4 主线门控现状
+不变）。
+
+- **方法论（tools/compare/METHODOLOGY.md 定案）**：t0=CreateProcess 后
+  host perf_counter 采样；t_ready 主通道逐对象定义——VS Code=renderer
+  RSS 平台（1.5s 滑窗极差判据+3s 确认窗防分块装载假平台；文本模型物化
+  语义）、Zed=Zed.log「Rendered first frame」（首帧语义；rope 视口惰性
+  装载注记——非全量）、BC5=file-report 非空（diff 结果产出，对齐我方
+  diff_100mb 口径）、NP++=pending（缺位，安装=用户面 §10 Q-1）。备通道
+  （窗标题含文件名/进程退出）为对照列。**跨对象计时语义不同——直比
+  禁则**，表内以语义列显影。滚动帧率通道=v1 注记后补（屏幕捕获自动化
+  双缺陷实证：前台权拒绝+捕获面污染；与供② 帧插桩及我方 L2 列同期）。
+- **三态分层纪律（frozen，018 分层纪律的表内延伸）**：我方列=列元数据
+  三态——anchor（锚点，VM 形态注记「非 L2 正式判定」）/surface（产物面，
+  last-good 基面注记）/release-judged（release 全链判定先例——**仅限
+  diff**，016 先例）/l2-pending（正式判定位虚席，**渲染断言禁止出数**）
+  ——锚点/产物面冒领禁则。
+- **可复现三要素（frozen）**：数字入表必附 {版本钉版, 环境指纹, 跑谱+
+  离散}——缺一即 harness report/表格生成器拒出数（三要素门内建）。
+  版本钉版=文件元数据通道（VS Code CLI --version 直启挂起+自更新中间态
+  陈旧通道双缺陷实证——bash 包装器报 1.138.0 vs 实际 1.139.1）。
+- **harness（tools/compare/）**：`compare.py`（check/run/report——fresh
+  profile per run、沉降窗 5s、invalid-run 单次重跑条款[VS Code 间歇
+  rc=0 自退现象谱在案——014 F-RV6 归因纪律延展：连续两跑无效 abort
+  示知，先查并行会话清扫]）/`anchors.py`（我方三态数据直读 018/019/016
+  在档 JSONL——零重算，--verify 逐字对照）/`render_table.py`（数据驱动
+  markdown——README 表位生成区间禁手改，--check 复现一致断言）。
+- **边界（非目标）**：竞品纯黑盒（仅进程级观察+自建 temp profile，零
+  安装域写入）；对外发布/宣传动作=数字齐后另行（README 节=表位落位）；
+  NP++ 安装=用户面裁定（装后 harness 补跑即得列，零改动）。
