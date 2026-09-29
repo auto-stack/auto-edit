@@ -555,6 +555,12 @@ store EditorStore {
                             }
                             .recents_count = .recents.len()
                             console_log("session: restored " + seq.str() + " tabs")
+                            // PLAN-018 T-05: warm_start 锚点标记（AUTO_BENCH
+                            // 门控——会话恢复链墙钟段；恢复链在 bench_ws_loaded
+                            // 之后执行，此标记为其机读端点。未设门零行为差异）。
+                            if env_str("AUTO_BENCH") == "1" {
+                                print("BENCH bench_session_restored")
+                            }
                         }
                     } catch {
                         console_log("session: parse failed — fresh start")
@@ -930,6 +936,13 @@ store EditorStore {
                         .load_key = ""
                         console_log("load rejected: " + fsize.str() + " bytes > 超大拒绝位 536870912（50MB+ 为大文件模式域；>512MB 拒绝装载——真分块 IO=上游阻塞，docs/upstream §16）— " + path)
                         .console = console_lines()
+                        // PLAN-018 T-03: 超大拒绝形机读标记（AUTO_BENCH 门控
+                        // ——拒绝分支在装载标记包夹之前且 console_log 不落
+                        // stdout，512MB 拒绝位对照/1GB ledger 记录观测用。
+                        // 未设门零行为差异）。
+                        if env_str("AUTO_BENCH") == "1" {
+                            print("BENCH bench_open_rejected")
+                        }
                     } else {
                         if fsize >= 52428800 {
                             var bidx int = -1

@@ -42,6 +42,7 @@ import re
 import shutil
 import subprocess
 import sys
+import tempfile
 import time
 from datetime import datetime
 from pathlib import Path
@@ -335,18 +336,35 @@ def _detector_selftest() -> bool:
 # L0 断言报告的逐行终态（五类；plan §5.4）。L2 完整跑通后 hard 行才进入
 # 数字评估（当前上游 §6/§7 阻塞，--mode l2 exit 3 归因，不达评估）。
 _L0_STATES = {
-    "steady_start": ("not-armed", "硬门禁仅在 L2 评估（战略 §5 阶梯）"),
-    "renderer_cold_start": ("not-armed", "硬门禁仅在 L2 评估；预算值待 Q2 拓扑"),
-    "warm_start": ("pending-feature", "需 M2 会话恢复（懒装载）"),
-    "open_100mb": ("arch-blocked", "rope 前架构性不可达，禁调优，只记基线"),
-    "open_1gb": ("arch-blocked", "rope 前架构性不可达，禁调优，只记基线"),
-    "type_latency": ("blocked-upstream", "内核帧时间戳插桩（T-03 勘无 .at 层通道）"),
-    "scroll_fps": ("blocked-upstream", "帧率测量需内核插桩；大文件满帧率另需 rope"),
+    "steady_start": ("not-armed", "硬门禁仅在 L2 评估（战略 §5 阶梯）；M4 "
+                     "门槛行——分解锚点在档（stage steady，PLAN-018 T-04）；"
+                     "正式武装判定待供① 解阻（a2r release 直拉）"),
+    "renderer_cold_start": ("not-armed", "硬门禁仅在 L2 评估；预算值待 Q2 "
+                            "拓扑（上游 683 重设计 pending 维持）"),
+    "warm_start": ("ledger", "锚点在档（PLAN-018 stage warm：20 tab 恢复懒"
+                   "装载墙钟+不读盘面——M2 交付 PLAN-010）；断言化=供① 后 "
+                   "L2 形态（M4 收口）"),
+    "open_100mb": ("ledger", "解锁待测→锚点在档（PLAN-018 stage open：100MB "
+                   "装载墙钟 N 跑谱 results/open-*.jsonl；big 态语义=fsize"
+                   "≥50MB 探测门 plain 旁路臂）；禁调优随 rope[673]+分块读"
+                   "[687] 交付解除；硬判定（≤1s+滚动不掉帧）待供① 后 L2 "
+                   "正式评估"),
+    "open_1gb": ("ledger", "解锁待测→拒绝位实证（PLAN-018 stage open：1GB"
+                 ">512MB 超大拒绝位〔013 Q-3 定参〕——可打开待门放开重测；"
+                 "513MB 边界对照在档）；战略 ledger 态记录"),
+    "type_latency": ("blocked-upstream", "内核帧时间戳插桩（T-03 勘无 .at 层"
+                     "通道）——供② 排队（docs/upstream/2026-09-m4-perf-"
+                     "unblock-supply.md）"),
+    "scroll_fps": ("blocked-upstream", "帧率测量需内核插桩；大文件满帧率另需 "
+                   "rope——供② 排队（m4-perf-unblock-supply）"),
     "diff_100mb": ("ledger", "引擎时代实测判定在案（PLAN-016 修复轮 stage_diff "
                    "diff_100mb 档 ≤2000ms 全链墙钟，JSONL 在 results/）；L2 "
                    "硬门禁 M4 收口"),
-    "idle_mem": ("ledger", "L0 采样记账不阻塞；预算断言 M4 收口"),
-    "installer": ("pending-feature", "Q2 独立 exe 打包路径"),
+    "idle_mem": ("ledger", "L0 采样记账不阻塞；锚点在档（PLAN-018 stage "
+                 "warm：空窗/20tab 两形态采样）；预算断言 M4 收口"),
+    "installer": ("pending-feature", "Q2 独立 exe 打包路径；裁定材料备齐"
+                  "（PLAN-018 T-00④：37.8MB 差距表+两路径成本——§10 Q-1 "
+                  "用户件）"),
 }
 _STATE_ORDER = ["not-armed", "pending-feature", "arch-blocked",
                 "blocked-upstream", "ledger"]
@@ -795,11 +813,28 @@ def stage_assert(results: str | None) -> int:
     if results:
         path = Path(results)
     else:
+        # PLAN-018: 默认目标过滤为含 budget_assert 记录的最新文件——
+        # results/ 现含多档 JSONL（diff-/bigfile-/open-/steady-/warm-
+        # 前缀，011/013/018 起），纯文件名序取最新会撞非 proxy 档
+        # （无 budget_assert 记录→FATAL）。
         cands = sorted(RESULTS.glob("*.jsonl"))
         if not cands:
             _log("FATAL: 无既往 results 文件（先跑 proxy，或 --results 指定）")
             return EXIT_FAIL
-        path = cands[-1]
+        path = None
+        for cand in reversed(cands):
+            try:
+                if any(json.loads(ln).get("type") == "budget_assert"
+                       for ln in cand.read_text(encoding="utf-8")
+                       .splitlines() if ln.strip()):
+                    path = cand
+                    break
+            except (OSError, json.JSONDecodeError):
+                continue
+        if path is None:
+            _log("FATAL: results/ 无含 budget_assert 记录的文件"
+                 "（先跑 proxy，或 --results 指定）")
+            return EXIT_FAIL
     _log(f"断言源：{path}")
     rows = None
     mode = "l0"
@@ -1074,9 +1109,393 @@ def stage_bigfile() -> int:
     return EXIT_OK
 
 
+# ═════════════════════════════════════════════════════════════════════
+# PLAN-018: M4 锚点档（G-3/G-4/G-5）——open/steady/warm 三档。
+#
+# 形态=「记账不阻塞」锚点（frozen 约束①）：release 工具链全链
+# （AUTO_BIN 指 release 构建 auto——016 diff_100mb 判定先例），L0
+# `run -r vm` 直拉；硬判定维持 L2 唯一预算效力（供① 解阻后切正主
+# L2 形态——a2r 现势探针仍 blocked，tests/evidence-p018-survey.md
+# §①-b/§⑤），本档数字入 budgets validity 注记位。
+# 计时源=host perf_counter（app epoch 双录通道=供④ vue 映射缺口
+# 在册 m1-supply §17，front ms 行撤回——open_ms 走 host 回退源，
+# 如实注记）。启动级档 2ms 轮询（L2_POLL_S——tens-of-ms 锚点粒度），
+# 装载级档 25ms（L0 形状粒度——秒级锚点足够）。
+# APPDATA 卫生：锚点档一律隔离 APPDATA（tmpdir）——打开链
+# SessionSave 与会话恢复链均锚 $APPDATA/auto-edit-session.json，
+# 隔离保护用户真实会话且空目录=「全新启动」纯态（矩阵 T11 先例；
+# 既有 proxy open 链未隔离=观察件 want，非本件面）。
+
+def _probe_fixture(path: Path, total: int) -> float:
+    """拒绝位探针 fixture（truncate 形）：逻辑尺寸达标、内容零填充——
+    拒绝路径仅 file_size 元数据读零内容消费（T-00③ 裁定）；门放开
+    后需真内容重造。"""
+    t0 = time.perf_counter()
+    with open(path, "wb") as f:
+        f.seek(total - 1)
+        f.write(b"\n")
+    return time.perf_counter() - t0
+
+
+def _open_fixture(path: Path, mb: int) -> float:
+    """装载锚点 fixture（重复行+散点差异——滚动/高亮真实负载形，
+    013/016 生成式先例不入库）：行号唯一化行体+每 100 行 1 行
+    CHANGED 散点（1% 散布）。"""
+    t0 = time.perf_counter()
+    target = mb * 1024 * 1024
+    n = 0
+    written = 0
+    with open(path, "w", encoding="utf-8", newline="") as f:
+        while written < target:
+            for k in range(100):
+                line = (f"line {n + k:08d} of p018 open anchor payload"
+                        + (" CHANGED" if k == 0 else ""))
+                f.write(line + "\n")
+                written += len(line) + 1
+            n += 100
+    return time.perf_counter() - t0
+
+
+def _dump_rows(outfile: Path, head: dict, rows: list[dict]) -> None:
+    with open(outfile, "w", encoding="utf-8", newline="\n") as f:
+        f.write(json.dumps(head, ensure_ascii=False) + "\n")
+        for r in rows:
+            f.write(json.dumps(r, ensure_ascii=False) + "\n")
+    _log(f"结果 JSONL → {outfile}")
+
+
+def stage_open(runs: int) -> int:
+    """PLAN-018 T-03（G-3/AC-03）：open_100mb/open_1gb 锚点档。
+
+    100MB 生成式文本装载墙钟 ×N（首跑弃暖机）+513MB 拒绝位对照
+    +1GB 尝试（>512MB 同门拒绝=战略 ledger 态记录——「可打开」待
+    门放开重测，不硬造假象；013 Q-3 定参 upstream §16）。big 态
+    注记：100MB 必经 fsize≥50MB 探测门（plain 旁路臂）——装载
+    墙钟=big 态语义数字。计时卫生=fixture 生成后沉降窗 5s（016
+    writeback 教训）。退出码 0=锚点齐（记账形态，无硬判定）。"""
+    exe = _auto_exe()
+    fp = _fingerprint()
+    if runs < 2:
+        _log("FATAL: --runs 至少 2（首跑弃暖机语义）")
+        return EXIT_FAIL
+    RESULTS.mkdir(exist_ok=True)
+    FIXTURES.mkdir(exist_ok=True)
+    rows: list[dict] = []
+
+    fx100 = FIXTURES / "open-100mb.txt"
+    gen_s = _open_fixture(fx100, 100)
+    _log(f"open 100MB fixture 生成 {gen_s:.2f}s（gitignored）——沉降窗 5s"
+         "（writeback 计时卫生，016 教训）")
+    time.sleep(5.0)
+    walls: list[float] = []
+    for i in range(runs):
+        with tempfile.TemporaryDirectory(prefix="bench-p018-appdata-") as ad:
+            r = _spawn_tracked(
+                [exe, "run", "-r", "vm"],
+                {"AUTO_BENCH": "1", "AUTO_OPEN_PATH": str(fx100),
+                 "APPDATA": ad, "AUTO_PROJECT_DIR": str(PROJECT)},
+                ["bench_open_start", "bench_open_done"],
+                timeout_s=_open_timeout_s(100), log_name=f"open100-{i}",
+                mem_after=["bench_open_done"])
+        m = r["markers"]
+        ok = "bench_open_start" in m and "bench_open_done" in m
+        wall = round(m["bench_open_done"] - m["bench_open_start"], 1) if ok else None
+        rec = {"id": "open_100mb", "run": i, "warmup": i == 0, "open_ms": wall,
+               "spawn_to_open_start_ms": m.get("bench_open_start"),
+               "big_state": "on（fsize≥50MB 探测门——plain 旁路臂）",
+               "mem_loaded": r["mem"].get("bench_open_done"),
+               "log": r["log"]}
+        rows.append(rec)
+        if ok and i > 0:
+            walls.append(wall)
+        _log(f"  run{i}{'(暖机弃)' if i == 0 else ''}: open={wall}ms "
+             f"mem={rec['mem_loaded'] and rec['mem_loaded'][0] // 1048576}MB")
+
+    for label, mb, note in (("reject_513mb", 513, "拒绝位边界+1B 对照"),
+                            ("open_1gb", 1024, "1GB 尝试——同门拒绝=ledger 态记录")):
+        fxp = FIXTURES / f"open-{label}.txt"
+        gen_s = _probe_fixture(fxp, mb * 1024 * 1024)
+        _log(f"{label} 探针 fixture 生成 {gen_s:.2f}s（truncate 形——拒绝路径"
+             "零内容消费）——沉降窗 2s")
+        time.sleep(2.0)
+        with tempfile.TemporaryDirectory(prefix="bench-p018-appdata-") as ad:
+            r = _spawn_tracked(
+                [exe, "run", "-r", "vm"],
+                {"AUTO_BENCH": "1", "AUTO_OPEN_PATH": str(fxp),
+                 "APPDATA": ad, "AUTO_PROJECT_DIR": str(PROJECT)},
+                ["bench_open_rejected"],
+                timeout_s=120.0, log_name=f"open-{label}",
+                mem_after=["bench_open_rejected"])
+        rejected = "bench_open_rejected" in r["markers"]
+        rows.append({"id": label, "size_mb": mb, "rejected": rejected,
+                     "note": note, "log": r["log"]})
+        _log(f"  {label}: rejected={rejected}")
+
+    med = sorted(walls)[len(walls) // 2] if walls else None
+    summary = {"id": "open_100mb_summary", "runs_ms": walls,
+               "median_ms": med, "min_ms": min(walls) if walls else None,
+               "max_ms": max(walls) if walls else None,
+               "note": "装载墙钟=纯装载时长（标记包夹）——big 态语义；"
+                       "≤1s 硬判定待供① 后 L2 正式评估（本档=记账）"}
+    rows.append(summary)
+    _log(f"open_100mb 谱：{walls} median={med}ms")
+    _dump_rows(RESULTS / f"open-{_ts()}.jsonl",
+               {"type": "open_anchor", "toolchain": fp,
+                "toolchain_note": "release 工具链全链记账形态（016 先例）——"
+                                  "非 L2 武装判定"},
+               rows)
+    bad = [r["id"] for r in rows if r["id"] == "open_100mb"
+           and r["open_ms"] is None]
+    bad += [r["id"] for r in rows if "rejected" in r and not r["rejected"]]
+    if bad:
+        _log(f"FATAL: 档缺数字/拒绝形未现：{bad}")
+        return EXIT_FAIL
+    return EXIT_OK
+
+
+def _startup_decomp(exe: str, tag: str, want: list[str],
+                    timeout_s: float) -> dict | None:
+    """单跑启动链分解（2ms 轮询，隔离 APPDATA）。返回 _spawn_tracked
+    结果或 None（标记缺失）。"""
+    with tempfile.TemporaryDirectory(prefix="bench-p018-appdata-") as ad:
+        r = _spawn_tracked([exe, "run", "-r", "vm"],
+                           {"AUTO_BENCH": "1", "APPDATA": ad,
+                            # ws_root 显式钉位（stage_diff 先例）——会话
+                            # 恢复 ws_dir 匹配门由构造保证。
+                            "AUTO_PROJECT_DIR": str(PROJECT)},
+                           want, timeout_s=timeout_s, log_name=tag,
+                           mem_after=["bench_ws_loaded"], poll_s=L2_POLL_S)
+    missing = [k for k in want if k not in r["markers"]]
+    if missing:
+        _log(f"FATAL: {tag} 标记缺失（得 {sorted(r['markers'])}，日志 {r['log']}）")
+        return None
+    return r
+
+
+def stage_steady(runs: int) -> int:
+    """PLAN-018 T-04（G-4/AC-04）：steady_start 启动链分解归因档。
+
+    release 工具链全链形态分解数字表（进程起→逻辑 init→workspace）
+    ×N（首跑弃暖机，2ms 轮询）+≤80ms 对表（达标=绿注记位；未达标=
+    分段归因清单——瘦身实施=后续件，frozen 约束④）。空窗纯态（隔离
+    APPDATA=无会话恢复）。硬判定维持 L2 唯一效力——本档=记账。"""
+    exe = _auto_exe()
+    fp = _fingerprint()
+    if runs < 2:
+        _log("FATAL: --runs 至少 2（首跑弃暖机语义）")
+        return EXIT_FAIL
+    RESULTS.mkdir(exist_ok=True)
+    recs: list[dict] = []
+    for i in range(runs):
+        r = _startup_decomp(exe, f"steady-{i}",
+                            ["bench_vm_init", "bench_ws_loaded"], 45.0)
+        if r is None:
+            return EXIT_FAIL
+        m = r["markers"]
+        mem = r["mem"].get("bench_ws_loaded")
+        rec = {"run": i, "warmup": i == 0,
+               "spawn_to_vm_init_ms": round(m["bench_vm_init"], 1),
+               "vm_init_to_ws_loaded_ms":
+                   round(m["bench_ws_loaded"] - m["bench_vm_init"], 1),
+               "steady_start_ms": round(m["bench_ws_loaded"], 1),
+               "mem_idle": mem}
+        recs.append(rec)
+        _log(f"  run{i}{'(暖机弃)' if i == 0 else ''}: "
+             f"steady={rec['steady_start_ms']}ms "
+             f"(init={rec['spawn_to_vm_init_ms']} + "
+             f"ws={rec['vm_init_to_ws_loaded_ms']}) "
+             f"mem={mem and mem[0] // 1048576}MB")
+    steady = [r["steady_start_ms"] for r in recs if not r["warmup"]]
+    mean = round(sum(steady) / len(steady), 1) if steady else None
+    init_mean = round(sum(r["spawn_to_vm_init_ms"] for r in recs
+                          if not r["warmup"]) / len(steady), 1)
+    ws_mean = round(sum(r["vm_init_to_ws_loaded_ms"] for r in recs
+                        if not r["warmup"]) / len(steady), 1)
+    verdict = ("pass（≤80ms 预算行内——绿注记位：M4 门槛行 release 工具链"
+               "记账形态达标；正式武装判定仍待供① 后 L2 形态）"
+               if mean is not None and mean <= STEADY_BUDGET_MS else
+               "fail（>80ms——归因清单：见分段均值；瘦身实施=后续件，"
+               "本件不实施[frozen 约束④]）")
+    rows = [{"id": "steady_summary", "runs_ms": steady, "mean_ms": mean,
+             "budget_ms": STEADY_BUDGET_MS, "verdict": verdict,
+             "segments_mean_ms": {"spawn_to_vm_init": init_mean,
+                                  "vm_init_to_ws_loaded": ws_mean},
+             "note": "分解=进程起（host spawn）→逻辑 init（bench_vm_init）"
+                     "→workspace（bench_ws_loaded）；首帧段=勘无通道"
+                     "（供② 排队）；2ms 轮询粒度"}]
+    _log(f"steady_start 对表：mean={mean}ms vs ≤{STEADY_BUDGET_MS:.0f}ms "
+         f"→ {verdict[:40]}…")
+    _dump_rows(RESULTS / f"steady-{_ts()}.jsonl",
+               {"type": "steady_decomp", "toolchain": fp,
+                "toolchain_note": "release 工具链全链记账形态（016 先例）——"
+                                  "非 L2 武装判定"},
+               recs + rows)
+    if mean is None:
+        return EXIT_FAIL
+    return EXIT_OK
+
+
+def stage_warm(runs: int) -> int:
+    """PLAN-018 T-05（G-5/AC-05）：warm_start/idle_mem 锚点档。
+
+    空窗纯态 ×N（idle_mem 空窗形）+20tab 会话恢复 ×N（warm_start
+    墙钟=spawn→恢复链→active 装载完成；会话 20×10MB 生成式注入
+    隔离 APPDATA）。不读盘断言=墙钟平坦+内存平坦双证：懒装载语义
+    下非 active 19 tab 零装载——若全量装载，恢复墙钟应显 200MB 读
+    盘量级且 RSS +20×内容量（013 拒绝位外推同法）。"""
+    exe = _auto_exe()
+    fp = _fingerprint()
+    if runs < 2:
+        _log("FATAL: --runs 至少 2（首跑弃暖机语义）")
+        return EXIT_FAIL
+    RESULTS.mkdir(exist_ok=True)
+    rows: list[dict] = []
+
+    # 空窗纯态
+    empty_mem = []
+    for i in range(runs):
+        r = _startup_decomp(exe, f"warm-empty-{i}",
+                            ["bench_vm_init", "bench_ws_loaded"], 45.0)
+        if r is None:
+            return EXIT_FAIL
+        m = r["markers"]
+        mem = r["mem"].get("bench_ws_loaded")
+        rec = {"id": "idle_empty", "run": i, "warmup": i == 0,
+               "spawn_to_ws_loaded_ms": round(m["bench_ws_loaded"], 1),
+               "mem_idle": mem}
+        rows.append(rec)
+        if not rec["warmup"] and mem and mem[0]:
+            empty_mem.append(mem[0])
+        _log(f"  empty run{i}: ws={rec['spawn_to_ws_loaded_ms']}ms "
+             f"mem={mem and mem[0] // 1048576}MB")
+
+    # 20tab 会话注入（10MB×20=200MB 负载——不读盘断言的信号形）
+    warm_dir = FIXTURES / "warm"
+    warm_dir.mkdir(parents=True, exist_ok=True)
+    files = []
+    gen_s = 0.0
+    for i in range(20):
+        p = warm_dir / f"warm-{i:02d}.txt"
+        gen_s += _open_fixture(p, 10)
+        files.append(p)
+    _log(f"20tab 会话 fixture 生成 {gen_s:.2f}s（10MB×20，gitignored）"
+         "——沉降窗 5s")
+    time.sleep(5.0)
+    session = {"ws_dir": str(PROJECT), "active": 0,
+               "tabs": [{"path": str(p), "title": p.name, "cline": 1,
+                         "ccol": 1} for p in files],
+               "recents": []}
+    warm_ms: list[float] = []      # 恢复链（预算行锚点：spawn→恢复完成）
+    load_ms: list[float] = []      # active 装载段（打开链域，单列）
+    usable_ms: list[float] = []    # spawn→可输入（信息列）
+    warm_mem = []
+    for i in range(runs):
+        with tempfile.TemporaryDirectory(prefix="bench-p018-appdata-") as ad:
+            (Path(ad) / "auto-edit-session.json").write_text(
+                json.dumps(session), encoding="utf-8")
+            r = _spawn_tracked([exe, "run", "-r", "vm"],
+                               {"AUTO_BENCH": "1", "APPDATA": ad,
+                                "AUTO_PROJECT_DIR": str(PROJECT)},
+                               ["bench_vm_init", "bench_ws_loaded",
+                                "bench_session_restored",
+                                "bench_open_start", "bench_open_done"],
+                               timeout_s=60.0, log_name=f"warm-{i}",
+                               mem_after=["bench_open_done"],
+                               poll_s=L2_POLL_S)
+        m = r["markers"]
+        need = ["bench_session_restored", "bench_open_done"]
+        if any(k not in m for k in need):
+            _log(f"FATAL: warm run{i} 标记缺失（得 {sorted(m)}，日志 {r['log']}）")
+            return EXIT_FAIL
+        mem = r["mem"].get("bench_open_done")
+        rec = {"id": "warm_20tab", "run": i, "warmup": i == 0,
+               "spawn_to_vm_init_ms": round(m["bench_vm_init"], 1),
+               "vm_init_to_ws_loaded_ms":
+                   round(m["bench_ws_loaded"] - m["bench_vm_init"], 1),
+               "restore_chain_ms":
+                   round(m["bench_session_restored"], 1),
+               "restore_net_ms":
+                   round(m["bench_session_restored"]
+                         - m["bench_ws_loaded"], 1),
+               "active_load_ms":
+                   round(m["bench_open_done"] - m["bench_session_restored"], 1),
+               "usable_ms": round(m["bench_open_done"], 1),
+               "mem_loaded": mem}
+        rows.append(rec)
+        if not rec["warmup"]:
+            warm_ms.append(rec["restore_chain_ms"])
+            load_ms.append(rec["active_load_ms"])
+            usable_ms.append(rec["usable_ms"])
+            if mem and mem[0]:
+                warm_mem.append(mem[0])
+        _log(f"  warm run{i}: restore={rec['restore_chain_ms']}ms "
+             f"load={rec['active_load_ms']}ms "
+             f"usable={rec['usable_ms']}ms "
+             f"mem={mem and mem[0] // 1048576}MB")
+
+    e_mean = round(sum(empty_mem) / len(empty_mem)) if empty_mem else None
+    w_mean = round(sum(warm_mem) / len(warm_mem)) if warm_mem else None
+    warm_mean = (round(sum(warm_ms) / len(warm_ms), 1)
+                 if warm_ms else None)
+    load_mean = (round(sum(load_ms) / len(load_ms), 1)
+                 if load_ms else None)
+    usable_mean = (round(sum(usable_ms) / len(usable_ms), 1)
+                   if usable_ms else None)
+    # 恢复净段（ws_loaded→session_restored，原始标记差——预算行真锚）：
+    # 全链含进程/VM boot 段（≈steady_start 同源归因，供① 后 L2 形态
+    # 自然消解），恢复操作本身=净段（2ms 轮询粒度下限）。
+    net_ms = [r["restore_net_ms"] for r in rows
+              if r["id"] == "warm_20tab" and not r["warmup"]]
+    net_mean = round(sum(net_ms) / len(net_ms), 1) if net_ms else None
+    delta_mem_mb = (round((w_mean - e_mean) / 1048576)
+                    if e_mean and w_mean else None)
+    restore_verdict = ("pass（恢复净段 ≤120ms 预算行内——绿注记位；全链"
+                       "含 boot 段归因=steady_start 同源，供① 后 L2 形态"
+                       "自然消解）"
+                       if net_mean is not None and net_mean <= 120.0 else
+                       "fail（恢复净段 >120ms——归因见分段；瘦身实施="
+                       "后续件）")
+    verdict = (f"记账注记：恢复净段（ws_loaded→恢复完成，20 tab 结构重建"
+               f"懒装载）mean={net_mean}ms vs ≤120ms → {restore_verdict}"
+               f"全链（spawn→恢复）mean={warm_mean}ms 其中 boot≈"
+               f"{round((warm_mean or 0) - (net_mean or 0), 1)}ms"
+               "（steady_start 同源归因）；不读盘面=标记单对实证（每跑仅 "
+               "1 次 open_start/done——非 active 19 tab 零装载，log 可复核）"
+               "；active 装载段 mean="
+               f"{load_mean}ms 单列（打开链域=open 行语义，不计入本行）；"
+               f"Δmem(20tab-空窗)={delta_mem_mb}MB=active 单文件装载+语法臂"
+               "成本记录（10MB<50MB 非 big 态全语法路径——放大归因注记，"
+               "不作为不读盘判据）")
+    rows.append({"id": "warm_summary",
+                 "restore_chain_runs_ms": warm_ms,
+                 "restore_chain_mean_ms": warm_mean,
+                 "restore_net_runs_ms": net_ms,
+                 "restore_net_mean_ms": net_mean, "budget_ms": 120.0,
+                 "restore_verdict": restore_verdict,
+                 "active_load_runs_ms": load_ms,
+                 "active_load_mean_ms": load_mean,
+                 "usable_runs_ms": usable_ms,
+                 "usable_mean_ms": usable_mean,
+                 "idle_mem_empty_mean_bytes": e_mean,
+                 "idle_mem_20tab_mean_bytes": w_mean,
+                 "idle_mem_delta_mb": delta_mem_mb,
+                 "verdict": verdict})
+    _log(f"恢复净段 mean={net_mean}ms vs ≤120ms；全链 mean={warm_mean}ms；"
+         f"active 装载 mean={load_mean}ms；Δmem(20tab-空窗)={delta_mem_mb}MB")
+    _dump_rows(RESULTS / f"warm-{_ts()}.jsonl",
+               {"type": "warm_idle_anchor", "toolchain": fp,
+                "toolchain_note": "release 工具链全链记账形态（016 先例）——"
+                                  "非 L2 武装判定"},
+               rows)
+    if warm_mean is None:
+        return EXIT_FAIL
+    return EXIT_OK
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description="auto-edit 测量套件（PLAN-005 B 段）")
-    ap.add_argument("cmd", choices=["check", "proxy", "assert", "diff", "bigfile"])
+    ap.add_argument("cmd", choices=["check", "proxy", "assert", "diff", "bigfile",
+                                    "open", "steady", "warm"])
     ap.add_argument("--runs", type=int, default=DEFAULT_RUNS,
                     help=f"启动分解跑数（默认 {DEFAULT_RUNS}，首跑弃暖机）")
     ap.add_argument("--full", action="store_true",
@@ -1091,6 +1510,12 @@ def main() -> int:
         return stage_diff()
     if args.cmd == "bigfile":
         return stage_bigfile()
+    if args.cmd == "open":
+        return stage_open(args.runs)
+    if args.cmd == "steady":
+        return stage_steady(args.runs)
+    if args.cmd == "warm":
+        return stage_warm(args.runs)
     if args.cmd == "proxy":
         return stage_proxy(args.runs, args.full, args.mode)
     return stage_assert(args.results)

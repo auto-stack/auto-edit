@@ -1,0 +1,7 @@
+{"type": "steady_decomp", "toolchain": {"auto_path": "D:\\autostack\\.wt\\edit-018\\auto-lang\\target\\release\\auto.exe", "auto_version": "auto 0.1.0+v0.4.2-2205-g5bb3f53be", "auto_mtime": "2026-09-29T11:00", "psutil": true, "project": "D:\\autostack\\.wt\\edit-018\\auto-edit\\specs\\auto-edit", "os": "win32"}, "toolchain_note": "release 工具链全链记账形态（016 先例）——非 L2 武装判定"}
+{"run": 0, "warmup": true, "spawn_to_vm_init_ms": 228.5, "vm_init_to_ws_loaded_ms": 7.6, "steady_start_ms": 236.1, "mem_idle": [57892864, "psutil.Process.rss"]}
+{"run": 1, "warmup": false, "spawn_to_vm_init_ms": 224.8, "vm_init_to_ws_loaded_ms": 9.9, "steady_start_ms": 234.8, "mem_idle": [47919104, "psutil.Process.rss"]}
+{"run": 2, "warmup": false, "spawn_to_vm_init_ms": 225.5, "vm_init_to_ws_loaded_ms": 7.5, "steady_start_ms": 233.0, "mem_idle": [53981184, "psutil.Process.rss"]}
+{"run": 3, "warmup": false, "spawn_to_vm_init_ms": 222.1, "vm_init_to_ws_loaded_ms": 7.5, "steady_start_ms": 229.7, "mem_idle": [55169024, "psutil.Process.rss"]}
+{"run": 4, "warmup": false, "spawn_to_vm_init_ms": 225.6, "vm_init_to_ws_loaded_ms": 7.3, "steady_start_ms": 232.8, "mem_idle": [58003456, "psutil.Process.rss"]}
+{"id": "steady_summary", "runs_ms": [234.8, 233.0, 229.7, 232.8], "mean_ms": 232.6, "budget_ms": 80.0, "verdict": "fail（>80ms——归因清单：见分段均值；瘦身实施=后续件，本件不实施[frozen 约束④]）", "segments_mean_ms": {"spawn_to_vm_init": 224.5, "vm_init_to_ws_loaded": 8.1}, "note": "分解=进程起（host spawn）→逻辑 init（bench_vm_init）→workspace（bench_ws_loaded）；首帧段=勘无通道（供② 排队）；2ms 轮询粒度"}
