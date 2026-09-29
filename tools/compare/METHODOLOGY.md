@@ -82,6 +82,11 @@
 ## 5. 跑谱纪律（承 018）
 
 - N≥4 跑/对象×档，**首跑弃暖机**；median+min/max 离散注记入报告。
+  **median 约定=frozen 口径**：`sorted(walls)[N//2]` **上中位**（偶数
+  N 取两中值大者）——bench.py 家法同源（018 锚点 open_100mb 841.0ms
+  同为上中位），跨数可比性前提；标准中位（statistics.median）与本
+  约定在偶数 N 差半步[BC5-100mb 例：上中位 123,279.8 vs 标准中位
+  122,985.7]——复算须按本约定（F-2，review 2026-09-29 成文）。
 - fresh profile per run（编辑器对象）——零会话/状态复用。
 - 收编=taskkill **按 PID 树**，禁 `/IM`（014 F-RV6 跨会话误伤教训）。
 - 竞品纯黑盒：仅进程级观察+自建 temp profile；不写竞品安装域。

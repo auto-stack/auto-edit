@@ -269,17 +269,18 @@ installer 行（数字回填）。
 **M4 第三件注记（PLAN-020，2026-09-29）**：公开对比表**竞品侧先行
 件**已落（对比表件中唯一无门控半件——竞品数字不依赖我方 L2）。
 测量方法论勘定（四对象计时通道+计时点定义——VS Code=renderer RSS
-平台[3s 确认窗防假平台]/Zed=首帧日志行[rope 惰性注记]/BC5=report
-产出/NP++=pending[缺位，安装=用户面 Q-1]；滚动帧率=v1 后补——捕获
-自动化双缺陷实证）+同机 harness（tools/compare/ 三脚本——三要素门
-内建+invalid-run 重跑条款）+竞品基线数字（VS Code 1.139.1/Zed
-1.20.2/BC5 5.0.6 实谱在档，results/ 入仓）+我方锚点占位列（**三态
-分层防冒领**：锚点[VM 形态]/产物面[last-good]/L2-pending[禁出数]；
-diff 行=016 release 全链判定先例 1906ms）+README 表位生成区间。
-**我方 L2 正式列仍虚席**（供① 解阻后 L2 形态重测补列——关键路径
-注记维持：供① 承接建议路由 auto-lang 侧计划，本件不替代）。
-规范详 modules/perf-measurement.md 公开对比表节（SD-01）+
-specs/auto-edit/README.md PLAN-020 口径与表节（SD-03）。
+平台[确认窗分档防假平台：5MB=3s/100MB=6s]/Zed=首帧日志行[rope 惰性
+注记]/BC5=report 产出/NP++=pending[缺位，安装=用户面 Q-1]；滚动
+帧率=v1 后补——捕获自动化双缺陷实证；median=上中位约定 frozen）
++同机 harness（tools/compare/ 三脚本——三要素门内建+invalid-run
+重跑条款）+竞品基线数字（VS Code 1.139.1/Zed 1.20.2/BC5 5.0.6 实谱
+在档，results/ 入仓）+我方锚点占位列（**三态分层防冒领**：锚点
+[VM 形态]/产物面[last-good]/L2-pending[禁出数]；diff 行=016 release
+全链判定先例 1906ms）+README 表位生成区间。**我方 L2 正式列仍虚席**
+（供① 解阻后 L2 形态重测补列——关键路径注记维持：供① 承接建议
+路由 auto-lang 侧计划，本件不替代）。规范详 modules/
+perf-measurement.md 公开对比表节（SD-01）+specs/auto-edit/README.md
+PLAN-020 口径与表节（SD-03）。
 
 **兄弟仓 Q1 裁定摘要（2026-09-22，战略补注十收口）**：jade-edit 与
 auto-edit **两产品长期并存**（auto=原生旗舰轻量编辑器、jade=web 轻量

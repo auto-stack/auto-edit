@@ -230,13 +230,15 @@ Compare[diff 计时]的同机对比表——「公开可复现才有说服力」
 
 - **方法论（tools/compare/METHODOLOGY.md 定案）**：t0=CreateProcess 后
   host perf_counter 采样；t_ready 主通道逐对象定义——VS Code=renderer
-  RSS 平台（1.5s 滑窗极差判据+3s 确认窗防分块装载假平台；文本模型物化
-  语义）、Zed=Zed.log「Rendered first frame」（首帧语义；rope 视口惰性
-  装载注记——非全量）、BC5=file-report 非空（diff 结果产出，对齐我方
-  diff_100mb 口径）、NP++=pending（缺位，安装=用户面 §10 Q-1）。备通道
-  （窗标题含文件名/进程退出）为对照列。**跨对象计时语义不同——直比
-  禁则**，表内以语义列显影。滚动帧率通道=v1 注记后补（屏幕捕获自动化
-  双缺陷实证：前台权拒绝+捕获面污染；与供② 帧插桩及我方 L2 列同期）。
+  RSS 平台（1.5s 滑窗极差判据+确认窗防分块装载假平台——分档
+  5MB=3s/100MB=6s；文本模型物化语义）、Zed=Zed.log「Rendered first
+  frame」（首帧语义；rope 视口惰性装载注记——非全量）、BC5=file-report
+  非空（diff 结果产出，对齐我方 diff_100mb 口径）、NP++=pending（缺位，
+  安装=用户面 §10 Q-1）。备通道（窗标题含文件名/进程退出）为对照列。
+  **跨对象计时语义不同——直比禁则**，表内以语义列显影。median=上中位
+  约定（sorted[N//2]，bench.py 家法——018 锚点同法，METHODOLOGY §5
+  frozen）。滚动帧率通道=v1 注记后补（屏幕捕获自动化双缺陷实证：
+  前台权拒绝+捕获面污染；与供② 帧插桩及我方 L2 列同期）。
 - **三态分层纪律（frozen，018 分层纪律的表内延伸）**：我方列=列元数据
   三态——anchor（锚点，VM 形态注记「非 L2 正式判定」）/surface（产物面，
   last-good 基面注记）/release-judged（release 全链判定先例——**仅限

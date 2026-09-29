@@ -511,7 +511,9 @@ def stage_run(target: str, tier: str, runs: int) -> int:
     rows.append({"type": "summary", "runs_ms": walls, "median_ms": med,
                  "min_ms": min(walls) if walls else None,
                  "max_ms": max(walls) if walls else None,
-                 "note": "首跑弃暖机；t_ready 语义见头行 timing_point"})
+                 "note": "首跑弃暖机；t_ready 语义见头行 timing_point；"
+                         "median=N//2 上中位（METHODOLOGY §5 frozen 约定，"
+                         "bench.py 家法）"})
     head = {"type": "compare_head", "target": target,
             "label": TARGETS[target]["label"], "version": version,
             "exe": str(TARGETS[target]["exe"]()),
@@ -542,7 +544,8 @@ def stage_report(pattern: str | None) -> int:
     if not files:
         _log("FATAL: results/ 无 compare JSONL——先 run")
         return EXIT_FAIL
-    print("| 对象 | 版本 | 档 | N(计入) | median ms | min–max ms | 离散注记 |")
+    print("| 对象 | 版本 | 档 | N(计入) | median ms（N//2 上中位——"
+          "METHODOLOGY §5 frozen 约定，bench.py 家法） | min–max ms | 离散注记 |")
     print("|---|---|---|---|---|---|---|")
     refused = []
     for fp_ in files:
