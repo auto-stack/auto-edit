@@ -1,10 +1,11 @@
 ---
 plan_id: PLAN-020
-status: reviewed
+status: archived
+completion_kind: delivered
 feature_name: M4-03 公开对比表竞品侧先行件（测量方法论勘定+竞品同机 harness+NP++/VSCode/Zed/BC5 基线+我方锚点占位列——L2 正式列待供①）
 author: [agent]
 created_at: 2026-09-29T21:11:42+08:00
-updated_at: 2026-09-29T22:38:50+08:00
+updated_at: 2026-09-29T22:52:30+08:00
 plan_revision: 1
 current_step: 6
 total_steps: 6
@@ -371,3 +372,30 @@ logs/probe-*.json）。
 - **Q-3 表发布形态（无需裁定，确认口径）**：README 节=战略指定
   表位；「发布」动作（对外宣传/链接分发）=数字齐后另行——本件
   只落表与方法论。
+
+- 2026-09-29 merge：`stage: merge`，PLAN-020:r1，`outcome: pass`。
+  **prepared**：评审基线=worktree plan-020-dev@2d77cf8（pass 复审
+  @e8d1793 记录）；canonical delta=SD-01..03 已在评审提交内
+  （e8ea6f4 落+2d77cf8 修）；投影目标=.autoos/specs.json reviews 段
+  P020-1（file 预指归档位）；SD-03 落 specs/auto-edit/README.md=
+  运行矩阵单源成文惯例（00-overview 规范结构节+011..019 五件先例
+  +018/019 口径节在 main——docs/specs 之外先例核查在案）。
+  **landed**：rebase main 后 range-diff 全等证明（`e8ea6f4 =
+  46917d4`、`2d77cf8 = 125b79f` 补丁恒等——安全重写证明）；旧→新
+  映射[e8ea6f4→46917d4, 2d77cf8→125b79f, a99b733→4c14c8e]；
+  `git merge --ff-only` 落地**零合并提交**，main tip=**4c14c8e**
+  （delivery commit=纯账本投影后代，diff 2d77cf8..a99b733 仅
+  .autoos/specs.json+12 行——实现/依赖零变更核验在案）；main 烟测
+  =report/anchors --verify/render --check 三绿（落地后即时复跑）。
+  **ledger_refreshed**：P020-1 外科插入 19→20 项（roundtrip 字节
+  等价先证 indent=2/ascii=false/尾换行；回读断言前 19 项深等+他
+  五段深等+尾插在位——断言初版把整文档 dict 与 items list 相比恒
+  假[审查 bug 非数据问题]，以 git HEAD~1 为基准重验绿；断言先跑
+  与 git add 换行串联未短路致提交先于验证落——流程失误如实注记，
+  数据本体验证绿后 a99b733 保留）+落地后 main 回读 20 项末项
+  P020-1 ✓。**archived**：git mv → docs/plans/archived/020-m4-
+  compare-table-competitor-side.md+status: archived+completion_kind:
+  delivered。**cleaned**：待回填（wt-guard→注销→组目录清）。部署
+  观察：本件=tools/docs 面（compare 工具+规范文档+README）——零
+  重建项（无产品二进制/vue 束/依赖仓产物消费面；bench/portable
+  工具链零触碰）。
