@@ -1,12 +1,12 @@
 ---
 plan_id: PLAN-018
-status: executing
+status: execution_done
 feature_name: M4-01 性能预算门开篇——M4 解阻供料包落档（a2r 映射残余/帧时间戳插桩/大文件卡死回归/tree-sitter 首批）+预算全表重定+可达行首批锚点
 author: [agent]
 created_at: 2026-09-29T09:54:28+08:00
 updated_at: 2026-09-29T09:54:28+08:00
 plan_revision: 1
-current_step: 0
+current_step: 7
 total_steps: 7
 supersedes_spec_components: []
 new_spec_components:
@@ -285,13 +285,27 @@ bench 扩档用法+锚点数字回填位）；specs.json reviews 段 P018-1 投�
 
 | # | 任务 | 依赖 | 落点（实勘锚） | 产出/意图 | AC | 验证（命令/预期） |
 |---|---|---|---|---|---|---|
-| 0 | T-00 M4 勘定决策件 | — | 本件 §5 T-00 节+勘定报告（evidence-p018-*） | 四勘定案+供料证据基 | AC-01 | [ ] 勘定报告在档（L2 缺口定界/标记族盘点/读点形态/Q2Q3 材料） |
-| 1 | T-01 供料包落档 | T-00 | docs/upstream/2026-09-m4-perf-unblock-supply.md | 四件+优先级+回执预留 | AC-01 | [ ] 文件在档+证据锚复现 |
-| 2 | T-02 budgets 全表重定 | T-00 | tools/bench/budgets.json+bench.py 注记面 | 十行处置+五态回归 | AC-02 | [ ] check+assert 双绿 |
-| 3 | T-03 open_100mb/1GB 档 | T-00 | bench.py stage 扩档+results/ | 锚点跑谱+回填 | AC-03 | [ ] 新档 JSONL+数字入 budgets |
-| 4 | T-04 steady_start 分解 | T-00 | bench.py+（最小 diff）BENCH 标记补点 | 分解表+归因结论 | AC-04 | [ ] 报告在档（绿注记或清单） |
-| 5 | T-05 warm/idle 锚点档 | T-00 | bench.py 扩档 | 两锚点数字 | AC-05 | [ ] JSONL+budgets 注记 |
-| 6 | T-06 规范+账本 | T-01..05 | SD-01..04+specs.json | M4 开篇收口 | AC-06 | [ ] 文件在档+P018-1 回读 True |
+| 0 | T-00 M4 勘定决策件 [x] ✅ 已完成 2026-09-29（worktree commit 83ded5f）：**三类生成缺口定界**（G-A envelope 成员访问投影 17 行`/* expr */`/G-B try 块 4 处`/* unhandled stmt */`/G-C code_editor_delta ui_gen 臂——唯一 E0425 名字解析错；114 错行普查余=级联）——**read_text_range=PLAN-687 已解+app 面 19 内建 18 已映射**（计划起草时「两内建缺席」基线收窄）；BENCH 标记族盘点（4 现役行位+首帧缺口在册+补点清单 2 处）；stage_open 档形裁定（独立档/标记包夹读点/5s 沉降窗/truncate 探针形/1GB=同门拒绝 ledger 态）；Q2/Q3 材料（exe 37,851,136B 差距表+两路径成本+winget 口径）——`tests/evidence-p018-survey.md` 六节在档；a2r 探针 exit 3（v2205，log 入仓） | — | 本件 §5 T-00 节+勘定报告（evidence-p018-*） | 四勘定案+供料证据基 | AC-01 | [x] 勘定报告在档（三类缺口定界/标记族盘点/读点形态/Q2Q3 材料） |
+| 1 | T-01 供料包落档 [x] ✅ 已完成 2026-09-29（commits 5ed722a+4f27931）：四件落档（供① a2r 三子件[G-C 最小先落]+供② 帧插桩+供③ 卡死回归[执行期矩阵复绿实证改定性「确认复核件」]+供④ tree-sitter 两段式）+优先级（①→③→②→④）+回执方式同前两包；格式对齐 diff-engine-supply（标题/证据基/期望形态/验收建议） | T-00 | docs/upstream/2026-09-m4-perf-unblock-supply.md | 四件+优先级+回执预留 | AC-01 | [x] 文件在档+证据锚复现（勘定报告 §①-b 逐行） |
+| 2 | T-02 budgets 全表重定 [x] ✅ 已完成 2026-09-29（commit 83ded5f）：十行处置全落（纠偏 2[open 两行「解锁待测」+禁调优放开仅此两行]/对齐 1[diff 016 谱]/排队 3[type/scroll→供②、renderer 683 维持]/收口 2[warm/idle→ledger]/steady 数字位 1[232.6ms 回填]/Q2 已裁行 1[installer 材料备齐注记]）；bench.py `_L0_STATES` 注记面同步——**回归三连绿**：check（构建 2205 门绿）+assert（017 谱回放 exit 0 五态行序原样）+fresh proxy（exit 0——arch-blocked 位 l0 覆盖转缺席=语义退役如实显影，五态词表/014 行序机制零变更）；顺带收口 assert 默认目标过滤（多档 JSONL 命名坑位——011/013 起既有） | T-00 | tools/bench/budgets.json+bench.py 注记面 | 十行处置+五态回归 | AC-02 | [x] check+assert 双绿（+fresh proxy 三连） |
+| 3 | T-03 open_100mb/1GB 档 [x] ✅ 已完成 2026-09-29（commits 83ded5f）：stage_open 跑谱——100MB 生成式装载墙钟 5 跑谱 [866.6 暖机弃/841.0/843.0/816.1/816.2] **median 841.0ms ≤1s 预算行内（首实测锚点）**+big 态注记（fsize≥50MB 探测门 plain 旁路臂语义）+513MB/1GB truncate 探针**拒绝形机读双 True**（bench_open_rejected 补点标记）；JSONL `results/open-20260929-110820.jsonl` 入仓+budgets 两行回填 | T-00 | bench.py stage 扩档+results/ | 锚点跑谱+回填 | AC-03 | [x] 新档 JSONL+数字入 budgets |
+| 4 | T-04 steady_start 分解 [x] ✅ 已完成 2026-09-29（commit 83ded5f）：stage_steady 5 跑谱 **mean 232.6ms>80ms=fail 归因清单**——spawn→vm_init 段 224.5ms 主导（进程起+VM 引导；L0 `run -r vm` 形态含解释器 boot，a2r release 直拉形态绕开该段——供① 解阻后 L2 形态自然消解）+vm_init→ws_loaded 8.1ms；**不实施瘦身（frozen ④）**；JSONL `results/steady-20260929-110735.jsonl`+budgets steady 行归因回填 | T-00 | bench.py+（最小 diff）BENCH 标记补点 | 分解表+归因结论 | AC-04 | [x] 报告在档（归因清单——本件补点实际落 T-03/T-05 测量面，见 §8 注记） |
+| 5 | T-05 warm/idle 锚点档 [x] ✅ 已完成 2026-09-29（commits 83ded5f+4f27931）：stage_warm 终谱（`results/warm-20260929-111040.jsonl`）——**恢复净段 mean 1.3ms（3 跑谱 0.0-2.6ms，2ms 轮询粒度下限）vs ≤120ms 绿注记位**+全链 241.6ms 其中 boot≈240ms（steady 同源归因）+active 装载段 1131.3ms 单列（打开链域）+**不读盘面=标记单对实证**（每跑仅 1 次 open_start/done——非 active 19 tab 零装载，log 可复核）+idle_mem 两形态（空窗 51.4MB ≤60MB 行内/20tab 306.2MB——Δ255MB=active 单文件装载+语法臂归因注记）；20tab 会话=10MB×20 生成式注入隔离 APPDATA；**app 侧 BENCH 补点=bench_session_restored+bench_open_rejected 2 处门控（§8 注记位）**；矩阵零扰动实证=全矩阵单跑（v2205 release 工具链）**136/1 零新失败**（唯一败 T17.4 轮换 flake 在录成员——已知集计零 136/0 ≥125 达标；T17.2/17.3/17.8 卡死族+T12.6/T13.6 单跑全绿=v2205 复绿实证——供③ 定性更新） | T-00 | bench.py 扩档 | 两锚点数字 | AC-05 | [x] JSONL+budgets 注记 |
+| 6 | T-06 规范+账本 [x] ✅ 已完成 2026-09-29：SD-01 供料档（四件）+SD-02 perf-measurement.md「预算门 M4 语义与全表重定」节（断言形态分层/十行处置/首批锚点/三新档/补点登记）+SD-03 00-overview M4 面开篇注记（M4 主线预告）+SD-04 README PLAN-018 口径（三树组依赖注记含 auto-down 兄弟树必需实证+三档用法+数字回填位）；**P018-1 账本投影=merge 期项**（016/017 先例——随 review/merge 轮） | T-01..05 | SD-01..04+specs.json | M4 开篇收口 | AC-06 | [x] 文件在档（P018-1 投影=merge 期项） |
+
+**§8 执行注记（AC-07 app 侧最小 diff 登记位）**：本件 app 产品代码
+diff=specs/auto-edit/src/front/editor_store.at 两处 BENCH 标记补点
+（`bench_session_restored`——LoadWorkspace 会话恢复链尾；`bench_open_
+rejected`——RunPendingLoad 超大拒绝分支尾；均 AUTO_BENCH=1 门控
+print，未设门分支不进零行为差异——PLAN-005 纪律），共 13 行含注释。
+测量面动因：会话恢复链在 bench_ws_loaded 之后执行（恢复墙钟无现役
+读点）+超大拒绝分支在装载标记包夹之前且 console_log 不落 stdout
+（拒绝形无机读通道）。零扰动实证=全矩阵单跑 136/1 零新失败（§8
+T-05 行）。AC-07 双仓断言：auto-lang 主树 master@5bb3f53be 零触碰
+（组 worktree detached 只读+release 构建仅写 gitignored target/；
+auto-lang/auto-down 组树 porcelain 双净）；auto-edit 全 diff 16 文件
+均在计划路径内（tools/docs/specs README/app 两标记/tests 证据/
+results 谱）。
 
 ## 9. 复审记录
 
@@ -303,19 +317,49 @@ bench 扩档用法+锚点数字回填位）；specs.json reviews 段 P018-1 投�
   auto-edit@f4e34c1 与 auto-lang@9b5a10e51 双仓实勘锚定；授权=起草
   ，执行待用户启动）。`next: work`。
 
+- **2026-09-29 work handoff**：`stage: work` | PLAN-018 |
+  plan_revision 1 | `outcome: pass` | code_commit: worktree
+  plan-018-dev@**4f27931**（base 38ca5b7；三笔 83ded5f T-00..05
+  实现+5ed722a T-06 规范+4f27931 矩阵证据回填；worktree 清洁态）|
+  task_ids: T-00..T-06 全落（current_step 7/7）| evidence:
+  勘定报告 tests/evidence-p018-survey.md（三类缺口定界+探针 exit 3
+  +矩阵复绿）+供料档 docs/upstream/2026-09-m4-perf-unblock-supply.md
+  （四件）+budgets.json 十行重定（数字回填）+三新档 JSONL
+  （open/steady/warm 终谱入仓）+SD-02/03/04 规范节+回归三连绿
+  （check 2205/assert 017 谱回放/fresh proxy）+全矩阵单跑 136/1
+  零新失败[已知集计零 136/0 ≥125 达标] | blockers: 无 |
+  next: review。
+  执行期要点：①工具链=v0.4.2-2205-g5bb3f53be release（组三树
+  edit-018{auto-edit,auto-lang,auto-down}——auto-down 兄弟树=
+  autodown-core 跨仓 path 依赖必需[缺树构建失败实测，SD-04 注记]）；
+  ②a2r 探针仍 blocked（三类生成缺口——供① 证据基，勘定比计划
+  起草基线精确：read_text_range=687 已解、18/19 内建已映射、残余
+  收窄三类）；③锚点四行达标（open_100mb 841ms/warm 净段 1.3ms/
+  idle 空窗 51.4MB/1GB 拒绝位实证）+一行 fail 归因清单（steady
+  232.6ms=VM boot 主导，瘦身=后续件 frozen ④）；④矩阵意外之喜=
+  卡死族 T17.2/17.3/17.8 单跑复绿（v2205）——供③ 改「确认复核件」
+  定性（单跑不定案，登记保持至上游确认/多跑复核）；⑤T-05 语义
+  两轮修正（恢复链定义收窄至净段+舍入伪影修——中间两谱弃用留存
+  results/ 在档，终谱 111040）；⑥主检出 foreign WIP（specs/stylekit
+  双删除，f4e34c1 在案）零触碰。
+
 ## 10. 待澄清事项
 
 - **Q-1 Q3 安装器与自动更新裁定（M4 前议——战略 §9 原文）**：本件
   T-00④ 备齐材料（exe 37.8MB→≤15MB 差距表+两路径[执行打包 vs a2r
-  原生化]成本注记+winget 加分项口径）；**裁定=用户件**——裁定后
-  installer 件立项，本件不含。若用户愿在执行前预裁定，请在启动 work
-  时示知。
+  原生化]成本注记+winget 加分项口径——evidence-p018-survey.md §4
+  在档）；**裁定=用户件**——裁定后 installer 件立项，本件不含。
+  若用户愿在执行前预裁定，请在启动 work 时示知。**执行期未获预
+  裁定——材料备齐待裁**。
 - **Q-2 open_100mb/steady_start 首批锚点未达标时的处置确认（无需
   裁定，确认口径）**：默认=记录差距+归因清单（瘦身实施=后续件按
   计划走——「预算未达标不发布」是 M4 发布门槛而非本件门）；若用户
   希望本件内即实施瘦身（扩任务），需追加授权——否则按默认。
+  **执行期按默认落**：steady_start 232.6ms>80ms=归因清单在档
+  （VM boot 段 224.5ms 主导，§8 T-04 行）；open_100mb 达标（841ms
+  ≤1s）无需处置。
 - **Q-3 供④ tree-sitter 供料粒度（无需裁定，确认口径）**：默认=
   供料包内四件之末（勘定+实施两段式——先勘定件定界[语言集/管线
   选型/syntect 共存策略]，实施件上游另立）；若用户希望 tree-sitter
   独立成包（不与三解阻件混包），执行期供料档可拆——不影响本件
-  AC。
+  AC。**执行期按默认落**（供料档 §4 两段式成文）。
