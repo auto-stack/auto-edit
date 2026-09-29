@@ -1,12 +1,12 @@
 ---
 plan_id: PLAN-020
-status: executing
+status: reviewed
 feature_name: M4-03 公开对比表竞品侧先行件（测量方法论勘定+竞品同机 harness+NP++/VSCode/Zed/BC5 基线+我方锚点占位列——L2 正式列待供①）
 author: [agent]
 created_at: 2026-09-29T21:11:42+08:00
-updated_at: 2026-09-29T22:33:18+08:00
+updated_at: 2026-09-29T22:38:50+08:00
 plan_revision: 1
-current_step: 4
+current_step: 6
 total_steps: 6
 supersedes_spec_components: []
 new_spec_components:
@@ -248,12 +248,12 @@ PLAN-020 口径（SD-03）；specs.json P020-1 投影（015-019 外科插入
 
 | # | 任务 | 依赖 | 落点（实勘锚） | 产出/意图 | AC | 验证（命令/预期） |
 |---|---|---|---|---|---|---|
-| 0 | T-00 方法论勘定 | — | 本件 §5 T-00 节+方法论文档（tools/compare/） | 四通道定案+计时点定义 | AC-01 | [ ] **[review F-2 重开]** median 约定未成文（实录=上中位 sorted[N//2]，bench.py 家法/018 锚点 841.0 同法；标准复算不一致且未注明——须在 METHODOLOGY §5+report 表头成文）——修复后随复审回勾。原执行证据：方法论在档 tools/compare/METHODOLOGY.md（§2 计时点定义/§3 探针证据行/§6 降级清单/§6-b 环境干扰条款）——四通道定案：VS Code=renderer RSS 平台（文本模型物化语义，1.5s 滑窗极差判据）、Zed=Zed.log「Rendered first frame」（首帧语义，rope 惰性注记 RSS~19MB）、BC5=file-report 非空（`&` 续行+/silent 语法勘定）、NP++=pending；滚动帧率=v1 后补（Q-2 默认维持——前台权拒绝+捕获面污染他窗双缺陷实证）；VS Code 版本钉版=文件元数据 1.139.1（CLI --version 直启挂起 63s+自更新中间态 bash 包装器陈旧通道双缺陷；app 目录 04c0d99f4f/7debcd0e2a 双立在案） |
+| 0 | T-00 方法论勘定 | — | 本件 §5 T-00 节+方法论文档（tools/compare/） | 四通道定案+计时点定义 | AC-01 | [x] **[修复回勾 2d77cf8]** F-2 关闭（median 约定成文）——review 首轮发现：median 约定未成文（实录=上中位 sorted[N//2]，bench.py 家法/018 锚点 841.0 同法；标准复算不一致且未注明——须在 METHODOLOGY §5+report 表头成文）——修复后随复审回勾。原执行证据：方法论在档 tools/compare/METHODOLOGY.md（§2 计时点定义/§3 探针证据行/§6 降级清单/§6-b 环境干扰条款）——四通道定案：VS Code=renderer RSS 平台（文本模型物化语义，1.5s 滑窗极差判据）、Zed=Zed.log「Rendered first frame」（首帧语义，rope 惰性注记 RSS~19MB）、BC5=file-report 非空（`&` 续行+/silent 语法勘定）、NP++=pending；滚动帧率=v1 后补（Q-2 默认维持——前台权拒绝+捕获面污染他窗双缺陷实证）；VS Code 版本钉版=文件元数据 1.139.1（CLI --version 直启挂起 63s+自更新中间态 bash 包装器陈旧通道双缺陷；app 目录 04c0d99f4f/7debcd0e2a 双立在案） |
 | 1 | T-01 harness | T-00 | tools/compare/compare.py | 一键测量链 | AC-02 | [x] check/run/report 三子命令绿（check 四对象在位+版本；run zed/vscode/bc5 5mb 各 -n 3/-n 4 exit 0+JSONL 在档+幂等复跑）；report 三要素门实证拒出（残缺文件「头/摘要行缺」拒出数 exit 1）；通道判据 bug 两连修实录（deque(maxlen=24) 5ms 轮询下窗跨 ~200ms<1500ms 永假 → 时间窗裁剪；再 popleft 阈值=判据阈值使 >= 永假 → 1.2× 裁剪余量定案——VS Code 5mb 曲线 584MB 峰→448-450MB 平台@4.6s 直证）；invalid-run 重跑条款落地（VS Code 间歇 rc=0 自退现象谱 1/3、2/3、0/1——014 F-RV6 归因纪律延展，连续两跑无效 abort 示知） |
 | 2 | T-02 竞品基线跑谱 | T-01 | results/（compare JSONL） | 三家实数+NP++ pending | AC-03 | [x] 官方谱六组合全绿（-n 5 首跑弃暖机 N=4 计入，results/ 入仓）：open 5mb——VS Code 4289.1ms[4256.3–4340.8]/Zed 296.0[272.6–310.0]；open 100mb——VS Code 4677.7[4621.4–4718.5]/Zed 295.6[275.4–310.3][rope 惰性=与 5mb 同量级实证]；diff 100mb——BC5 123,279.8[119,849.6–126,246.9]（对探针首测 91.6s 差=盘缓存态变异，N=4 median 承载）；diff 5mb——BC5 4547.7（备档）；NP++=pending 行（§10 Q-1 维持）。通道勘定插曲实录：VS Code 100MB 判据两轮校准（假平台嫌疑→密采样曲线定案 0–2.8s 爆发装载至 807MB+GC 回落→确认窗分档 5MB=3s/100MB=6s——判据落点=GC 沉降后稳定位，偏竞品有利侧；早期粗采样「爬升 ~12s」读数勘误为 GC 振荡伪影） |
 | 3 | T-03 我方占位列 | — | 018/019 JSONL 直读 | 三态列数据 | AC-04 | [x] anchors.py 六行三态全绿（直读零重算）：anchor=open_100mb 841.0ms[VM 形态注记，open-20260929-110820]/surface=open 38.2ms+steady 21.2ms[last-good 基面注记，surface-20260929-193232]/release-judged=diff_100mb 1906.0ms[016 先例仅限 diff，diff-20260928-152047，旁证 152015=1971.3]/l2-pending×2 零数字；--verify 逐字对照绿（AC-04）；直读源扩 016 diff 谱=BC5 行我方对照必需（018 分层纪律内语义，语义注记随行） |
 | 4 | T-04 表生成器+README | T-02/03 | tools/compare/render_table.py+README | 数据驱动表+节占位 | AC-05 | [x] 表落 specs/auto-edit/README.md 文末「公开对比表」节（BEGIN/END 生成区间+手改禁则引言）；--check 双复现一致绿；l2-pending 渲染断言禁出数内建；三要素门竞品格缺一拒出数；生成器区间判定 bug 一修（引言误入比对域→区间收缩至 [BEGIN..END]，引言归静态面）；results/table.md 独立件同源 |
-| 5 | T-05 规范+账本 | T-00..04 | SD-01..03+specs.json | 对比表面落账 | AC-06 | [ ] **[review F-1 重开]** SD-01/SD-02「3s 确认窗」措辞须改分档（5MB=3s/100MB=6s——METHODOLOGY 已正确，canonical spec 与现行为偏差）——修复后随复审回勾。原执行证据：SD-01 落档（perf-measurement.md 增「公开对比表」节——方法论摘要/三态分层纪律/三要素/工具面/边界五段）+SD-02 落档（00-overview.md M4 第三件注记——L2 列仍虚席+关键路径注记维持）+SD-03 落档（README PLAN-020 口径段+表节）；P020-1 账本投影=merge 期项（016/017/018/019 先例——work 不碰活账本，随 review/merge 轮兑现，AC-06 全满足于 merge 收口） |
+| 5 | T-05 规范+账本 | T-00..04 | SD-01..03+specs.json | 对比表面落账 | AC-06 | [x] **[修复回勾 2d77cf8]** F-1 关闭（分档措辞）——review 首轮发现：SD-01/SD-02「3s 确认窗」措辞须改分档（5MB=3s/100MB=6s——METHODOLOGY 已正确，canonical spec 与现行为偏差）——修复后随复审回勾。原执行证据：SD-01 落档（perf-measurement.md 增「公开对比表」节——方法论摘要/三态分层纪律/三要素/工具面/边界五段）+SD-02 落档（00-overview.md M4 第三件注记——L2 列仍虚席+关键路径注记维持）+SD-03 落档（README PLAN-020 口径段+表节）；P020-1 账本投影=merge 期项（016/017/018/019 先例——work 不碰活账本，随 review/merge 轮兑现，AC-06 全满足于 merge 收口） |
 
 **执行记录**（skill §7 要求项）：worktree=`D:/autostack/.wt/edit-020/auto-edit`
 （branch `plan-020-dev`，base=main@94df8dc，2026-09-29 创建）；依赖修订=
@@ -330,6 +330,28 @@ logs/probe-*.json）。
   数字变更。evidence: 本记录内命令/结果摘录（results/ JSONL 持久
   在仓）| next: work（单轮有界修复——F-1/F-2；修复后复审按未变
   代码重用既有证据+定点重验）。
+
+- 2026-09-29 review（修复轮复审）：`stage: review`，PLAN-020，
+  plan_revision 1。`outcome: pass` | reviewed_commit: worktree
+  plan-020-dev@**2d77cf8**（F-1/F-2 修复；base 仍 94df8dc；
+  worktree 清洁态）| spec_inputs: perf-measurement.md@2d77cf8/
+  00-overview.md@2d77cf8/README.md@2d77cf8+METHODOLOGY.md@2d77cf8
+  | **证据重用声明**：修复轮=纯文档措辞（git show --stat 四文件：
+  00-overview/perf-measurement/METHODOLOGY/compare.py——零测量
+  零数据零机制变更），首轮已重跑的只读验证（report/anchors
+  --verify/--check）与负例双测对未变面继续有效（复审当轮再证：
+  report 表头新注记在位、anchors --verify 绿、--check 绿——
+  修复提交前即时复跑三项全绿在执行实录）。acceptance_results:
+  AC-01 pass（F-2 关闭——median 约定 METHODOLOGY §5 frozen 成文，
+  三处「上中位」锚）/ AC-02 pass（同首轮+report 表头注记定点绿）/
+  AC-03 pass（F-2 关闭——六官方文件实录值=上中位逐文件精确复核
+  全等[首轮独立复算证据]；约定成文后复算口径闭合）/ AC-04 pass
+  （首轮+定点）/ AC-05 pass（--check 修复后绿——表内容零变更）/
+  AC-06 pass（F-1 关闭——SD-01/02 分档措辞 grep 锚：perf-
+  measurement「分档 5MB=3s/100MB=6s」+overview「确认窗分档防假
+  平台：5MB=3s/100MB=6s」；P020-1=merge 期项注记维持）/ AC-07
+  pass（修复轮 diff --stat 四文件均在既授权面）。findings: 无
+  未决 | next: merge（P020-1 账本投影随 merge 轮兑现）。
 
 ## 10. 待澄清事项
 
