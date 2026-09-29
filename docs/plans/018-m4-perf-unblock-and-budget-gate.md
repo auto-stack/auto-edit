@@ -1,6 +1,6 @@
 ---
 plan_id: PLAN-018
-status: execution_done
+status: reviewed
 feature_name: M4-01 性能预算门开篇——M4 解阻供料包落档（a2r 映射残余/帧时间戳插桩/大文件卡死回归/tree-sitter 首批）+预算全表重定+可达行首批锚点
 author: [agent]
 created_at: 2026-09-29T09:54:28+08:00
@@ -363,3 +363,35 @@ results 谱）。
   选型/syntect 共存策略]，实施件上游另立）；若用户希望 tree-sitter
   独立成包（不与三解阻件混包），执行期供料档可拆——不影响本件
   AC。**执行期按默认落**（供料档 §4 两段式成文）。
+
+- **2026-09-29 review**：`stage: review` | PLAN-018 | plan_revision 1 |
+  `outcome: pass` | reviewed_commit: worktree plan-018-dev@
+  4f279314e5050cb25b480e9c2bc5b38bcba33228（worktree 清洁态）|
+  base_commit: 38ca5b7（main 簿记基）| dependency_revisions:
+  auto-lang 5bb3f53be（组树 detached 钉版=工具链
+  v0.4.2-2205-g5bb3f53be 构建点）/auto-down 3373a5c（detached）|
+  spec_inputs: SD-01..04 @reviewed_commit（docs/specs/modules/
+  perf-measurement.md 预算门 M4 节/00-overview M4 开篇注记/
+  README PLAN-018 口径/供料档四件——canonical 文本随 merge 落地）|
+  acceptance_results: AC-01 pass（供料包四节+优先级+回执节 grep 实证）
+  /AC-02 pass（十行处置核验+复现 check 绿 2205+assert exit 0 新鲜跑
+  15:34——017 谱回放五行序原样+arch-blocked 缺席=语义退役显影）
+  /AC-03 pass（open-20260929-110820.jsonl+841.0ms 入 budgets+双拒绝
+  形 True）/AC-04 pass（steady-110735.jsonl+232.6ms 归因清单入
+  budgets）/AC-05 pass（warm-111040.jsonl 终谱+净段 1.3ms/idle 两
+  形态入 budgets+不读盘标记单对）/AC-06 pass（SD-01..04 在档；
+  **P018-1 账本投影=merge 期项**[016/017 先例]——merge 后回读 True
+  兑现）/AC-07 pass（diff 面 docs3+specs3+tools10 全在计划路径；app
+  diff=2 print 标记行零删；auto-lang 主树零本件痕迹——其新漂移
+  5bb3f53be→e2deb4f8+未跟踪 png=他属会话在飞，钉版组树 detached
+  @5bb3f53be 零脏）| findings: 无阻塞项。观察三项（非阻塞）：
+  ①auto-lang 主树复审期再漂移（上游在飞——本件证据基=钉版
+  5bb3f53be 不受影响）；②arch-blocked 断言位 l0 覆盖缺席=全表重定
+  的语义退役显影（SD-02 成文）；③卡死族复绿=单跑实证（供③ 改
+  「确认复核件」定性，多跑复核属上游承接面）| evidence: 复审会话
+  复现记录=check/assert 命令+退出码（本文）；矩阵复用理由=136/1
+  跑于 83ded5f+5ed722a 代码态，4f27931 仅 docs 两文件——app/tools
+  逐字节同一（复用成立）；锚点谱 JSONL 七件在仓 tools/bench/results/
+  | 独立性声明=复审在实现会话内进行（无第二会话授权），判定由
+  工件重建：七 AC 逐一复现/核验，未采信执行摘要数字（数字以 JSONL
+  与 budgets 文本直接 grep 为准）。`next: merge`。
