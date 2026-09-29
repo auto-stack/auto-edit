@@ -226,6 +226,31 @@ envelope 缺位——供料 want 登记（供料档 §6.3），in-place 形态�
 ——供料驱动）。纯 front 件（back 零改动）。规范详 modules/
 diff-view.md 差异侧编辑回路节（SD-01）。
 
+## M4 面开篇注记（PLAN-018，2026-09-29）
+
+M4（速度王座与发布，战略 §6）开篇件已落：**M4 解阻供料包落档+
+budgets 全表重定+可达行首批锚点**。M4 四产出（预算全绿/installer/
+公开对比表 NP++·Zed·BC/语法高亮首批 tree-sitter）全部门控于上游
+解阻或用户裁定——本件按 M1「供料先行+本仓并行」开篇模式：**供料包
+四件**（`docs/upstream/2026-09-m4-perf-unblock-supply.md`——供① a2r
+生成缺口三类残余[G-A envelope 访问投影/G-B try 块/G-C delta 臂；
+a2r 探针 exit 3 实证，read_text_range=687 已解、18/19 内建已映射]/
+供② 内核帧时间戳插桩/供③ 大文件实例卡死回归[T17 blocked 族]/
+供④ tree-sitter 首批[现役 syntect/two-face 实勘，两段式]）；
+**budgets.json 全表重定**（open 两行过期「架构性不可达」文本纠偏
+「解锁待测」+禁调优放开仅限此两行+供料排队注记+断言终态 ledger 化
+——arch-blocked 位 l0 覆盖转缺席=语义退役显影）；**可达行首批锚点**
+（release 工具链全链记账形态：open_100mb 装载墙钟 median 841.0ms
+≤1s 行内首实测锚[big 态语义]+1GB=512MB 拒绝位实证+513MB 边界对照/
+steady_start 分解 232.6ms 归因 VM boot 段 224.5ms[瘦身=后续件]/
+warm_start 恢复净段 1.3ms ≤120ms 绿注记+不读盘标记单对实证/
+idle_mem 空窗 51.4MB ≤60MB 行内）。**断言形态分层（frozen）**：锚点
+=记账不阻塞，硬判定维持 L2 唯一预算效力——供① 解阻后切正主 L2
+形态，锚点不冒领。M4 主线预告=上游承接逐件清偿→L2 断言全表→Q3
+裁定→installer→公开对比表。规范详 modules/perf-measurement.md
+预算门 M4 节（SD-02）+ specs/auto-edit/README.md PLAN-018 口径
+（SD-04）+ 供料档（SD-01）。
+
 **兄弟仓 Q1 裁定摘要（2026-09-22，战略补注十收口）**：jade-edit 与
 auto-edit **两产品长期并存**（auto=原生旗舰轻量编辑器、jade=web 轻量
 版并向知识库发展），组件尽量共用（未来插件级共用）。jade 侧战略文档

@@ -129,3 +129,59 @@ L2 链现存 blocked 面=**PLAN-007 装载链三内建的 a2r 映射缺口**（�
 §10 增量：code_editor_edit/delta、File.read_text_range——L2 锚点补跑
 随之解阻）、内核帧时间戳插桩（type_latency/scroll_fps 与 steady 首帧
 口径升级）与 rope 化（缓冲区类内存）。
+
+**2026-09-29 现势更新（PLAN-018 T-00 勘定）**：装载链映射缺口已大半
+清偿——`File.read_text_range` trans 臂在（PLAN-687）、ui_gen 单源表
+app 面 19 内建 18 已映射；残余=**三类生成缺口**（G-A envelope 成员
+访问投影 `v.field ?? default`/G-B try 块 trans/G-C code_editor_delta
+ui_gen 臂——a2r 探针 exit 3 实证，生成物占位全景在
+`specs/auto-edit/tests/evidence-p018-survey.md` §①-b），供料归口
+`docs/upstream/2026-09-m4-perf-unblock-supply.md` §1（M4 解阻供料包
+——同档登记供② 帧插桩/供③ 大文件卡死回归/供④ tree-sitter）。
+
+## 预算门 M4 语义与全表重定（PLAN-018，2026-09-29）
+
+- **断言形态分层（frozen 约束）**：锚点=「记账不阻塞」（L0/release
+  工具链全链形态数字入档——本件三新档）；硬判定维持 L2 唯一预算
+  效力（战略补注二）——016 的 release 全链判定先例仅限 diff
+  （server 侧计算主导）；steady_start/open_100mb 等交互面预算的
+  正式判定待供① 解阻后的 a2r release 直拉形态，锚点不冒领。
+- **budgets.json 全表重定（十行处置）**：纠偏两行——open_100mb/
+  open_1gb validity「rope 前架构性不可达」过期文本纠正为「解锁待测」
+  （rope[673]+分块读[687] 上游已交付）；**禁调优放开仅限此两行**
+  （解锁条件已满足行——本件放开测量，优化实施仍走计划）；对齐一行
+  （diff_100mb 016 达标谱维持）；排队注记三行（type_latency/
+  scroll_fps→供②；renderer_cold_start→683 pending 维持）；收口路径
+  两行（warm_start/idle_mem——断言化=供① 后 L2 形态）；steady_start
+  分解数字回填；installer 裁定材料备齐注记（Q3=用户件 §10 Q-1）。
+  断言终态变化：warm_start pending-feature→ledger、open 两行
+  arch-blocked→ledger——**arch-blocked 位在 l0 覆盖转缺席=语义退役
+  如实显影**（五态词表与 014 行序机制零变更）。
+- **首批锚点（2026-09-29，release 工具链 v0.4.2-2205 记账形态）**：
+  open_100mb 装载墙钟 4 跑谱 816.1-843.0ms、median 841.0ms——≤1s
+  预算行内（首实测锚点；big 态语义=fsize≥50MB 探测门 plain 旁路臂；
+  滚动不掉帧半行=供② 后）；1GB=512MB 拒绝位实证（513MB 边界对照
+  同形，拒绝形机读=bench_open_rejected 补点标记）；steady_start
+  分解 mean 232.6ms>80ms=fail 归因清单——spawn→vm_init 段 224.5ms
+  主导（进程起+VM 引导，L0 形态含解释器 boot；瘦身=后续件）+
+  vm_init→ws_loaded 8.1ms；warm_start 恢复净段 mean 1.3ms（2ms 轮询
+  粒度下限）vs ≤120ms 绿注记位+不读盘面=标记单对实证（非 active
+  19 tab 零装载）；idle_mem 空窗 mean 51.4MB（≤60MB 行内）/20tab
+  恢复 mean 306.2MB（Δ+255MB=active 单文件装载+语法臂成本归因注记，
+  非 20 文件全量装载）。
+- **三新档（tools/bench，PLAN-018）**：`open`（100MB 生成式×N 跑谱
+  +513MB/1GB truncate 探针拒绝对照）/`steady`（启动链分解×N 2ms
+  轮询+≤80ms 对表）/`warm`（空窗+20tab 会话恢复[10MB×20 生成式注入
+  隔离 APPDATA]+恢复净段/active 装载/不读盘三分解+两形态内存采样）
+  ——锚点档共性：release 工具链全链形态（AUTO_BIN 指 release 构建，
+  016 先例）、APPDATA 隔离（保护用户会话+空目录纯态——矩阵 T11
+  纪律）、AUTO_PROJECT_DIR 显式钉位（ws_dir 匹配由构造保证，
+  stage_diff 先例）、fixture 沉降窗计时卫生（016 writeback 教训）。
+  `assert` 默认目标过滤=含 budget_assert 记录的最新文件（results/
+  多档 JSONL 命名坑位——011/013 前缀档起既有，本件收口）。
+- **app 侧 BENCH 补点（2 处，AUTO_BENCH=1 门控）**：
+  `bench_session_restored`（LoadWorkspace 会话恢复链尾——warm 档
+  恢复净段读点；恢复链在 bench_ws_loaded 之后执行）/
+  `bench_open_rejected`（RunPendingLoad 超大拒绝分支尾——拒绝形
+  机读；拒绝在装载标记包夹之前且 console_log 不落 stdout）。未设门
+  零行为差异（PLAN-005 纪律，矩阵回归保证）。

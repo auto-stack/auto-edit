@@ -409,6 +409,33 @@ registry 卸载存活/set_text 驱动面——不入矩阵计数）；smoke_t234
 （T17 卡死族未清偿，不新增硬红——AC-02 代码路径同位+钩子单挂点
 证据在档）。
 
+PLAN-018 口径更新（2026-09-29，工具链=v0.4.2-2205-g5bb3f53be
+release 现役构建[组依赖三树 `.wt/edit-018/{auto-edit,auto-lang,
+auto-down}` 钉版 detached——**auto-lang Cargo.toml:140 autodown-core
+跨仓 path 依赖=组内 auto-down 兄弟树必需**[工具链构建缺树即
+failed to read manifest，实测]；判据前核 `auto --version` 纪律延续]）
+——**M4 预算门开篇件=tools/docs 面**：app 产品代码仅 BENCH 标记
+补点 2 处（`bench_session_restored`/`bench_open_rejected`，
+AUTO_BENCH=1 门控未设零差异——editor_store.at 会话恢复链尾/超大
+拒绝分支尾）。**bench 扩三档**：`open`（100MB 生成式装载墙钟×N
+[首跑弃暖机]+513MB/1GB truncate 探针 512MB 拒绝位对照——记账形态
+[016 release 工具链先例]）/`steady`（启动链分解×N 2ms 轮询+≤80ms
+对表归因）/`warm`（空窗+20tab 会话恢复[10MB×20 生成式注入隔离
+APPDATA]+恢复净段/active 装载/不读盘三分解+两形态内存采样）——
+锚点共性=APPDATA 隔离+AUTO_PROJECT_DIR 钉位+fixture 沉降窗 5s
+（016 writeback 卫生）。**锚点数字回填 budgets.json validity**
+（open_100mb median 841.0ms ≤1s 行内首实测锚；steady 232.6ms 归因
+VM boot 224.5ms[瘦身=后续件]；warm 恢复净段 1.3ms ≤120ms 绿注记
++不读盘标记单对实证；idle 空窗 51.4MB ≤60MB 行内；1GB=512MB 拒绝
+位实证）。budgets 全表重定：open 两行「架构性不可达」过期文本
+纠偏+禁调优放开仅限此两行+warm/idle 行 ledger 化（arch-blocked
+位 l0 覆盖转缺席=语义退役显影）。`assert` 默认目标过滤=含
+budget_assert 记录的最新文件（results/ 多档 JSONL 命名坑位——
+011/013 前缀档起既有，本件收口）。a2r 现势勘定=三类生成缺口残余
+（供料档 m4-perf-unblock-supply §1；探针报告 tests/
+evidence-p018-survey.md）。矩阵检查集零变更（137/判绿 ≥125/0 承
+017；本件全矩阵回归在谱）。
+
 注：Plan 451 起 T10「热重载」走 DSL 源路径（reload 工具或 mtime 轮询重读
 app.at 重新提取 actions + generation bump → 视图重建），实测 50/0 全绿。
 OS 用户键位层（`%APPDATA%/auto/keymaps/auto-edit.at`）保持外部文件——那是
