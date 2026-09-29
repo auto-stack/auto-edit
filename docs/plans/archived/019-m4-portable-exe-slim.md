@@ -1,6 +1,7 @@
 ---
 plan_id: PLAN-019
-status: reviewed
+completion_kind: delivered
+status: archived
 feature_name: M4-02 portable 单 exe 瘦身件（a2r 原生化路径——Q3 裁定 2026-09-29：治本瘦身+纯 portable，winget/自动更新不入）
 author: [agent]
 created_at: 2026-09-29T16:43:17+08:00
@@ -350,6 +351,33 @@ specs.json reviews 段 P019-1 投影（015-018 外科插入先例）。
   工作树净 | 其余 AC 证据沿用 c41cf66 复现（修复仅触状态表，
   零语义面变化）| **next: merge**（P019-1 账本投影随 merge 轮兑现；
   组工作树保留至 merge 清理）。
+
+
+- **2026-09-29 merge 收据（PLAN-019:r1）**：`stage: merge` |
+  plan_revision 1 | `outcome: delivered`（四检查点）——
+  - **prepared**：评审基线=worktree plan-019-dev@17e9893（聚焦复审
+    pass 绑定；base 0698641 主链）；canonical SD-01..05 已随 work
+    提交在分支（specs/auto-edit/README.md、docs/specs 两文件、
+    docs/strategy/002、docs/upstream 供料档——各目标库均有 014-018
+    连续先例在案）；delivery 候选=rebase 后 tip（评审绑定提交的
+    patch 等价投影）。
+  - **landed**：rebase main→range-diff 三对全 `=`（c41cf66→faaf02e/
+    d920fc8→1563d46/17e9893→**d50d998**）+`git merge --ff-only` 零
+    合并提交+main tip=d50d998dc171d8fd9c7094790f798babc26cb8de ✓+
+    main known-good 烟测（bench check/assert 0×2+live installer=
+    ledger）。
+  - **ledger_refreshed**：.autoos/specs.json reviews 段 P019-1 外科
+    插入（18→19 项——roundtrip 字节等价先证[二次幂等]+回读断言
+    [前 18 项深等+他五段深等]）；P019-1 title 引 reviewed 17e9893+
+    landed d50d998。
+  - **archived**：git mv→docs/plans/archived/019-m4-portable-exe-slim.md
+    +status: archived+completion_kind: delivered ✓（本行）。
+  - **cleaned**：（待清理后回填尾行）
+  - 部署观察：本件=tools/docs/budgets 面（无 .at/无后端/无 vue 束
+    改动）——后端 release 二进制/依赖仓产物/生成 web 束零触及
+    （无需重建注记）；portable 产物=可再生工件（build_portable
+    一键链，非部署面）；主检出 pristine 基面生成物未污染（烟测
+    仅评估面，未跑补丁链）。
 
 ## 10. 待澄清事项
 
