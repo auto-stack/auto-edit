@@ -264,6 +264,18 @@
           ],
           "superseded_by": null,
           "content": "- 实现：双侧跳转编辑链（DiffEditJumpA/B 工具栏钮+DiffRowEditA/B 并排行钮+DiffIRowEditA/B 内联投影钮+DiffEditOpen 公共核[path 查径激活/OpenPath 新建+pend 装载等待 load_key 单槽轮转 016 先例 handler 化+跳转即藏视图 diff_edit_return 旗标+DiffEditTick 落点轮转]）；保存自动重比钩子（WriteFidelity 两臂 dirty=false 后单挂点 DiffSaveHook 三域分派——文件 diff 重比/下钻 DirDiffRefresh 双刷新旗标复原/面板键匹配 DiffBufRun/无命中零动作零 console；return 旗标两臂同清=保存自动重开闭环）；净形 live 预览（DiffBufLiveMark 内容变更位单行标记[SrcChanged+ReplaceAll/EolConvert/Cut/Paste MCP 可驱动族]+DiffBufLiveTick 单拍合并+DiffBadgeRefresh probe 隐藏键 diff-probe-a 保存前预览[体积门 50MB+big 门]）；B 侧跳转补全（DiffBufJumpA/B 双臂+净形行「→A/→B」双钮——016 尾注清偿）。纯 front 件：产品 back（api.at/fsys.at）零 diff。\n- T-00 勘定（probe_bufdiff ③段 13/0）：badge 轨形成立（h-0 隐藏 widget 实化键装载+快照净形+重装载幂等）+未实化键否定面+registry 卸载存活+set_text 驱动面——决策补记五条入计划 §5。\n- 验证：全矩阵 133 passed / 4 failed=已知族全中零新失败（T13.6 flake+T17.2/17.3/17.8 上游卡死族；T17.4 轮换翻绿在录）；完成态 137（129+8）判绿 ≥125/0；15.20-15.24 八检查+15.17 期望同步（→A 钮）+15.16-15.19/T16/T18 回归绿；smoke P17 断言族+launch APPDATA 隔离补漏（真实会话恢复污染=假红根因）；vue 臂 regen+build 双 exit 0。执行期勘定三项在案：console 镜像异步滞后（wait_console_line 卫生）、diff 视图开态新开 tab 未实化边界（011 起既有隐患——保存链静默死亡，§10 Q-3 登记另立小件建议）、15.24 初版 fixture ctx 窗合并退化改 scattered。\n- SD 四册：diff-view.md 差异侧编辑回路节/00-overview M3 第五件注记（M3 本仓面收口——剩语法高亮联动=M4 tree-sitter）/README PLAN-017 口径/供料档 §6.3 in-place 混源 rows want+未实化键语义登记（非阻塞）。\n- 环境：工具链 v0.4.2-2183-gc8f86ef92（704 b2f8761e0 祖先链核验）；组依赖 .wt/edit-017/auto-lang@c8f86ef92 钉版 detached（master 已漂 705 在飞）。复审=实现会话自审（工件重构判定：被审提交新鲜复现+已提交证据文件逐字对账）。"
+        },
+        {
+          "id": "P018-1",
+          "section": "reviews",
+          "status": "stable",
+          "title": "PLAN-018 — M4-01 性能预算门开篇收据（reviewed pass @ r1 4f279314[landed ef467b3]：M4 解阻供料包四件+budgets 全表重定+可达行首批锚点——open_100mb 841.0ms ≤1s 首实测锚/warm 净段 1.3ms ≤120ms 绿注记/idle 空窗 51.4MB ≤60MB/1GB=512MB 拒绝位实证/a2r 三类缺口定界+卡死族复绿）",
+          "file": "docs/plans/archived/018-m4-perf-unblock-and-budget-gate.md",
+          "related": [
+            "PLAN-018"
+          ],
+          "superseded_by": null,
+          "content": "- 供料包四件（docs/upstream/2026-09-m4-perf-unblock-supply.md）：供① a2r 生成缺口三子件（G-A envelope 成员访问投影 17 行/* expr */+G-B try 块 4 处/* unhandled stmt */+G-C code_editor_delta ui_gen 臂唯一 E0425——read_text_range=687 已解、app 面 19 内建 18 已映射，探针 exit 3 实证）；供② 内核帧时间戳插桩；供③ 大文件卡死回归（执行期矩阵复绿实证改定性「确认复核件」——单跑不定案）；供④ tree-sitter 两段式（现役 syntect 5/two-face 0.4 零 tree-sitter 实勘）。优先级 ①→③→②→④，回执方式同前两包。\n- budgets.json 全表重定（十行处置）：纠偏 2（open 两行「架构性不可达」过期文本→「解锁待测」+禁调优放开仅此两行[rope 673+分块读 687 已交付]）/对齐 1（diff 016 谱）/排队 3（type/scroll→供②、renderer 683 维持）/收口 2（warm/idle→ledger）/steady 数字回填/installer 材料备齐；断言终态 ledger 化——arch-blocked 位 l0 覆盖转缺席=语义退役显影（五态词表/014 行序机制零变更）。\n- bench 三新档（open/steady/warm）：release 工具链全链记账形态（016 先例，frozen 约束① 锚点不冒领——硬判定维持 L2 唯一效力）；锚点=open_100mb median 841.0ms（4 跑谱 816.1-843.0 ≤1s 首实测锚，big 态语义）+513MB/1GB 拒绝位对照双 True+steady 232.6ms>80ms 归因清单（VM boot 段 224.5ms 主导，瘦身=后续件）+warm 恢复净段 1.3ms（≤120ms 绿注记，不读盘=标记单对实证）+idle 空窗 51.4MB/20tab 306.2MB（Δ255MB=单文件装载+语法臂归因）。app 侧 BENCH 补点 2 处门控（bench_session_restored/bench_open_rejected）。\n- 验证：回归三连绿（check 构建 2205/assert 017 谱回放/fresh proxy——assert 默认目标过滤收口多档 JSONL 坑位）+全矩阵单跑 136/1 零新失败（唯一败 T17.4 轮换 flake 在录成员；已知集计零 136/0 ≥125 达标；**T17.2/17.3/17.8 卡死族+T12.6/T13.6 单跑全绿=v2205 复绿实证**）；AC-01..07 全 pass（复审 @0e4dcc3）。\n- 证据：勘定报告 specs/auto-edit/tests/evidence-p018-survey.md（三类缺口定界/标记族盘点/档形裁定/Q2Q3 材料）+谱 JSONL 七件 tools/bench/results/（终谱 open-110820/steady-110735/warm-111040）+SD-01..04 规范节（perf-measurement 预算门 M4 节/00-overview M4 开篇注记/README PLAN-018 口径）。\n- 待裁：Q-1 Q3 安装器裁定=用户件（37.8MB 差距表+两路径成本备齐）。"
         }
       ],
       "status": "Empty",
