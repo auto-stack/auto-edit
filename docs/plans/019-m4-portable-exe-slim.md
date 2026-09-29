@@ -1,12 +1,12 @@
 ---
 plan_id: PLAN-019
-status: execution_done
+status: executing
 feature_name: M4-02 portable 单 exe 瘦身件（a2r 原生化路径——Q3 裁定 2026-09-29：治本瘦身+纯 portable，winget/自动更新不入）
 author: [agent]
 created_at: 2026-09-29T16:43:17+08:00
 updated_at: 2026-09-29T19:45:00+08:00
 plan_revision: 1
-current_step: 6
+current_step: 5
 total_steps: 6
 supersedes_spec_components: []
 new_spec_components:
@@ -261,7 +261,7 @@ specs.json reviews 段 P019-1 投影（015-018 外科插入先例）。
 | 0 | T-00 体积勘定决策件 | — | 本件 §5 T-00 节+evidence-p019-survey | 精测+手段序+通道定形 | AC-01 | [x] ✅ 报告在档（§① regen 探针 133 错实录/§② 基面裁定+基线 39,411,200B/§④ 构成占比表[.rdata 12.4MB=two-face 主项域]/§⑤ 手段序表） |
 | 1 | T-01 portable 构建脚本 | T-00 | tools/portable/（三脚本） | 一键链+断言门 | AC-02 | [x] ✅ build_portable.py 链通+产物 dist/portable/（29,844,480B+sha256）+幂等自证 pass（第二遍哈希等价）——链 exit 1=尺寸门红为设计语义（超限差距数字入档） |
 | 2 | T-02 手段迭代+护栏 | T-01 | 注入内容迭代+锚点档复跑 | 手段×{尺寸,锚点}终表 | AC-04 | [x] ✅ 终表六变体（V2=29.8MB -24.3% 终态/V3 abort -7.11MB/V4 z -7.65MB/V5 组合 16.46MB 距门 714KB）+护栏双轨全绿（工具链轨锚点 018 对照全容差内+产物面 probe_surface 三行大余量） |
-| 3 | T-03 尺寸判定+收口 | T-02 | budgets.json+（条件）供料档增补 | 达标注记或差距+want | AC-03 | [x] ✅ 未达标=分阶段语义兑现：budgets installer 行数字回填（差距归因+门控测量位）+SD-05 two-face want 登记供料档 §5（条件触发成立） |
+| 3 | T-03 尺寸判定+收口 | T-02 | budgets.json+（条件）供料档增补 | 达标注记或差距+want | AC-03 | [ ] ⚠ 复审 F-1 重开（2026-09-29）：budgets installer 行已回填+SD-05 已登记 ✓，但 §6「五态面一致性」未满足——bench.py `_L0_STATES["installer"]` 断言面仍旧态（pending-feature/PLAN-018 注记），待同步为 ledger+PLAN-019 口径后复勾 |
 | 4 | T-04 portable 烟测 | T-02 | dist/portable/ 产物 | 单 exe 直跑证 | AC-05 | [x] ✅ 四段全绿（直跑 BENCH 标记对+单进程+零残留+back fsys 链；diff HTTP 面归矩阵域注记） |
 | 5 | T-05 规范+账本 | T-01..04 | SD-01..05+specs.json | 裁定与形态落账 | AC-06 | [x] ✅ SD-01..05 全落档；P019-1 账本投影=merge 期项（016/017/018 先例——随 review/merge 轮，work 不碰活账本） |
 
@@ -307,6 +307,34 @@ specs.json reviews 段 P019-1 投影（015-018 外科插入先例）。
   二重性注记：组 auto-lang 树@5bb3f53be（源=依赖角色）+其 target/
   下预建 v2205 release 二进制（工具链角色——判据前 `auto --version`
   核纪律保持；树内不再 cargo build，出处收据在此）。
+
+
+- **2026-09-29 review**：`stage: review` | PLAN-019 | plan_revision 1 |
+  `outcome: needs_fix` | reviewed_commit: worktree plan-019-dev@
+  c41cf66bd5131c1cbe88b47d246037ef00bd46e2（base 0698641；worktree
+  清洁态）| dependency_revisions: auto-lang@5bb3f53be5189/
+  auto-down@3373a5cc6e3a（detached 双净）| spec_inputs: SD-01..05
+  五目标文件@c41cf66 | 复审声明：执行同会话复审——判定自工件独立
+  重构（不采信执行摘要）。
+  **acceptance_results**：AC-01 pass（勘定报告在档+构成表/手段序表
+  与 JSONL 交叉核对）；AC-02 pass（幂等自证独立复跑 pass+产物
+  29,844,480B 在位）；AC-03 **partial**（budgets 行+供料档 §5 在档
+  ✓——但 §6 五态面一致性未满足→F-1）；AC-04 pass（锚点 JSONL
+  三档+surface JSONL 数字复算与计划一致；复用理由=代码/依赖/工具链
+  自锚点跑后零变更）；AC-05 pass（烟测独立重跑四段绿）；AC-06
+  partial→pass 面（SD 五锚点 grep 各 1 ✓；P019-1 投影=merge 期项
+  按 016/017/018 先例+work 技能禁令——过程性路由非契约变更，merge
+  轮兑现）；AC-07 pass（diff 全在计划路径+.at 零+组树双净重断言）。
+  budgets 回归补跑（§6）：check 绿/assert 绿（exit 0×2）——**但
+  assert 表 installer 行暴露旧态**。
+  **findings**：F-1（needs_fix | AC-03/§6 | bench.py `_L0_STATES
+  ["installer"]` 硬编码断言面未随 budgets.json 行更新同步——
+  pending-feature+PLAN-018 注记 vs canonical 已裁定量化注记；018
+  先例=两 face 同步改[「断言终态变化…如实显影」]；修复=一行元组
+  →ledger+PLAN-019 口径注记+check/assert 复跑双绿）。非发现项
+  记录：烟测 diff HTTP 面归矩阵域=执行期实勘口径（生成 back=fys
+  路由），非范围缩减（矩阵轨覆盖该面，判绿口径承 018）。
+  next: work（F-1 修复）→ 复审（聚焦）→ merge。
 
 ## 10. 待澄清事项
 
