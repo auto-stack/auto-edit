@@ -1,6 +1,7 @@
 ---
 plan_id: PLAN-018
-status: reviewed
+status: archived
+completion_kind: delivered
 feature_name: M4-01 性能预算门开篇——M4 解阻供料包落档（a2r 映射残余/帧时间戳插桩/大文件卡死回归/tree-sitter 首批）+预算全表重定+可达行首批锚点
 author: [agent]
 created_at: 2026-09-29T09:54:28+08:00
@@ -395,3 +396,36 @@ results 谱）。
   | 独立性声明=复审在实现会话内进行（无第二会话授权），判定由
   工件重建：七 AC 逐一复现/核验，未采信执行摘要数字（数字以 JSONL
   与 budgets 文本直接 grep 为准）。`next: merge`。
+
+- **2026-09-29 merge 收据（PLAN-018:r1）**：`stage: merge` | outcome
+  **pass** | delivery_commit: **1a4b31d**（main tip=delivery，ff-only
+  零合并提交）。
+  - **prepared**：评审基线=worktree plan-018-dev@4f279314（复审
+    @0e4dcc3 pass 七 AC）；SD-01..04 已在分支（5ed722a/2953d58）；
+    账本 P018-1 投影在分支备妥（1a4b31d——roundtrip 字节等价先证
+    [indent=2/ascii=false/尾换行+二次幂等]+前 17 项深等+他五段
+    深等）；projection-only 后裔资格核验（1a4b31d 相对 ef467b3
+    delta 仅 .autoos/specs.json）。
+  - **landed**：main 已簿记前进（496a407+0e4dcc3）→rebase
+    plan-018-dev onto main（零冲突）——**range-diff 三笔全 `=`**
+    （83ded5f→7d1bed1/5ed722a→2953d58/4f27931→ef467b3，安全重写
+    证明，old→new 映射在案）；`git merge --ff-only plan-018-dev`
+    →main tip=1a4b31d（零合并提交）；main smoke 双绿（bench check
+    构建 2205 绿+assert exit 0——15:36 主检出实测）。
+  - **ledger_refreshed**：.autoos/specs.json（tracked，经 worktree
+    提交随分支落地）reviews 段 P018-1 尾插 17→18 项；主检出回读
+    断言 True（18 项/P018-1 尾位/P017-1 前缀完好/file 预指归档位
+    兑现）。
+  - **archived**：git mv → docs/plans/archived/
+    018-m4-perf-unblock-and-budget-gate.md + status: archived +
+    completion_kind: delivered；active/archive 路径与 frontmatter
+    一致；P018-1 账本 file 指针解析归档位。
+  - **cleaned**：待回填（清理执行后补记）。
+  - **部署观察（Landing is not deployment）**：main gen/front/vue
+    dist 束=陈旧（f4e34c1 在案 foreign-WIP 阻塞——specs/stylekit
+    他人未提交删除致 regen_vue 不可跑，属主路由后重建；本件 app 侧
+    仅 2 处 AUTO_BENCH 门控 print 标记，vue 束不含即无行为差——
+    vm 轨与 MCP 矩阵均在源直读形不受束陈旧影响）；rust-workspace
+    release 产物（37.8MB，09-22 era）=a2r 链 blocked 态现势注记件
+    非本件部署面；bench 工具链=python 源直读零构建面。观察项在案，
+    重建随 foreign-WIP 解阻一并路由。
