@@ -1,12 +1,12 @@
 ---
 plan_id: PLAN-019
-status: executing
+status: reviewed
 feature_name: M4-02 portable 单 exe 瘦身件（a2r 原生化路径——Q3 裁定 2026-09-29：治本瘦身+纯 portable，winget/自动更新不入）
 author: [agent]
 created_at: 2026-09-29T16:43:17+08:00
 updated_at: 2026-09-29T19:45:00+08:00
 plan_revision: 1
-current_step: 5
+current_step: 6
 total_steps: 6
 supersedes_spec_components: []
 new_spec_components:
@@ -261,7 +261,7 @@ specs.json reviews 段 P019-1 投影（015-018 外科插入先例）。
 | 0 | T-00 体积勘定决策件 | — | 本件 §5 T-00 节+evidence-p019-survey | 精测+手段序+通道定形 | AC-01 | [x] ✅ 报告在档（§① regen 探针 133 错实录/§② 基面裁定+基线 39,411,200B/§④ 构成占比表[.rdata 12.4MB=two-face 主项域]/§⑤ 手段序表） |
 | 1 | T-01 portable 构建脚本 | T-00 | tools/portable/（三脚本） | 一键链+断言门 | AC-02 | [x] ✅ build_portable.py 链通+产物 dist/portable/（29,844,480B+sha256）+幂等自证 pass（第二遍哈希等价）——链 exit 1=尺寸门红为设计语义（超限差距数字入档） |
 | 2 | T-02 手段迭代+护栏 | T-01 | 注入内容迭代+锚点档复跑 | 手段×{尺寸,锚点}终表 | AC-04 | [x] ✅ 终表六变体（V2=29.8MB -24.3% 终态/V3 abort -7.11MB/V4 z -7.65MB/V5 组合 16.46MB 距门 714KB）+护栏双轨全绿（工具链轨锚点 018 对照全容差内+产物面 probe_surface 三行大余量） |
-| 3 | T-03 尺寸判定+收口 | T-02 | budgets.json+（条件）供料档增补 | 达标注记或差距+want | AC-03 | [ ] ⚠ 复审 F-1 重开（2026-09-29）：budgets installer 行已回填+SD-05 已登记 ✓，但 §6「五态面一致性」未满足——bench.py `_L0_STATES["installer"]` 断言面仍旧态（pending-feature/PLAN-018 注记），待同步为 ledger+PLAN-019 口径后复勾 |
+| 3 | T-03 尺寸判定+收口 | T-02 | budgets.json+（条件）供料档增补 | 达标注记或差距+want | AC-03 | [x] ✅ 未达标=分阶段语义兑现：budgets installer 行数字回填（差距归因+门控测量位）+SD-05 two-face want 登记供料档 §5（条件触发成立）+F-1 修复（bench.py 断言面同步 ledger——五态面一致性 live 复核绿） |
 | 4 | T-04 portable 烟测 | T-02 | dist/portable/ 产物 | 单 exe 直跑证 | AC-05 | [x] ✅ 四段全绿（直跑 BENCH 标记对+单进程+零残留+back fsys 链；diff HTTP 面归矩阵域注记） |
 | 5 | T-05 规范+账本 | T-01..04 | SD-01..05+specs.json | 裁定与形态落账 | AC-06 | [x] ✅ SD-01..05 全落档；P019-1 账本投影=merge 期项（016/017/018 先例——随 review/merge 轮，work 不碰活账本） |
 
@@ -335,6 +335,21 @@ specs.json reviews 段 P019-1 投影（015-018 外科插入先例）。
   记录：烟测 diff HTTP 面归矩阵域=执行期实勘口径（生成 back=fys
   路由），非范围缩减（矩阵轨覆盖该面，判绿口径承 018）。
   next: work（F-1 修复）→ 复审（聚焦）→ merge。
+
+
+- **2026-09-29 re-review（聚焦 F-1）**：`stage: review` | PLAN-019 |
+  plan_revision 1 | `outcome: pass` | reviewed_commit: worktree
+  plan-019-dev@**17e9893**（F-1 修复 d920fc8+证据 17e9893；base 仍
+  0698641 主链；清洁态）| F-1 关闭证据：live `evaluate_budgets`
+  installer=**ledger**+PLAN-019 口径 ✓（五态面一致性——§6 兑现；
+  pending-feature 位转缺席=018「如实显影」同款先例）+bench check/
+  assert exit 0×2 复跑绿+**assert=历史回放器语义注记**（回放面属
+  历史谱[018「assert 017 谱回放」同构]，实时一致性面=check/proxy
+  的 evaluate_budgets——复审期间误读已澄清入档）| 修复提交范围
+  复断言：tools/bench/bench.py+证据 JSONL，.at 零、路径在计划内、
+  工作树净 | 其余 AC 证据沿用 c41cf66 复现（修复仅触状态表，
+  零语义面变化）| **next: merge**（P019-1 账本投影随 merge 轮兑现；
+  组工作树保留至 merge 清理）。
 
 ## 10. 待澄清事项
 
