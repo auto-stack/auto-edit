@@ -1,10 +1,10 @@
 ---
 plan_id: PLAN-021
-status: executing
+status: execution_done
 feature_name: M4-04 L2 链解阻兑现件（PLAN-710 消费——regen 现势化+perf a2r 绿+L2 断言五行首次正式判定+对比表我方列转正+装载/diff 域生成码回归）
 author: [agent]
 created_at: 2026-09-30T16:15:39+08:00
-updated_at: 2026-09-30T22:15:00+08:00
+updated_at: 2026-09-30T23:59:00+08:00
 plan_revision: 1
 current_step: 7
 total_steps: 7
@@ -249,9 +249,9 @@ SD-01..03 落档+specs.json P021-1 投影（roundtrip 字节等价先证+
 |---|---|---|---|---|---|---|
 | 0 | T-00 消费勘定 | — | 本件 §5 T-00 节 | 工具链门+链路复核+冒烟盘点 | AC-01/04 | [x] 勘定记录在档（2026-09-30：①工具链门=PATH debug auto v0.4.2-2311-g7fcf913eb〔clean 无 -dirty；e81e0a1c3[710]/16387c84a[712]/f515252ea[713] merge-base 三连实证在含；今 16:01 构建〕——release 侧现势 2275-g9fbf4ebd5-**dirty** 陈旧+脏不采用〔PATH 坑纪律正面应验〕；master 重建字面重估=7fcf913eb→05974f71d 纯 docs delta crates/ 零 diff、重建零功能增量且会因 auto-lang 主树外来 WIP 带 -dirty 劣化判据→采现势 debug 二进制为钉版〔adaptation 记录，判据等价〕；②组依赖钉版=组兄弟树机制实证——pac `dep bps` 蓝图相对路径 `../../../auto-lang/blueprints` 自 PROJECT 解析〔首轮 regen 失败实录在档 a2r-20260930-163646.log〕→建组内 `.wt/edit-021/auto-lang`@05974f71d detached〔015-019 惯例；生成器 sibling 扫描 rust_ui.rs compute_auto_lang_rel_path 同源解析→ws path 依赖自动钉组树〕；**auto-down 组树不再需要**——018 教训〔Cargo.toml:140 autodown-core 跨仓依赖〕经 712 产物清理已移除，master 现势 grep 零命中实证；③perf 链 stage 复核=a2r→release→run(--track rust) 三段实证 perf.py:139/178/268+main:320-339；L2 判定容差=median〔sorted[N//2] 上中位，018 家法/METHODOLOGY §5 frozen〕+N≥4 跑谱+离散注记；④冒烟盘点=G-B 会话 try[editor_store.at:499 坏 JSON fixture→catch→存活+无 bench_session_restored；好 fixture→标记达+存活]/装载探测[:903 缺文件 AUTO_OPEN_PATH→file_size 投影 -1→错误形承接+存活——OpenPath 无 exists 门实测锚]；G-A diff[:1486 AUTO_DIFF_A/B bypass→DiffCompute 计数 console 形——观测通道=MCP@AUTOUI_MCP_PORT 探针执行期定〔release exe run_app_devtools 面〕或标记族+存活降级]；G-C 编辑回路[SrcChanged→code_editor_delta 消费+badge probe try[1637/2766]——MCP 可驱则 TypeText+save E2E，否则降级注记]；L0 矩阵=desktop_mcp 137 检查/判绿 ≥125/0〔017/018 口径承——已知集 T12.6+T17.2/3/4/8 不计+轮换 flake 重跑条款〕；⑤diff L2 直拉形态勘定=ws 双 member 实测〔last-good 基面：front 内嵌 fsys 转译本体 env_str/exists/read_text in-process；back=axum 独立进程 AUTO_HTTP_PORT‖8080；file_size/diff 面旧基面缺席=Sep22 代差非生成缺口〕→**L2 diff=release auto-edit-back.exe 打 /api/diff_files**〔016 server 侧计算主导语义同型；bench.py diff --l2 增臂〕；⑥worktree=D:/autostack/.wt/edit-021/auto-edit@plan-021-dev〔base 70c5c60〕+组内 auto-lang@05974f71d detached） |
 | 1 | T-01 regen 现势化 | T-00 | perf.py stage_a2r+build_portable.py | a2r 绿+last-good 退役 | AC-01 | [x] **三重判据首度全绿**（714 r3 解阻后复验）：a2r exit 0[a2r-20260930-203420.log]+零 skip 警告+三占位零命中+**fresh workspace cargo check 过**（§① E0432 反转绿）+back fsys.rs 在+front route-A 实体形；release 双产物绿（sccache 旁路配方适用实录）+退役幂等自证 pass[portable-20260930-165454.jsonl] |
-| 2 | T-02 L2 五行断言 | T-01 | bench.py 四档+budgets.json | 判定谱+armed 升级 | AC-02 | [x] **五行其三首判落地**（解阻后补跑）：steady_start armed **PASS** mean 15.6ms ≤80ms〔L2 唯一预算效力首次兑现；018 VM 形态 232.6ms 归因随直拉消失——steady-20260930-204546.jsonl〕+idle_mem armed **PASS** 9.7MB ≤60MB+diff_100mb armed **FAIL**（记录性）median 5183.2ms >2s〔back 直拉；016 VM 1906ms 形态对照；rows 惰性投影 want 直拉化——diff-20260930-205147.jsonl〕；open_100mb/warm_start 两行=残余 §7 缺陷（a2r 形态 code_editor 注册断链——VM 轨正常+旧 a2r 构建正常+视图代码逐字节一致→ui 运行时回归）虚席维持+budgets 注记更新；数字入 budgets（外科 5 行） |
+| 2 | T-02 L2 五行断言 | T-01 | bench.py 四档+budgets.json | 判定谱+armed 升级 | AC-02 | [x] **五行其三首判落地**（解阻后补跑）：steady_start armed **PASS** mean 15.6ms ≤80ms〔L2 唯一预算效力首次兑现；018 VM 形态 232.6ms 归因随直拉消失——steady-20260930-204546.jsonl〕+idle_mem armed **PASS** 9.7MB ≤60MB+diff_100mb armed **FAIL**（记录性）median 5183.2ms >2s〔back 直拉；016 VM 1906ms 形态对照；rows 惰性投影 want 直拉化——diff-20260930-205147.jsonl〕；open_100mb/warm_start 两行=残余 §7 缺陷（a2r 形态 code_editor 注册断链——VM 轨正常+旧 a2r 构建正常+视图代码逐字节一致→ui 运行时回归）虚席维持+budgets 注记更新；数字入 budgets（外科 5 行）；**全表收口（714 r4 e93a717da 清偿后补跑，工具链 2389-ge93a717da）**：open_100mb armed **PASS** median 863.2ms（4 跑谱 862.7-889.5）≤1s〔018 记账形态 841.0ms 同量级复现；513MB/1GB 双拒绝复证——open-20260930-230121.jsonl〕+warm_start armed **PASS** 恢复净段 0.0ms/全链 19.3ms ≤120ms〔018 VM 240ms 放大随直拉消失；active 1124ms 单列+Δmem 265MB 懒装载语义——warm-20260930-230317.jsonl〕——**预算表五行判定全部落地（三 PASS+diff 记录性 FAIL）**，budgets validity 收口弧更新 |
 | 3 | T-03 对比表转正 | T-02 | compare/{anchors,render_table}.py+README | l2 列实数 | AC-03 | [x] **L2 实数首列转正**：anchors.py 增 l2 态（steady PASS/diff FAIL 谱直读+open l2-pending §7 注记）——--verify 7 行全等绿；render_table l2 必出数断言+l2-pending 禁出数维持——README 表刷新+--check 复现一致绿 |
-| 4 | T-04 生成码回归 | T-01 | a2r exe 冒烟+L0 矩阵 | 三域首跑证 | AC-04 | [x] **首跑收据绿+三域冒烟 4/7+L0 矩阵达标**：首跑最小面（boot/渲染/AutoUI MCP/零 panic）+G-B①成功臂 restored@16.8ms+G-A④投影链 8s 存活+G-A⑤包络 golden 3/3+G-B②catch 臂语义（三 FAIL 全归 §7 缺陷）——gen-smoke-20260930-205450.jsonl；L0 矩阵复跑（VM 轨，工具链 2366）=**131 passed/6 failed——已知集计零 131/0 ≥125 达标**（T17.2/3/4/8 已知族 4 不计+T13.6 flake 2=probe_find 23/0 清零；131+6=137 全集对账——matrix-p021-rerun.txt 入仓） |
+| 4 | T-04 生成码回归 | T-01 | a2r exe 冒烟+L0 矩阵 | 三域首跑证 | AC-04 | [x] **首跑收据绿+三域冒烟 4/7+L0 矩阵达标**：首跑最小面（boot/渲染/AutoUI MCP/零 panic）+G-B①成功臂 restored@16.8ms+G-A④投影链 8s 存活+G-A⑤包络 golden 3/3+G-B②catch 臂语义（三 FAIL 全归 §7 缺陷）——gen-smoke-20260930-205450.jsonl；L0 矩阵复跑（VM 轨，工具链 2366）=**131 passed/6 failed——已知集计零 131/0 ≥125 达标**（T17.2/3/4/8 已知族 4 不计+T13.6 flake 2=probe_find 23/0 清零；131+6=137 全集对账——matrix-p021-rerun.txt 入仓）；**7/7 全绿收口（714 r4 清偿后）**：G-B③装载探测缺文件错误形/G-C⑥装载 E2E 标记序/G-C⑦badge 门探测 try 三面反转绿——三域（G-A/G-B/G-C）生成码真实 app 实证闭环〔gen-smoke-20260930-230652.jsonl〕 |
 | 5 | T-05 open_1gb 材料 | — | §10 Q-1+裁定材料档 | 矛盾成文+两案 | AC-05 | [x] 材料在档（docs/designs/002-open-1gb-adjudication.md——矛盾成文+两案成本+归口建议） |
 | 6 | T-06 规范+账本 | T-01..05 | SD-01..03+specs.json | 收口落账 | AC-06 | [x] SD-01..03 落档（解阻后全弧重写——首判数字+残余 §7）+P021-1 回读 True（reviews 20→21；补跑收口由 §9 work 追记录承载——P021-2 归 merge 件） |
 
@@ -294,6 +294,22 @@ SD-01..03 落档+specs.json P021-1 投影（roundtrip 字节等价先证+
   →清偿后本件残余行补跑即收口（bench open|warm --l2+smoke_gen 三域
   zero 重设计）。
 
+- 2026-09-30 work 收口 handoff（714 r4 清偿日）：`stage: work`，
+  PLAN-021，plan_revision 1。`outcome: pass`（**execution_done**——
+  全任务+全 AC 对账齐）| code_commit: worktree plan-021-dev@**8d44d9e**
+  （残余补跑收口落档；R4-T3 下游确认面照录落地）| task_ids: T-00..T-06
+  全落（T-02 五行判定全表收口+T-04 冒烟 7/7 收口）| evidence:
+  open_100mb armed PASS median 863.2ms ≤1s+warm_start armed PASS
+  恢复净段 0.0ms/全链 19.3ms ≤120ms〔714 r4 e93a717da 动态注册键
+  贯通后补跑，工具链 v0.4.2-2389-ge93a717da——714 侧 R4-T3 下游解阻
+  确认同源：fresh regen exit 0/动态键发射在位/release 40.7MB〕+
+  三域冒烟 7/7（r3 轮三 FAIL 全反转）+对比表 open 行 L2 实数补列
+  （anchors --verify 7 行+render --check 双绿）+SD-01..03 收口弧
+  （残余 §7→清偿）+open_1gb 双拒绝复证 | blockers: 无（Q-1 open_1gb
+  裁定=用户件、材料在档——G-5 只备料口径不阻塞本件）| next:
+  review（auto-plan-review——全套件门；worktree plan-021-dev 留
+  review/merge）。
+
 ## 10. 待澄清事项
 
 - **Q-1 open_1gb 战略裁定（用户件——材料已备齐**docs/designs/002-open-1gb-adjudication.md**，待裁定）**：：
@@ -303,22 +319,26 @@ SD-01..03 落档+specs.json P021-1 投影（roundtrip 字节等价先证+
   为 M4 形态」；**(b) 登记上游供料**——流式装载 want 入
   m4-perf-unblock-supply（工期在上游）。默认无预裁定——材料备齐
   后请示。
-- **Q-2 steady_start 未达标处置确认（无需裁定，确认口径）**：
-  承 018 Q-2 默认——L2 形态若 >80ms，归因清单+瘦身后续件（VM
-  boot 224.5ms 归因是否随 a2r 形态消失=T-02 判定谱的观察重点；
-  019 产物面 21.2/38.2ms 预示大概率绿）。
+- **Q-2 steady_start 未达标处置确认（已闭——未触发）**：承 018 Q-2
+  默认——L2 形态若 >80ms 走归因清单+瘦身后续件。**实际判定 armed
+  PASS 15.6ms ≤80ms**（直拉形态消解 VM boot 归因）——未达标处置
+  路径未触发，口径归档。
 - **Q-4 供① 残余两面处置（已清偿闭环）**：用户指令收纳 → PLAN-714 r2（Try 臂 d22318fc5）→fresh 复验暴露 route-A 深修层→needs_replan→r3 深修收口 delivered@acf653d3f——本件三重判据首度全绿即其回执：back 转译
   通路缺语句级 Try 臂（fsys.at:208 try）→back E0432+front route-A 桩化
   →L2 全预算行不可测。已按 Q-3 默认路由登记 upstream（供料档 §6——
   单臂解锁建议+corpus 判据三行增补+验收四判据）。**待用户裁定**：
   裁定=路由 714 r2（非新件非挂账）→r3 delivered→本件 T-02/03/04 判据面
   已补跑（五行其三+对比表首列+冒烟 4/7+矩阵达标；open/warm 随 §7 虚席）。
-- **Q-5 a2r 形态 code_editor 注册断链路由（已裁定——(a) 714 r4）**：
+- **Q-5 a2r 形态 code_editor 注册断链路由（已裁定+已清偿闭环）**：
   用户 2026-09-30 指令「(a) 714 r4 收纳（本次同款通道）」→
   **PLAN-714 r4 收纳**〔auto-lang master@812a75292：archived→executing/
   plan_revision 4/total_steps 19；R4-T1 二分定谳+R4-T2 修复贯通
-  +R4-T3 census ④行+下游解阻确认〕。清偿后本件 open_100mb/warm_start
-  行+装载/编辑冒烟面补跑即全收口（判据面已备 zero 重设计）。
+  +R4-T3 census ④行+下游解阻确认〕→ **r4 delivered 归档@c19b5351a**
+  （R4-T1 定谳=非回归——生成器 Plan 413 原始缺口：动态 key 属性静默
+  回落 "editor"；R4-T2 修复=e93a717da 动态 key 发射贯通注册键+单测
+  四枚；R4-T3 census ④行+下游解阻确认[本仓 edit-021 真仓全绿]）。
+  **本件清偿回执**：残余补跑 8d44d9e 落地——open/warm armed PASS+
+  三域冒烟 7/7，全表收口（execution_done）。
 - **Q-3 生成码缺陷处置（执行期口径确认——已按默认路由执行）**：三域冒烟若现上游
   生成缺陷——默认登记 upstream（669 模式）+本件注记 blocked 面，
   不在本仓修生成物；若缺陷轻微且修法明确，可回 auto-lang 走快速
