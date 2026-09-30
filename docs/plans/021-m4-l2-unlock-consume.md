@@ -4,7 +4,7 @@ status: executing
 feature_name: M4-04 L2 链解阻兑现件（PLAN-710 消费——regen 现势化+perf a2r 绿+L2 断言五行首次正式判定+对比表我方列转正+装载/diff 域生成码回归）
 author: [agent]
 created_at: 2026-09-30T16:15:39+08:00
-updated_at: 2026-09-30T17:20:00+08:00
+updated_at: 2026-09-30T17:50:00+08:00
 plan_revision: 1
 current_step: 4
 total_steps: 7
@@ -293,12 +293,12 @@ SD-01..03 落档+specs.json P021-1 投影（roundtrip 字节等价先证+
   承 018 Q-2 默认——L2 形态若 >80ms，归因清单+瘦身后续件（VM
   boot 224.5ms 归因是否随 a2r 形态消失=T-02 判定谱的观察重点；
   019 产物面 21.2/38.2ms 预示大概率绿）。
-- **Q-4 供① 残余两面处置（本件执行期发现，2026-09-30）**：back 转译
+- **Q-4 供① 残余两面处置（本件执行期发现，2026-09-30——已裁定路由**：用户 2026-09-30 指令「更新计划 714…加一个 phase」→ **auto-lang PLAN-714 r2 收纳**〔99405c675，712 r2 复开先例同款：archived→executing/plan_revision 2；R2-T1 Try 臂+R2-T2 判据三行+R2-T3 下游解阻确认〕——非另立新件）：back 转译
   通路缺语句级 Try 臂（fsys.at:208 try）→back E0432+front route-A 桩化
   →L2 全预算行不可测。已按 Q-3 默认路由登记 upstream（供料档 §6——
   单臂解锁建议+corpus 判据三行增补+验收四判据）。**待用户裁定**：
-  (a) 立项 auto-lang 快速修订件（710 D-4..D-8 回补量级——本件 §9 记录
-  的精准解锁动作）；(b) 挂账待上游自然排程（本件维持 blocked）。
+  裁定=路由 714 r2（非新件非挂账）——r2 delivered 后本件 T-02/03/04
+  判据面 zero 重设计补跑（executing 续）。
 - **Q-3 生成码缺陷处置（执行期口径确认——已按默认路由执行）**：三域冒烟若现上游
   生成缺陷——默认登记 upstream（669 模式）+本件注记 blocked 面，
   不在本仓修生成物；若缺陷轻微且修法明确，可回 auto-lang 走快速
