@@ -4,9 +4,9 @@ status: executing
 feature_name: M4-04 L2 链解阻兑现件（PLAN-710 消费——regen 现势化+perf a2r 绿+L2 断言五行首次正式判定+对比表我方列转正+装载/diff 域生成码回归）
 author: [agent]
 created_at: 2026-09-30T16:15:39+08:00
-updated_at: 2026-09-30T16:55:00+08:00
+updated_at: 2026-09-30T17:20:00+08:00
 plan_revision: 1
-current_step: 0
+current_step: 4
 total_steps: 7
 supersedes_spec_components: []
 new_spec_components:
@@ -248,12 +248,12 @@ SD-01..03 落档+specs.json P021-1 投影（roundtrip 字节等价先证+
 | # | 任务 | 依赖 | 落点（实勘锚） | 产出/意图 | AC | 验证（命令/预期） |
 |---|---|---|---|---|---|---|
 | 0 | T-00 消费勘定 | — | 本件 §5 T-00 节 | 工具链门+链路复核+冒烟盘点 | AC-01/04 | [x] 勘定记录在档（2026-09-30：①工具链门=PATH debug auto v0.4.2-2311-g7fcf913eb〔clean 无 -dirty；e81e0a1c3[710]/16387c84a[712]/f515252ea[713] merge-base 三连实证在含；今 16:01 构建〕——release 侧现势 2275-g9fbf4ebd5-**dirty** 陈旧+脏不采用〔PATH 坑纪律正面应验〕；master 重建字面重估=7fcf913eb→05974f71d 纯 docs delta crates/ 零 diff、重建零功能增量且会因 auto-lang 主树外来 WIP 带 -dirty 劣化判据→采现势 debug 二进制为钉版〔adaptation 记录，判据等价〕；②组依赖钉版=组兄弟树机制实证——pac `dep bps` 蓝图相对路径 `../../../auto-lang/blueprints` 自 PROJECT 解析〔首轮 regen 失败实录在档 a2r-20260930-163646.log〕→建组内 `.wt/edit-021/auto-lang`@05974f71d detached〔015-019 惯例；生成器 sibling 扫描 rust_ui.rs compute_auto_lang_rel_path 同源解析→ws path 依赖自动钉组树〕；**auto-down 组树不再需要**——018 教训〔Cargo.toml:140 autodown-core 跨仓依赖〕经 712 产物清理已移除，master 现势 grep 零命中实证；③perf 链 stage 复核=a2r→release→run(--track rust) 三段实证 perf.py:139/178/268+main:320-339；L2 判定容差=median〔sorted[N//2] 上中位，018 家法/METHODOLOGY §5 frozen〕+N≥4 跑谱+离散注记；④冒烟盘点=G-B 会话 try[editor_store.at:499 坏 JSON fixture→catch→存活+无 bench_session_restored；好 fixture→标记达+存活]/装载探测[:903 缺文件 AUTO_OPEN_PATH→file_size 投影 -1→错误形承接+存活——OpenPath 无 exists 门实测锚]；G-A diff[:1486 AUTO_DIFF_A/B bypass→DiffCompute 计数 console 形——观测通道=MCP@AUTOUI_MCP_PORT 探针执行期定〔release exe run_app_devtools 面〕或标记族+存活降级]；G-C 编辑回路[SrcChanged→code_editor_delta 消费+badge probe try[1637/2766]——MCP 可驱则 TypeText+save E2E，否则降级注记]；L0 矩阵=desktop_mcp 137 检查/判绿 ≥125/0〔017/018 口径承——已知集 T12.6+T17.2/3/4/8 不计+轮换 flake 重跑条款〕；⑤diff L2 直拉形态勘定=ws 双 member 实测〔last-good 基面：front 内嵌 fsys 转译本体 env_str/exists/read_text in-process；back=axum 独立进程 AUTO_HTTP_PORT‖8080；file_size/diff 面旧基面缺席=Sep22 代差非生成缺口〕→**L2 diff=release auto-edit-back.exe 打 /api/diff_files**〔016 server 侧计算主导语义同型；bench.py diff --l2 增臂〕；⑥worktree=D:/autostack/.wt/edit-021/auto-edit@plan-021-dev〔base 70c5c60〕+组内 auto-lang@05974f71d detached） |
-| 1 | T-01 regen 现势化 | T-00 | perf.py stage_a2r+build_portable.py | a2r 绿+last-good 退役 | AC-01 | [ ] exit 0+三重判据+幂等 |
-| 2 | T-02 L2 五行断言 | T-01 | bench.py 四档+budgets.json | 判定谱+armed 升级 | AC-02 | [ ] --mode l2 绿+报告在档 |
-| 3 | T-03 对比表转正 | T-02 | compare/{anchors,render_table}.py+README | l2 列实数 | AC-03 | [ ] --verify/--check 双绿 |
-| 4 | T-04 生成码回归 | T-01 | a2r exe 冒烟+L0 矩阵 | 三域首跑证 | AC-04 | [ ] 冒烟绿+矩阵零扰动 |
-| 5 | T-05 open_1gb 材料 | — | §10 Q-1+裁定材料档 | 矛盾成文+两案 | AC-05 | [ ] 材料在档 |
-| 6 | T-06 规范+账本 | T-01..05 | SD-01..03+specs.json | 收口落账 | AC-06 | [ ] P021-1 回读 True |
+| 1 | T-01 regen 现势化 | T-00 | perf.py stage_a2r+build_portable.py | a2r 绿+last-good 退役 | AC-01 | [x] a2r exit 0[a2r-20260930-163740.log]+三占位零命中+cargo check 分层[front member 绿/-p auto-edit 47.8s；back member E0432=供① 残余面一如实红——非本件回归]+退役幂等自证 pass[--regen --skip-build --check-idempotent，portable-20260930-165454.jsonl exit=0] |
+| 2 | T-02 L2 五行断言 | T-01 | bench.py 四档+budgets.json | 判定谱+armed 升级 | AC-02 | [ ] **blocked-on-upstream**：fresh release exe 功能面死（front route-A 桩化→env_str 恒空→AUTO_BENCH/AUTO_OPEN_PATH 不可达）——steady --l2 首跑零标记实录在档；不冒领纪律=五行不升级，budgets blocked 注记落档；判据面已备（bench --l2 三档+diff back 服务形）待 §6 解阻补跑 |
+| 3 | T-03 对比表转正 | T-02 | compare/{anchors,render_table}.py+README | l2 列实数 | AC-03 | [ ] **blocked**（连带 T-02）：无 L2 直拉实数可转正——l2-pending 虚席维持（020 三态纪律）；解阻后按 T-03 原案执行 |
+| 4 | T-04 生成码回归 | T-01 | a2r exe 冒烟+L0 矩阵 | 三域首跑证 | AC-04 | [ ] **首跑收据绿**（最小面：boot+渲染+AutoUI MCP+存活 10s+零 panic——生成码首跑真实 app 里程碑在档）+三域功能面 blocked（同 T-02 根因；smoke_gen.py harness 已备）+L0 矩阵复跑未行（VM 轨不受生成面影响、本件零 .at diff——留待解阻后与三域一并收口） |
+| 5 | T-05 open_1gb 材料 | — | §10 Q-1+裁定材料档 | 矛盾成文+两案 | AC-05 | [x] 材料在档（docs/designs/002-open-1gb-adjudication.md——矛盾成文+两案成本+归口建议） |
+| 6 | T-06 规范+账本 | T-01..05 | SD-01..03+specs.json | 收口落账 | AC-06 | [x] SD-01..03 按 blocked 现实落档+P021-1 回读 True（roundtrip 字节等价先证+前缀零扰动；reviews 20→21） |
 
 ## 9. 复审记录
 
@@ -265,9 +265,24 @@ SD-01..03 落档+specs.json P021-1 投影（roundtrip 字节等价先证+
   auto-edit@70c5c60 与 auto-lang@05974f71d 双仓实勘锚定；授权=
   起草[用户指令原文在录]，执行待用户启动）。`next: work`。
 
+- 2026-09-30 work handoff：`stage: work`，PLAN-021，plan_revision 1。
+  `outcome: blocked` | code_commit: worktree plan-021-dev@**7de30ed**
+  （base 70c5c60；T-00/01/05/06 全落+T-02/03/04 blocked 面如实收档；
+  worktree 清洁态）| task_ids: T-00,T-01,T-05,T-06 完成；
+  T-02,T-03,T-04 blocked | evidence: a2r exit 0 复验+三占位零命中+
+  build_portable 退役幂等自证 pass+生成码首跑收据（boot/渲染/AutoUI
+  MCP/零 panic）+evidence-p021-blocked-survey forensics+供料档 §6
+  登记+SD-01..03+P021-1 回读 True | blockers: 供① 残余两面单根因
+  （back 转译通路缺语句级 Try 臂→back E0432+front route-A 桩化→
+  L2 全预算行不可测；Q-3 默认路由=登记 upstream 不修生成物——精准
+  解锁动作=auto-lang 快速修订件[镜像 ui_gen G-B 臂形，单臂两面全解]
+  +corpus 判据三行增补，**用户裁定立项**）| next: 用户裁定后二选——
+  (a) 上游解阻→本件 T-02/03/04 判据面 zero 重设计补跑（executing 续）；
+  (b) 新建 auto-lang 快速修订件另档（本件 blocked 挂账维持）。
+
 ## 10. 待澄清事项
 
-- **Q-1 open_1gb 战略裁定（用户件——T-05 材料备齐后裁定）**：
+- **Q-1 open_1gb 战略裁定（用户件——材料已备齐**docs/designs/002-open-1gb-adjudication.md**，待裁定）**：：
   预算行「1 GB 可打开（分块/mmap 流式）」vs 现势 512MB 超大拒绝
   位（013 设计：真分块 IO=上游阻塞，当时注记 1GB 线非目标）。两
   案：**(a) 降范围**——战略 §2.1 行注记「1GB=远期，512MB 拒绝位
@@ -278,7 +293,13 @@ SD-01..03 落档+specs.json P021-1 投影（roundtrip 字节等价先证+
   承 018 Q-2 默认——L2 形态若 >80ms，归因清单+瘦身后续件（VM
   boot 224.5ms 归因是否随 a2r 形态消失=T-02 判定谱的观察重点；
   019 产物面 21.2/38.2ms 预示大概率绿）。
-- **Q-3 生成码缺陷处置（执行期口径确认）**：三域冒烟若现上游
+- **Q-4 供① 残余两面处置（本件执行期发现，2026-09-30）**：back 转译
+  通路缺语句级 Try 臂（fsys.at:208 try）→back E0432+front route-A 桩化
+  →L2 全预算行不可测。已按 Q-3 默认路由登记 upstream（供料档 §6——
+  单臂解锁建议+corpus 判据三行增补+验收四判据）。**待用户裁定**：
+  (a) 立项 auto-lang 快速修订件（710 D-4..D-8 回补量级——本件 §9 记录
+  的精准解锁动作）；(b) 挂账待上游自然排程（本件维持 blocked）。
+- **Q-3 生成码缺陷处置（执行期口径确认——已按默认路由执行）**：三域冒烟若现上游
   生成缺陷——默认登记 upstream（669 模式）+本件注记 blocked 面，
   不在本仓修生成物；若缺陷轻微且修法明确，可回 auto-lang 走快速
   修订件（710 D-4..D-8 回补先例）——执行期按缺陷量级择路，§9
