@@ -312,6 +312,18 @@
           ],
           "superseded_by": null,
           "content": "- 绿面收据：a2r 生成 exit 0（018 blocked 态清偿复验，a2r-20260930-163740.log）+生成物 grep 三占位零命中（G-A/G-C 面成立）+build_portable regen 现势直跑退役[快照回退臂 RETIRE_NOTE+--skip-build --check-idempotent 幂等自证 pass，portable-20260930-165454.jsonl]+生成码首跑收据（fresh release exe 零旗标直拉：Running with Iced backend+AutoUI MCP listening[9247 占用自动回落]+存活 10s+零 panic——release exe 具 MCP 面勘误在册）。\n- blocked 面（供① 残余两面，单根因）：back 模块转译通路（trans/rust.rs 语句分派）缺 Stmt::Try 臂（710 G-B 臂落点=ui_gen front 通路）——fsys.at:208 try（PLAN-012 fif 兜底）转译失败→面一：back fsys.rs 整模块跳过→api_impl.rs:3 use crate::fsys 悬空→back member E0432（workspace check 红/front member check 绿）；面二：front merged_route_a_impl 伴生链 .ok()? 整体回退→api 客户端族恒空桩（D-7 收口形，API_DATA 只写无读+无 HTTP 客户端）→AUTO_BENCH/AUTO_OPEN_PATH 恒空→L2 全预算行不可测。\n- 判据盲区：710 corpus「cargo check 过」系 tmp 拷贝携带陈旧 rust-workspace（旧代 fsys.rs 与旧 api_impl 自洽）掩蔽缺模块洞+front 桩化本就编译绿——供料档 §6 增补建议三行（skip 警告 grep/fresh-copy 卫生/桩形检测）。\n- 落档面：SD-01 perf-measurement PLAN-021 节+SD-02 00-overview M4 第四件注记+SD-03 README PLAN-021 口径+budgets 五行 blocked 注记（surgical 5 行 diff）+evidence-p021-blocked-survey forensics+供料档 §6 上游登记+docs/designs/002-open-1gb-adjudication.md（Q-1 裁定材料——用户件）+bench.py --l2 判据面（open/steady/warm 直拉档+diff back 服务形+L2 face open/idle 武装升级逻辑）+smoke_gen.py 三域 harness。\n- next：上游快速修订件（trans/rust.rs 补 Try 臂——镜像 ui_gen G-B 臂形，单臂两面全解）用户裁定立项→解阻后 T-02/T-03/T-04 判据面 zero 重设计补跑。"
+        },
+        {
+          "id": "P021-2",
+          "section": "reviews",
+          "status": "stable",
+          "title": "PLAN-021 — M4-04 L2 链解阻兑现件 merge 收据（reviewed pass @ r1 8d44d9e[rebase 等价映射 47b0eaa ff-landed]：L2 断言五行全判定首齐+对比表我方列 l2 实数转正+生成码三域首跑——供① 残余经 714 r2/r3/r4 全清偿闭环）",
+          "file": "docs/plans/archived/021-m4-l2-unlock-consume.md",
+          "related": [
+            "PLAN-021"
+          ],
+          "superseded_by": null,
+          "content": "- 判定收口（L2 断言全表五行首判齐，数字+谱在 budgets validity）：steady_start armed PASS mean 15.6ms ≤80ms〔L2 唯一预算效力首次兑现——018 VM 形态 232.6ms 归因随直拉消失〕/idle_mem armed PASS 9.7MB ≤60MB/diff_100mb armed FAIL（记录性）5183.2ms >2s〔back 直拉；016 VM 1906ms 达标对照；rows 惰性投影 want 直拉化归因〕/open_100mb armed PASS median 863.2ms ≤1s〔018 记账形态 841.0ms 同量级复现；513MB/1GB 双拒绝复证〕/warm_start armed PASS 恢复净段 0.0ms·全链 19.3ms ≤120ms〔018 VM 240ms 放大随直拉消失；active 1124ms 单列+Δmem 265MB 懒装载语义〕（首判工具链 2366[714 r3]/补跑 2389[714 r4]）。\n- 供① 全弧闭环：a2r 三重判据绿（exit 0+零 skip 警告+三占位零命中+fresh workspace check 过）+last-good 基面退役（regen 现势直跑+幂等自证 pass）；残余 §6/§7 经 auto-lang PLAN-714 r2/r3/r4 全清偿（Try 臂+route-A 深修+动态注册键贯通 e93a717da——R4-T1 定谳=非回归，生成器 Plan 413 原始缺口 key 属性静默回落）。\n- 生成码三域回归（首跑真实 app）：冒烟 7/7 全绿（G-B 会话 try 两臂+装载探测错误形/G-A 投影链+back 包络 golden 3/3/G-C 装载 E2E 标记序+badge 门 try）+L0 矩阵 VM 轨 131/0 达标（137 全集对账——已知族 4+flake 2 计零）。\n- 对比表三态列终态：anchor[841.0 VM 形态]/surface[38.2 last-good]/release-judged[1906.0 016 先例]/l2 实数[steady 15.6·diff 5183.2·open 863.2+verdict 随行]——l2-pending 虚席退役（机制保留禁出数）；anchors --verify 7 行全等+render --check 复现一致双门绿。\n- 顺手件+裁定面：docs/designs/002-open-1gb-adjudication.md 在档（Q-1 open_1gb 战略裁定材料=用户件，二择[降范围注记/上游流式供料]）；Q-2 闭口（steady PASS 未触发未达标处置）。\n- merge 面：review pass（AC-01..07 全复现绑 8d44d9e——AC-02 逐字对账电池 12/12/矩阵收据 RESULT: 131 passed, 6 failed 对账/动态键发射生成码 grep 实证）→rebase main 三提交 range-diff 全等（7de30ed→2574eba/3e01e2a→a303b63/8d44d9e→47b0eaa）→ff-landed；SD-01..03 收口弧（残余 §7→714 r4 清偿）落 docs/specs。"
         }
       ],
       "status": "Empty",
