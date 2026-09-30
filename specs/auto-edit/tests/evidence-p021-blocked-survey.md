@@ -92,3 +92,36 @@ PLAN-012 的老生成，恰与旧 api_impl 自洽）满足 `use crate::fsys` 导
    ② fresh-copy regen 卫生（regen 前清 rust-workspace 或 dump
    文件清单 diff）——堵陈旧基面掩蔽。
 3. 解阻后本件 T-02/T-03/T-04 按 §8 已备判据面补跑（zero 重设计）。
+
+## ⑥ 解阻复验（2026-09-30 同日——PLAN-714 r2/r3 清偿后补跑实录）
+
+r2（Try 臂 d22318fc5）fresh 复验暴露 route-A 深修层（26 错/8 类）→
+needs_replan→r3 深修收口（29563c588——stdlib 面+内建分发器三处+Try
+return 传播形+借位 clone 窄门）→delivered@acf653d3f（AC-R2-4 下游
+确认在 r3 census §7）。本仓 edit-021 worktree 复验：
+
+- **三重判据首度全绿**：a2r exit 0（a2r-20260930-203420.log，工具链
+  v0.4.2-2366-gacf653d3f 组树 debug 构建）+零 skip 警告+三占位零命中
+  +back fsys.rs 在位（api_impl 15 引用全解）+front route-A 实体形
+  （env_str→fsys::env_lookup 与旧基面同形）+**fresh workspace
+  cargo check 过**（47.4s，CHECK_RC=0——本档 §①的 E0432 反转绿）。
+- **release 双产物**：sccache 堆损坏（0xc0000374）一度——019 旁路
+  配方（RUSTC_WRAPPER=""）复用即绿（auto-edit.exe 40.7MB+
+  auto-edit-back.exe 14.4MB）。
+- **L2 直拉首判**：steady armed PASS 15.6ms（谱 14.3-16.1）/
+  idle armed PASS 9.7MB/diff armed FAIL 5183.2ms（谱 4985.8-5412.4，
+  back 直拉；016 VM 形态对照 1906ms）——数字入 budgets validity+
+  compare anchors l2 行（--verify 绿+render --check 绿）。
+- **三域冒烟 4/7 绿**：G-B①成功臂（restored@16.8ms）/G-A④投影链
+  8s 存活/G-A⑤包络 golden 3/3+G-B②catch 臂语义（restored 缺席+存活
+  ——「后续打开绿」半腿随 §7 blocked）。三 FAIL 全归 §7 缺陷。
+- **残余缺陷（供料档 §7）**：a2r 形态 code_editor 注册断链——装载
+  探测门永假（no editor registered for key __code_editor_tab-N 刷屏
+  ——warm-0-20260930-204554.log/open-probe 实录）；VM 轨对照正常
+  （open_done 触发）+旧 a2r 构建正常+新旧视图代码逐字节一致→ui 运行时
+  回归（窗口 2205→2366）。open/warm 两行 L2 判定+装载/编辑回路冒烟
+  随之 blocked；steady/idle/diff(back) 不受累。
+- **干扰实录（F-RV6 纪律适用）**：open 档与 L0 矩阵首次启动重叠
+  （本仓自扰——MCP 端口互踩+app 早退）——矩阵独占重跑在档；三个
+  pre-session auto.exe 实例（14:08/16:10/16:26 起）按「不动他树实例」
+  纪律保留。

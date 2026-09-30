@@ -1,0 +1,207 @@
+============================================================
+Plan 418 Phase 1: Desktop MCP action-matrix (real 041 auto-edit)
+============================================================
+NOTE: port 9247 busy (stale auto.exe?); using AUTOUI_MCP_PORT=9251
+
+Starting real 041 auto-edit in D:\autostack\.wt\edit-021\auto-edit\specs\auto-edit...
+App output log: C:\Users\zhaop\AppData\Local\Temp\auto041_mcp_u2055xoc.log
+Waiting for MCP server on port 9251...
+MCP server ready
+
+T1: Snapshot structure
+  PASS  App widget present
+  PASS  toolbar icon file-plus present
+  PASS  toolbar icon undo-2 present
+  PASS  toolbar icon copy present
+  NOTE  editor node not yet in snapshot (render timing); skipping
+  PASS  menubar buttons present
+  PASS  toolbar synthesized onclick present
+  PASS  menubar synthesized onclick present
+
+T2: ActConsole (menu item)
+  PASS  view menu opened
+  PASS  menu item (切换 Console) found
+  PASS  console_open flipped
+  PASS  menu closed after pick
+
+T3: ActAbout (menu item)
+  PASS  about line logged
+
+T3b: Plan 428 code folding (native channel)
+  PASS  fold engaged (2 body lines hidden)
+  PASS  fold released (0 hidden)
+
+T4: ActNew (menu item)
+  PASS  title_active reset to untitled
+  PASS  path_active cleared
+  PASS  new logged
+
+T5: ActSwitchTab (menu item)
+  PASS  tab flipped
+
+T6: Editor actions (toolbar icons + edit-menu, text-verified)
+  PASS  select-all sets .sel
+  PASS  cut empties editor text
+  PASS  cut logged
+  PASS  undo restores text
+  PASS  redo re-empties text
+  PASS  undo (2nd) restores text
+  PASS  copy logged
+  PASS  cut (2nd) empties text
+  PASS  paste restores text
+  PASS  paste logged
+
+T7: Global shortcut Ctrl+J
+  PASS  console_open flipped via Ctrl+J
+T7b: Actions-block shortcut Ctrl+D (actions decl only)
+  PASS  tab flipped via config Ctrl+D
+
+T9: Plan 420 tab workspace (close/+ open/dirty/save)
+  PASS  all tabs closed
+  PASS  empty state visible
+  PASS  + button found
+  PASS  tab opened from AUTO_OPEN_PATH
+  PASS  opened content loaded (bytes)
+  PASS  cut toolbar button found
+  PASS  cut logged
+  PASS  dirty confirm popover opens
+  PASS  confirm force-close item found
+  PASS  dirty tab closed
+  PASS  saved file round-trips content
+
+T10: Plan 423 enabled-if + hot reload
+  PASS  T10 all tabs closed
+  PASS  T10 save button found
+  PASS  T10 save disabled marker in snapshot
+  PASS  T10 disabled click dispatches nothing
+  PASS  T10 save re-enabled after open
+  PASS  T10 hot-reloaded toolbar item appears
+  PASS  T10 reloaded item dispatches
+
+T11: OS user keymap layer (e2e)
+  PASS  T11 OS keymap override applied (e2e)
+
+T12: PLAN-008 byte fidelity (BOM/EOL roundtrip, convert, fallback)
+  PASS  BOM roundtrip: EF BB BF prefix + content (after edit)
+  PASS  BOM negative: no BOM introduced (after edit)
+  PASS  EOL roundtrip: CRLF byte-level preserved (after edit)
+  PASS  EOL roundtrip: LF byte-level preserved (after edit)
+  PASS  EOL CR: preserved (no edit) + status label CR
+  PASS  mixed→LF convert: dialog + zero CRLF on disk + label sync
+  PASS  invalid UTF-8: readonly tab + save blocked + disk unchanged
+
+T13: PLAN-009 find/replace + find-in-files
+  PASS  T13.1 find bar opens (Ctrl+F)
+  PASS  T13.1a literal escape: eff a\.b
+  PASS  T13.1b regex passthrough: eff a.b
+  PASS  T13.1c case flag: eff (?-i)a.b
+  PASS  T13.1d word anchors: eff \b(?-i)a.b\b (regex on, dot raw)
+  PASS  T13.1e close: find_open false + eff cleared
+  PASS  T13.2 find_next -> match2 (1,12)
+  PASS  T13.2 find_next -> match3 (1,18)
+  PASS  T13.2 find_next wraps -> line3 match (3,6)
+  PASS  T13.3 replace row visible (Ctrl+H)
+  PASS  T13.3 replace all: 4 处 console
+  PASS  T13.3 replace E2E disk bytes
+  PASS  T13.4 pre: readonly engaged after load
+  PASS  T13.4 readonly blocks replace + disk unchanged
+  PASS  T13.5 empty query: zero action logged
+  PASS  T13.6 fif panel opens (Ctrl+Shift+F/menu)
+  FAIL  T13.6 fif results: count==3 not truncated: count=0 trunc=False
+  FAIL  T13.6 result click opens file tab: State:
+  tab_count: 2 (int)
+  title_active: "main.at" (str)
+
+  PASS  T13.7 truncation: count==500 + truncated
+  PASS  T13.8 >10MB gate: oversized file skipped (count==0)
+
+T14: PLAN-010 session restore + recent files
+  PASS  T14.1 session write: fields + untitled excluded + recents
+  PASS  T14.2 restore: order + active + only-active loaded
+  PASS  T14.3 activate unloaded tab triggers load
+  PASS  T14.4 ws mismatch: fresh start (seeds only, no restore line)
+  PASS  T14.5 crash recovery: kill → restart restores
+  PASS  T14.6 quit-restore: structure kept + dirty edits lost
+  PASS  T14.7 recents sidebar: survives close-all + click reopens
+  PASS  T14.8 ActNew untitled: file path cleared → excluded
+  PASS  T14.9 corrupted session: silent fresh start
+
+T15: PLAN-011 file diff
+  PASS  T15.1 env 旁路自开+计数（3 hunks/21 rows/+3/-3）
+  PASS  T15.2 形状计数（ctx18/pair3/del0/add0）
+  PASS  T15.3 三段标记节点（4-changed/19-changed 分离节点）
+  PASS  T15.3b 状态条（DIFF 标+hunk 位次 1/3）
+  PASS  T15.4 导航推进回绕 [1,2,0,1,0]
+  PASS  T15.5 hunk 位次派生 1/3（序列终态对齐）
+  PASS  T15.6 关闭复原（tab 零扰动+态清零）
+  PASS  T15.7 unbalanced（7 行=4ctx/1pair/2del+NEW 节点）
+  PASS  T15.8 缺文件错误形（err 记录+零视图）
+  PASS  T15.9 行数超限通过（>10000 行正常 envelope+计数到位）
+  PASS  T15.10 全换形重定（degraded=false+700/700+cap 600+降级注记退役）
+  PASS  T15.11 内联投影对照（irows/dbg_i*=golden 推导）
+  PASS  T15.12 切换零重比（双向：八字段不变+console 无 compute 行+回切投影清空）
+  PASS  T15.13 内联态导航推进 [1,2]+位次 3/3
+  PASS  T15.14 双 cap（信封 600+内联 600+双注记快照）
+  PASS  T15.15 内联态重算（再下钻 vmode 保持+投影重建）
+
+T15.P16: buffer diff subgroup
+  PASS  T15.16 旁路自开+装载轮转+净形计数（1 hunk/+1/-1/双开）
+  PASS  T15.17 hunk 行跳转（切 tab+set_cursor 生效读回）
+  PASS  T15.19 关闭复原（面板关+tab 零扰动）
+  PASS  T15.18 旁路单边残缺（console 记录+面板零开）
+
+T15.P17: diff-side edit loop subgroup
+  PASS  T15.20a A 侧跳转（新开 tab+装载落点 line=2+视图藏）
+  PASS  T15.20b B 侧跳转（菜单重开→新开+落点 hunk0 b1）
+  PASS  T15.20c 行级编辑跳转（pair 行 A:5 钮→lo 锚 line=5）
+  PASS  T15.20d 已开激活路径（tab 零增长+落点复位）
+  PASS  T15.21 保存自动重比（badge live→保存→视图自动重开+vmode 保持+8/-8 变形+重比行+落盘）
+  PASS  T15.22 无关保存零扰动（第三文件保存 saved 行+零重比行+重开计数不变）
+  PASS  T15.23 面板 live 预览（ReplaceAll→防抖单拍净形 8/8 保存前→保存钩子刷新一致+重比行）
+  PASS  T15.24 B 侧跳转（→B kb 激活+b1 光标读回+→A 对称回归）
+
+T16: PLAN-012 dir diff
+  PASS  T16.1 env 旁路自开+golden counts（4/2/2/1/1）
+  PASS  T16.2 快照形态（rels+徽标+[目录] 标记）
+  PASS  T16.3 过滤纯 front 态（删过滤 view2+计数零变+快照单态）
+  PASS  T16.3b 回 all（view 10）
+  PASS  T16.4 下钻 file 模式+rows 到达（011 视图复用）
+  PASS  T16.4b 返回目录（entries 保留不重比）
+  PASS  T16.5 复制直执行（磁盘 E2E+重比 删0/同2+过滤保持）
+  PASS  T16.6 删除确认链（弹层→执行→磁盘消失+增 0）
+  PASS  T16.7 覆盖复制确认链（双侧恒确认+磁盘内容=左侧+改0/同3）
+  PASS  T16.8 关闭复原（全清+tab 零扰动）
+  PASS  T16.9 根缺失 err 形（面板不开+err+console）
+  PASS  T16.10 >2MB 同尺寸=同(未比对)注记
+
+T17: PLAN-013 big-file mode
+  PASS  T17.1 探测置位+plain 绑定（big_active+loaded_bytes+lang）
+  FAIL  T17.2 ReplaceAll 拦截（console blocked+big_hint 提示）: opened=False iid=None btn=False hint='' console_tail='p\\" started (1 app window)\\nBENCH bench_ws_loaded\\nworkspace: D:\\\\autostack\\\\.wt\\\\edit-021\\\\auto-edit\\\\specs\\\\auto-edit\\nBENCH bench_vm_init'
+  FAIL  T17.3 big save 直写（console saved direct+字节全等+时长 sane）: size 52428800->52428800 save_s=4.64 hint=''
+  FAIL  T17.4 切换往返无残留（big↔normal props 联动）: main[True,plain] big[True,plain]
+  PASS  T17.5 超大拒绝（错误形 tab+readonly_label+零装载）
+  PASS  T17.6 阈值下界（49MB big_active=false+auto）
+  PASS  T17.7 normal 零误伤（replace 2 处+save 写通 E2E）
+  FAIL  T17.8 会话恢复重探（恢复 tab→装载→big 重探）: State:   big_active: true (bool)   lang_active: "plain" (str)   loaded_bytes: 52428800 (int)   tab_count: 1 (int) 
+
+T18: PLAN-014 upstream consume
+  PASS  T18.1 readonly 兜底不受扰（blocked+磁盘零变）
+  PASS  T18.2 光标恢复 E2E（find 跳持久位=重启 TabActivate 读回）
+  PASS  T18.3 scroll 条件形注记（会话无 scroll 字段=现状）
+
+T8: ActQuit (menu item)
+  PASS  app exited on quit
+
+============================================================
+RESULT: 131 passed, 6 failed
+Failures:
+  - T13.6 fif results: count==3 not truncated: count=0 trunc=False
+  - T13.6 result click opens file tab: State:
+  tab_count: 2 (int)
+  title_active: "main.at" (str)
+
+  - T17.2 ReplaceAll 拦截（console blocked+big_hint 提示）: opened=False iid=None btn=False hint='' console_tail='p\\" started (1 app window)\\nBENCH bench_ws_loaded\\nworkspace: D:\\\\autostack\\\\.wt\\\\edit-021\\\\auto-edit\\\\specs\\\\auto-edit\\nBENCH bench_vm_init'
+  - T17.3 big save 直写（console saved direct+字节全等+时长 sane）: size 52428800->52428800 save_s=4.64 hint=''
+  - T17.4 切换往返无残留（big↔normal props 联动）: main[True,plain] big[True,plain]
+  - T17.8 会话恢复重探（恢复 tab→装载→big 重探）: State:   big_active: true (bool)   lang_active: "plain" (str)   loaded_bytes: 52428800 (int)   tab_count: 1 (int) 
+============================================================

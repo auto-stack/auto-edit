@@ -470,27 +470,26 @@ PLAN-020 口径更新（2026-09-29，竞品侧工具面——.at 源零 diff、�
 `python tools/compare/render_table.py [--check]`（数据驱动——文末
 「公开对比表」节为生成区间**禁手改**，--check 断言复现一致）。
 
-PLAN-021 口径更新（2026-09-30，工具链=v0.4.2-2311-g7fcf913eb debug
-现役构建[含 710 e81e0a1c3+712+713——判据前核 `auto --version` 纪律延续；
-release 侧 2275-dirty 陈旧弃用]；组依赖=组兄弟树 `.wt/edit-021/
-auto-lang`@05974f71d detached[015-019 惯例——pac `dep bps` 蓝图相对路径
-+生成器 sibling 扫描 ws path 依赖同源钉版；auto-down 组树免除=712 产物
-清理后跨仓依赖已移除]）。**供① 消费复验件=分层收口**：绿面=`perf.py
-a2r` exit 0（018 blocked 态清偿）+三占位零命中+last-good 基面退役
-（build_portable `--regen` 现势直跑——快照回退臂退役[RETIRE_NOTE]，
-幂等自证 pass）+生成码首跑收据（fresh release exe：boot/渲染/AutoUI
-MCP 面/零 panic——**release exe 具 AutoUI MCP 面**勘误在册）。
-blocked 面（供① 残余两面单根因——back 转译通路缺语句级 Try 臂，
-fsys.at:208 try）：back member E0432+front route-A 桩化（env/文件面
-死）→**L2 全预算行不可测**（budgets 五行 ledger/锚点态维持+blocked
-注记——不冒领；对比表 L2 列虚席维持）。判据面已备待解阻补跑：
-`python tools/bench/bench.py steady|warm|open --l2 [--runs N]`（release
-产物零旗标直拉形态档——018 档同卫生）+`python tools/bench/bench.py
-diff --l2`（release auto-edit-back /api/diff_files——016 语义同型）+
-`python tools/portable/smoke_gen.py`（三域冒烟 harness）。forensics=
-`tests/evidence-p021-blocked-survey.md`；上游登记=供料档 §6（单臂解锁
-建议+corpus 判据盲区增补）；open_1gb 裁定材料=`docs/designs/
-002-open-1gb-adjudication.md`（§10 Q-1 用户件）。
+PLAN-021 口径更新（2026-09-30，工具链=v0.4.2-2366-gacf653d3f 组树
+debug 构建[714 r3 交付点 acf653d3f 钉版——含 Try 臂+route-A 深修；
+组三树 edit-021/{auto-edit,auto-lang@acf653d3f detached,auto-down@
+3373a5c detached}——auto-down 组树必需实录在档[018 教训复验：
+跨仓 path 依赖在 crates/auto-lang/Cargo.toml:140]]）。**供① 消费
+复验=解阻日首判**：a2r 三重判据首度全绿（exit 0+零 skip 警告+fresh
+workspace check 过——018 blocked 态闭环）+last-good 基面退役
+（build_portable `--regen` 现势直跑[快照回退臂 RETIRE_NOTE]，幂等
+自证 pass）+生成码首跑收据+三域冒烟 G-A/G-B 实证绿。**L2 直拉首判**
+（`bench steady|warm|open --l2`+`bench diff --l2`——release 产物/
+back 服务零旗标直拉形态档）：steady_start armed **PASS** 15.6ms ≤80ms
+（硬门禁正式判定绿）/idle_mem armed **PASS** 9.7MB/diff_100mb armed
+**FAIL**（记录性）5183.2ms——五行其三收口，对照 018 VM 形态谱归因在
+budgets validity。**残余=供料档 §7**（a2r 形态 code_editor 注册断链
+——ui 运行时回归）：open_100mb/warm_start 两行+装载链冒烟面 blocked，
+§7 清偿后判据面补跑（`bench open|warm --l2`+smoke_gen 三域已备）。
+L0 矩阵复跑=VM 轨不受累（判绿口径承 018/020）。对比表我方列 L2 实数
+首列（render --check 双门绿）。forensics=tests/
+evidence-p021-blocked-survey.md（全弧：两面 forensics+解阻复验+残余
+§7 登记）；上游登记=供料档 §6[已清偿归档]/§7[残余]。
 
 注：Plan 451 起 T10「热重载」走 DSL 源路径（reload 工具或 mtime 轮询重读
 app.at 重新提取 actions + generation bump → 视图重建），实测 50/0 全绿。
@@ -567,8 +566,8 @@ menubar {
 | 指标（档） | 计时语义 | VS Code | Zed | Notepad++ | Beyond Compare 5 | auto-edit（本仓） |
 |---|---|---|---|---|---|---|
 | 打开 5 MB | 各对象 t_ready（语义列同左口径） | 4,289.1 ms（N=4，4,256.3–4,340.8） | 296.0 ms（N=4，272.6–310.0） | pending（未装——Q-1） | —（diff 对象不适用） | —（无同档在档谱） |
-| 打开 100 MB | VS Code=RSS 物化；Zed=首帧（rope 惰性）；本仓=全量装载 | 4,677.7 ms（N=4，4,621.4–4,718.5） | 295.6 ms（N=4，275.4–310.3） | pending（未装——Q-1） | —（diff 对象不适用） | **841.0 ms**〔锚点·VM 形态——非 L2〕；38.2 ms〔产物面·last-good 基面——非 L2〕；L2 正式判定=待供① 解阻（位虚席） |
-| diff 100 MB（文件对） | BC=report 产出；本仓=diff 端点全链墙钟 | —（未测） | —（未测） | — | 123,279.8 ms（N=4，119,849.6–126,246.9） | **1,906.0 ms**〔release 全链判定先例（016，仅限 diff）〕 |
+| 打开 100 MB | VS Code=RSS 物化；Zed=首帧（rope 惰性）；本仓=全量装载 | 4,677.7 ms（N=4，4,621.4–4,718.5） | 295.6 ms（N=4，275.4–310.3） | pending（未装——Q-1） | —（diff 对象不适用） | **841.0 ms**〔锚点·VM 形态——非 L2〕；38.2 ms〔产物面·last-good 基面——非 L2〕；L2 正式判定=待残余面清偿（供料档 §7——位虚席） |
+| diff 100 MB（文件对） | BC=report 产出；本仓=diff 端点全链墙钟 | —（未测） | —（未测） | — | 123,279.8 ms（N=4，119,849.6–126,246.9） | **1,906.0 ms**〔release 全链判定先例（016，仅限 diff）〕；5,183.2 ms〔**L2 直拉判定·armed FAIL（记录性）——归因随行**——N=3，4,985.8–5,412.4〕 |
 
 Notepad++ 缺位=安装属用户面（PLAN-020 §10 Q-1），装后 harness 补跑即得列（通道与 VS Code 同形）。**我方 L2 正式列**待供①（a2r 生成缺口残余）解阻后 L2 形态重测补列——锚点/产物面数字不冒领（018 分层纪律表内延伸）。发布动作（对外宣传/链接分发）=数字齐后另行；本节=战略 §5 指定表位。
 <!-- COMPARE-TABLE:END -->

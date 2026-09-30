@@ -258,42 +258,47 @@ Compare[diff 计时]的同机对比表——「公开可复现才有说服力」
   安装域写入）；对外发布/宣传动作=数字齐后另行（README 节=表位落位）；
   NP++ 安装=用户面裁定（装后 harness 补跑即得列，零改动）。
 
-## L2 直拉形态消费复验与 blocked 面（PLAN-021，2026-09-30）
+## L2 直拉形态消费复验与首判（PLAN-021，2026-09-30——解阻日）
 
-供①（PLAN-710 三类清偿，2026-09-30 delivered）的下游消费复验件——
-**a2r 生成面绿+L2 判定面 blocked-on-upstream** 的分层收口（forensics
-全档=specs/auto-edit/tests/evidence-p021-blocked-survey.md；上游登记=
-供料档 §6）。
+供①（PLAN-710）→ 残余两面（供料档 §6）→ PLAN-714 r2/r3 清偿 → 本件
+fresh worktree 补跑全弧收口（forensics=specs/auto-edit/tests/
+evidence-p021-blocked-survey.md；上游登记=供料档 §6/§7）。
 
-- **a2r 门现势（三重判据复验）**：`perf.py a2r` **exit 0**（018 在册
-  BLOCKED exit 3 的清偿复验——生成面绿）+生成物 grep 三占位（expr/
-  unhandled stmt/裸 delta）**零命中**（G-A/G-C 清偿面在 front 生成物
-  成立）；`cargo check --workspace` **红**（back member E0432——见下）
-  +front member check 过（`-p auto-edit` 绿）。判据③由全绿改分层记录：
-  back 面 blocked 即供① 残余的机读暴露位。
-- **供① 残余两面（单根因）**：back 模块转译通路（trans/rust.rs 通用
-  语句分派）缺 `Stmt::Try` 臂（710 G-B 臂落点=ui_gen front 通路）——
-  `fsys.at:208` try（PLAN-012 fif 兜底）转译失败→**面一** back fsys.rs
-  整模块跳过→api_impl E0432；**面二** front route-A 伴生嵌入
-  （merged_route_a_impl `.ok()?`）整体回退→api 客户端族恒空桩
-  （env_str/read_text 死端）→AUTO_BENCH/AUTO_OPEN_PATH 恒空=L2 全
-  预算行不可测。710 corpus「cargo check 过」系 tmp 拷贝携带陈旧
-  rust-workspace 掩蔽（判据盲区——增补建议在供料档 §6）。
-- **生成码首跑收据（最小面绿）**：fresh release front exe 零旗标直拉
-  ——后端就绪行+AutoUI MCP 面在（9247 占用自动回落）+存活+零 panic
-  （gen-first-run log 在档）。**修正一处预判**：release exe 具 AutoUI
-  MCP 面（run_app_devtools 包装含 AutoUI MCP server——T-00⑤「无 MCP
-  面」勘误；VM 宿主 MCP 与之一致可用性=解阻后探针定）。
-- **last-good 基面退役（T-01 落地）**：build_portable regen 快照回退臂
-  退役（RETIRE_NOTE 在码）——regen 现势直跑、失败=真失败；复用语义仅
-  存于缺 --regen 的 ensure 默认臂；幂等自证 pass
-  （portable-20260930-165454.jsonl）。019「regen 现势化=供① 阻塞维持」
-  注记反转落定。连带注记：portable 全量构建随 back E0432 红——
-  installer 第二段收口件待 §6 解阻。
-- **L2 判定谱判据面（已备，zero 重设计待解阻）**：`bench open|steady|
-  warm --l2`（release 产物零旗标直拉形态档——018 三档同测量卫生，仅
-  换 spawn 目标+单 iced 拓扑门）+`bench diff --l2`（release
-  auto-edit-back 打 /api/diff_files——016 server 侧计算主导语义同型）
-  +`smoke_gen.py` 三域冒烟（G-B 会话/装载 try 臂+G-A diff 投影+G-C
-  delta 消费）。budgets 五行维持 ledger/锚点态+blocked 注记（不冒领
-  frozen ①——无 L2 直拉数字不武装）。
+- **解阻复验（三重判据首度全绿）**：`perf.py a2r` exit 0+零
+  「transpile failed (module skipped)」警告行+三占位零命中+
+  **fresh workspace `cargo check --workspace` 过**（018 blocked 态
+  清偿闭环）+back fsys.rs 在位+front route-A 实体形（env_str→
+  fsys::env_lookup）。工具链钉版=v0.4.2-2366-gacf653d3f（714 r3
+  交付点，组树 debug 构建——PATH 坑纪律：release 侧陈旧弃用）。
+  构建稳定性配方适用实录：sccache 旁路（RUSTC_WRAPPER 清空——堆
+  损坏 0xc0000374 一度，019 配方复用即绿）。
+- **L2 直拉形态首判（五行其三，2026-09-30）**：
+  - **steady_start armed PASS**：mean 15.6ms（4 跑谱 14.3-16.1，
+    首跑弃暖机；分解 init 7.5+ws 8.0）vs ≤80ms——**硬门禁正式判定
+    绿（L2 唯一预算效力首次兑现）**；018 VM 形态 232.6ms 归因
+    （spawn→vm_init 224.5ms）随直拉形态消失如实显影（L2 init 段
+    7.5ms）。
+  - **idle_mem armed PASS**：空窗工作集 mean 9.7MB（4 跑 9.48-10.04）
+    vs ≤60MB；018 VM 形态 51.4MB 同步收缩。
+  - **diff_100mb armed FAIL（记录性）**：back 直拉形态（release
+    auto-edit-back /api/diff_files——016 server 侧语义同型）median
+    5183.2ms（3 跑谱 4985.8-5412.4）vs ≤2000ms；归因=包络 rows 全量
+    投影+双层 JSON 在 a2r back 形态放大（016 rows 惰性投影 want）；
+    016 VM 形态 1906/1971ms 达标为形态对照；baseline 小/中档
+    22.5/18.9ms+over_lines 173.9ms 全绿。瘦身=后续件。
+- **残余缺陷（供料档 §7——open_100mb/warm_start 行维持虚席）**：
+  a2r 形态 code_editor 注册断链（装载探测门永假→装载链永递延；
+  VM 轨同源正常+旧 a2r 构建正常+新旧视图代码逐字节一致→ui 运行时
+  回归，窗口 2205→2366）——回归窗口=710 ui_gen/fix-ui-tier/r3
+  分发器嫌疑，上游二分定谳后 `bench open|warm --l2` 补跑（判据面
+  已备）。
+- **生成码首跑+三域冒烟（G-A/G-B 实证绿）**：release exe 零旗标直拉
+  ——boot/渲染/AutoUI MCP 面/零 panic；会话恢复 try 成功臂
+  （restored@16.8ms）+坏 JSON catch 臂（fresh start+存活）+front diff
+  bypass 投影链 8s 存活窗+back 包络数据面 golden 3/3 计数全对——710
+  G-A/G-B 清偿面在真实 app 实证；装载链域（G-B③/G-C）随 §7 缺陷
+  blocked。L0 矩阵复跑=VM 轨（不受 §7 累）判绿口径承 018/020。
+- **last-good 基面退役（T-01）**：build_portable regen 快照回退臂
+  退役（RETIRE_NOTE）；`--regen --skip-build --check-idempotent`
+  幂等自证 pass（portable-20260930-165454.jsonl）。portable 全量
+  构建随 §7 缺陷装载面无涉——构建面绿（第二段收口件回归解阻）。

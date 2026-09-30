@@ -8,8 +8,9 @@
      --check 复现一致断言）。
 
 纪律（frozen，PLAN-020 §2）：
-① 我方列三态分层（列元数据非自由文本）——l2-pending 态**禁止出数**
-  （渲染断言）；anchor/surface/release-judged 随行注记防冒领。
+① 我方列三态+L2 分层（列元数据非自由文本）——l2-pending 态**禁止出数**
+  （渲染断言）；l2 态**必出数**（判定谱直读）；anchor/surface/release-judged
+  随行注记防冒领。
 ② 三要素门——竞品单元格只在 {版本钉版, 环境指纹, 跑谱+离散} 齐备时
   出数（复用 compare.py report 同款判据，缺一渲染 pending 拒出）。
 ③ 跨对象计时语义不同（METHODOLOGY §2）——表内附「语义」列，直比禁则。
@@ -80,7 +81,16 @@ def _our_cell(anchors: list[dict], metric: str) -> str:
         st = a["state"]
         if st == "l2-pending":
             assert a["median_ms"] is None, f"l2-pending 态不得出数：{a}"
-            parts.append("L2 正式判定=待供① 解阻（位虚席）")
+            parts.append("L2 正式判定=待残余面清偿（供料档 §7——位虚席）")
+        elif st == "l2":
+            assert a["median_ms"] is not None, f"l2 态必出数：{a}"
+            verdict = a.get("verdict", "")
+            mark = "**" if verdict == "pass" else ""
+            note = ("armed PASS——硬门禁正式判定绿" if verdict == "pass"
+                    else "armed FAIL（记录性）——归因随行")
+            parts.append(f"{mark}{a['median_ms']:,.1f} ms{mark}"
+                         f"〔**L2 直拉判定·{note}**——N={len(a['runs_ms'])}，"
+                         f"{min(a['runs_ms']):,.1f}–{max(a['runs_ms']):,.1f}〕")
         elif st == "anchor":
             parts.append(f"**{a['median_ms']:,.1f} ms**〔锚点·VM 形态——非 L2〕")
         elif st == "surface":

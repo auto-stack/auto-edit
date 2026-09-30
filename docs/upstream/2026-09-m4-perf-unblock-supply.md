@@ -180,6 +180,40 @@
 - **量级评估**：单转译器臂（先例形态在库可镜像）+判据三行——710
   D-4..D-8 快速修订件同档；建议与 PLAN-714（供④ 勘定）并档排程。
 
+## 7. a2r 形态 code_editor 注册断链（PLAN-021 解阻后复验新发现，2026-09-30）
+
+> §6 两面已经 PLAN-714 r2/r3 清偿（下游 fresh regen 复验：零 skip 警告+
+> back fsys.rs 在位+front route-A 实体形+workspace check 绿——AC-R2-4
+> 解阻确认收到）。本节=r3 解阻后下游 L2 判定谱补跑暴露的**残余缺陷**。
+
+- **现象**：fresh a2r release exe（工具链 v0.4.2-2366-gacf653d3f）装载
+  链死——store 装载探测门 `code_editor_edit(load_key,0,0,"")` 永 false
+  （stderr 刷 `code_editor_edit: no editor registered for key
+  "__code_editor_tab-N"`）→RunPendingLoad 永递延→bench_open_start
+  永不达（auto-edit warm/open 档 L2 化首跑实录）。
+- **对照三连**：①VM 轨同工具链同 .at `run -r vm`——装载链正常
+  （bench_open_done 触发）；②旧 a2r 构建（019 代产物，ui=2205-crate
+  构建）正常（probe_surface open 38.2ms+标记对在档）；③新旧生成物
+  editor 视图构造**逐字节一致**（`View::code_editor("editor")`——无
+  key 绑定参数，buffer 键=运行时推导）→缺口在 **ui 运行时/widget
+  注册面**（.at `code_editor (key: t.key)` 的动态 key 属性在 a2r 视图
+  构建路径未达注册——注册键与 store 查找键「__code_editor_tab-N」
+  脱节）。
+- **回归窗口**：ui 构建 2205→2366（嫌疑面：710 ui_gen 774 行面/
+  fix-ui-tier WidgetRegistry 增量注册改造[c80887ab7]/r3 内建分发器
+  三处+借位 clone 窄门[29563c588]）——上游二分定谳。
+- **影响**：下游 open_100mb/warm_start 两预算行 L2 直拉形态不可测
+  （steady_start/idle_mem/diff_100mb[back 面]不受累——已出实数）；
+  装载链 E2E/编辑回路冒烟面 blocked。
+- **验收形态建议**：下游复验位=auto-edit `bench open --l2` 标记对
+  达成（bench_open_start/done）+warm 20tab 恢复链 active 装载完成；
+  上游探针=a2r 轨 code_editor 注册键 dump（编辑器实例化后 registry
+  键集 vs store 查找键对照）。
+- **判定集缺口注记（714 r3 AC-R2-4 复盘）**：r3 下游确认=编译级
+  三重判据（exit 0/check/桩形）——**运行时装载 E2E 不在其集**，建议
+  census 判定增第④行：fresh a2r exe 装载标记对 E2E（AUTO_OPEN_PATH
+  小文件→start/done 标记对）。
+
 **优先级建议（auto-edit 视角，PLAN-021 后更新）**：**§6 最先**
 （供① 残余两面——L2 主形态单点缺口，单臂两面全解）→ §1 其余复验面
 （三类已清偿面随 §6 解阻一并复验）→ §3（交互面 blocked 族清偿）→

@@ -12,8 +12,9 @@
 - state=release-judged（diff 行专用——018 分层纪律「016 release 全链
   判定先例仅限 diff」）：tools/bench/results/diff-20260928-152047.jsonl
   （diff_100mb median 1906.0ms budget PASS；旁证 152015=1971.3ms）；
-- state=l2-pending：**零数字**（正式判定位虚席——供① 解阻后 L2 形态
-  重测补列；冒领禁则=PLAN-020 §2 约束①）。
+- state=l2（PLAN-021 起）：**L2 直拉判定实数**（供① 解阻后首判——
+  steady/diff 谱直读，verdict 随行）；state=l2-pending：**零数字**
+  （残余面清偿前虚席——冒领禁则=PLAN-020 §2 约束①）。
 
 用法：
   python tools/compare/anchors.py            # 提取 → results/anchors.json
@@ -34,6 +35,9 @@ SRC_OPEN_018 = Path("tools/bench/results/open-20260929-110820.jsonl")
 SRC_SURFACE_019 = Path("tools/portable/results/surface-20260929-193232.jsonl")
 SRC_DIFF_016 = Path("tools/bench/results/diff-20260928-152047.jsonl")
 SRC_DIFF_016_B = Path("tools/bench/results/diff-20260928-152015.jsonl")
+# PLAN-021 L2 直拉判定谱（供① 解阻后首判——acf653d3f 工具链）
+SRC_L2_STEADY = Path("tools/bench/results/steady-20260930-204546.jsonl")
+SRC_L2_DIFF = Path("tools/bench/results/diff-20260930-205147.jsonl")
 
 
 def _rows(rel: Path) -> list[dict]:
@@ -53,6 +57,11 @@ def extract() -> dict:
     dsum = next(r for r in diff if r.get("id") == "diff_100mb")
     diff_b = _rows(SRC_DIFF_016_B)
     dsum_b = next(r for r in diff_b if r.get("id") == "diff_100mb")
+    # PLAN-021 L2 直拉判定谱直读
+    steady_l2 = _rows(SRC_L2_STEADY)
+    ssum = next(r for r in steady_l2 if r.get("id") == "steady_summary")
+    l2diff = _rows(SRC_L2_DIFF)
+    dl2 = next(r for r in l2diff if r.get("id") == "diff_100mb")
     return {
         "schema": "p020-our-anchors/1",
         "generated": "tools/compare/anchors.py 直读（零重算——AC-04 逐字对照）",
@@ -66,7 +75,7 @@ def extract() -> dict:
              "median_ms": ss["open_ms"], "runs_ms": None,
              "source": str(SRC_SURFACE_019),
              "note": "PLAN-019 portable 产物面 probe_surface（final-v2b，"
-                     "last-good 基面——regen 现势化=供① 维持）；非 L2"},
+                     "last-good 基面）；非 L2"},
             {"state": "surface", "metric": "steady_start",
              "median_ms": ss["steady_mean_ms"], "runs_ms": ss["steady_runs_ms"],
              "source": str(SRC_SURFACE_019),
@@ -78,13 +87,29 @@ def extract() -> dict:
              "note": "PLAN-016 release 全链判定先例（仅限 diff——018 分层"
                      "纪律）；budget PASS ≤2000ms；旁证 "
                      f"{SRC_DIFF_016_B.name}={dsum_b['wall_ms_median']}ms"},
+            {"state": "l2", "metric": "steady_start",
+             "median_ms": ssum["median_ms"], "runs_ms": ssum["runs_ms"],
+             "mean_ms": ssum["mean_ms"], "budget_ms": ssum["budget_ms"],
+             "verdict": "pass", "source": str(SRC_L2_STEADY),
+             "note": "PLAN-021 L2 直拉形态正式判定（供① 解阻后首判，"
+                     "工具链 v0.4.2-2366-gacf653d3f[714 r3]）：mean "
+                     f"{ssum['mean_ms']}ms ≤{ssum['budget_ms']:.0f}ms → "
+                     "armed PASS——硬门禁正式判定绿（L2 唯一预算效力"
+                     "首次兑现；018 VM 形态 232.6ms 归因随形态消失）"},
+            {"state": "l2", "metric": "diff_100mb",
+             "median_ms": dl2["wall_ms_median"], "runs_ms": dl2["wall_ms_runs"],
+             "budget_ms": 2000.0, "verdict": "fail", "source": str(SRC_L2_DIFF),
+             "note": "PLAN-021 L2 直拉形态正式判定（back 面——release "
+                     "auto-edit-back /api/diff_files，016 server 侧语义"
+                     f"同型）：median {dl2['wall_ms_median']}ms >2000ms → "
+                     "armed FAIL（记录性）；归因=包络 rows 全量投影+双层 "
+                     "JSON 在 a2r back 形态放大（016 rows 惰性投影 want）"
+                     "——016 VM 形态 1906ms 达标为形态对照"},
             {"state": "l2-pending", "metric": "open_100mb",
              "median_ms": None, "runs_ms": None, "source": None,
-             "note": "L2 正式判定位虚席——供①（a2r 生成缺口三类残余）解阻"
-                     "后 L2 形态重测补列"},
-            {"state": "l2-pending", "metric": "steady_start",
-             "median_ms": None, "runs_ms": None, "source": None,
-             "note": "同上"},
+             "note": "L2 正式判定位虚席——供① §6 两面已清偿（714 r2/r3），"
+                     "残余=供料档 §7 a2r 形态 code_editor 注册断链（装载"
+                     "探测门永假）——清偿后 bench open --l2 补跑"},
         ],
     }
 

@@ -282,21 +282,23 @@ installer 行（数字回填）。
 perf-measurement.md 公开对比表节（SD-01）+specs/auto-edit/README.md
 PLAN-020 口径与表节（SD-03）。
 
-**M4 第四件注记（PLAN-021，2026-09-30）**：L2 链解阻兑现件（供①
-PLAN-710 消费）复验落定——**a2r 生成面绿+L2 判定面 blocked-on-upstream**
-分层收口（forensics=evidence-p021-blocked-survey；上游登记=供料档
-§6）。绿面：`perf.py a2r` exit 0（018 blocked 态清偿复验）+三占位零
-命中+last-good 基面退役（build_portable regen 现势直跑+幂等自证——
-019 注记反转）+生成码首跑收据（fresh release exe boot/渲染/AutoUI
-MCP/零 panic——release exe 具 MCP 面勘误在册）。blocked 面（供① 残余
-两面单根因）：back 转译通路缺语句级 Try 臂→back E0432+front route-A
-桩化（env/文件面死）→**L2 全预算行不可测**——budgets 五行维持
-ledger/锚点态+blocked 注记（不冒领），对比表我方 L2 列虚席维持。
-判据面已备（bench --l2 三档+diff back 服务形+smoke_gen 三域——解阻后
-zero 重设计补跑）。710 corpus 判据盲区（陈旧基面掩蔽）同档登记。
-M4 面现状=供① 残余单点缺口待上游快速修订件（用户裁定立项）。
-规范详 modules/perf-measurement.md PLAN-021 节（SD-01）+README
-PLAN-021 口径（SD-03）。
+**M4 第四件注记（PLAN-021，2026-09-30——解阻日首判）**：L2 链解阻
+兑现件（供① PLAN-710 消费）全弧收口——**供① 残余两面经 PLAN-714
+r2/r3 清偿[用户指令收纳 714 r2→needs_replan→r3 深修 delivered]，本件
+fresh 补跑=L2 直拉形态首判落地**。绿面：a2r 三重判据首度全绿（exit 0+
+零 skip 警告+fresh workspace check 过+route-A 实体形）+last-good 基面
+退役（regen 现势直跑+幂等自证）+生成码首跑收据+三域冒烟 G-A/G-B 实证
+（会话 try 两臂+包络投影 golden 3/3）。**首判数字（五行其三）**：
+steady_start armed **PASS** mean 15.6ms ≤80ms（L2 唯一预算效力首次
+兑现——018 VM 形态 232.6ms 归因随直拉消失）/idle_mem armed **PASS**
+9.7MB ≤60MB/diff_100mb armed **FAIL**（记录性）5183.2ms >2s（back
+直拉形态——016 VM 1906ms 达标为形态对照，rows 惰性投影 want 直拉化
+放大）。**残余=供料档 §7**（a2r 形态 code_editor 注册断链——ui 运行时
+回归窗口 2205→2366）→open_100mb/warm_start 两行虚席维持，清偿后
+`bench --l2` 补跑（判据面已备）。对比表我方列 L2 实数首列（diff 行
+armed FAIL+steady 布局外数据；open 行 pending 维持）。规范详
+modules/perf-measurement.md PLAN-021 节（SD-01）+README PLAN-021
+口径（SD-03）。
 
 **兄弟仓 Q1 裁定摘要（2026-09-22，战略补注十收口）**：jade-edit 与
 auto-edit **两产品长期并存**（auto=原生旗舰轻量编辑器、jade=web 轻量
