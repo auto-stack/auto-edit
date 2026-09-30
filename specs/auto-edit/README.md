@@ -124,7 +124,7 @@ python scripts/regen_vue.py --build        # 生成（strict）+ install/build�
 # —— 性能模式（L2，PLAN-004：tools/perf 一键链）——
 python tools/perf/perf.py check     # 依赖自检+环境指纹（工具链须 ≥1588/含 669）
 python tools/perf/perf.py smoke     # rqhost 预热 + VM+RQ 双实例编排验证
-python tools/perf/perf.py a2r       # a2r 生成（当前 blocked：上游词汇门，供料 §7）
+python tools/perf/perf.py a2r       # a2r 生成（PLAN-021 复验 exit 0——back member blocked 见 PLAN-021 口径）
 python tools/perf/perf.py release   # cargo --release（依赖 a2r 绿后生效）
 # 语义=测量模式阶梯（docs/strategy/002-north-star-v2.md §5）：L0 日常
 #   VM+merged / L2=a2r+release+RQ（唯一有预算效力）。模式矩阵与阻塞全景
@@ -469,6 +469,28 @@ PLAN-020 口径更新（2026-09-29，竞品侧工具面——.at 源零 diff、�
 [last-good]/L2-pending[禁出数]）。表格生成：
 `python tools/compare/render_table.py [--check]`（数据驱动——文末
 「公开对比表」节为生成区间**禁手改**，--check 断言复现一致）。
+
+PLAN-021 口径更新（2026-09-30，工具链=v0.4.2-2311-g7fcf913eb debug
+现役构建[含 710 e81e0a1c3+712+713——判据前核 `auto --version` 纪律延续；
+release 侧 2275-dirty 陈旧弃用]；组依赖=组兄弟树 `.wt/edit-021/
+auto-lang`@05974f71d detached[015-019 惯例——pac `dep bps` 蓝图相对路径
++生成器 sibling 扫描 ws path 依赖同源钉版；auto-down 组树免除=712 产物
+清理后跨仓依赖已移除]）。**供① 消费复验件=分层收口**：绿面=`perf.py
+a2r` exit 0（018 blocked 态清偿）+三占位零命中+last-good 基面退役
+（build_portable `--regen` 现势直跑——快照回退臂退役[RETIRE_NOTE]，
+幂等自证 pass）+生成码首跑收据（fresh release exe：boot/渲染/AutoUI
+MCP 面/零 panic——**release exe 具 AutoUI MCP 面**勘误在册）。
+blocked 面（供① 残余两面单根因——back 转译通路缺语句级 Try 臂，
+fsys.at:208 try）：back member E0432+front route-A 桩化（env/文件面
+死）→**L2 全预算行不可测**（budgets 五行 ledger/锚点态维持+blocked
+注记——不冒领；对比表 L2 列虚席维持）。判据面已备待解阻补跑：
+`python tools/bench/bench.py steady|warm|open --l2 [--runs N]`（release
+产物零旗标直拉形态档——018 档同卫生）+`python tools/bench/bench.py
+diff --l2`（release auto-edit-back /api/diff_files——016 语义同型）+
+`python tools/portable/smoke_gen.py`（三域冒烟 harness）。forensics=
+`tests/evidence-p021-blocked-survey.md`；上游登记=供料档 §6（单臂解锁
+建议+corpus 判据盲区增补）；open_1gb 裁定材料=`docs/designs/
+002-open-1gb-adjudication.md`（§10 Q-1 用户件）。
 
 注：Plan 451 起 T10「热重载」走 DSL 源路径（reload 工具或 mtime 轮询重读
 app.at 重新提取 actions + generation bump → 视图重建），实测 50/0 全绿。

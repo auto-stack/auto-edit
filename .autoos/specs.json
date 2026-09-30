@@ -300,6 +300,18 @@
           ],
           "superseded_by": null,
           "content": "- 方法论定案（tools/compare/METHODOLOGY.md）：t0=CreateProcess 后 host perf_counter；四对象主通道——VS Code=renderer RSS 平台（1.5s 滑窗极差+确认窗分档 5MB=3s/100MB=6s 防分块装载假平台；文本模型物化语义；100MB 密采样曲线=0-2.8s 爆发装载+GC 回落，判据落点偏竞品有利侧）/Zed=Zed.log「Rendered first frame」（首帧语义，rope 惰性 RSS~19MB 注记）/BC5=file-report 非空（& 续行+/silent）/NP++=pending（缺位=用户面 §10 Q-1，装后补跑零改动）；备通道=窗标题/进程退出；跨对象语义直比禁则；滚动帧率=v1 后补（捕获自动化双缺陷实证）；CPU 沉降=诊断对照。\n- harness（tools/compare/compare.py check|run|report）：fresh profile per run+沉降窗 5s+PID 树收编（禁 /IM）；invalid-run 单次重跑条款（VS Code 间歇 rc=0 自退谱在案——014 F-RV6 归因纪律延展，连续两跑无效 abort）；三要素门内建（版本钉版/环境指纹/跑谱+离散缺一拒出数——report 拒出+render 拒出双面实证）；median=上中位 sorted[N//2] frozen 约定（bench.py 家法，018 锚点 841.0 同法）。\n- 官方基线（results/ 入仓，N=4 计入首跑弃暖机）：open 5mb——VS Code 4289.1ms[4256.3-4340.8]/Zed 296.0[272.6-310.0]；open 100mb——VS Code 4677.7[4621.4-4718.5]/Zed 295.6[275.4-310.3]（rope 惰性=与 5mb 同量级）；diff 100mb——BC5 123,279.8[119,849.6-126,246.9]；diff 5mb 备档 BC5 4547.7。VS Code 钉版=文件元数据 1.139.1（CLI --version 直启挂起 63s+自更新中间态 bash 包装器陈旧通道双缺陷实证）。\n- 我方三态锚点（anchors.py 直读 018/019/016 在档 JSONL 零重算，--verify 逐字对照绿）：anchor=open_100mb 841.0ms[VM 形态注记]/surface=open 38.2+steady 21.2ms[last-good 基面注记]/release-judged=diff_100mb 1906.0ms[016 先例仅限 diff]/l2-pending=禁出数（渲染断言+负例拦截实证）——冒领禁则=018 分层纪律表内延伸；L2 正式列待供① 解阻补列（关键路径注记维持，供① 承接路由 auto-lang 侧）。\n- README 表位（render_table.py 数据驱动生成区间禁手改，--check 复现一致绿）：三行表（打开 5MB/100MB/diff 100MB）×语义列×NP++ pending 列；发布动作=数字齐后另行（本节=战略 §5 指定表位落位）。SD-01..03 落档（perf-measurement 公开对比表节/00-overview M4 第三件注记/README PLAN-020 口径段）。范围零越界：.at 源零 diff、矩阵检查集零变更（判绿口径承 018/019）、auto-lang 零触碰、竞品纯黑盒零安装域写入。AC-01..07 全 pass（复审同会话从工件重建+负例双测+独立复算+F-1/F-2 修复轮 2d77cf8）。"
+        },
+        {
+          "id": "P021-1",
+          "section": "reviews",
+          "status": "stable",
+          "title": "PLAN-021 — M4-04 L2 链解阻兑现件 work 收据（blocked-on-upstream @ r1 base 70c5c60：a2r exit 0+三占位零命中+last-good 基面退役幂等自证+生成码首跑收据[boot/渲染/AutoUI MCP/零 panic]绿；供① 残余两面单根因=back 转译通路缺语句级 Try 臂〔fsys.at:208 try〕→back E0432+front route-A 桩化→L2 全预算行不可测——budgets 五行不冒领维持 ledger+blocked 注记；判据盲区=710 corpus 陈旧基面掩蔽；判据面已备 bench --l2 三档+diff back 服务形+smoke_gen 三域待解阻补跑）",
+          "file": "docs/plans/021-m4-l2-unlock-consume.md",
+          "related": [
+            "PLAN-021"
+          ],
+          "superseded_by": null,
+          "content": "- 绿面收据：a2r 生成 exit 0（018 blocked 态清偿复验，a2r-20260930-163740.log）+生成物 grep 三占位零命中（G-A/G-C 面成立）+build_portable regen 现势直跑退役[快照回退臂 RETIRE_NOTE+--skip-build --check-idempotent 幂等自证 pass，portable-20260930-165454.jsonl]+生成码首跑收据（fresh release exe 零旗标直拉：Running with Iced backend+AutoUI MCP listening[9247 占用自动回落]+存活 10s+零 panic——release exe 具 MCP 面勘误在册）。\n- blocked 面（供① 残余两面，单根因）：back 模块转译通路（trans/rust.rs 语句分派）缺 Stmt::Try 臂（710 G-B 臂落点=ui_gen front 通路）——fsys.at:208 try（PLAN-012 fif 兜底）转译失败→面一：back fsys.rs 整模块跳过→api_impl.rs:3 use crate::fsys 悬空→back member E0432（workspace check 红/front member check 绿）；面二：front merged_route_a_impl 伴生链 .ok()? 整体回退→api 客户端族恒空桩（D-7 收口形，API_DATA 只写无读+无 HTTP 客户端）→AUTO_BENCH/AUTO_OPEN_PATH 恒空→L2 全预算行不可测。\n- 判据盲区：710 corpus「cargo check 过」系 tmp 拷贝携带陈旧 rust-workspace（旧代 fsys.rs 与旧 api_impl 自洽）掩蔽缺模块洞+front 桩化本就编译绿——供料档 §6 增补建议三行（skip 警告 grep/fresh-copy 卫生/桩形检测）。\n- 落档面：SD-01 perf-measurement PLAN-021 节+SD-02 00-overview M4 第四件注记+SD-03 README PLAN-021 口径+budgets 五行 blocked 注记（surgical 5 行 diff）+evidence-p021-blocked-survey forensics+供料档 §6 上游登记+docs/designs/002-open-1gb-adjudication.md（Q-1 裁定材料——用户件）+bench.py --l2 判据面（open/steady/warm 直拉档+diff back 服务形+L2 face open/idle 武装升级逻辑）+smoke_gen.py 三域 harness。\n- next：上游快速修订件（trans/rust.rs 补 Try 臂——镜像 ui_gen G-B 臂形，单臂两面全解）用户裁定立项→解阻后 T-02/T-03/T-04 判据面 zero 重设计补跑。"
         }
       ],
       "status": "Empty",

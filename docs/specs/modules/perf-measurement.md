@@ -257,3 +257,43 @@ Compare[diff 计时]的同机对比表——「公开可复现才有说服力」
 - **边界（非目标）**：竞品纯黑盒（仅进程级观察+自建 temp profile，零
   安装域写入）；对外发布/宣传动作=数字齐后另行（README 节=表位落位）；
   NP++ 安装=用户面裁定（装后 harness 补跑即得列，零改动）。
+
+## L2 直拉形态消费复验与 blocked 面（PLAN-021，2026-09-30）
+
+供①（PLAN-710 三类清偿，2026-09-30 delivered）的下游消费复验件——
+**a2r 生成面绿+L2 判定面 blocked-on-upstream** 的分层收口（forensics
+全档=specs/auto-edit/tests/evidence-p021-blocked-survey.md；上游登记=
+供料档 §6）。
+
+- **a2r 门现势（三重判据复验）**：`perf.py a2r` **exit 0**（018 在册
+  BLOCKED exit 3 的清偿复验——生成面绿）+生成物 grep 三占位（expr/
+  unhandled stmt/裸 delta）**零命中**（G-A/G-C 清偿面在 front 生成物
+  成立）；`cargo check --workspace` **红**（back member E0432——见下）
+  +front member check 过（`-p auto-edit` 绿）。判据③由全绿改分层记录：
+  back 面 blocked 即供① 残余的机读暴露位。
+- **供① 残余两面（单根因）**：back 模块转译通路（trans/rust.rs 通用
+  语句分派）缺 `Stmt::Try` 臂（710 G-B 臂落点=ui_gen front 通路）——
+  `fsys.at:208` try（PLAN-012 fif 兜底）转译失败→**面一** back fsys.rs
+  整模块跳过→api_impl E0432；**面二** front route-A 伴生嵌入
+  （merged_route_a_impl `.ok()?`）整体回退→api 客户端族恒空桩
+  （env_str/read_text 死端）→AUTO_BENCH/AUTO_OPEN_PATH 恒空=L2 全
+  预算行不可测。710 corpus「cargo check 过」系 tmp 拷贝携带陈旧
+  rust-workspace 掩蔽（判据盲区——增补建议在供料档 §6）。
+- **生成码首跑收据（最小面绿）**：fresh release front exe 零旗标直拉
+  ——后端就绪行+AutoUI MCP 面在（9247 占用自动回落）+存活+零 panic
+  （gen-first-run log 在档）。**修正一处预判**：release exe 具 AutoUI
+  MCP 面（run_app_devtools 包装含 AutoUI MCP server——T-00⑤「无 MCP
+  面」勘误；VM 宿主 MCP 与之一致可用性=解阻后探针定）。
+- **last-good 基面退役（T-01 落地）**：build_portable regen 快照回退臂
+  退役（RETIRE_NOTE 在码）——regen 现势直跑、失败=真失败；复用语义仅
+  存于缺 --regen 的 ensure 默认臂；幂等自证 pass
+  （portable-20260930-165454.jsonl）。019「regen 现势化=供① 阻塞维持」
+  注记反转落定。连带注记：portable 全量构建随 back E0432 红——
+  installer 第二段收口件待 §6 解阻。
+- **L2 判定谱判据面（已备，zero 重设计待解阻）**：`bench open|steady|
+  warm --l2`（release 产物零旗标直拉形态档——018 三档同测量卫生，仅
+  换 spawn 目标+单 iced 拓扑门）+`bench diff --l2`（release
+  auto-edit-back 打 /api/diff_files——016 server 侧计算主导语义同型）
+  +`smoke_gen.py` 三域冒烟（G-B 会话/装载 try 臂+G-A diff 投影+G-C
+  delta 消费）。budgets 五行维持 ledger/锚点态+blocked 注记（不冒领
+  frozen ①——无 L2 直拉数字不武装）。

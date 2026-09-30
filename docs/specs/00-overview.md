@@ -282,6 +282,22 @@ installer 行（数字回填）。
 perf-measurement.md 公开对比表节（SD-01）+specs/auto-edit/README.md
 PLAN-020 口径与表节（SD-03）。
 
+**M4 第四件注记（PLAN-021，2026-09-30）**：L2 链解阻兑现件（供①
+PLAN-710 消费）复验落定——**a2r 生成面绿+L2 判定面 blocked-on-upstream**
+分层收口（forensics=evidence-p021-blocked-survey；上游登记=供料档
+§6）。绿面：`perf.py a2r` exit 0（018 blocked 态清偿复验）+三占位零
+命中+last-good 基面退役（build_portable regen 现势直跑+幂等自证——
+019 注记反转）+生成码首跑收据（fresh release exe boot/渲染/AutoUI
+MCP/零 panic——release exe 具 MCP 面勘误在册）。blocked 面（供① 残余
+两面单根因）：back 转译通路缺语句级 Try 臂→back E0432+front route-A
+桩化（env/文件面死）→**L2 全预算行不可测**——budgets 五行维持
+ledger/锚点态+blocked 注记（不冒领），对比表我方 L2 列虚席维持。
+判据面已备（bench --l2 三档+diff back 服务形+smoke_gen 三域——解阻后
+zero 重设计补跑）。710 corpus 判据盲区（陈旧基面掩蔽）同档登记。
+M4 面现状=供① 残余单点缺口待上游快速修订件（用户裁定立项）。
+规范详 modules/perf-measurement.md PLAN-021 节（SD-01）+README
+PLAN-021 口径（SD-03）。
+
 **兄弟仓 Q1 裁定摘要（2026-09-22，战略补注十收口）**：jade-edit 与
 auto-edit **两产品长期并存**（auto=原生旗舰轻量编辑器、jade=web 轻量
 版并向知识库发展），组件尽量共用（未来插件级共用）。jade 侧战略文档

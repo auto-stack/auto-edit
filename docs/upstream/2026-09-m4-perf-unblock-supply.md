@@ -142,11 +142,49 @@
   粒度若先行落地，其价值=供④ 交付前的过渡期瘦身；两件不冲突，
   先后由上游排程）。
 
-**优先级建议（auto-edit 视角）**：**§1 最先**（L2 主形态解阻——
-全预算行正式判定前提；三子件可分批，G-C 最小先落）→ §3（交互面
-blocked 族清偿，下游判绿口径恢复全检查）→ §2（两行测量解锁+首帧
-分解补全）→ §4（最大件，勘定先行两段式）→ §5（installer 第二段，
-随供④/用户裁定排程——PLAN-019 条件触发件）。
+## 6. 供① 残余两面（PLAN-021 下游复验登记——back 转译器 Try 臂缺口，2026-09-30）
+
+- **登记时点**：2026-09-30，PLAN-021（L2 链解阻兑现件）fresh worktree
+  消费复验。证据基=specs/auto-edit/tests/evidence-p021-blocked-survey.md
+  （全 forensics 在档）；工具链 v0.4.2-2311-g7fcf913eb（含 710 交付）。
+- **诉求**：通用 Rust 转译器（crates/auto-lang/src/trans/rust.rs 语句
+  分派路径——auto-man api_gen `transpile_back_module_to_rs` 所用）补
+  **语句级 `Stmt::Try` 臂**，镜像 710 G-B 臂形（ui_gen/rust.rs 已有：
+  catch_unwind(AssertUnwindSafe)/Ok 丢弃/Err 进 catch/catch(e) 绑定=
+  panic_message 载荷）。单臂落点两面全解：
+  - **面一（back crate）**：`fsys.at:208` try（PLAN-012 find-in-files
+    读兜底，空 catch 体+for{if break} 体）现判 `unsupported statement:
+    Try`→fsys.rs 整模块跳过（a2r 日志 ⚠ 行在档）→api_impl.rs:3
+    `use crate::fsys` 悬空→**back member E0432**（15 处 fsys:: 引用）。
+  - **面二（front route-A）**：`merged_route_a_impl`（auto-man/src/
+    rust_ui.rs:903）伴生转译链 `.ok()?`——fsys.at 失败→整体 None→
+    front api 客户端族（env_str/read_text/exists/file_size/tree/
+    ws_root/write_text/read_text_range）回退**恒空桩**（D-7 收口形；
+    API_DATA 只写无读+无 HTTP 客户端=死端）→AUTO_BENCH/AUTO_OPEN_PATH
+    恒空、会话恢复/工作区/打开链功能死亡——**L2 直拉形态全预算行
+    不可测**。
+- **动机**：L2 主形态消费（本件主判定面）两面全阻；生成码首跑收据
+  =进程/渲染/MCP 面健康+零 panic+编译零占位（front G-A/G-C 面成立）
+  ——缺口精确限定在「back 模块转译通路缺 Try 语句臂」一点。
+- **验收形态建议**：同供① 三重判据+本件复验位——①`auto build -r
+  rust` exit 0 且 a2r 日志零「transpile failed (module skipped)」
+  警告行；②**fresh workspace**（regen 前清 rust-workspace）
+  `cargo check --workspace` 过；③front 生成物含 route-A 伴生嵌入
+  （env_str 实体非 D-7 桩形）；④下游 L2 判定谱补跑（本件 §8 已备
+  判据面 zero 重设计——bench --l2 三档+smoke_gen 三域）。
+- **判据盲区增补（710 corpus 复盘）**：710 实机判据「cargo check 过」
+  系 tmp 拷贝**携带陈旧 rust-workspace**（旧代 fsys.rs 与旧 api_impl
+  自洽）掩蔽缺模块洞+front 桩化本就编译绿——判定集建议增：①skip
+  警告行 grep；②fresh-copy 卫生（regen 前清生成区或文件清单 diff）；
+  ③api 客户端桩形检测（`String::new()` 恒返形 grep）。
+- **量级评估**：单转译器臂（先例形态在库可镜像）+判据三行——710
+  D-4..D-8 快速修订件同档；建议与 PLAN-714（供④ 勘定）并档排程。
+
+**优先级建议（auto-edit 视角，PLAN-021 后更新）**：**§6 最先**
+（供① 残余两面——L2 主形态单点缺口，单臂两面全解）→ §1 其余复验面
+（三类已清偿面随 §6 解阻一并复验）→ §3（交互面 blocked 族清偿）→
+§2（两行测量解锁+首帧分解补全）→ §4（最大件，勘定先行两段式）→
+§5（installer 第二段，随供④/用户裁定排程——PLAN-019 条件触发件）。
 
 **回执方式**：同 M1/diff-engine 两包——各件落地落上游 plan 后，
 auto-edit 侧以零改动或最小改动复验解阻（669 先例；供① 回执=

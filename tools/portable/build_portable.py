@@ -8,8 +8,10 @@
 
 链路（PLAN-019 §5 T-01；生成物 Cargo.toml 无 [profile] 节且 gitignored
 ——regen 覆盖，注入走 regen 后补丁通道=纯下游零上游依赖）：
-  ensure  → rust-workspace 就位（默认复用现势生成物；--regen 重生成，
-            上游阻塞[供① 三类缺口]时快照回退复用——exit 3 仅在两者皆无）
+  ensure  → rust-workspace 就位（--regen 现势直跑=PLAN-021 起主路径——
+            供① 三类缺口已由上游 PLAN-710 清偿；缺 --regen 时复用现势
+            生成物；regen 失败=真失败[exit 3/1]，**无快照回退**——019
+            last-good 基面机制随供① 清偿退役，历史形态见 RETIRE_NOTE）
   patch   → [profile.release] 补丁注入（幂等：MARKER 注释检测跳过）
             + 依赖行 feature 面 patch（patches.json：仅 feature 子集面，
             不动版本/path——T-00③ 定形边界）
@@ -25,11 +27,11 @@ true（Rust 1.59+ 稳态）在链接期剥离符号——外部 GNU strip 对 PE
   python tools/portable/build_portable.py                 # 一键链（最终手段集）
   python tools/portable/build_portable.py --baseline      # 零手段基线（T-00 对照面）
   python tools/portable/build_portable.py --set lto=fat --set codegen-units=1 ...
-  python tools/portable/build_portable.py --regen         # 先重生成（上游解阻后）
+  python tools/portable/build_portable.py --regen         # 现势重生成（PLAN-021 起主路径——710 解阻）
   python tools/portable/build_portable.py --check-idempotent  # patch 幂等自证
 
 退出码：0=绿（链通+门内）；1=真失败（构建失败/超限红+差距数字）；
-3=blocked-on-upstream（无基面且 regen 命中供① 特征）。
+3=blocked-on-upstream（regen 命中上游特征——真阻塞如实报，无回退基面）。
 
 Windows-only（产品 Win first，同 perf.py）；输出落 tools/portable/logs/
 （防管道阻塞，PLAN-003 坑位）与 tools/portable/results/（入仓追踪，
@@ -69,11 +71,17 @@ FINAL_PROFILE = {
     "strip": "true",
 }
 
-# regen 上游阻塞特征（018 §⑤/本件探针实录：a2r 三类生成缺口，供①）。
+# regen 失败特征（018 §⑤/019 探针实录分类保留——失败归因机读面）。
+# PLAN-021 退役注记（last-good 基面机制）：019 时代 regen 命中上述特征
+# 时「删残件→还原快照→BLOCKED 复用现势生成物」（REGEN_BLOCKED_NOTE/
+# 快照 rename 还原臂）——供① 三类缺口经上游 PLAN-710 清偿（corpus
+# regen 133→0）后该绕行臂完成历史使命，随本件退役移除：regen 失败=
+# 真失败如实红/_blocked（现势直跑纪律——基面复用语义仅存于缺 --regen
+# 的 ensure 默认臂）。
 REGEN_BLOCKED_PATTERNS = ("could not compile", "error[E", "Cargo build failed")
-REGEN_BLOCKED_NOTE = ("a2r regen 上游阻塞（供① 三类生成缺口——"
-                      "docs/upstream/2026-09-m4-perf-unblock-supply.md §1）；"
-                      "回退复用现势生成物")
+RETIRE_NOTE = ("PLAN-019 快照回退臂（regen 失败还原 last-good 基面复用）"
+               "已随供① 清偿退役[PLAN-021 T-01]——历史机制见 019 归档件"
+               "与本注记；regen 现势直跑，失败=真失败。")
 
 EXIT_OK, EXIT_FAIL, EXIT_BLOCKED = 0, 1, 3
 
@@ -183,7 +191,8 @@ def _ws() -> Path:
 def _ws_basis(ws: Path) -> str:
     """基面出处注记（复用语义的诚实记账面）。"""
     if (ws / "Cargo.toml").exists():
-        return "reused-existing（regen 上游阻塞期基面；出处与年代见证据档）"
+        return ("reused-existing（现势生成物复用——出处与年代见证据档；"
+                "019 last-good 回退语义已退役[PLAN-021 T-01]）")
     return "absent"
 
 
@@ -203,13 +212,11 @@ def stage_ensure(regen: bool) -> tuple[int, dict]:
         return EXIT_FAIL, meta
 
     LOGS.mkdir(exist_ok=True)
-    # 快照回退：regen 失败会留下残缺生成物（本件探针实录：部分覆盖）——
-    # 失败后删残件、还原快照，复用语义不破坏既有基面。
-    snapshot = None
+    # 019 快照回退臂已退役（RETIRE_NOTE——供① 清偿后 regen 现势直跑）：
+    # regen 前旧基面直接清除（gitignored 可再生），失败=真失败不还原。
     if (ws / "Cargo.toml").exists():
-        snapshot = ws.with_name(ws.name + f".pre-regen-{_ts()}")
-        ws.rename(snapshot)
-        _log(f"ensure：现势生成物快照 → {snapshot.name}")
+        _log(f"ensure：--regen 现势直跑——旧生成物清除（{RETIRE_NOTE[:36]}…）")
+        shutil.rmtree(ws, ignore_errors=True)
     log = LOGS / f"regen-{_ts()}.log"
     _log(f"ensure：auto build -r rust → {log}")
     proc = _capture([exe, "build", "-r", "rust"], PROJECT, log)
@@ -218,15 +225,8 @@ def stage_ensure(regen: bool) -> tuple[int, dict]:
         blocked = any(p in text for p in REGEN_BLOCKED_PATTERNS)
         if (ws / "Cargo.toml").exists():
             shutil.rmtree(ws, ignore_errors=True)  # 残缺生成物清除
-        if snapshot is not None:
-            snapshot.rename(ws)
-            _log(f"ensure：快照还原 ← {snapshot.name}")
-        if blocked and (ws / "Cargo.toml").exists():
-            _log(f"BLOCKED: regen 失败且命中上游特征——{REGEN_BLOCKED_NOTE}")
-            meta.update({"basis": "reused-existing (regen-blocked-fallback)",
-                         "regen_log": str(log)})
-            return EXIT_BLOCKED, meta
-        _log(f"FATAL: regen 失败（输出在 {log}）")
+        _log(f"{'BLOCKED' if blocked else 'FATAL'}: regen 失败——真失败如实红"
+             f"（快照回退臂已退役[PLAN-021 T-01]；输出在 {log}）")
         return (EXIT_BLOCKED if blocked else EXIT_FAIL), meta
     meta["basis"] = "regen-fresh"
     _log(f"ensure：regen 绿 → {ws}")
@@ -402,14 +402,15 @@ def main() -> int:
     rc, meta = stage_ensure(args.regen)
     rec = {"type": "portable_build", "ts": _ts(), "ensure": meta,
            "toolchain": fp, "baseline": args.baseline}
-    blocked_basis = rc == EXIT_BLOCKED
-    if rc not in (EXIT_OK, EXIT_BLOCKED):
+    if rc != EXIT_OK:
         _dump(rec, rc)
         return rc
-    # EXIT_BLOCKED 且基面已还原在位 → 继续（复用语义）；基面缺席 → 止步。
+    # regen 现势直跑纪律（PLAN-021）：BLOCKED/FAIL 无基面可复用——止步；
+    # 绿后基面缺席（生成器行为漂移）同止步。
     if not (_ws() / "Cargo.toml").exists():
-        _dump(rec, rc)
-        return rc
+        rec["ensure"]["basis"] = "absent-after-ok"
+        _dump(rec, EXIT_FAIL)
+        return EXIT_FAIL
 
     rc_p, meta_p = stage_patch(profile)
     rec["patch"] = meta_p
