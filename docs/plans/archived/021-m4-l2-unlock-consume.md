@@ -364,6 +364,21 @@ SD-01..03 落档+specs.json P021-1 投影（roundtrip 字节等价先证+
     P021-2；store 写者未启用（本仓 tracked ledger Git 轨惯例）。
   - **archived**：git mv → docs/plans/archived/021-m4-l2-unlock-consume.md
     +status: archived+completion_kind: delivered（本笔）。
+  - **cleaned**：双组树 wt-guard 过程如实录——auto-edit 树初判
+    BLOCKED（两 junction：specs/auto-edit/deps/{stylekit→本树
+    specs/stylekit,bps→组树 auto-lang/blueprints}）→按处方 link-only
+    移除（.NET DirectoryInfo.Delete，零穿透）→复跑 clean；auto-lang
+    组树 clean；auto-down 组树 clean。三 worktree 移除（auto-edit
+    主组树+组内 auto-lang@acf653d3f detached+auto-down@3373a5c
+    detached[T-00 组建后判不需要留存]）+plan-021-dev 删除（was
+    07f7e49，ancestry 全含实证）+组目录 D:/autostack/.wt/edit-021
+    移除；主仓 worktree 仅余 main。
+  - **部署观察**：本件 delta 全落 tools/+docs/+specs/auto-edit
+    README+.autoos 账本——零后端/发布面代码（020 同款「tools/docs
+    面零重建项」维持）；rust-workspace 生成物=测量工件非部署件。
+  - **批量回归到期判定**：本仓无 .last-batch-regression.json 机制
+    （auto-lang fix-test-tiering 专属约定）——不适用；上游 auto-lang
+    批量回归 last_covered=715@57fc6cd8f 已覆盖 714 r4 窗口。
 
 ## 10. 待澄清事项
 
