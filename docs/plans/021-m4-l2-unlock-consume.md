@@ -1,6 +1,6 @@
 ---
 plan_id: PLAN-021
-status: execution_done
+status: reviewed
 feature_name: M4-04 L2 链解阻兑现件（PLAN-710 消费——regen 现势化+perf a2r 绿+L2 断言五行首次正式判定+对比表我方列转正+装载/diff 域生成码回归）
 author: [agent]
 created_at: 2026-09-30T16:15:39+08:00
@@ -309,6 +309,39 @@ SD-01..03 落档+specs.json P021-1 投影（roundtrip 字节等价先证+
   裁定=用户件、材料在档——G-5 只备料口径不阻塞本件）| next:
   review（auto-plan-review——全套件门；worktree plan-021-dev 留
   review/merge）。
+
+- 2026-09-30 review：`stage: review`，PLAN-021，plan_revision 1。
+  `outcome: pass` | reviewed_commit: worktree plan-021-dev@**8d44d9e**
+  （working tree 零 dirty——本审绑提交态）| base_commit: **70c5c60**
+  | dependency_revisions: auto-lang master@d7a2ddc14〔714 r4
+  delivered@c19b5351a[AC-R4-1/2/3 pass]——本件补跑判定工具链
+  v0.4.2-2389-ge93a717da；组树 edit-021/auto-lang@acf653d3f detached
+  clean（regen 判据期钉版，与判定无涉——生成码已由 r4 工具链重生成）
+  〕| spec_inputs: SD-01..03@8d44d9e（modules/perf-measurement.md+
+  00-overview.md+specs/auto-edit/README.md——收口弧为现势行为描述）
+  | acceptance_results: **AC-01..07 全 pass**——AC-01 a2r 三重判据
+  〔复用理由：8d44d9e 零代码 delta（diff 全落 docs/tools-bookkeeping
+  路径），生成物与 exe 字节自 R4-T3 跑后未变；核验=tools/perf/logs/
+  a2r-20260930-203420.log 在仓零 transpile failed+714 侧 R4-T3 fresh
+  regen 复验同源〕/AC-02 逐字对账电池 12/12 绿〔JSONL 重算 vs
+  budgets 判定文本：open 863.2/谱/≤1000+warm 0.0·19.3/≤120+steady
+  15.6/≤80+diff 5183.2/>2000+1gb 双拒绝——本审独立重算非转录〕/
+  AC-03 anchors --verify 7 行全等+render --check 复现一致〔本审复跑〕
+  /AC-04 smoke 7/7 复算全 ok+exe 40707072B 同一性+矩阵收据
+  「RESULT: 131 passed, 6 failed」对账〔已知族 4+flake 2 计零=判绿
+  131/0 达标〕+动态键发射 `t["key"].as_str()` 在生成 main.rs grep
+  实证〔714 r4 修复在产物——open/warm 跑通本身即注册键贯通的运行时
+  反证〕/AC-05 材料 docs/designs/002-open-1gb-adjudication.md 在档/
+  AC-06 SD 三册在档+P021-1 回读在位〔.autoos/specs.json sections/
+  reviews 21 项含 P021-1〕/AC-07 worktree diff 70c5c60..8d44d9e
+  全落计划路径域+auto-lang 主树零本计划提交+组树 clean
+  | findings: 无 P1/P2；备忘一项（非阻塞）：组树 auto-lang 仍钉
+  acf653d3f detached——后续件若需 r4 生成器语义的组内 sibling 钉版，
+  随该件自行更新 | evidence: 本记录所引全部 JSONL/log/收据均在仓
+  〔tools/{bench,portable}/results/+tools/perf/logs/+specs/auto-edit/
+  tests/matrix-p021-rerun.txt〕；重活链（a2r release 构建+L0 矩阵
+  全跑）复用 3e01e2a/R4-T3 期证据——理由同 AC-01（零字节变化）
+  | next: merge。
 
 ## 10. 待澄清事项
 
