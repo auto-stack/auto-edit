@@ -4,9 +4,9 @@ status: executing
 feature_name: M4-04 L2 链解阻兑现件（PLAN-710 消费——regen 现势化+perf a2r 绿+L2 断言五行首次正式判定+对比表我方列转正+装载/diff 域生成码回归）
 author: [agent]
 created_at: 2026-09-30T16:15:39+08:00
-updated_at: 2026-09-30T17:50:00+08:00
+updated_at: 2026-09-30T21:55:00+08:00
 plan_revision: 1
-current_step: 4
+current_step: 7
 total_steps: 7
 supersedes_spec_components: []
 new_spec_components:
@@ -248,12 +248,12 @@ SD-01..03 落档+specs.json P021-1 投影（roundtrip 字节等价先证+
 | # | 任务 | 依赖 | 落点（实勘锚） | 产出/意图 | AC | 验证（命令/预期） |
 |---|---|---|---|---|---|---|
 | 0 | T-00 消费勘定 | — | 本件 §5 T-00 节 | 工具链门+链路复核+冒烟盘点 | AC-01/04 | [x] 勘定记录在档（2026-09-30：①工具链门=PATH debug auto v0.4.2-2311-g7fcf913eb〔clean 无 -dirty；e81e0a1c3[710]/16387c84a[712]/f515252ea[713] merge-base 三连实证在含；今 16:01 构建〕——release 侧现势 2275-g9fbf4ebd5-**dirty** 陈旧+脏不采用〔PATH 坑纪律正面应验〕；master 重建字面重估=7fcf913eb→05974f71d 纯 docs delta crates/ 零 diff、重建零功能增量且会因 auto-lang 主树外来 WIP 带 -dirty 劣化判据→采现势 debug 二进制为钉版〔adaptation 记录，判据等价〕；②组依赖钉版=组兄弟树机制实证——pac `dep bps` 蓝图相对路径 `../../../auto-lang/blueprints` 自 PROJECT 解析〔首轮 regen 失败实录在档 a2r-20260930-163646.log〕→建组内 `.wt/edit-021/auto-lang`@05974f71d detached〔015-019 惯例；生成器 sibling 扫描 rust_ui.rs compute_auto_lang_rel_path 同源解析→ws path 依赖自动钉组树〕；**auto-down 组树不再需要**——018 教训〔Cargo.toml:140 autodown-core 跨仓依赖〕经 712 产物清理已移除，master 现势 grep 零命中实证；③perf 链 stage 复核=a2r→release→run(--track rust) 三段实证 perf.py:139/178/268+main:320-339；L2 判定容差=median〔sorted[N//2] 上中位，018 家法/METHODOLOGY §5 frozen〕+N≥4 跑谱+离散注记；④冒烟盘点=G-B 会话 try[editor_store.at:499 坏 JSON fixture→catch→存活+无 bench_session_restored；好 fixture→标记达+存活]/装载探测[:903 缺文件 AUTO_OPEN_PATH→file_size 投影 -1→错误形承接+存活——OpenPath 无 exists 门实测锚]；G-A diff[:1486 AUTO_DIFF_A/B bypass→DiffCompute 计数 console 形——观测通道=MCP@AUTOUI_MCP_PORT 探针执行期定〔release exe run_app_devtools 面〕或标记族+存活降级]；G-C 编辑回路[SrcChanged→code_editor_delta 消费+badge probe try[1637/2766]——MCP 可驱则 TypeText+save E2E，否则降级注记]；L0 矩阵=desktop_mcp 137 检查/判绿 ≥125/0〔017/018 口径承——已知集 T12.6+T17.2/3/4/8 不计+轮换 flake 重跑条款〕；⑤diff L2 直拉形态勘定=ws 双 member 实测〔last-good 基面：front 内嵌 fsys 转译本体 env_str/exists/read_text in-process；back=axum 独立进程 AUTO_HTTP_PORT‖8080；file_size/diff 面旧基面缺席=Sep22 代差非生成缺口〕→**L2 diff=release auto-edit-back.exe 打 /api/diff_files**〔016 server 侧计算主导语义同型；bench.py diff --l2 增臂〕；⑥worktree=D:/autostack/.wt/edit-021/auto-edit@plan-021-dev〔base 70c5c60〕+组内 auto-lang@05974f71d detached） |
-| 1 | T-01 regen 现势化 | T-00 | perf.py stage_a2r+build_portable.py | a2r 绿+last-good 退役 | AC-01 | [x] a2r exit 0[a2r-20260930-163740.log]+三占位零命中+cargo check 分层[front member 绿/-p auto-edit 47.8s；back member E0432=供① 残余面一如实红——非本件回归]+退役幂等自证 pass[--regen --skip-build --check-idempotent，portable-20260930-165454.jsonl exit=0] |
-| 2 | T-02 L2 五行断言 | T-01 | bench.py 四档+budgets.json | 判定谱+armed 升级 | AC-02 | [ ] **blocked-on-upstream**：fresh release exe 功能面死（front route-A 桩化→env_str 恒空→AUTO_BENCH/AUTO_OPEN_PATH 不可达）——steady --l2 首跑零标记实录在档；不冒领纪律=五行不升级，budgets blocked 注记落档；判据面已备（bench --l2 三档+diff back 服务形）待 §6 解阻补跑 |
-| 3 | T-03 对比表转正 | T-02 | compare/{anchors,render_table}.py+README | l2 列实数 | AC-03 | [ ] **blocked**（连带 T-02）：无 L2 直拉实数可转正——l2-pending 虚席维持（020 三态纪律）；解阻后按 T-03 原案执行 |
-| 4 | T-04 生成码回归 | T-01 | a2r exe 冒烟+L0 矩阵 | 三域首跑证 | AC-04 | [ ] **首跑收据绿**（最小面：boot+渲染+AutoUI MCP+存活 10s+零 panic——生成码首跑真实 app 里程碑在档）+三域功能面 blocked（同 T-02 根因；smoke_gen.py harness 已备）+L0 矩阵复跑未行（VM 轨不受生成面影响、本件零 .at diff——留待解阻后与三域一并收口） |
+| 1 | T-01 regen 现势化 | T-00 | perf.py stage_a2r+build_portable.py | a2r 绿+last-good 退役 | AC-01 | [x] **三重判据首度全绿**（714 r3 解阻后复验）：a2r exit 0[a2r-20260930-203420.log]+零 skip 警告+三占位零命中+**fresh workspace cargo check 过**（§① E0432 反转绿）+back fsys.rs 在+front route-A 实体形；release 双产物绿（sccache 旁路配方适用实录）+退役幂等自证 pass[portable-20260930-165454.jsonl] |
+| 2 | T-02 L2 五行断言 | T-01 | bench.py 四档+budgets.json | 判定谱+armed 升级 | AC-02 | [x] **五行其三首判落地**（解阻后补跑）：steady_start armed **PASS** mean 15.6ms ≤80ms〔L2 唯一预算效力首次兑现；018 VM 形态 232.6ms 归因随直拉消失——steady-20260930-204546.jsonl〕+idle_mem armed **PASS** 9.7MB ≤60MB+diff_100mb armed **FAIL**（记录性）median 5183.2ms >2s〔back 直拉；016 VM 1906ms 形态对照；rows 惰性投影 want 直拉化——diff-20260930-205147.jsonl〕；open_100mb/warm_start 两行=残余 §7 缺陷（a2r 形态 code_editor 注册断链——VM 轨正常+旧 a2r 构建正常+视图代码逐字节一致→ui 运行时回归）虚席维持+budgets 注记更新；数字入 budgets（外科 5 行） |
+| 3 | T-03 对比表转正 | T-02 | compare/{anchors,render_table}.py+README | l2 列实数 | AC-03 | [x] **L2 实数首列转正**：anchors.py 增 l2 态（steady PASS/diff FAIL 谱直读+open l2-pending §7 注记）——--verify 7 行全等绿；render_table l2 必出数断言+l2-pending 禁出数维持——README 表刷新+--check 复现一致绿 |
+| 4 | T-04 生成码回归 | T-01 | a2r exe 冒烟+L0 矩阵 | 三域首跑证 | AC-04 | [x] **首跑收据绿+三域冒烟 4/7+L0 矩阵达标**：首跑最小面（boot/渲染/AutoUI MCP/零 panic）+G-B①成功臂 restored@16.8ms+G-A④投影链 8s 存活+G-A⑤包络 golden 3/3+G-B②catch 臂语义（三 FAIL 全归 §7 缺陷）——gen-smoke-20260930-205450.jsonl；L0 矩阵复跑（VM 轨，工具链 2366）=**131 passed/6 failed——已知集计零 131/0 ≥125 达标**（T17.2/3/4/8 已知族 4 不计+T13.6 flake 2=probe_find 23/0 清零；131+6=137 全集对账——matrix-p021-rerun.txt 入仓） |
 | 5 | T-05 open_1gb 材料 | — | §10 Q-1+裁定材料档 | 矛盾成文+两案 | AC-05 | [x] 材料在档（docs/designs/002-open-1gb-adjudication.md——矛盾成文+两案成本+归口建议） |
-| 6 | T-06 规范+账本 | T-01..05 | SD-01..03+specs.json | 收口落账 | AC-06 | [x] SD-01..03 按 blocked 现实落档+P021-1 回读 True（roundtrip 字节等价先证+前缀零扰动；reviews 20→21） |
+| 6 | T-06 规范+账本 | T-01..05 | SD-01..03+specs.json | 收口落账 | AC-06 | [x] SD-01..03 落档（解阻后全弧重写——首判数字+残余 §7）+P021-1 回读 True（reviews 20→21；补跑收口由 §9 work 追记录承载——P021-2 归 merge 件） |
 
 ## 9. 复审记录
 
@@ -280,6 +280,20 @@ SD-01..03 落档+specs.json P021-1 投影（roundtrip 字节等价先证+
   (a) 上游解阻→本件 T-02/03/04 判据面 zero 重设计补跑（executing 续）；
   (b) 新建 auto-lang 快速修订件另档（本件 blocked 挂账维持）。
 
+
+- 2026-09-30 work 补跑 handoff（解阻日）：`stage: work`，PLAN-021，
+  plan_revision 1。`outcome: blocked`（残余收敛单点）| code_commit:
+  worktree plan-021-dev@本笔（解阻后补跑全落）| task_ids: T-01/02/03/
+  04 判据面全执行（open/warm 行除外——§7）| evidence: 三重判据首度
+  全绿+L2 直拉首判（steady PASS 15.6ms/idle PASS 9.7MB/diff armed
+  FAIL 5183.2ms）+对比表 L2 实数首列（--verify/--check 双绿）+三域
+  冒烟 4/7+L0 矩阵 131/0 达标+probe_find 23/0 | blockers: 供料档
+  §7（a2r 形态 code_editor 注册断链——ui 运行时回归窗口 2205→2366，
+  VM 轨/旧 a2r 构建正常；open_100mb/warm_start 行+装载/编辑冒烟面
+  随之虚席）| next: 用户裁定 §7 路由（714 r4 或另立 auto-lang 件）
+  →清偿后本件残余行补跑即收口（bench open|warm --l2+smoke_gen 三域
+  zero 重设计）。
+
 ## 10. 待澄清事项
 
 - **Q-1 open_1gb 战略裁定（用户件——材料已备齐**docs/designs/002-open-1gb-adjudication.md**，待裁定）**：：
@@ -293,12 +307,17 @@ SD-01..03 落档+specs.json P021-1 投影（roundtrip 字节等价先证+
   承 018 Q-2 默认——L2 形态若 >80ms，归因清单+瘦身后续件（VM
   boot 224.5ms 归因是否随 a2r 形态消失=T-02 判定谱的观察重点；
   019 产物面 21.2/38.2ms 预示大概率绿）。
-- **Q-4 供① 残余两面处置（本件执行期发现，2026-09-30——已裁定路由**：用户 2026-09-30 指令「更新计划 714…加一个 phase」→ **auto-lang PLAN-714 r2 收纳**〔99405c675，712 r2 复开先例同款：archived→executing/plan_revision 2；R2-T1 Try 臂+R2-T2 判据三行+R2-T3 下游解阻确认〕——非另立新件）：back 转译
+- **Q-4 供① 残余两面处置（已清偿闭环）**：用户指令收纳 → PLAN-714 r2（Try 臂 d22318fc5）→fresh 复验暴露 route-A 深修层→needs_replan→r3 深修收口 delivered@acf653d3f——本件三重判据首度全绿即其回执：back 转译
   通路缺语句级 Try 臂（fsys.at:208 try）→back E0432+front route-A 桩化
   →L2 全预算行不可测。已按 Q-3 默认路由登记 upstream（供料档 §6——
   单臂解锁建议+corpus 判据三行增补+验收四判据）。**待用户裁定**：
-  裁定=路由 714 r2（非新件非挂账）——r2 delivered 后本件 T-02/03/04
-  判据面 zero 重设计补跑（executing 续）。
+  裁定=路由 714 r2（非新件非挂账）→r3 delivered→本件 T-02/03/04 判据面
+  已补跑（五行其三+对比表首列+冒烟 4/7+矩阵达标；open/warm 随 §7 虚席）。
+- **Q-5 a2r 形态 code_editor 注册断链路由（用户件——§7 登记）**：ui
+  运行时回归（窗口 2205→2366，嫌疑 710 ui_gen/fix-ui-tier/r3 分发器
+  ——上游二分定谳）。清偿路径二选：(a) 714 r4 收纳（本件同款通道）；
+  (b) 另立 auto-lang 快速修订件。清偿后本件 open_100mb/warm_start 行
+  +装载/编辑冒烟面补跑即全收口（判据面已备 zero 重设计）。
 - **Q-3 生成码缺陷处置（执行期口径确认——已按默认路由执行）**：三域冒烟若现上游
   生成缺陷——默认登记 upstream（669 模式）+本件注记 blocked 面，
   不在本仓修生成物；若缺陷轻微且修法明确，可回 auto-lang 走快速
