@@ -465,8 +465,8 @@ PLAN-020 口径更新（2026-09-29，竞品侧工具面——.at 源零 diff、�
 [-n N]|report`（fresh profile per run+沉降窗 5s+invalid-run 重跑
 条款；results/ JSONL 入仓=三要素 {版本钉版,环境指纹,跑谱+离散}）。
 我方三态锚点：`python tools/compare/anchors.py [--verify]`
-（018/019/016 在档 JSONL 直读零重算——锚点[VM 形态]/产物面
-[last-good]/L2-pending[禁出数]）。表格生成：
+（018/019/016/021-L2 在档 JSONL 直读零重算——锚点[VM 形态]/产物面
+[last-good]/L2 直拉判定[steady/diff/open 实数+verdict 随行]）。表格生成：
 `python tools/compare/render_table.py [--check]`（数据驱动——文末
 「公开对比表」节为生成区间**禁手改**，--check 断言复现一致）。
 
@@ -482,14 +482,22 @@ workspace check 过——018 blocked 态闭环）+last-good 基面退役
 （`bench steady|warm|open --l2`+`bench diff --l2`——release 产物/
 back 服务零旗标直拉形态档）：steady_start armed **PASS** 15.6ms ≤80ms
 （硬门禁正式判定绿）/idle_mem armed **PASS** 9.7MB/diff_100mb armed
-**FAIL**（记录性）5183.2ms——五行其三收口，对照 018 VM 形态谱归因在
-budgets validity。**残余=供料档 §7**（a2r 形态 code_editor 注册断链
-——ui 运行时回归）：open_100mb/warm_start 两行+装载链冒烟面 blocked，
-§7 清偿后判据面补跑（`bench open|warm --l2`+smoke_gen 三域已备）。
-L0 矩阵复跑=VM 轨不受累（判绿口径承 018/020）。对比表我方列 L2 实数
-首列（render --check 双门绿）。forensics=tests/
+**FAIL**（记录性）5183.2ms，对照 018 VM 形态谱归因在
+budgets validity。
+
+**残余清偿+全表收口（同日 PLAN-714 r4——e93a717da 动态注册键贯通
+[§7 code_editor 注册断链反转]，补跑工具链=v0.4.2-2389-ge93a717da）**：
+open_100mb armed **PASS** median 863.2ms ≤1s+warm_start armed **PASS**
+恢复净段 0.0ms·全链 19.3ms ≤120ms——**预算表五行判定全部落地**
+（判定数字+谱在 budgets validity；「滚动不掉帧」半行=供②/open_1gb=
+裁定中/renderer=n/a 维持）；三域冒烟 **7/7 全绿**（r3 轮三 FAIL 全
+反转——G-B 两臂+G-A 投影/包络+G-C 装载 E2E/badge try）；对比表
+open 行 L2 实数补列+l2-pending 虚席退役（anchors --verify/
+render --check 双门绿维持）。L0 矩阵复跑=VM 轨不受累（判绿口径承
+018/020）。forensics=tests/
 evidence-p021-blocked-survey.md（全弧：两面 forensics+解阻复验+残余
-§7 登记）；上游登记=供料档 §6[已清偿归档]/§7[残余]。
+§7 登记→714 r4 清偿）；上游登记=供料档 §6[已清偿归档]/§7[714 r4
+清偿归档]。
 
 注：Plan 451 起 T10「热重载」走 DSL 源路径（reload 工具或 mtime 轮询重读
 app.at 重新提取 actions + generation bump → 视图重建），实测 50/0 全绿。
@@ -566,8 +574,8 @@ menubar {
 | 指标（档） | 计时语义 | VS Code | Zed | Notepad++ | Beyond Compare 5 | auto-edit（本仓） |
 |---|---|---|---|---|---|---|
 | 打开 5 MB | 各对象 t_ready（语义列同左口径） | 4,289.1 ms（N=4，4,256.3–4,340.8） | 296.0 ms（N=4，272.6–310.0） | pending（未装——Q-1） | —（diff 对象不适用） | —（无同档在档谱） |
-| 打开 100 MB | VS Code=RSS 物化；Zed=首帧（rope 惰性）；本仓=全量装载 | 4,677.7 ms（N=4，4,621.4–4,718.5） | 295.6 ms（N=4，275.4–310.3） | pending（未装——Q-1） | —（diff 对象不适用） | **841.0 ms**〔锚点·VM 形态——非 L2〕；38.2 ms〔产物面·last-good 基面——非 L2〕；L2 正式判定=待残余面清偿（供料档 §7——位虚席） |
+| 打开 100 MB | VS Code=RSS 物化；Zed=首帧（rope 惰性）；本仓=全量装载 | 4,677.7 ms（N=4，4,621.4–4,718.5） | 295.6 ms（N=4，275.4–310.3） | pending（未装——Q-1） | —（diff 对象不适用） | **841.0 ms**〔锚点·VM 形态——非 L2〕；38.2 ms〔产物面·last-good 基面——非 L2〕；**863.2 ms**〔**L2 直拉判定·armed PASS——硬门禁正式判定绿**——N=4，862.7–889.5〕 |
 | diff 100 MB（文件对） | BC=report 产出；本仓=diff 端点全链墙钟 | —（未测） | —（未测） | — | 123,279.8 ms（N=4，119,849.6–126,246.9） | **1,906.0 ms**〔release 全链判定先例（016，仅限 diff）〕；5,183.2 ms〔**L2 直拉判定·armed FAIL（记录性）——归因随行**——N=3，4,985.8–5,412.4〕 |
 
-Notepad++ 缺位=安装属用户面（PLAN-020 §10 Q-1），装后 harness 补跑即得列（通道与 VS Code 同形）。**我方 L2 正式列**待供①（a2r 生成缺口残余）解阻后 L2 形态重测补列——锚点/产物面数字不冒领（018 分层纪律表内延伸）。发布动作（对外宣传/链接分发）=数字齐后另行；本节=战略 §5 指定表位。
+Notepad++ 缺位=安装属用户面（PLAN-020 §10 Q-1），装后 harness 补跑即得列（通道与 VS Code 同形）。**我方 L2 正式列=PLAN-021 直拉判定谱**（steady/open/diff——armed 判定随格；未入表行 warm/idle 判定谱=budgets.json validity）。锚点/产物面数字不冒领（018 分层纪律表内延伸）。发布动作（对外宣传/链接分发）=数字齐后另行；本节=战略 §5 指定表位。
 <!-- COMPARE-TABLE:END -->

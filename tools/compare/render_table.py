@@ -145,8 +145,9 @@ def build_table() -> str:
        f"| {_our_cell(anchors, 'diff_100mb')} |")
     ap("")
     ap("Notepad++ 缺位=安装属用户面（PLAN-020 §10 Q-1），装后 harness 补跑"
-       "即得列（通道与 VS Code 同形）。**我方 L2 正式列**待供①（a2r 生成缺口"
-       "残余）解阻后 L2 形态重测补列——锚点/产物面数字不冒领（018 分层纪律"
+       "即得列（通道与 VS Code 同形）。**我方 L2 正式列=PLAN-021 直拉判定"
+       "谱**（steady/open/diff——armed 判定随格；未入表行 warm/idle 判定"
+       "谱=budgets.json validity）。锚点/产物面数字不冒领（018 分层纪律"
        "表内延伸）。发布动作（对外宣传/链接分发）=数字齐后另行；本节=战略"
        " §5 指定表位。")
     return "\n".join(lines)

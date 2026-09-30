@@ -12,9 +12,10 @@
 - state=release-judged（diff 行专用——018 分层纪律「016 release 全链
   判定先例仅限 diff」）：tools/bench/results/diff-20260928-152047.jsonl
   （diff_100mb median 1906.0ms budget PASS；旁证 152015=1971.3ms）；
-- state=l2（PLAN-021 起）：**L2 直拉判定实数**（供① 解阻后首判——
-  steady/diff 谱直读，verdict 随行）；state=l2-pending：**零数字**
-  （残余面清偿前虚席——冒领禁则=PLAN-020 §2 约束①）。
+- state=l2（PLAN-021 起）：**L2 直拉判定实数**（供① 解阻后判定谱
+  直读，verdict 随行——steady/diff[714 r3 工具链]+open[714 r4 工具链]）；
+  state=l2-pending：**零数字**（机制保留——未判行虚席禁出数，冒领
+  禁则=PLAN-020 §2 约束①）。
 
 用法：
   python tools/compare/anchors.py            # 提取 → results/anchors.json
@@ -35,9 +36,11 @@ SRC_OPEN_018 = Path("tools/bench/results/open-20260929-110820.jsonl")
 SRC_SURFACE_019 = Path("tools/portable/results/surface-20260929-193232.jsonl")
 SRC_DIFF_016 = Path("tools/bench/results/diff-20260928-152047.jsonl")
 SRC_DIFF_016_B = Path("tools/bench/results/diff-20260928-152015.jsonl")
-# PLAN-021 L2 直拉判定谱（供① 解阻后首判——acf653d3f 工具链）
+# PLAN-021 L2 直拉判定谱（供① 解阻后判定——acf653d3f[714 r3]/
+# e93a717da[714 r4 动态注册键贯通]工具链）
 SRC_L2_STEADY = Path("tools/bench/results/steady-20260930-204546.jsonl")
 SRC_L2_DIFF = Path("tools/bench/results/diff-20260930-205147.jsonl")
+SRC_L2_OPEN = Path("tools/bench/results/open-20260930-230121.jsonl")
 
 
 def _rows(rel: Path) -> list[dict]:
@@ -62,6 +65,8 @@ def extract() -> dict:
     ssum = next(r for r in steady_l2 if r.get("id") == "steady_summary")
     l2diff = _rows(SRC_L2_DIFF)
     dl2 = next(r for r in l2diff if r.get("id") == "diff_100mb")
+    l2open = _rows(SRC_L2_OPEN)
+    ol2 = next(r for r in l2open if r.get("id") == "open_100mb_summary")
     return {
         "schema": "p020-our-anchors/1",
         "generated": "tools/compare/anchors.py 直读（零重算——AC-04 逐字对照）",
@@ -105,11 +110,15 @@ def extract() -> dict:
                      "armed FAIL（记录性）；归因=包络 rows 全量投影+双层 "
                      "JSON 在 a2r back 形态放大（016 rows 惰性投影 want）"
                      "——016 VM 形态 1906ms 达标为形态对照"},
-            {"state": "l2-pending", "metric": "open_100mb",
-             "median_ms": None, "runs_ms": None, "source": None,
-             "note": "L2 正式判定位虚席——供① §6 两面已清偿（714 r2/r3），"
-                     "残余=供料档 §7 a2r 形态 code_editor 注册断链（装载"
-                     "探测门永假）——清偿后 bench open --l2 补跑"},
+            {"state": "l2", "metric": "open_100mb",
+             "median_ms": ol2["median_ms"], "runs_ms": ol2["runs_ms"],
+             "budget_ms": ol2["budget_ms"], "verdict": "pass",
+             "source": str(SRC_L2_OPEN),
+             "note": "PLAN-021 L2 直拉形态正式判定（供① 全清偿[714 r4 "
+                     f"e93a717da 动态注册键贯通]后补跑）：median "
+                     f"{ol2['median_ms']}ms ≤{ol2['budget_ms']:.0f}ms → "
+                     "armed PASS——硬门禁正式判定绿（018 记账形态 841.0ms "
+                     "同量级复现）；「滚动不掉帧」半行=供② 解阻后"},
         ],
     }
 

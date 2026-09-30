@@ -293,10 +293,16 @@ steady_start armed **PASS** mean 15.6ms ≤80ms（L2 唯一预算效力首次
 兑现——018 VM 形态 232.6ms 归因随直拉消失）/idle_mem armed **PASS**
 9.7MB ≤60MB/diff_100mb armed **FAIL**（记录性）5183.2ms >2s（back
 直拉形态——016 VM 1906ms 达标为形态对照，rows 惰性投影 want 直拉化
-放大）。**残余=供料档 §7**（a2r 形态 code_editor 注册断链——ui 运行时
-回归窗口 2205→2366）→open_100mb/warm_start 两行虚席维持，清偿后
-`bench --l2` 补跑（判据面已备）。对比表我方列 L2 实数首列（diff 行
-armed FAIL+steady 布局外数据；open 行 pending 维持）。规范详
+放大）。**残余已清偿+全表收口（同日 714 r4——e93a717da 动态注册键
+贯通）**：open_100mb armed **PASS** median 863.2ms ≤1s（018 记账形态
+841.0ms 同量级复现）/warm_start armed **PASS** 恢复净段 0.0ms·全链
+19.3ms ≤120ms（018 VM 形态 240ms 放大随直拉消失）——**预算表五行判
+定全部落地**（三 PASS+diff 记录性 FAIL；「滚动不掉帧」半行=供②、
+open_1gb=裁定中、renderer=n/a 维持）；三域冒烟 7/7 全绿（§7 三 FAIL
+反转）；对比表 open 行 L2 实数补列+l2-pending 虚席退役。M4 剩余=
+供② 两行断言（type_latency/scroll_fps）/installer two-face 收口/
+供④ 语法面实施件[714 勘定+实施契约在档]/open_1gb 裁定（材料在档
+Q-1）。规范详
 modules/perf-measurement.md PLAN-021 节（SD-01）+README PLAN-021
 口径（SD-03）。
 

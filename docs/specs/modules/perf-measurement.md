@@ -302,3 +302,29 @@ evidence-p021-blocked-survey.md；上游登记=供料档 §6/§7）。
   退役（RETIRE_NOTE）；`--regen --skip-build --check-idempotent`
   幂等自证 pass（portable-20260930-165454.jsonl）。portable 全量
   构建随 §7 缺陷装载面无涉——构建面绿（第二段收口件回归解阻）。
+
+## L2 断言全表收口（PLAN-021 残余补跑，2026-09-30——PLAN-714 r4 清偿日）
+
+前节「残余缺陷」已随 **PLAN-714 r4** 清偿（二分定谳=非回归——生成器
+Plan 413 原始缺口：`code_editor (key: t.key)` 动态 key 属性在 a2r 视图
+构建路径静默回落 "editor"→注册键≠查找键；修复=e93a717da 动态 key 经
+`ast_expr_to_rust` 发射贯通注册键）。本件判据面 zero 重设计补跑即全收
+口——**预算表五行判定全部落地，M4 预算面板正式判定面过半转正完成**：
+
+- **open_100mb armed PASS**：median 863.2ms（4 跑谱 862.7-889.5）vs
+  ≤1s——硬门禁正式判定绿（018 记账形态 841.0ms 同量级复现）；「滚动
+  不掉帧」半行=供② 解阻后；超大拒绝位 513MB/1GB 同形复证；工具链
+  v0.4.2-2389-ge93a717da（714 r4）；源=open-20260930-230121.jsonl。
+- **warm_start armed PASS**：恢复净段 mean 0.0ms（2 跑——轮询粒度
+  下限）vs ≤120ms；全链 mean 19.3ms（谱 18.9-19.7，boot 与 steady
+  15.6ms 同源量级——018 VM 形态 240ms 放大随直拉消失）；active 装载
+  段 1124.0ms 单列（open 行语义）；Δmem 265MB=懒装载语义记录；源=
+  warm-20260930-230317.jsonl。
+- **三域冒烟 7/7 全绿**：r3 轮 4/7 三 FAIL（§7 归因）全转绿——G-B①
+  成功臂 restored@16.9ms/G-B② 坏 JSON catch 臂/G-B③ 装载探测缺文件
+  错误形/G-A④ 投影链 8s 存活/G-A⑤ back 包络 golden 3/3/G-C⑥ 装载
+  E2E 标记序/G-C⑦ badge 门探测 try；源=gen-smoke-20260930-230652
+  .jsonl。生成码三域（G-A/G-B/G-C）自此在真实 app 全部实证。
+- **对比表收口**：open_100mb 行 L2 实数补列（863.2ms armed PASS），
+  l2-pending 虚席位退役（机制保留）；anchors --verify 7 行+
+  render --check 双绿维持。
