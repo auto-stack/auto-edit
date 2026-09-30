@@ -1,10 +1,11 @@
 ---
 plan_id: PLAN-021
-status: reviewed
+status: archived             # merge 收口（2026-09-30——reviewed → archived 终态）
+completion_kind: delivered   # r1 全弧交付：L2 断言五行全判定+对比表转正+三域回归+供① 全弧闭环
 feature_name: M4-04 L2 链解阻兑现件（PLAN-710 消费——regen 现势化+perf a2r 绿+L2 断言五行首次正式判定+对比表我方列转正+装载/diff 域生成码回归）
 author: [agent]
 created_at: 2026-09-30T16:15:39+08:00
-updated_at: 2026-09-30T23:59:00+08:00
+updated_at: 2026-10-01T00:20:00+08:00
 plan_revision: 1
 current_step: 7
 total_steps: 7
@@ -342,6 +343,27 @@ SD-01..03 落档+specs.json P021-1 投影（roundtrip 字节等价先证+
   tests/matrix-p021-rerun.txt〕；重活链（a2r release 构建+L0 矩阵
   全跑）复用 3e01e2a/R4-T3 期证据——理由同 AC-01（零字节变化）
   | next: merge。
+
+- 2026-10-01 merge（PLAN-021:r1 收档四章）：`stage: merge`，
+  PLAN-021，plan_revision 1。`outcome: pass`（delivered）。
+  - **prepared**：reviewed 基线=main@a474762/工作树 plan-021-dev@8d44d9e
+    零 dirty+组树 acf653d3f detached clean；canonical delta 已在
+    worktree 落档（SD-01..03 收口弧@8d44d9e）；projection 目标=
+    .autoos/specs.json reviews 段 P021-2（tracked ledger worktree 轨
+    循 015-021 先例）；delivery commit 预期=rebase 后 tip。
+  - **landed**：plan-021-dev rebase main（a474762）零冲突——等价
+    映射 7de30ed→2574eba/3e01e2a→a303b63/8d44d9e→**47b0eaa**
+    （range-diff 三提交全等 `=`）；main `merge --ff-only`=tip
+    **07f7e49**（P021-2 ledger commit 为 delivery commit——projection
+    only 子代循「documentation/projection-only descendant」条款，
+    delta=12 行插入零实现面）；main 烟测=anchors --verify 7 行绿+
+    render --check 一致绿+budgets 10 行解析。
+  - **ledger_refreshed**：P021-2 外科插入 reviews 21→22（roundtrip
+    守卫=json.loads 新旧深等[他五段+reviews 前缀 21 项零扰动]+插入项
+    逐字回读；indent2 8/10 键位对齐）；main 回读 reviews=22 tail=
+    P021-2；store 写者未启用（本仓 tracked ledger Git 轨惯例）。
+  - **archived**：git mv → docs/plans/archived/021-m4-l2-unlock-consume.md
+    +status: archived+completion_kind: delivered（本笔）。
 
 ## 10. 待澄清事项
 
