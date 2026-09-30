@@ -4,7 +4,7 @@ status: executing
 feature_name: M4-04 L2 链解阻兑现件（PLAN-710 消费——regen 现势化+perf a2r 绿+L2 断言五行首次正式判定+对比表我方列转正+装载/diff 域生成码回归）
 author: [agent]
 created_at: 2026-09-30T16:15:39+08:00
-updated_at: 2026-09-30T21:55:00+08:00
+updated_at: 2026-09-30T22:15:00+08:00
 plan_revision: 1
 current_step: 7
 total_steps: 7
@@ -313,11 +313,12 @@ SD-01..03 落档+specs.json P021-1 投影（roundtrip 字节等价先证+
   单臂解锁建议+corpus 判据三行增补+验收四判据）。**待用户裁定**：
   裁定=路由 714 r2（非新件非挂账）→r3 delivered→本件 T-02/03/04 判据面
   已补跑（五行其三+对比表首列+冒烟 4/7+矩阵达标；open/warm 随 §7 虚席）。
-- **Q-5 a2r 形态 code_editor 注册断链路由（用户件——§7 登记）**：ui
-  运行时回归（窗口 2205→2366，嫌疑 710 ui_gen/fix-ui-tier/r3 分发器
-  ——上游二分定谳）。清偿路径二选：(a) 714 r4 收纳（本件同款通道）；
-  (b) 另立 auto-lang 快速修订件。清偿后本件 open_100mb/warm_start 行
-  +装载/编辑冒烟面补跑即全收口（判据面已备 zero 重设计）。
+- **Q-5 a2r 形态 code_editor 注册断链路由（已裁定——(a) 714 r4）**：
+  用户 2026-09-30 指令「(a) 714 r4 收纳（本次同款通道）」→
+  **PLAN-714 r4 收纳**〔auto-lang master@812a75292：archived→executing/
+  plan_revision 4/total_steps 19；R4-T1 二分定谳+R4-T2 修复贯通
+  +R4-T3 census ④行+下游解阻确认〕。清偿后本件 open_100mb/warm_start
+  行+装载/编辑冒烟面补跑即全收口（判据面已备 zero 重设计）。
 - **Q-3 生成码缺陷处置（执行期口径确认——已按默认路由执行）**：三域冒烟若现上游
   生成缺陷——默认登记 upstream（669 模式）+本件注记 blocked 面，
   不在本仓修生成物；若缺陷轻微且修法明确，可回 auto-lang 走快速
