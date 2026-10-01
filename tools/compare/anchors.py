@@ -14,8 +14,12 @@
   （diff_100mb median 1906.0ms budget PASS；旁证 152015=1971.3ms）；
 - state=l2（PLAN-021 起）：**L2 直拉判定实数**（供① 解阻后判定谱
   直读，verdict 随行——steady/diff[714 r3 工具链]+open[714 r4 工具链]）；
+  PLAN-022 增 diff_100mb **窗口形清偿重判**行（verdict=pass——判定
+  口径切窗口形，全量形 FAIL 行保留为对照，两行并陈对照不删）；
   state=l2-pending：**零数字**（机制保留——未判行虚席禁出数，冒领
-  禁则=PLAN-020 §2 约束①）。
+  禁则=PLAN-020 §2 约束①）；PLAN-022 scroll_fps 行入列
+  l2-pending 形（供⑨ 上游 i64 桥缺口——T-03 blocked 实证，零数字
+  虚席位）。
 
 用法：
   python tools/compare/anchors.py            # 提取 → results/anchors.json
@@ -41,6 +45,9 @@ SRC_DIFF_016_B = Path("tools/bench/results/diff-20260928-152015.jsonl")
 SRC_L2_STEADY = Path("tools/bench/results/steady-20260930-204546.jsonl")
 SRC_L2_DIFF = Path("tools/bench/results/diff-20260930-205147.jsonl")
 SRC_L2_OPEN = Path("tools/bench/results/open-20260930-230121.jsonl")
+# PLAN-022 窗口形清偿重判谱（9920 消费——判定口径切换；全量对照档
+# 同谱在档 full-ref 行）
+SRC_L2_DIFF_022 = Path("tools/bench/results/diff-20261001-144526.jsonl")
 
 
 def _rows(rel: Path) -> list[dict]:
@@ -67,6 +74,9 @@ def extract() -> dict:
     dl2 = next(r for r in l2diff if r.get("id") == "diff_100mb")
     l2open = _rows(SRC_L2_OPEN)
     ol2 = next(r for r in l2open if r.get("id") == "open_100mb_summary")
+    # PLAN-022 窗口形清偿重判直读
+    l2diff22 = _rows(SRC_L2_DIFF_022)
+    dl22 = next(r for r in l2diff22 if r.get("id") == "diff_100mb")
     return {
         "schema": "p020-our-anchors/1",
         "generated": "tools/compare/anchors.py 直读（零重算——AC-04 逐字对照）",
@@ -119,6 +129,25 @@ def extract() -> dict:
                      f"{ol2['median_ms']}ms ≤{ol2['budget_ms']:.0f}ms → "
                      "armed PASS——硬门禁正式判定绿（018 记账形态 841.0ms "
                      "同量级复现）；「滚动不掉帧」半行=供② 解阻后"},
+            {"state": "l2", "metric": "diff_100mb",
+             "median_ms": dl22["wall_ms_median"], "runs_ms": dl22["wall_ms_runs"],
+             "budget_ms": 2000.0, "verdict": "pass",
+             "source": str(SRC_L2_DIFF_022),
+             "note": "PLAN-022 窗口形清偿重判（判定口径切换——9920 "
+                     "/api/diff_files_window offset=0/limit=600 渲染 cap "
+                     f"对齐「出结果」口径=全量 hunks/counts/rows_total["
+                     f"{dl22.get('rows_total')}]+首窗 rows）：median "
+                     f"{dl22['wall_ms_median']}ms ≤2000ms → armed PASS"
+                     "——021 FAIL 清偿（6.5× 倍率；全量对照 5078.2ms 同谱"
+                     "在档 diff_100mb_full 行）；工具链 "
+                     "v0.4.2-2474-g95dcfb55b[含 716]"},
+            {"state": "l2-pending", "metric": "scroll_fps",
+             "median_ms": None, "runs_ms": None,
+             "note": "PLAN-022 T-03 供⑨ 上游阻塞（9918/9919 VM 轨 .at "
+                     "i64→int 桥退化——shim 直读真值实证但 .at 侧落 0/"
+                     ".str()→None）；判定协议已备（滚动驱动→distinct "
+                     "present 计数≥面板率×0.9），清偿后首判——零数字"
+                     "虚席位（冒领禁则 PLAN-020 §2 约束①）"},
         ],
     }
 

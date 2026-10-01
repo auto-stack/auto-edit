@@ -81,7 +81,8 @@ def _our_cell(anchors: list[dict], metric: str) -> str:
         st = a["state"]
         if st == "l2-pending":
             assert a["median_ms"] is None, f"l2-pending 态不得出数：{a}"
-            parts.append("L2 正式判定=待残余面清偿（供料档 §7——位虚席）")
+            note = a.get("note") or "待残余面清偿（位虚席）"
+            parts.append(f"pending（{note}）")
         elif st == "l2":
             assert a["median_ms"] is not None, f"l2 态必出数：{a}"
             verdict = a.get("verdict", "")
@@ -140,16 +141,25 @@ def build_table() -> str:
        f"| —（diff 对象不适用） "
        f"| {_our_cell(anchors, 'open_100mb')} |")
     ap(f"| diff 100 MB（文件对） | BC=report 产出；本仓=diff 端点全链墙钟 "
+       f"（022 起=窗口形判定，全量对照在档） "
        f"| —（未测） | —（未测） | — "
        f"| {_competitor_cell(data['bc5_100mb'])} "
        f"| {_our_cell(anchors, 'diff_100mb')} |")
+    ap(f"| 滚动帧率 | 各对象=编辑器滚动帧率（语义随行：本仓=present 频率"
+       f"采样，面板率×0.9 判据——PLAN-022 协议在档） "
+       f"| pending（未测——020 Q-2 捕获自动化双缺陷） "
+       f"| pending（未测——020 Q-2 同） "
+       f"| pending（未装——Q-1） "
+       f"| —（diff 对象不适用） "
+       f"| {_our_cell(anchors, 'scroll_fps')} |")
     ap("")
     ap("Notepad++ 缺位=安装属用户面（PLAN-020 §10 Q-1），装后 harness 补跑"
        "即得列（通道与 VS Code 同形）。**我方 L2 正式列=PLAN-021 直拉判定"
-       "谱**（steady/open/diff——armed 判定随格；未入表行 warm/idle 判定"
-       "谱=budgets.json validity）。锚点/产物面数字不冒领（018 分层纪律"
-       "表内延伸）。发布动作（对外宣传/链接分发）=数字齐后另行；本节=战略"
-       " §5 指定表位。")
+       "谱**（steady/open——armed 判定随格；diff 行=PLAN-022 窗口形清偿"
+       "重判 PASS+021 全量形 FAIL 对照并陈；scroll 行=供⑨ 上游阻塞虚席——"
+       "判定协议在档待清偿；未入表行 warm/idle 判定谱=budgets.json "
+       "validity）。锚点/产物面数字不冒领（018 分层纪律表内延伸）。"
+       "发布动作（对外宣传/链接分发）=数字齐后另行；本节=战略 §5 指定表位。")
     return "\n".join(lines)
 
 

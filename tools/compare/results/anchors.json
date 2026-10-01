@@ -89,6 +89,28 @@
       "verdict": "pass",
       "source": "tools\\bench\\results\\open-20260930-230121.jsonl",
       "note": "PLAN-021 L2 直拉形态正式判定（供① 全清偿[714 r4 e93a717da 动态注册键贯通]后补跑）：median 863.2ms ≤1000ms → armed PASS——硬门禁正式判定绿（018 记账形态 841.0ms 同量级复现）；「滚动不掉帧」半行=供② 解阻后"
+    },
+    {
+      "state": "l2",
+      "metric": "diff_100mb",
+      "median_ms": 784.8,
+      "runs_ms": [
+        784.8,
+        756.6,
+        928.8,
+        783.8
+      ],
+      "budget_ms": 2000.0,
+      "verdict": "pass",
+      "source": "tools\\bench\\results\\diff-20261001-144526.jsonl",
+      "note": "PLAN-022 窗口形清偿重判（判定口径切换——9920 /api/diff_files_window offset=0/limit=600 渲染 cap 对齐「出结果」口径=全量 hunks/counts/rows_total[126550]+首窗 rows）：median 784.8ms ≤2000ms → armed PASS——021 FAIL 清偿（6.5× 倍率；全量对照 5078.2ms 同谱在档 diff_100mb_full 行）；工具链 v0.4.2-2474-g95dcfb55b[含 716]"
+    },
+    {
+      "state": "l2-pending",
+      "metric": "scroll_fps",
+      "median_ms": null,
+      "runs_ms": null,
+      "note": "PLAN-022 T-03 供⑨ 上游阻塞（9918/9919 VM 轨 .at i64→int 桥退化——shim 直读真值实证但 .at 侧落 0/.str()→None）；判定协议已备（滚动驱动→distinct present 计数≥面板率×0.9），清偿后首判——零数字虚席位（冒领禁则 PLAN-020 §2 约束①）"
     }
   ]
 }

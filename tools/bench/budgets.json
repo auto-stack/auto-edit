@@ -44,24 +44,24 @@
     "metric": "键入到上屏",
     "budget": "<= 1 帧（16 ms，120 Hz 下 8 ms）",
     "tier": "ledger",
-    "validity": "测量本身待供料（T-03 实勘：.at 层无帧时间戳观测通道）——供② 排队（m4-perf-unblock-supply §2，2026-09-29 落档）",
-    "unlock": "内核帧时间戳插桩（上游小供料，战略 §2.1 已登记；供② 承接位）"
+    "validity": "测量本身待供料（T-03 实勘：.at 层无帧时间戳观测通道）——供② 排队（m4-perf-unblock-supply §2，2026-09-29 落档）。PLAN-022 T-03 执行期更新（2026-10-01）：供② 通道已交付（716——9918/9919）但 **VM 轨 .at 消费面 i64→int 桥退化（供⑨）**：shim 直读真值在档[进程内 FB-DBG read=1435 同址单调]但 .at 侧三面全断——`var int = frame.begin_ms()` 落 0/.str()→None〔Tick TypeError 'str'+'NoneType' 实录〕/json.from_value→0〔api frame_probe 实测〕——time 族 now_ms 返 0 同根因[PLAN-005 T-03 登记]；上游 probe 测试驻 Rust i64 lane 未过 .at 面[plan716_supply_probes call_i64 直读形]；**a2r ui_gen handler 臂第三面缺口**：front 探针臂预埋尝试→regen E0425 cannot find value frame〔ui_gen 不路由 frame 二段名——供料档 §8 实录〕→臂撤除（front 回零改动）；下游读回通道全空（`--server vm` 无 UI/`-r vm` 无 HTTP/MCP 状态域依赖 .at 桥）。判定面已成文=L0 形 MCP autoui_state 读回+帧内口径 present−begin≤1 帧 P95（Q-2 默认）；unblock=供⑨ 双面（VM i64 桥+a2r ui_gen 臂）上游清偿",
+    "unlock": "供⑨ 上游修复（i64 native→.at int 桥）后首判；L2 形态判定=front 探针 a2r 臂后续件"
   },
   {
     "id": "scroll_fps",
     "metric": "滚动帧率",
     "budget": "满刷新率（120 Hz 面板跑满）",
     "tier": "ledger",
-    "validity": "测量本身待供料（同上）——供② 排队（m4-perf-unblock-supply §2）",
-    "unlock": "小文件已解；大文件满帧率需 rope；帧率测量需内核插桩（供② 承接位）"
+    "validity": "测量本身待供料（同上）——供② 排队（m4-perf-unblock-supply §2）。PLAN-022 T-03 同源更新（2026-10-01）：供⑨ 双面缺口同阻断（VM 轨 i64→int 桥+a2r ui_gen handler 臂——type_latency 行 validity 全证据链）；判定协议已成文（滚动驱动[PageDown 连发]→窗口内 distinct present 计数/host 窗口时长→fps≥面板率×0.9[面板率=host EnumDisplaySettings 读回]）——供⑨ 清偿后即判；竞品列 pending 维持（020 Q-2 捕获自动化双缺陷实证）；对比表滚动行已落位（l2-pending 零数字虚席——anchors/render 机制在档）",
+    "unlock": "小文件已解；大文件满帧率需 rope；供⑨ 上游修复后首判（下游协议+对比表机制已备）"
   },
   {
     "id": "diff_100mb",
     "metric": "100 MB 文件全量 diff 出结果",
     "budget": "<= 2 s",
     "tier": "ledger",
-    "validity": "引擎时代实测达成（2026-09-28 PLAN-016 修复轮：release 工具链全链墙钟 1906/1971ms ≤2s——踩线达成余量 ~5%，四跑谱 1906-2054ms 在档；引擎计算 ~380ms 上游基准在册，链路主耗=2×100MB 读+47MB envelope 全量 rows 投影+49MB 双层 JSON 传输；rows 惰性投影=观察件 want[红线余量薄根因]，计时卫生=fixture writeback 沉降窗 5s[无窗跑 2034/2054 失真 +600ms 实证]）。PLAN-021 L2 直拉形态正式判定（back 面——release auto-edit-back /api/diff_files，016 server 侧语义同型）：median 5183.2ms（3 跑谱 4985.8-5412.4，首跑弃暖机）vs ≤2000ms → **armed FAIL（记录性判定——首基线锚点）**；归因=①包络 rows 全量投影+双层 JSON 传输在 a2r back 形态放大（016 观察件 want「rows 惰性投影」红线余量薄根因直拉化）②形态差如实对照：016 VM server 形态 1906/1971ms 达标 vs a2r back 5183ms——引擎计算主导面不变（baseline 小/中档 22.5/18.9ms + over_lines 173.9ms 全绿）；瘦身实施=后续件；源=diff-20260930-205147.jsonl",
-    "unlock": "已解锁：auto-lang PLAN-703 供料包（diff 引擎）+PLAN-704 缺陷修复（D-1/D-2）——判定档=bench stage_diff diff_100mb（≤2000ms 硬判定超限红）；debug 工具链全链 14.9s 同档在档（保守上界形态，不可直比）"
+    "validity": "引擎时代实测达成（2026-09-28 PLAN-016 修复轮：release 工具链全链墙钟 1906/1971ms ≤2s——踩线达成余量 ~5%，四跑谱 1906-2054ms 在档；引擎计算 ~380ms 上游基准在册，链路主耗=2×100MB 读+47MB envelope 全量 rows 投影+49MB 双层 JSON 传输；rows 惰性投影=观察件 want[红线余量薄根因]，计时卫生=fixture writeback 沉降窗 5s[无窗跑 2034/2054 失真 +600ms 实证]）。PLAN-021 L2 直拉形态正式判定（back 面——release auto-edit-back /api/diff_files，016 server 侧语义同型）：median 5183.2ms（3 跑谱 4985.8-5412.4，首跑弃暖机）vs ≤2000ms → **armed FAIL（记录性判定——首基线锚点）**；归因=①包络 rows 全量投影+双层 JSON 传输在 a2r back 形态放大（016 观察件 want「rows 惰性投影」红线余量薄根因直拉化）②形态差如实对照：016 VM server 形态 1906/1971ms 达标 vs a2r back 5183ms——引擎计算主导面不变（baseline 小/中档 22.5/18.9ms + over_lines 173.9ms 全绿）；瘦身实施=后续件；源=diff-20260930-205147.jsonl。**PLAN-022 窗口形清偿重判（2026-10-01——判定口径切换）**：判定档切**窗口形**（/api/diff_files_window 9920 五参——rows_offset=0/rows_limit=600 对齐 front 渲染 cap[PLAN-011 口径]）；「出结果」语义=全量 hunks/counts/rows_total+首窗 rows 渲染数据（BC 渐进显示同类语义——分页消费面 rows_total 真源+600 行首屏即出）；全量形保留为对照档（kind=full-ref——**数字在档不删**：本行上文 021 FAIL 5183.2ms+本件对照谱 5078.2ms 同形态复现）。重判谱（N=4，5 attempts 首跑弃暖机，工具链 v0.4.2-2474-g95dcfb55b[含 716]）：median **784.8ms** vs ≤2000ms → **armed PASS——窗口形判定绿（021 FAIL 清偿，6.5× 倍率）**；归因闭环=021 归因①「envelope 全量投影+双层 JSON」随窗口物化（600 行 vs 1.8M 行）消除——余量=引擎核心+2×100MB 读（语义 frozen 不动，上游 census 21.9×↓/−29% 弹药兑现）；源=diff-20261001-144526.jsonl（首跑谱）+终跑谱入档；VM 轨窗口调用=供⑧ 上游缺口（9920 codegen 裸名臂缺失——L0 形不切窗，旧径零扰动维持）",
+    "unlock": "已解锁：auto-lang PLAN-703 供料包（diff 引擎）+PLAN-704 缺陷修复（D-1/D-2）——判定档=bench stage_diff --l2 diff_100mb（窗口形 ≤2000ms 硬判定）；debug 工具链全链 14.9s 同档在档（保守上界形态，不可直比）"
   },
   {
     "id": "idle_mem",
