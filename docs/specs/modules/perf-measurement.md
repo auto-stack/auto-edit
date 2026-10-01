@@ -334,7 +334,7 @@ Plan 413 原始缺口：`code_editor (key: t.key)` 动态 key 属性在 a2r 视�
 ### diff_100mb 窗口形清偿重判（G-2）
 
 - **判定档切窗口形**：bench `diff --l2` diff_100mb 档判定调用切
-  `/api/diff_files_window`（9920 五参——rows_offset=0/rows_limit=
+  `/api/diff_files_window`（上游 r3 改签 9921 五参——rows_offset=0/rows_limit=
   **600** 对齐 front 渲染 cap[PLAN-011 口径]）。**「出结果」语义
   （防冒领成文）**=全量 hunks/counts/rows_total+首窗 rows 渲染数据
   （BC 渐进显示同类语义；分页消费面 rows_total 真源）。全量形保留
@@ -349,9 +349,10 @@ Plan 413 原始缺口：`code_editor (key: t.key)` 动态 key 属性在 a2r 视�
   census 21.9×↓/−29% 弹药兑现）；工具链 v0.4.2-2474-g95dcfb55b
   （含 716 ec45f911c）；源=diff-20261001-144526.jsonl
   （首跑谱）+diff-20261001-164312.jsonl（复现终跑谱）。
-- **VM 轨窗口调用=供⑧ 上游缺口**（9920 codegen 裸名臂缺失——上游
-  供料档 §8）：L0 VM 形 diff 档维持全量旧径零扰动（016 判定形态）；
-  供⑧ 清偿后 L0 可切窗。envelope 窗口形契约=modules/diff-view.md
+- **VM 轨窗口调用**：供⑧ 上游缺口（codegen 裸名臂缺失——上游
+  供料档 §8）**已清偿**（716 r3 T-14——9920 撞号改签 9921+裸名臂
+  补全；下游回执=probe_diffwin 缺省 VM 形 8/8 PASS）；L0 VM 形
+  diff 档维持全量旧径零扰动（016 判定对照形态——切窗为可选后续）。envelope 窗口形契约=modules/diff-view.md
   窗口形节（SD-02）；端点形=modules/back-api.md 第 16 端点节
   （SD-03）。
 

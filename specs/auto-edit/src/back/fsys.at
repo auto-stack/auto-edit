@@ -252,8 +252,9 @@ pub fn diff_files_json(path_a str, path_b str, ctx int) str {
 }
 
 // ═════════════════════════════════════════════════════════════════
-// 文件 diff 窗口（PLAN-022 T-01）——PLAN-716 组C 消费位（9920 五参
-// 窗口端点裸名直调）。
+// 文件 diff 窗口（PLAN-022 T-01）——PLAN-716 组C 消费位（9921 五参
+// 窗口端点裸名直调——r3 改签：9920 与 PLAN-095 ui.focus 撞号，
+// 上游 T-14 定谳改签+codegen intrinsics 裸名臂补全）。
 //
 // 上游契约（docs/specs/auto-lang/ui/design/diff-endpoints.md「rows 窗口
 // 投影」节，2026-09-30 交付）：`diff_files_window(path_a, path_b, ctx,
@@ -264,7 +265,7 @@ pub fn diff_files_json(path_a str, path_b str, ctx int) str {
 // 最严形）。边界形（上游 SD-C 明文）：offset ≥ rows_total → rows:[]
 // +truncated=true（total>0 时）；limit 0 → 空+truncated 同语义；窗口
 // 跨 hunk 任意切片=全量 rows[offset..offset+limit] 逐行等价。裸名
-// 解析同上 diff_files（codegen intrinsics 9920 绑定——trans 裸名臂
+// 解析同上 diff_files（codegen intrinsics 绑定——供⑧ 清偿后 VM 轨贯通；trans 裸名臂
 // diff_files_window/ui_gen handler 直调臂 716 交付在册）。窗口形判定
 // 消费位=bench diff_100mb 档（T-02——rows_limit=600 对齐 front 渲染
 // cap「出结果」口径）；front 消费面零改动（窗口化仅 back/bench 域，

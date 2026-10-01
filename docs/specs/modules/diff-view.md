@@ -52,7 +52,7 @@ GET `/api/diff_files?path_a=..&path_b=..&ctx=..` → JSON 字符串
 ## envelope 窗口形（back `diff_files_window` 五参——PLAN-022 SD-02，M4-05）
 
 GET `/api/diff_files_window?path_a=..&path_b=..&ctx=..&rows_offset=..&rows_limit=..`
-→ JSON（9920 窗口投影消费——PLAN-716 组C 交付，上游契约
+→ JSON（9921 窗口投影消费[上游 r3 改签]——PLAN-716 组C 交付，上游契约
 docs/specs/auto-lang/ui/design/diff-endpoints.md「rows 窗口投影」节）：
 
 ```json

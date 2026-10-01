@@ -898,7 +898,7 @@ def stage_assert(results: str | None) -> int:
 #                     窗口形（/api/diff_files_window limit=600 渲染 cap
 #                     对齐「出结果」口径=全量 hunks/counts/rows_total+
 #                     首窗 rows——016 消费面零改动 frozen③：L0 VM 形维持
-#                     全量旧径，9920 VM 裸名臂上游缺口[供⑧]下 VM 轨窗口
+#                     全量旧径；供⑧ 已清偿[上游 r3 改签 9921+裸名臂]——
 #                     调用不可用）
 # 计时口径=/api/diff_files 全链墙钟（app --server vm，debug 工具链——
 # 保守上界形态：引擎 release 相对量 0.35-0.9s 在档，绝对量判定以此
@@ -976,7 +976,7 @@ def stage_diff(l2: bool = False) -> int:
          "kind": "budget"},
     ]
     if l2:
-        # PLAN-022 T-02：判定档切窗口形（9920——rows_limit=600 对齐 front
+        # PLAN-022 T-02：判定档切窗口形（窗口端点 r3 改签 9921——rows_limit=600 对齐 front
         # 渲染 cap「出结果」口径=全量 hunks/counts/rows_total+首窗 rows），
         # 全量形保留为对照档（kind=full-ref——数字在档不判定）。
         tiers.append({"id": "diff_100mb_full",
@@ -1028,9 +1028,9 @@ def stage_diff(l2: bool = False) -> int:
         # 静置分解同链 1437ms）。
         time.sleep(5.0)
         for t in tiers:
-            # PLAN-022 T-02：L2 判定档 diff_100mb 切窗口形（9920 五参——
+            # PLAN-022 T-02：L2 判定档 diff_100mb 切窗口形（窗口端点 9921 五参——
             # offset=0/limit=600）；L0 VM 形维持全量旧径（016 判定形态零
-            # 扰动——9920 VM 裸名臂上游缺口[供⑧]下 VM 轨窗口调用不可用）。
+            # 扰动；供⑧ 已清偿后 VM 轨窗口贯通——L0 维持全量旧径=016 对照形态续用）。
             if l2 and t["id"] == "diff_100mb":
                 q = urllib.parse.urlencode({"path_a": t["fx"]["a"],
                                             "path_b": t["fx"]["b"], "ctx": 3,

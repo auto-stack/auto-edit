@@ -111,14 +111,15 @@ a2r server 生成器模板假设 api::Db 状态注入 + 契约 fn 转译为空�
 
 - **`diff_files_window(path_a, path_b, ctx, rows_offset, rows_limit)
   str`**（GET `/api/diff_files_window`——五参全必填）：PLAN-716 组C
-  9920 窗口投影消费（`fsys.diff_files_window_json` 五参裸名直调纯
+  9921 窗口投影消费[上游 r3 T-14 改签——9920 与 PLAN-095 ui.focus
+  撞号定谳]（`fsys.diff_files_window_json` 五参裸名直调纯
   转发）。envelope 窗口形=hunks/adds/dels 恒**全量**+`rows_total`
   （全量行计数——分页/滚动条真源）+`truncated` 激活（头部 offset>0
   或尾部省略任一即置位；9915 旧端点恒 false 不变）+rows=窗口物化段
   [offset..offset+limit]。
 - **独立端点=双轨约束的等价承载**（T-00③ 勘定）：VM HTTP 服务缺参
   400+merged 轨按位装配——同端点「可选 query 参数」不可表达，窗口
-  走新端点（上游 9920 HTTP 串形同构）。**「缺席=全量」语义由端点
+  走新端点（上游窗口端点 HTTP 串形同构）。**「缺席=全量」语义由端点
   二分承载**：不携窗口参数的消费面（016 front 全量消费）走旧
   `/api/diff_files`（9915 三参——签名与输出逐字节不变，frozen③）。
 - **边界形**（上游 SD-C 契约）：offset ≥ rows_total → rows:[]+

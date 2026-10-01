@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""probe_diffwin.py — PLAN-022 T-01 back 窗口贯通探针（9920 消费面）。
+"""probe_diffwin.py — PLAN-022 T-01 back 窗口贯通探针（窗口端点消费面——上游 r3 改签 9921）。
 
 断言族（716 SD-C 边界形对齐 + frozen③ 默认形零扰动）：
   ①默认形逐字节等价：/api/diff_files（9915）envelope 键集恒 8 字段——
@@ -12,10 +12,9 @@
 
 形态（--back）：判据走 a2r back exe（L2 形——stage_diff --l2 同款
 spawn：AUTO_HTTP_PORT 端口直拉）。缺省=VM server 形（`run --server
-vm`）。**执行期勘定（2026-10-01）**：VM 轨 9920 codegen intrinsics
-裸名臂缺失（上游供⑧——codegen.rs 三 diff 面无 window 登记，实测
-HTTP 线程挂死）→窗口形断言在 VM 形不可达，本探针默认形态仍验①
-（旧端点零触碰自证），②③须 --back 形。
+vm`）。**供⑧ 清偿回执（2026-10-01，上游 r3 改签 9921+裸名臂补全）**：
+VM 形断言解封——缺省形 8/8 PASS（含②③窗口形/边界形）+--back 形
+8/8 PASS 双绿在档。
 
 用法：python tests/probe_diffwin.py [--back]   （AUTO_BIN 指 ≥716 工具链）
 产出：tests/evidence-p022-t01.json（断言明细+端点原文摘要）。
