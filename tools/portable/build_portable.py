@@ -83,6 +83,52 @@ RETIRE_NOTE = ("PLAN-019 快照回退臂（regen 失败还原 last-good 基面�
                "已随供① 清偿退役[PLAN-021 T-01]——历史机制见 019 归档件"
                "与本注记；regen 现势直跑，失败=真失败。")
 
+# PLAN-022 T-05: ts 双形态载荷开关（716 组A highlight-treesitter feature
+# 消费——ts-on=语法高亮完整形[21 语言+tail 路由；716 实测 +18.9MB]，
+# ts-off=发布/installer 约束形[syntect 缩减集基线——默认形]）。
+# 注入点=生成 ws 根 Cargo.toml 的 workspace auto-lang dep 行（features
+# 追加面——019 patch 通道同边界：不动版本/路径/依赖增删；成员级
+# features[ui/image-pipeline]与 workspace features 并集语义，双 member
+# 一次性覆盖）。幂等=highlight-treesitter 在场检测。
+TS_FEATURE = "highlight-treesitter"
+TS_DEP_LINE_RE = re.compile(r'^(auto-lang = \{ path = "[^"]+")(\s*\})\s*$', re.M)
+
+
+def stage_ts_patch(ws: Path, ts_on: bool) -> tuple[int, str]:
+    manifest = ws / "Cargo.toml"
+    if not ts_on:
+        return EXIT_OK, "ts-off（发布约束形——零注入，syntect 缩减集基线）"
+    text = manifest.read_text(encoding="utf-8")
+    if TS_FEATURE not in text:
+        new, n = TS_DEP_LINE_RE.subn(
+            r'\1, features = ["' + TS_FEATURE + r'"]\2', text, count=1)
+        if n == 0:
+            return EXIT_FAIL, ("FATAL: workspace auto-lang dep 行未匹配"
+                               "（生成器形变——基面演化）")
+        manifest.write_text(new + ("" if new.endswith("\n") else "\n"),
+                            encoding="utf-8", newline="\n")
+    # PLAN-022 T-05: blake3 锁定钉位（供⑪ cc 夹缝回避——tree-sitter-
+    # sequel 0.3.2 的 cc `~1.0.90` 钉 vs 新纪元 blake3[1.8.7]的
+    # cc `^1.1.12`：同 major 单版本选一→空交集不可解析〔首建败实录
+    # release-20261001-160555.log〕；blake3 1.5.5 纪元兼容→锁定降钉后
+    # cc 1.2.67 双满足，cargo check 绿[1m06s 实证]）。幂等=1.5.x 在位跳过。
+    import subprocess as _sp
+    lock = ws / "Cargo.lock"
+    blake3_ok = False
+    if lock.exists():
+        m = re.search(r'name = "blake3"\r?\nversion = "([^"]+)"',
+                      lock.read_text(encoding="utf-8"))
+        blake3_ok = bool(m and m.group(1).startswith("1.5."))
+    if not blake3_ok:
+        proc = _sp.run(["cargo", "update", "-p", "blake3",
+                        "--precise", "1.5.5", "--manifest-path",
+                        str(manifest)], capture_output=True, text=True)
+        if proc.returncode != 0:
+            return EXIT_FAIL, ("FATAL: blake3 钉位失败——"
+                               f"{(proc.stderr or proc.stdout)[-160:]}")
+        return EXIT_OK, "ts-on（feature 注入+blake3 1.5.5 锁定钉位——供⑪ cc 夹缝回避）"
+    return EXIT_OK, "ts-on（feature 在场+blake3 1.5.x 已钉——幂等跳过）"
+
 EXIT_OK, EXIT_FAIL, EXIT_BLOCKED = 0, 1, 3
 
 # 大 crate 编译稳定性（本件执行期实录）：本机在编译高峰（auto-lang 30 万行
@@ -350,14 +396,24 @@ def stage_build() -> tuple[int, dict]:
     return EXIT_OK, {"build_log": str(log), "size_bytes": size}
 
 
-def stage_assert() -> tuple[int, dict]:
+def stage_assert(ts_on: bool = False) -> tuple[int, dict]:
     ws = _ws()
     exe = ws / "target" / "release" / EXE_NAME
     size = exe.stat().st_size
     sha = hashlib.sha256(exe.read_bytes()).hexdigest()
     DIST.mkdir(parents=True, exist_ok=True)
-    dest = DIST / EXE_NAME
+    # PLAN-022 T-05: 产物双形态命名——ts-off=canonical auto-edit.exe
+    # （installer 约束形，预算行判定域）；ts-on=auto-edit-ts-on.exe
+    # （语法完整形——尺寸记录位，预算判定不适用[+18.9MB 预期形态]）。
+    dest_name = "auto-edit-ts-on.exe" if ts_on else EXE_NAME
+    dest = DIST / dest_name
     shutil.copy2(exe, dest)
+    if ts_on:
+        _log(f"assert：ts-on 形 {size:,} B（尺寸记录位——预算行不适用，"
+             "installer 行判定域=ts-off 形）")
+        _log(f"stage：{dest} sha256={sha[:16]}…")
+        return EXIT_OK, {"size_bytes": size, "sha256": sha[:16],
+                         "dest": str(dest), "verdict": "record-only(ts-on)"}
     verdict = "pass" if size <= BUDGET_BYTES else "fail"
     gap = BUDGET_BYTES - size
     _log(f"assert：{size:,} B vs ≤{BUDGET_BYTES:,} B → {verdict}"
@@ -381,6 +437,11 @@ def main() -> int:
                     metavar="KEY=VALUE", help="profile 键覆盖（可多次）")
     ap.add_argument("--no-deps-patch", action="store_true",
                     help="跳过依赖行 patch（仅 profile 面）")
+    ap.add_argument("--ts", choices=["on", "off"], default="off",
+                    help="PLAN-022 T-05 载荷开关：ts-on=highlight-"
+                         "treesitter 语法完整形（+18.9MB 预期——尺寸记录"
+                         "位）；ts-off=发布/installer 约束形（默认，预算"
+                         "判定域）")
     ap.add_argument("--skip-build", action="store_true",
                     help="跳过构建（patch/幂等自证用）")
     ap.add_argument("--check-idempotent", action="store_true",
@@ -417,6 +478,14 @@ def main() -> int:
     if rc_p != EXIT_OK:
         _dump(rec, rc_p)
         return rc_p
+    ts_on = args.ts == "on"
+    rec["ts_form"] = args.ts
+    rc_t, meta_t = stage_ts_patch(_ws(), ts_on)
+    rec["ts_patch"] = meta_t
+    _log(f"ts patch：{meta_t}")
+    if rc_t != EXIT_OK:
+        _dump(rec, rc_t)
+        return rc_t
     if args.check_idempotent:
         import hashlib as _h
         ws = _ws()
@@ -439,10 +508,10 @@ def main() -> int:
     if rc_b != EXIT_OK:
         _dump(rec, rc_b)
         return rc_b
-    rc_a, meta_a = stage_assert()
+    rc_a, meta_a = stage_assert(ts_on)
     rec["assert"] = meta_a
     _dump(rec, rc_a)
-    if rc_a != EXIT_OK:
+    if rc_a != EXIT_OK and not ts_on:
         _log(f"RED: 尺寸门超限——差距 {-meta_a['gap_bytes']:,} B"
              "（分阶段语义：差距数字入报告，手段迭代继续——非链失败）")
     return rc_a

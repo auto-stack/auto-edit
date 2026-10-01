@@ -499,6 +499,38 @@ evidence-p021-blocked-survey.md（全弧：两面 forensics+解阻复验+残余
 §7 登记→714 r4 清偿）；上游登记=供料档 §6[已清偿归档]/§7[714 r4
 清偿归档]。
 
+PLAN-022 口径（2026-10-01，工具链=v0.4.2-2474-g95dcfb55b 组树 debug
+构建[716 ec45f911c+719/720；组三树 edit-022/{auto-edit@plan-022-dev,
+auto-lang@95dcfb55b detached,auto-down@895f8d0 detached}——auto-down
+组树必需复活实录在案（autodown-core 相对路径 sibling 解析，021
+「不再需要」结论随 95dcfb55b 现势失效应验）]）。**PLAN-716 三组
+消费件**：①**diff_100mb 窗口形清偿重判 armed PASS**——`bench
+diff --l2`（判定档切 `/api/diff_files_window` 9920 五参
+offset=0/limit=600 渲染 cap 对齐「出结果」口径=全量
+hunks/counts/rows_total+首窗 rows）：median **784.8ms**（N=4 谱
+756.6-928.8）≤2s——021 FAIL 5183.2ms 清偿（6.5× 倍率；全量对照档
+diff_100mb_full 在档不判定，016/021/022 三态数字并陈不删）；判绿
+回填位=budgets diff_100mb validity+对比表 diff 行；窗口形契约=
+back-api.md 第 16 端点+diff-view.md 窗口形节（VM 轨窗口调用=供⑧
+上游缺口——L0 形维持全量旧径零扰动）。②**帧两行断言化=供⑨
+blocked**（9918/9919 .at 消费面双缺口——判定协议成文
+perf-measurement.md PLAN-022 节；budgets 两行证据链行；l2-pending
+虚席位）；③**双构建形态通道**——`build_portable [--ts on|off]`
+（highlight-treesitter feature 门控注入）：ts-off=
+dist/portable/auto-edit.exe（发布/installer 约束形——30,355,456B
+实录，尺寸门=installer 行判定域，分阶段语义差距在案）/
+ts-on=auto-edit-ts-on.exe（语法完整形——51,457,024B，**Δ+21.1MB
+vs 716 实测 +18.9MB 同量级**；binary 探针 tree_sitter 符号 on=23/
+off=0 干净门控实证）；双形态 boot/装载冒烟 PASS（release 零旗标
+直拉 bench_open_done 2s 同拍）；ts-on 构建回避钉=blake3 1.5.5
+锁定（供⑪ cc 夹缝——供料档 §8）；④**对比表滚动行落位**（我方
+l2-pending 零数字+竞品 020 Q-2 pending 维持——anchors --verify
+9 行+render --check 双绿）；⑤**供③ P716-D1 复试销账未达**（×3 谱
+93 PASS/0 FAIL T17 不可达——处方 part-1 端口钉位已落实；维持
+挂账 evidence-p022-t06.md）。上游消费首跑登记=供料档 §8（供⑧/
+⑨/⑪+语法联动 want——highlight_segments 三面 grep 零命中，M3
+尾巴供料驱动注记维持）。front 消费面零改动（frozen③）。
+
 注：Plan 451 起 T10「热重载」走 DSL 源路径（reload 工具或 mtime 轮询重读
 app.at 重新提取 actions + generation bump → 视图重建），实测 50/0 全绿。
 OS 用户键位层（`%APPDATA%/auto/keymaps/auto-edit.at`）保持外部文件——那是

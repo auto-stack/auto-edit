@@ -284,6 +284,24 @@
   （协议在档：type_latency=帧内 P95≤1 帧/scroll_fps=distinct
   present 计数≥面板率×0.9——budgets 两行 blocked 证据链行）。
 
+### 供⑪：highlight-treesitter+sql 的 cc 版本夹缝（PLAN-022 T-05 首建实证）
+
+- **现象**：ts-on 形构建（生成 ws——workspace auto-lang dep 行
+  `features=["highlight-treesitter"]` 注入）→ **cargo 解析失败**
+  `failed to select a version for cc`：tree-sitter-sequel 0.3.2
+  （sql 登记位——716 组A T-04）钉 `cc ~1.0.90`〔≥1.0.90 <1.1〕vs
+  新纪元 blake3 1.8.7（regen 时现势解析）钉 `cc ^1.1.12`——同 major
+  单版本选一→空交集〔首建败实录 release-20261001-160555.log〕。
+- **根因**：依赖钉版脆弱性（sequel 的 `~` 紧钉 vs 对齐族 cc 需求
+  随 registry 演进上移）——上游 716 执行期 lock 处于兼容纪元
+  （实证推测：其 lock 的 blake3/cc 组合未过 1.1 缝），regen 现势
+  解析即触。
+- **下游回避（已在案）**：ts-on 构建流程锁定 `blake3 --precise
+  1.5.5`（兼容纪元降钉——cc 1.2.67 双满足，cargo check 绿 1m06s
+  实证；build_portable stage_ts_patch 内建幂等钉位）。
+- **验收形态建议**：上游 Cargo.toml 面解钉（sequel 升级/换源或
+  blake3 需求面放宽）→ 下游撤回避钉复验 `--ts on` 构建绿。
+
 ### 语法高亮联动 want 登记（M3 尾巴处置——本件 §1 G-5 定案）
 
 - **want**：diff 视图行级/文本段语法着色端点——`highlight_segments`
@@ -303,7 +321,7 @@
 §2（两行测量解锁+首帧分解补全）→ §4（最大件，勘定先行两段式）→
 §5（installer 第二段，随供④/用户裁定排程——PLAN-019 条件触发件）→
 §8（供⑧ 一行臂+供⑨ 双面——PLAN-022 消费首跑实证，T-03 判定面
-unblock 位）。
+unblock 位；供⑪ cc 夹缝解钉——ts-on 构建面回归）。
 
 **回执方式**：同 M1/diff-engine 两包——各件落地落上游 plan 后，
 auto-edit 侧以零改动或最小改动复验解阻（669 先例；供① 回执=
