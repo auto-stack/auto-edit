@@ -336,6 +336,18 @@
           ],
           "superseded_by": null,
           "content": "- 绿面收据：T-01 back 窗口贯通（api.at 第 16 端点 diff_files_window 五参——独立端点形=双轨约束等价承载[VM HTTP 缺参 400+merged 按位装配实证]；probe_diffwin --back 形 8/8 PASS〔默认形键集恒 8 不增 rows_total+窗口形 rows_total/truncated/hunks 全量/切片逐行等价+边界净形〕；旧端点零触碰 frozen③ 最强形+front 零改动）。\n- T-02 清偿重判：armed PASS 双谱（median 784.8ms N=4 谱 756.6-928.8+复现终跑 1261.1ms N=4 静窗——双谱≤2s；对照档 full-ref 5078.2/6402.0ms 同形；工具链 v0.4.2-2474-g95dcfb55b[含 716]）；budgets validity 口径重写〔出结果语义+hunks/counts/rows_total 全量+首窗 600 渲染 cap 对齐〕；对比表 diff 行三态并陈〔016 1906.0/021 FAIL 5183.2/022 PASS 784.8〕——anchors --verify 9 行全等+render --check 复现一致双绿；谱 JSONL ×2 入仓。\n- T-03 帧两行=供⑨ blocked（判定面/协议成文不冒领）：VM 轨 .at i64→int 桥退化〔shim 真值实测但 .at 赋值落 0/.str()→None/json→0——time 族同根因〕+a2r ui_gen handler 臂 E0425〔front 探针臂预埋尝试→regen 败→臂撤除 front 回零改动〕；读回通道全空勘定〔--server vm 无 UI/-r vm 无 HTTP/MCP 状态域依赖 .at 桥〕；判定协议在档〔type_latency 帧内 P95≤1 帧+scroll_fps distinct present≥面板率×0.9+面板率 host 读回〕。\n- T-05 双构建形态通道：--ts on|off 开关〔feature 注入+产物双命名+预算判定分域〕；ts-off 30,355,456B〔installer 行分阶段语义差距 14.6MB 在档〕/ts-on 51,457,024B〔Δ+21.1MB vs 716 +18.9MB 同量级；tree_sitter 符号 on=23/off=0 门控探针干净〕；双形态 boot/装载冒烟 PASS〔bench_open_done 2s 同拍〕；供⑪ cc 夹缝回避钉=blake3 1.5.5 幂等锁定。\n- T-06 供③ 复试销账未达（维持挂账不假销账）：处方 part-1 落实〔主实例 MCP 端口高带钉位臂——924x TOCTOU 3/6→0/3〕；×3 谱 93 PASS/0 FAIL〔T1-T9 深度全绿含 T15 零扰动哨随跑复证；T17 不可达——app 动作相关净退 ×2〔空闲对照 420s 存活排除自退〕+T10 spawn 败 ×1；共栖 721 desktop 会话在途〕；回写建议文随附 evidence-p022-t06.md。\n- 上游登记=供料档 §8：供⑧〔9920 VM codegen 裸名臂缺失——L2 判定面不受累〕/供⑨〔9918/9919 .at 消费双缺口〕/供⑪〔cc 夹缝——回避钉在案〕+语法高亮联动 want〔highlight_segments 三面 grep 零命中——M3 尾巴供料驱动注记维持〕。\n- blockers：T-03 待供⑨ 双面清偿后首判；T-06 待空闲窗口期复跑（判据不变 T17 全绿×3）；供⑧ 清偿后 L0 diff 可切窗。next=review（auto-plan-review 全套件门）。"
+        },
+        {
+          "id": "P022-2",
+          "section": "reviews",
+          "status": "stable",
+          "title": "PLAN-022 — M4-05 PLAN-716 三组消费件 merge 收据（reviewed pass @ r2 a88ae13f[rebase 等价映射 ff-landed 69e6cc9]：diff_100mb 窗口形清偿重判 armed PASS 双谱+帧两行首判 armed FAIL 落账[供② 测量解锁交付物]+对比表 滚动实数+ts 双形态+供⑧⑨⑪ 上游清偿回执+供⑫⑬ 登记——AC-03 r2 修订形armed 如实判定收口〔用户裁定〕）",
+          "file": "docs/plans/archived/022-m4-716-consume.md",
+          "related": [
+            "PLAN-022"
+          ],
+          "superseded_by": null,
+          "content": "- merge 五检查点（r2）：prepared=reviewed 基线 main@88bdb64/工作树 plan-022-dev@a88ae13f+canonical diff=worktree docs/specs 已提交面〔SD-01..04+README+供料档 §8〕；landed=plan-022-dev rebase main 零冲突〔range-diff 14 提交全等〕+ff-only=main tip 69e6cc9〔零 merge 提交〕+main 烟测三绿〔anchors --verify 9 行全等+render --check 复现一致+probe_diffwin VM 形 8/8〕；archived=docs/plans/archived/022-m4-716-consume.md〔git mv+completion_kind: delivered〕；cleaned=三树注销+wt-guard clean〔待回填格——清理后 plan 尾行补记〕；ledger=本条插入。\n- 判定收口终态（对照表+预算面板）：diff_100mb **armed PASS** 窗口形〔9921 消费——median 784.8/1261.1ms 双谱 ≤2s，021 FAIL 5183.2ms 清偿 4-6.5×；全量对照档不删〕/open_100mb armed PASS 863.2ms/warm armed PASS/steady armed PASS/idle armed PASS/**type_latency armed FAIL**〔P50 110/P95 115ms vs ≤16.7ms→~6.6 帧〕/**scroll_fps armed FAIL**〔8.0fps vs ≥54〕——帧两行首基线锚点〔供② 测量解锁=交付物；debug 对照谱同量级=编译形态无关→键入帧全量重建管线 ~110ms/帧归因，优化=管线优化件后续计划〕。\n- 上游消费闭环：供⑧〔撞号改签 9921+裸名臂——probe 双形 8/8〕/供⑨〔int lane 出口形+handler 双轨臂——值流贯通+a2r regen exit 0〕/供⑪〔registry 解钉——撤钉回执〕全回执；新登记供⑫〔print 拼接 trans 缺口〕/供⑬〔trans 臂 i64→int 直赋 E0308——i64 字段适配〕+语法联动 want〔供料档 §8〕。\n- 范围收口：.at diff=back 窗口端点+front 双门探针臂〔F-1——frozen③ 合规：窗口化仅 back/bench 域，探针=bench 域仪表〕；auto-lang 主树零触碰〔716 修复轮=上游自身件〕；对照表滚动行竞品 pending 维持〔020 Q-2〕；部署观察=零重建项维持〔021 同录〕；批量回归=本仓无机制不适用。\n- findings〔review F-1..F-4〕：F-1 affects finalize+back 最小面 scope-note/F-2 矩阵环境族 4 尝试 0 FAIL 部分深度〔T15 overclaim 更正〕/F-3 撤钉后 ts-on 全构建未重跑〔resolution+check 已证〕/F-4 锚点计数 9 行〔summary 笔误更正〕。"
         }
       ],
       "status": "Empty",
