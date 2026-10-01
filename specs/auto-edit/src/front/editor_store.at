@@ -126,13 +126,15 @@ store EditorStore {
         // PLAN-022 T-03: 帧探针字段（供② 9918/9919 读回面——716 r3 T-15
         // 出口形修复后值流贯通：int lane/毫秒 saturating<2^31；双门
         // AUTO_BENCH+AUTO_FRAME_BENCH 门关零写入——PLAN-005 标记族同
-        // 纪律；bench 帧两行档经 MCP autoui_state 读回）。fprobe_marked=
-        // 首帧一次性 stdout 标记卫（host 时间戳+帧值双录——SD-B §3b
-        // 时源坐标=frame_bench 首触定格，非进程起点）。
-        var fprobe_begin int = 0
-        var fprobe_present int = 0
+        // 纪律；bench 帧两行档经 MCP autoui_state 读回。首帧段值=
+        // MCP 首采非零 fprobe_present〔首帧 stdout 标记形因供⑫ a2r
+        // trans print 缺口撤除——常量 print 之外的拼接形不发射〕。
+        // begin/present 字段=i64（供⑬ 适配：a2r trans 臂发射 Rust
+        // 原生 i64 返回，.at int=i32 字段直赋 E0308——i64 字段承接，
+        // VM 轨 int 源隐式加宽两轨验证）。
+        var fprobe_begin i64 = 0
+        var fprobe_present i64 = 0
         var fprobe_n int = 0
-        var fprobe_marked bool = false
         var console_open bool = false
         var console str = ""
         // PLAN-016 T-08：桌面 open_with 接收臂——宿主执行臂 write_state
@@ -505,12 +507,6 @@ store EditorStore {
                     .fprobe_begin = frame.begin_ms()
                     .fprobe_present = frame.present_ms()
                     .fprobe_n = .fprobe_n + 1
-                    if .fprobe_present > 0 {
-                        if !.fprobe_marked {
-                            .fprobe_marked = true
-                            print("BENCH fprobe_first p=" + .fprobe_present.str())
-                        }
-                    }
                 }
             }
             // PLAN-010 T-02: 会话恢复链（尾段——bench 计时标记之后，热启动
@@ -699,12 +695,6 @@ store EditorStore {
                     .fprobe_begin = frame.begin_ms()
                     .fprobe_present = frame.present_ms()
                     .fprobe_n = .fprobe_n + 1
-                    if .fprobe_present > 0 {
-                        if !.fprobe_marked {
-                            .fprobe_marked = true
-                            print("BENCH fprobe_first p=" + .fprobe_present.str())
-                        }
-                    }
                 }
             }
             // PLAN-017 T-03: 净形 live 预览标记（键入主源——Tick 单拍
@@ -720,12 +710,6 @@ store EditorStore {
                     .fprobe_begin = frame.begin_ms()
                     .fprobe_present = frame.present_ms()
                     .fprobe_n = .fprobe_n + 1
-                    if .fprobe_present > 0 {
-                        if !.fprobe_marked {
-                            .fprobe_marked = true
-                            print("BENCH fprobe_first p=" + .fprobe_present.str())
-                        }
-                    }
                 }
             }
             store.SyncCursor(.tabs[i].key)
@@ -738,12 +722,6 @@ store EditorStore {
                     .fprobe_begin = frame.begin_ms()
                     .fprobe_present = frame.present_ms()
                     .fprobe_n = .fprobe_n + 1
-                    if .fprobe_present > 0 {
-                        if !.fprobe_marked {
-                            .fprobe_marked = true
-                            print("BENCH fprobe_first p=" + .fprobe_present.str())
-                        }
-                    }
                 }
             }
         }

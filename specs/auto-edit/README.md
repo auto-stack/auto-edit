@@ -512,10 +512,13 @@ hunks/counts/rows_total+首窗 rows）：median **784.8ms**（N=4 谱
 diff_100mb_full 在档不判定，016/021/022 三态数字并陈不删）；判绿
 回填位=budgets diff_100mb validity+对比表 diff 行；窗口形契约=
 back-api.md 第 16 端点+diff-view.md 窗口形节（VM 轨窗口调用=供⑧
-上游缺口——L0 形维持全量旧径零扰动）。②**帧两行断言化=供⑨
-blocked**（9918/9919 .at 消费面双缺口——判定协议成文
-perf-measurement.md PLAN-022 节；budgets 两行证据链行；l2-pending
-虚席位）；③**双构建形态通道**——`build_portable [--ts on|off]`
+上游缺口——L0 形维持全量旧径零扰动）。②**帧两行断言化首判=供②
+交付物达成**（716 r3 供⑨ 清偿后复工——armed FAIL 双行如实红：
+type_latency P50 110/P95 115ms vs ≤16.7ms→FAIL ~6.6 帧+scroll_fps
+8.0fps vs ≥54→FAIL〔换行连发 cursor-follow 滚动驱动；debug 对照谱
+同量级=编译形态无关〕——键入帧全量重建管线 ~110ms/帧主耗，优化=
+管线件后续；判定协议/首帧段记账位=SD-01 PLAN-022 节；对比表滚动
+行实数落位）；③**双构建形态通道**——`build_portable [--ts on|off]`
 （highlight-treesitter feature 门控注入）：ts-off=
 dist/portable/auto-edit.exe（发布/installer 约束形——30,355,456B
 实录，尺寸门=installer 行判定域，分阶段语义差距在案）/
@@ -608,7 +611,7 @@ menubar {
 | 打开 5 MB | 各对象 t_ready（语义列同左口径） | 4,289.1 ms（N=4，4,256.3–4,340.8） | 296.0 ms（N=4，272.6–310.0） | pending（未装——Q-1） | —（diff 对象不适用） | —（无同档在档谱） |
 | 打开 100 MB | VS Code=RSS 物化；Zed=首帧（rope 惰性）；本仓=全量装载 | 4,677.7 ms（N=4，4,621.4–4,718.5） | 295.6 ms（N=4，275.4–310.3） | pending（未装——Q-1） | —（diff 对象不适用） | **841.0 ms**〔锚点·VM 形态——非 L2〕；38.2 ms〔产物面·last-good 基面——非 L2〕；**863.2 ms**〔**L2 直拉判定·armed PASS——硬门禁正式判定绿**——N=4，862.7–889.5〕 |
 | diff 100 MB（文件对） | BC=report 产出；本仓=diff 端点全链墙钟 （022 起=窗口形判定，全量对照在档） | —（未测） | —（未测） | — | 123,279.8 ms（N=4，119,849.6–126,246.9） | **1,906.0 ms**〔release 全链判定先例（016，仅限 diff）〕；5,183.2 ms〔**L2 直拉判定·armed FAIL（记录性）——归因随行**——N=3，4,985.8–5,412.4〕；**784.8 ms**〔**L2 直拉判定·armed PASS——硬门禁正式判定绿**——N=4，756.6–928.8〕 |
-| 滚动帧率 | 各对象=编辑器滚动帧率（语义随行：本仓=present 频率采样，面板率×0.9 判据——PLAN-022 协议在档） | pending（未测——020 Q-2 捕获自动化双缺陷） | pending（未测——020 Q-2 同） | pending（未装——Q-1） | —（diff 对象不适用） | pending（PLAN-022 T-03 供⑨ 上游阻塞（9918/9919 VM 轨 .at i64→int 桥退化——shim 直读真值实证但 .at 侧落 0/.str()→None）；判定协议已备（滚动驱动→distinct present 计数≥面板率×0.9），清偿后首判——零数字虚席位（冒领禁则 PLAN-020 §2 约束①）） |
+| 滚动帧率 | 各对象=编辑器滚动帧率（语义随行：本仓=present 频率采样，面板率×0.9 判据——PLAN-022 协议在档） | pending（未测——020 Q-2 捕获自动化双缺陷） | pending（未测——020 Q-2 同） | pending（未装——Q-1） | —（diff 对象不适用） | 8.0 fps〔**L2 直拉判定·armed FAIL（首基线锚点）——归因随行**——窗 2,995 ms vs 阈 54.0〕 |
 
 Notepad++ 缺位=安装属用户面（PLAN-020 §10 Q-1），装后 harness 补跑即得列（通道与 VS Code 同形）。**我方 L2 正式列=PLAN-021 直拉判定谱**（steady/open——armed 判定随格；diff 行=PLAN-022 窗口形清偿重判 PASS+021 全量形 FAIL 对照并陈；scroll 行=供⑨ 上游阻塞虚席——判定协议在档待清偿；未入表行 warm/idle 判定谱=budgets.json validity）。锚点/产物面数字不冒领（018 分层纪律表内延伸）。发布动作（对外宣传/链接分发）=数字齐后另行；本节=战略 §5 指定表位。
 <!-- COMPARE-TABLE:END -->
