@@ -49,6 +49,38 @@ GET `/api/diff_files?path_a=..&path_b=..&ctx=..` → JSON 字符串
   b 窗交叠时，前组 add 行参考实现双渲染、本实现单渲染（视觉=同行只
   画一次）。
 
+## envelope 窗口形（back `diff_files_window` 五参——PLAN-022 SD-02，M4-05）
+
+GET `/api/diff_files_window?path_a=..&path_b=..&ctx=..&rows_offset=..&rows_limit=..`
+→ JSON（9920 窗口投影消费——PLAN-716 组C 交付，上游契约
+docs/specs/auto-lang/ui/design/diff-endpoints.md「rows 窗口投影」节）：
+
+```json
+{"hunks":[{"a1,a2,b1,b2"}], "rows":[{12 字段——同全量形行形}],
+ "adds":int, "dels":int, "rows_total":int, "truncated":bool,
+ "degraded":bool, "err":str}
+```
+
+- **rows_total**=全量行计数（窗口只影响物化不影响计数）——分页/
+  滚动条真源；**hunks/adds/dels 恒全量**（导航域不受窗口影响）。
+- **truncated 激活语义**：头部省略（offset>0）与尾部省略（offset+
+  返回行数 < rows_total）任一即置位；**9915 全量形 truncated 恒
+  false 不变**（默认形零扰动 frozen③——键集 8 字段不增 rows_total，
+  probe_diffwin ① 断言在档）。
+- **边界形**：offset ≥ rows_total → rows:[]+truncated=true（total>0
+  时）；limit 0 → 空+truncated 同语义；跨 hunk 任意切片=全量
+  rows[offset..offset+limit] 逐行等价（probe_diffwin ②③ --back 形
+  8/8 PASS 在档；VM 轨窗口调用=供⑧ 上游缺口——codegen 裸名臂缺失，
+  上游供料档 §8 登记）。
+- **判定口径（bench diff_100mb 窗口档，armed PASS 784.8ms 在档
+  budgets validity）**：「出结果」语义=全量 hunks/counts/rows_total
+  +首窗 rows（rows_limit=600 对齐 front 渲染 cap[PLAN-011]）——BC
+  渐进显示同类语义；全量形保留为对照档（kind=full-ref，数字在档
+  不删）。
+- **front 消费面零改动**：front 仍默认全量形消费（日常文件量级）；
+  惰性拉行（滚动按 offset 分页拉取）=UX 后续件——本端点 v1 消费者
+  仅 bench/探针。
+
 ## 过渡计算定位（朴素分层，非 histogram/patience）
 
 > **【退役·PLAN-016】**本节算法已随引擎时代退役（历史口径保留）：

@@ -328,3 +328,60 @@ Plan 413 原始缺口：`code_editor (key: t.key)` 动态 key 属性在 a2r 视�
 - **对比表收口**：open_100mb 行 L2 实数补列（863.2ms armed PASS），
   l2-pending 虚席位退役（机制保留）；anchors --verify 7 行+
   render --check 双绿维持。
+
+## diff 窗口判定口径+帧两行断言化协议（PLAN-022，2026-10-01——M4-05）
+
+### diff_100mb 窗口形清偿重判（G-2）
+
+- **判定档切窗口形**：bench `diff --l2` diff_100mb 档判定调用切
+  `/api/diff_files_window`（9920 五参——rows_offset=0/rows_limit=
+  **600** 对齐 front 渲染 cap[PLAN-011 口径]）。**「出结果」语义
+  （防冒领成文）**=全量 hunks/counts/rows_total+首窗 rows 渲染数据
+  （BC 渐进显示同类语义；分页消费面 rows_total 真源）。全量形保留
+  对照档（`diff_100mb_full`，kind=full-ref——**数字在档不删**：
+  016 1906ms/021 FAIL 5183.2ms/022 对照 5078.2ms）。
+- **armed PASS**：median **784.8ms**（N=4 谱 756.6-928.8，首跑弃
+  暖机）vs ≤2000ms——021 FAIL 清偿（倍率 6.5×）；归因闭环=021 归因
+  ①「envelope 全量投影+双层 JSON」（rows 1.8M 行物化）随窗口物化
+  （600 行）消除，余量=引擎核心+2×100MB 读（语义 frozen 不动；上游
+  census 21.9×↓/−29% 弹药兑现）；工具链 v0.4.2-2474-g95dcfb55b
+  （含 716 ec45f911c）；源=diff-20261001-144526.jsonl。
+- **VM 轨窗口调用=供⑧ 上游缺口**（9920 codegen 裸名臂缺失——上游
+  供料档 §8）：L0 VM 形 diff 档维持全量旧径零扰动（016 判定形态）；
+  供⑧ 清偿后 L0 可切窗。envelope 窗口形契约=modules/diff-view.md
+  窗口形节（SD-02）；端点形=modules/back-api.md 第 16 端点节
+  （SD-03）。
+
+### 帧两行断言化（G-3——blocked 待供⑨，协议成文）
+
+- **通道面**：9918 `auto.frame.begin_ms`/9919 `auto.frame.present_ms`
+  （716 组B 交付——进程级单调毫秒，0=未捕获；AUTO_FRAME_BENCH 门控
+  零开销[716 实证，不重测]）。**下游消费 blocked=供⑨ 双缺口**（VM
+  轨 .at i64→int 桥退化〔shim 真值实测但 .at 赋值落 0/.str()→None/
+  json→0——time 族同根因 PLAN-005〕+a2r ui_gen handler 臂不路由
+  frame 二段名〔E0425 实录〕；上游供料档 §8 全证据链）。
+- **判定协议（供⑨ 清偿后即判，成文在档）**：type_latency=**帧内
+  口径**（Q-2 默认定参——键入帧 begin→下一 present 差，P95 ≤1 帧
+  [@面板 Hz 换算 16ms@60Hz/8ms@120Hz]；input→present 全链口径注记
+  并列不判定）；scroll_fps=滚动驱动（PageDown 连发）→采样窗内
+  distinct present_ms 计数/host 窗口时长→**fps ≥ 面板刷新率×0.9**
+  （面板率=host EnumDisplaySettings 读回）；读回通道=L0 形 MCP
+  autoui_state 帧探针字段（`--server vm` 无 UI/`-r vm` 无 HTTP/
+  a2r 无 HTTP 面——单进程 MCP 状态域为唯一通道，T-00④ 勘定）。
+- **steady 首帧段（spawn→first present）**：同供⑨ 阻断——清偿后
+  采样臂帧序首拍 present 非零值即 spawn 相对首 present 时间戳
+  （帧值=进程起点起算，零 host 时钟对齐需求）；021 三段分解
+  （spawn→vm_init→ws_loaded）的首帧缺口待此闭合。
+- **budgets 行**：type_latency/scroll_fps 两行维持 ledger tier，
+  validity=供⑨ 全证据链+协议成文（本件 2026-10-01 更新在档）——
+  **不冒领零数字**。
+
+### 对比表滚动列（G-4）
+
+- **我方滚动行落位=l2-pending 零数字虚席**（供⑨ 阻塞如实注记——
+  anchors scroll_fps 行+render 滚动行，冒领禁则 PLAN-020 §2 约束①
+  同款）；**竞品滚动列维持 pending**（020 Q-2 口径——捕获自动化双
+  缺陷实证）。判定协议同上节；供⑨ 清偿后我方列首判出数。
+- **diff 行三态并陈**：016 release-judged 1906.0ms+021 l2 FAIL
+  5183.2ms（全量形对照）+022 l2 窗口形 PASS 784.8ms——anchors
+  --verify 9 行全等+render --check 复现一致双绿（本件收口实录）。

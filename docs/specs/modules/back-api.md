@@ -3,13 +3,15 @@
 > 来源：PLAN-003 交付 + src/back/{api.at,fsys.at}；计数勘正与 IO 字节
 > 语义节=PLAN-008 SD-02；搜索服务端点节=PLAN-009 SD-02；目录 diff 与
 > 同步端点节=PLAN-012 SD-02；file_size 端点节=PLAN-013 SD-02；
-> diff_buffers 第 15 端点节+diff 双端点引擎时代注记=PLAN-016 SD-02。
+> diff_buffers 第 15 端点节+diff 双端点引擎时代注记=PLAN-016 SD-02；
+> diff 窗口第 16 端点节=PLAN-022 SD-03。
 
-## 契约（src/back/api.at，**十五 #[api]**——PLAN-016 勘正：PLAN-013
-十四件基础上增 diff_buffers）
+## 契约（src/back/api.at，**十六 #[api]**——PLAN-013 十四件+PLAN-016
+diff_buffers+PLAN-022 diff_files_window）
 
 `ws_root / tree / read_text / read_text_range / file_size / write_text /
-exists / env_str / regex_replace / search_files / diff_files / diff_dirs /
+exists / env_str / regex_replace / search_files / diff_files /
+diff_files_window / diff_dirs /
 sync_copy / sync_delete / diff_buffers`——路由前缀 /api，GET 走 query、
 POST 走 body。消费形态：`use back.api: <fns>` 裸函数直调（013-todo/
 015-notes 形态）：
@@ -104,6 +106,30 @@ a2r server 生成器模板假设 api::Db 状态注入 + 契约 fn 转译为空�
   时代）见 modules/diff-view.md 引擎时代节（SD-01 主册）。
   **rows 预计算归 back 的理由**（历史口径，机制不变）：VM view 不能
   调函数（Plan 402）——front 拿到即渲染。
+
+## 文件 diff 窗口端点（PLAN-022 SD-03，M4-05，第 16 端点）
+
+- **`diff_files_window(path_a, path_b, ctx, rows_offset, rows_limit)
+  str`**（GET `/api/diff_files_window`——五参全必填）：PLAN-716 组C
+  9920 窗口投影消费（`fsys.diff_files_window_json` 五参裸名直调纯
+  转发）。envelope 窗口形=hunks/adds/dels 恒**全量**+`rows_total`
+  （全量行计数——分页/滚动条真源）+`truncated` 激活（头部 offset>0
+  或尾部省略任一即置位；9915 旧端点恒 false 不变）+rows=窗口物化段
+  [offset..offset+limit]。
+- **独立端点=双轨约束的等价承载**（T-00③ 勘定）：VM HTTP 服务缺参
+  400+merged 轨按位装配——同端点「可选 query 参数」不可表达，窗口
+  走新端点（上游 9920 HTTP 串形同构）。**「缺席=全量」语义由端点
+  二分承载**：不携窗口参数的消费面（016 front 全量消费）走旧
+  `/api/diff_files`（9915 三参——签名与输出逐字节不变，frozen③）。
+- **边界形**（上游 SD-C 契约）：offset ≥ rows_total → rows:[]+
+  truncated=true（total>0）；limit 0 → 空+truncated=true；跨 hunk
+  任意切片=全量 rows[offset..offset+limit] 逐行等价（探针
+  tests/probe_diffwin.py --back 形 8/8 PASS 在档——VM 轨窗口调用=
+  供⑧ 上游缺口〔codegen 裸名臂缺失〕，判据走 a2r back 形）。
+- **判定消费位**=bench diff_100mb 窗口档（limit=600 对齐 front 渲染
+  cap——「出结果」口径=全量 hunks/counts/rows_total+首窗 rows，armed
+  PASS 784.8ms 在档 budgets validity）；front 惰性拉行=后续件
+  （本端点 v1 消费者仅 bench/探针）。
 
 ## 目录 diff 与同步端点（PLAN-012 SD-02，M3-02；**引擎时代注记=
 PLAN-016**）

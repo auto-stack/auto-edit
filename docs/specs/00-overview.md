@@ -306,6 +306,34 @@ Q-1）。规范详
 modules/perf-measurement.md PLAN-021 节（SD-01）+README PLAN-021
 口径（SD-03）。
 
+**M4 第五件注记（PLAN-022，2026-10-01——PLAN-716 三组消费件）**：
+auto-lang PLAN-716（三组合一，2026-09-30 delivered——组C diff 窗口
+端点/组B 帧观测通道/组A tree-sitter 双轨+tail 固化）的下游消费件
+已落：**①diff_100mb FAIL 清偿重判**——判定档切窗口形（9920
+`/api/diff_files_window` 五参消费，limit=600 渲染 cap 对齐「出结果」
+口径=全量 hunks/counts/rows_total+首窗 rows；全量形保留对照档不删）
+——**armed PASS median 784.8ms** ≤2s（021 FAIL 5183.2ms 清偿，6.5×
+倍率；对比表 diff 行三态并陈）；**②对比表滚动列落位**（我方
+l2-pending 零数字虚席+竞品 020 Q-2 pending 维持——协议在档不冒领）；
+**③双构建形态通道**（build_portable `--ts on/off`——highlight-
+treesitter feature 门控注入，ts-off=发布/installer 约束形[默认]/
+ts-on=语法完整形[+18.9MB 量级]，产物双命名 dist 断言分域）；**④供③
+P716-D1 销账多跑**（全矩阵 ×3——P716-D1 处方落实[主实例 MCP 端口
+高带钉位臂]+T17 簇×3 谱在档）；**⑤上游消费首跑双缺口登记（供⑧/
+供⑨，供料档 §8）**——9920 VM codegen 裸名臂缺失（L0 形窗口调用
+挂死；L2 判定面不受累）+9918/9919 .at 消费面双缺口（VM i64→int 桥
+退化+a2r ui_gen 臂 E0425——**帧两行判定面 blocked 待供⑨**，协议
+成文+budgets 两行证据链行+l2-pending 虚席位）；**⑥语法高亮联动
+want 登记**（highlight_segments 无 .at 可达面——三面 grep 零命中
+实证，M3 尾巴供料驱动注记维持，供料档 §8 want 节）。front 消费面
+零改动（窗口化仅 back/bench 域——frozen③ 维持）。**M4 剩余=
+installer 收口件**（ts-off 形态尺寸判定+门控手段裁定——本件 ts-off
+通道即其前置）/open_1gb 裁定（用户件）/NP++ 列（用户安装后补跑）/
+帧两行首判（待供⑨）。规范详 modules/perf-measurement.md PLAN-022
+节（SD-01）+modules/diff-view.md 窗口形节（SD-02）+
+modules/back-api.md 第 16 端点节（SD-03）+README PLAN-022 口径
+（SD-05）+供料档 §8（SD-06）。
+
 **兄弟仓 Q1 裁定摘要（2026-09-22，战略补注十收口）**：jade-edit 与
 auto-edit **两产品长期并存**（auto=原生旗舰轻量编辑器、jade=web 轻量
 版并向知识库发展），组件尽量共用（未来插件级共用）。jade 侧战略文档
