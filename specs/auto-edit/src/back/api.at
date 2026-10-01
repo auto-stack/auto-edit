@@ -119,6 +119,23 @@ pub fn diff_files(path_a str, path_b str, ctx int) str {
     return fsys.diff_files_json(path_a, path_b, ctx)
 }
 
+/// 文件 diff 窗口（PLAN-022 T-01，第 16 端点）：PLAN-716 组C 9920 五参
+/// 窗口端点消费（HTTP 串形=上游 SD-C 原文）。envelope 窗口形：hunks/
+/// adds/dels 恒全量+`rows_total` 全量行计数+`truncated` 激活（头部
+/// offset>0 或尾部省略任一即置位）+rows=窗口物化段——「分页/滚动条
+/// 真源=rows_total」（上游口径）。**独立端点=双轨约束的等价承载**：
+/// VM HTTP 服务缺参 400〔http_server.rs:37〕+merged 轨按位装配——
+/// 同端点可选 query 参数不可表达，窗口走新端点（上游 9920 同构形）；
+/// 「缺席=全量」由端点二分承载：不携窗口参数的消费面走旧
+/// /api/diff_files（9915 三参——016 消费面零改动，逐字节等价 frozen③）。
+/// 判定消费位=bench diff_100mb 窗口档（T-02——limit=600 渲染 cap 对
+/// 齐）；front 惰性拉行=后续件（本端点 v1 消费者仅 bench/探针）。
+/// GET /api/diff_files_window?path_a=..&path_b=..&ctx=..&rows_offset=..&rows_limit=..
+#[api(method = "GET", path = "/api/diff_files_window")]
+pub fn diff_files_window(path_a str, path_b str, ctx int, rows_offset int, rows_limit int) str {
+    return fsys.diff_files_window_json(path_a, path_b, ctx, rows_offset, rows_limit)
+}
+
 /// 目录 diff（PLAN-012 T-01）：递归遍历+长度桶对齐+五态分类。返回
 /// envelope JSON `{entries:[{rel,status,size_a,size_b,is_dir,note}],
 /// counts:{same,added,deleted,modified,binary},truncated,err}`（SD-01

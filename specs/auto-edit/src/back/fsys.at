@@ -252,6 +252,28 @@ pub fn diff_files_json(path_a str, path_b str, ctx int) str {
 }
 
 // ═════════════════════════════════════════════════════════════════
+// 文件 diff 窗口（PLAN-022 T-01）——PLAN-716 组C 消费位（9920 五参
+// 窗口端点裸名直调）。
+//
+// 上游契约（docs/specs/auto-lang/ui/design/diff-endpoints.md「rows 窗口
+// 投影」节，2026-09-30 交付）：`diff_files_window(path_a, path_b, ctx,
+// rows_offset, rows_limit)`——envelope 增 `rows_total`（全量行计数，
+// 窗口只影响物化不影响计数）+`truncated` 激活（头部 offset>0 或尾部
+// offset+返回<total 任一省略即置位）；hunks 恒全量（导航域不受窗口
+// 影响）；9915 默认形逐字节不变（frozen③——不增 rows_total 字段，
+// 最严形）。边界形（上游 SD-C 明文）：offset ≥ rows_total → rows:[]
+// +truncated=true（total>0 时）；limit 0 → 空+truncated 同语义；窗口
+// 跨 hunk 任意切片=全量 rows[offset..offset+limit] 逐行等价。裸名
+// 解析同上 diff_files（codegen intrinsics 9920 绑定——trans 裸名臂
+// diff_files_window/ui_gen handler 直调臂 716 交付在册）。窗口形判定
+// 消费位=bench diff_100mb 档（T-02——rows_limit=600 对齐 front 渲染
+// cap「出结果」口径）；front 消费面零改动（窗口化仅 back/bench 域，
+// frozen③——front 惰性拉行=后续件）。
+pub fn diff_files_window_json(path_a str, path_b str, ctx int, rows_offset int, rows_limit int) str {
+    return diff_files_window(path_a, path_b, ctx, rows_offset, rows_limit)
+}
+
+// ═════════════════════════════════════════════════════════════════
 // 目录 diff（PLAN-016 T-02）——引擎时代消费位（native 裸名直调）。
 //
 // PLAN-012 过渡实现体（双侧 list_dir 递归+五态分类+长度桶对齐+桶积
