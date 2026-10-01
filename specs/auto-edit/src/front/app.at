@@ -908,6 +908,9 @@ widget App {
             store.DiffEditTick()
             // PLAN-017 T-03: 净形 live 预览防抖消费（单拍合并）。
             store.DiffBufLiveTick()
+            // PLAN-022 T-03: 帧探针采样（双门内零行为——steady 首帧段
+            // 帧值捕获，bench MCP/标记双读回）。
+            store.FrameProbeTick()
         }
         .TabActivate(i) -> { store.TabActivate(i) }
         .SrcChanged(i) -> { store.SrcChanged(i) }

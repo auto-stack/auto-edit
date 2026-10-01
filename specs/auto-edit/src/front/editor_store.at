@@ -123,6 +123,16 @@ store EditorStore {
         var line int = 1
         var col int = 1
         var sel int = 0
+        // PLAN-022 T-03: 帧探针字段（供② 9918/9919 读回面——716 r3 T-15
+        // 出口形修复后值流贯通：int lane/毫秒 saturating<2^31；双门
+        // AUTO_BENCH+AUTO_FRAME_BENCH 门关零写入——PLAN-005 标记族同
+        // 纪律；bench 帧两行档经 MCP autoui_state 读回）。fprobe_marked=
+        // 首帧一次性 stdout 标记卫（host 时间戳+帧值双录——SD-B §3b
+        // 时源坐标=frame_bench 首触定格，非进程起点）。
+        var fprobe_begin int = 0
+        var fprobe_present int = 0
+        var fprobe_n int = 0
+        var fprobe_marked bool = false
         var console_open bool = false
         var console str = ""
         // PLAN-016 T-08：桌面 open_with 接收臂——宿主执行臂 write_state
@@ -453,6 +463,9 @@ store EditorStore {
         // DiffBufLiveTick=Tick 单拍合并消费（防抖）；DiffBadgeRefresh=
         // 文件视图保存前预览 badge 重算（probe 隐藏键轨形——T-00③）。
         DiffBufLiveMark(int), DiffBufLiveTick, DiffBadgeRefresh,
+        // PLAN-022 T-03: 帧探针 Tick 采样臂（steady 首帧段帧值捕获+
+        // 空闲帧存在性——双门内零行为面，bench MCP/标记双读回）。
+        FrameProbeTick,
     }
 
     on {
@@ -484,6 +497,21 @@ store EditorStore {
             .console = console_lines()
             if env_str("AUTO_BENCH") == "1" {
                 print("BENCH bench_ws_loaded")
+            }
+            // PLAN-022 T-03: 帧探针 boot 臂（首帧段早采样——首个 update
+            // 入口即 frame_bench 首触，present 值=首触→当时最近 present）。
+            if env_str("AUTO_BENCH") == "1" {
+                if env_str("AUTO_FRAME_BENCH") == "1" {
+                    .fprobe_begin = frame.begin_ms()
+                    .fprobe_present = frame.present_ms()
+                    .fprobe_n = .fprobe_n + 1
+                    if .fprobe_present > 0 {
+                        if !.fprobe_marked {
+                            .fprobe_marked = true
+                            print("BENCH fprobe_first p=" + .fprobe_present.str())
+                        }
+                    }
+                }
             }
             // PLAN-010 T-02: 会话恢复链（尾段——bench 计时标记之后，热启动
             // 预算行效力在 L2 模式、本件按门禁两档记账不阻塞）。三门：存在
@@ -664,14 +692,60 @@ store EditorStore {
         .SrcChanged(i) -> {
             .edits = .edits + 1
             .tabs[i].dirty = true
+            // PLAN-022 T-03: 帧探针 type 臂——键入帧 begin/上帧 present
+            // 快照（latency=相邻样本 present−begin 差分，bench 侧协议）。
+            if env_str("AUTO_BENCH") == "1" {
+                if env_str("AUTO_FRAME_BENCH") == "1" {
+                    .fprobe_begin = frame.begin_ms()
+                    .fprobe_present = frame.present_ms()
+                    .fprobe_n = .fprobe_n + 1
+                    if .fprobe_present > 0 {
+                        if !.fprobe_marked {
+                            .fprobe_marked = true
+                            print("BENCH fprobe_first p=" + .fprobe_present.str())
+                        }
+                    }
+                }
+            }
             // PLAN-017 T-03: 净形 live 预览标记（键入主源——Tick 单拍
             // 合并消费）。
             store.DiffBufLiveMark(i)
             .console = console_lines()
         }
         .CursorMoved(i) -> {
+            // PLAN-022 T-03: 帧探针 scroll 臂——滚动/光标驱动帧采样
+            // （fps=窗口内 distinct present 计数协议，bench 侧）。
+            if env_str("AUTO_BENCH") == "1" {
+                if env_str("AUTO_FRAME_BENCH") == "1" {
+                    .fprobe_begin = frame.begin_ms()
+                    .fprobe_present = frame.present_ms()
+                    .fprobe_n = .fprobe_n + 1
+                    if .fprobe_present > 0 {
+                        if !.fprobe_marked {
+                            .fprobe_marked = true
+                            print("BENCH fprobe_first p=" + .fprobe_present.str())
+                        }
+                    }
+                }
+            }
             store.SyncCursor(.tabs[i].key)
             .console = console_lines()
+        }
+        // PLAN-022 T-03: 帧探针 Tick 采样（首帧段帧值+空闲帧存在性）。
+        .FrameProbeTick -> {
+            if env_str("AUTO_BENCH") == "1" {
+                if env_str("AUTO_FRAME_BENCH") == "1" {
+                    .fprobe_begin = frame.begin_ms()
+                    .fprobe_present = frame.present_ms()
+                    .fprobe_n = .fprobe_n + 1
+                    if .fprobe_present > 0 {
+                        if !.fprobe_marked {
+                            .fprobe_marked = true
+                            print("BENCH fprobe_first p=" + .fprobe_present.str())
+                        }
+                    }
+                }
+            }
         }
 
         // ---- 内部 helper：关闭 tab 的 remove + 索引修补 + 激活态重算 ----
