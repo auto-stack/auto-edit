@@ -214,11 +214,79 @@
   census 判定增第④行：fresh a2r exe 装载标记对 E2E（AUTO_OPEN_PATH
   小文件→start/done 标记对）。
 
+## 8. PLAN-716 消费面双缺口（供⑧/供⑨——PLAN-022 下游首跑实证，2026-10-01）
+
+> 716 三组交付（ec45f911c，2026-09-30 delivered）的下游消费首跑暴露
+> 两处交付面缺口——**「实机帧序 live-fire 归下游 bench 档」（SD-B 供②
+> 验收分工原文）的下游首跑即触供⑨**；供⑧=组C 消费首跑触面。证据链
+> 全在下游实录（工具链 v0.4.2-2474-g95dcfb55b=组树 debug 构建@95dcfb55b
+> ——含 716 交付锚 ec45f911c）。
+
+### 供⑧：9920 `auto.diff_files_window` VM codegen 裸名臂缺失
+
+- **现象**：下游 api.at 第 16 端点（`diff_files_window` 五参转发
+  fsys 裸名直调）——VM server 形态（`run --server vm`）调用 **HTTP
+  线程挂死**（请求不达 handler、无 500、curl 悬挂；同实例 9915 旧
+  端点正常 200/10ms）。
+- **根因面**：五面注册缺一——catalog+shim（native.rs:901/917 双 cfg
+  臂在册）+a2r trans 裸名臂（rust.rs:5107 在册）+ui_gen 直调臂
+  （rust.rs:10487 在册）在位，唯 **vm/codegen.rs intrinsics 裸名表**
+  漏登记（:559-561 `diff_files`/`diff_snapshots`/`diff_dirs` 三面
+  在册、`diff_files_window` 缺席）——裸名无本地符号亦无 intrinsic
+  绑定→VM 轨解析挂死。a2r 轨不受累（trans/ui_gen 臂覆盖——下游
+  L2 判定面 PASS 实证：窗口形 median 784.8ms）。
+- **验收形态建议**：codegen.rs intrinsics 补
+  `("diff_files_window", NATIVE_DIFF_FILES_WINDOW)` 一行+下游复验=
+  `probe_diffwin.py`（缺省 VM 形）8/8 PASS[VM 轨窗口形断言解封]；
+  回执后下游 L0 形 diff 档可切窗（当前 L0 维持全量旧径零扰动）。
+
+### 供⑨：9918/9919 帧通道 .at 消费面双缺口
+
+- **现象①（VM 轨 i64→int 桥退化）**：shim 层真值在档（进程内同址
+  单调读 0→1→…→1435→1451 实测〔FB-DBG 临时插桩，已还原〕），但
+  .at 侧三面全断——`var fb int = frame.begin_ms()` 落 **0**；
+  `frame.begin_ms().str()`→**None**〔下游 Tick 处理器 TypeError
+  "unsupported operand for +: 'str' and 'NoneType'" 实录〕；
+  `json.from_value({b: frame.begin_ms()})`→**0**〔api 探针实测〕。
+  **time 族 now_ms 返 0 同根因**（PLAN-005 T-03 登记「VM 轨 time 族
+  内建未接线」——本件实证其根因面=i64 native 返回→.at int 域桥）。
+- **现象②（a2r ui_gen handler 臂）**：front 探针臂预埋尝试（store
+  handler 内 `frame.begin_ms()` 采样）→ **regen 编译失败
+  E0425 cannot find value `frame`**〔ui_gen/rust.rs 直调臂不路由
+  handler 体二段名——模块 fn 体 trans 臂有映射（:5107 同族），
+  handler 臂缺席〕→下游探针臂撤除（front 回零改动）。
+- **上游探针盲区注记**：plan716_supply_probes
+  `frame_timestamps_vm_readback` 驻 Rust i64 lane（call_i64 直读——
+  源码自注「epoch 系全宽值才需字符串出口——701 注记口径」，Int lane
+  语义自觉规避 .at 面）——.at 消费面属测试盲区非回归。
+- **验收形态建议**：①stdlib/shim 出口形修复（`-> int` 判型重勘或
+  701 全宽值字符串出口先例的字符串变体——上游定形）+VM 轨探针增
+  .at 侧赋值/str 断言；②ui_gen handler 臂补 frame 二段名路由
+  （code_editor_delta 直调纪律同款）+下游复验=front 探针臂重埋
+  regen exit 0+帧值流经面。清偿后下游 T-03 帧两行判定面即活
+  （协议在档：type_latency=帧内 P95≤1 帧/scroll_fps=distinct
+  present 计数≥面板率×0.9——budgets 两行 blocked 证据链行）。
+
+### 语法高亮联动 want 登记（M3 尾巴处置——本件 §1 G-5 定案）
+
+- **want**：diff 视图行级/文本段语法着色端点——`highlight_segments`
+  （716 组A 交付的 ts/syntect 双轨高亮管线入口）的 .at 可达暴露形。
+  **起草期否定面实证**：native_catalog/ui_gen/trans 三面 grep 零命中
+  ——highlight_segments 无 VM native/a2r 臂=下游不可消费（语法联动
+  非本件消费面，want 登记不硬做）。
+- **期望形**：native 暴露（如 `auto.highlight_segments(text, lang)
+  → str`（JSON 段元组面））+ui_gen 直调臂——diff 视图 12 字段 rows
+  的 ln/rn 行级着色消费（diff-view.md 后续件）。
+- **M3 尾巴注记维持**：「文件 diff 完全家」尾项=供料驱动（战略
+  §2.3 口径）——端点交付后另立消费件。
+
 **优先级建议（auto-edit 视角，PLAN-021 后更新）**：**§6 最先**
 （供① 残余两面——L2 主形态单点缺口，单臂两面全解）→ §1 其余复验面
 （三类已清偿面随 §6 解阻一并复验）→ §3（交互面 blocked 族清偿）→
 §2（两行测量解锁+首帧分解补全）→ §4（最大件，勘定先行两段式）→
-§5（installer 第二段，随供④/用户裁定排程——PLAN-019 条件触发件）。
+§5（installer 第二段，随供④/用户裁定排程——PLAN-019 条件触发件）→
+§8（供⑧ 一行臂+供⑨ 双面——PLAN-022 消费首跑实证，T-03 判定面
+unblock 位）。
 
 **回执方式**：同 M1/diff-engine 两包——各件落地落上游 plan 后，
 auto-edit 侧以零改动或最小改动复验解阻（669 先例；供① 回执=
