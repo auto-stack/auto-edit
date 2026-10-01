@@ -406,8 +406,13 @@ SD-01..05 落档+（条件）SD-06 want 节+specs.json P022-1 投影
     回读——P021-2 先例〕。
   - **archived**：docs/plans/archived/022-m4-716-consume.md〔git mv〕
     +status: archived+completion_kind: delivered〔本格即归档格〕。
-  - **cleaned**：待回填〔worktree/branch/组树三树注销+wt-guard 后实
-    录——归档提交后执行〕。
+  - **cleaned**：三树全清实录——wt-guard clean〔junction
+    deps/stylekit+symlink deps/bps link-only 移除处方两连〔021 处方
+    复用〕后 clean rc=0；组内僵尸 auto.exe×2 击杀〔锁源〕〕+
+    worktree 注销〔auto-edit remove 首轮删除败〔文件锁〕注销成功、
+    僵尸清后残目录 rm——reparse 扫描零穿透〕+auto-lang/auto-down
+    sibling 注销同形+plan-022-dev 删〔was 69e6cc9，ancestry 全含〕+
+    组目录 D:/autostack/.wt/edit-022 清〔worktree list 仅余 main〕。
   - **部署观察**：本仓无运行中生产进程/daemon；dist/portable 双形态
     exe=测量证据件〔ts 尺寸/门控与探针字段无关——ts-on 为撤钉前
     分辨率态构建，分辨率已证等价〕；rust-workspace 生成物=测量
