@@ -893,6 +893,13 @@ def stage_assert(results: str | None) -> int:
 #   diff_100mb        ~100MB 散点改对（生成式，1% 散点=上游 T-04 基准
 #                     形态对齐）→ **预算判定 ≤2000ms**（战略 §2.1 预算
 #                     行——超限=红 EXIT_FAIL，性能是发布门槛）
+#   diff_100mb_full   （PLAN-022 T-02，仅 --l2）全量形对照档——数字在档
+#                     不判定（021 armed FAIL 5183.2ms 对照面）；判定档切
+#                     窗口形（/api/diff_files_window limit=600 渲染 cap
+#                     对齐「出结果」口径=全量 hunks/counts/rows_total+
+#                     首窗 rows——016 消费面零改动 frozen③：L0 VM 形维持
+#                     全量旧径，9920 VM 裸名臂上游缺口[供⑧]下 VM 轨窗口
+#                     调用不可用）
 # 计时口径=/api/diff_files 全链墙钟（app --server vm，debug 工具链——
 # 保守上界形态：引擎 release 相对量 0.35-0.9s 在档，绝对量判定以此
 # 全链数为准，703 Q-2 口径）。退出码 0=全档绿（基线有数+budget 判定
@@ -968,6 +975,12 @@ def stage_diff(l2: bool = False) -> int:
         {"id": "diff_100mb", "fx": _diff_fixture_pair(fixdir, "big100mb", 0, "mb100"),
          "kind": "budget"},
     ]
+    if l2:
+        # PLAN-022 T-02：判定档切窗口形（9920——rows_limit=600 对齐 front
+        # 渲染 cap「出结果」口径=全量 hunks/counts/rows_total+首窗 rows），
+        # 全量形保留为对照档（kind=full-ref——数字在档不判定）。
+        tiers.append({"id": "diff_100mb_full",
+                      "fx": tiers[-1]["fx"], "kind": "full-ref"})
 
     port = None
     for cand in range(9460, 9560):
@@ -1015,14 +1028,27 @@ def stage_diff(l2: bool = False) -> int:
         # 静置分解同链 1437ms）。
         time.sleep(5.0)
         for t in tiers:
-            q = urllib.parse.urlencode({"path_a": t["fx"]["a"],
-                                        "path_b": t["fx"]["b"], "ctx": 3})
-            url = f"{base}/api/diff_files?{q}"
+            # PLAN-022 T-02：L2 判定档 diff_100mb 切窗口形（9920 五参——
+            # offset=0/limit=600）；L0 VM 形维持全量旧径（016 判定形态零
+            # 扰动——9920 VM 裸名臂上游缺口[供⑧]下 VM 轨窗口调用不可用）。
+            if l2 and t["id"] == "diff_100mb":
+                q = urllib.parse.urlencode({"path_a": t["fx"]["a"],
+                                            "path_b": t["fx"]["b"], "ctx": 3,
+                                            "rows_offset": 0,
+                                            "rows_limit": 600})
+                url = f"{base}/api/diff_files_window?{q}"
+            else:
+                q = urllib.parse.urlencode({"path_a": t["fx"]["a"],
+                                            "path_b": t["fx"]["b"], "ctx": 3})
+                url = f"{base}/api/diff_files?{q}"
             walls = []
             err_seen = ""
             adds = dels = -1
             degraded = False
-            for attempt in range(4):  # 首跑暖机弃
+            rows_total = None
+            # PLAN-022 T-02：重判谱 N≥4（021 谱 3 跑扩容——首跑弃暖机后
+            # 4 个计时样本）。
+            for attempt in range(5 if l2 else 4):  # 首跑暖机弃
                 t0 = time.perf_counter()
                 try:
                     with urllib.request.urlopen(url, timeout=60) as resp:
@@ -1034,6 +1060,7 @@ def stage_diff(l2: bool = False) -> int:
                     err_seen = env_obj.get("err", "") or ""
                     adds, dels = env_obj.get("adds", -1), env_obj.get("dels", -1)
                     degraded = bool(env_obj.get("degraded", False))
+                    rows_total = env_obj.get("rows_total")
                 except Exception as e:  # noqa: BLE001
                     wall = (time.perf_counter() - t0) * 1000.0
                     err_seen = f"<http {e}>"
@@ -1046,6 +1073,18 @@ def stage_diff(l2: bool = False) -> int:
             elif t["kind"] == "pass-latency":
                 verdict = ("pass-latency (引擎时代：门退场——超限文件正常出"
                            "结果 err=''；PLAN-704 修复轮改造)")
+            elif t["kind"] == "full-ref":
+                verdict = ("full-ref（全量形对照档——数字在档不判定；021 "
+                           "armed FAIL 5183.2ms 在档[diff-20260930-205147]"
+                           "——清偿前后对照面）")
+            elif l2:
+                ok_budget = (med is not None and err_seen == ""
+                             and med <= 2000.0 and rows_total is not None)
+                verdict = (f"budget {'PASS' if ok_budget else 'FAIL'} "
+                           f"(≤2000ms 战略 §2.1 预算行——窗口形判定 "
+                           f"rows_limit=600 渲染 cap 对齐「出结果」口径="
+                           f"全量 hunks/counts/rows_total[{rows_total}]+"
+                           f"首窗 rows)")
             else:
                 ok_budget = med is not None and err_seen == "" and med <= 2000.0
                 verdict = (f"budget {'PASS' if ok_budget else 'FAIL'} "
@@ -1053,6 +1092,7 @@ def stage_diff(l2: bool = False) -> int:
             rows.append({"id": t["id"], "kind": t["kind"],
                          "wall_ms_runs": walls, "wall_ms_median": med,
                          "adds": adds, "dels": dels, "degraded": degraded,
+                         "rows_total": rows_total,
                          "err": err_seen[:120], "verdict": verdict})
             _log(f"  {t['id']}: median={med}ms kind={t['kind']} "
                  f"+{adds}/-{dels} err={err_seen[:40]!r}")
