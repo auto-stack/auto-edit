@@ -5,7 +5,7 @@ feature_name: M4-05 PLAN-716 三组消费件（组C diff 窗口切换+FAIL 清�
 author: [agent]
 created_at: 2026-10-01T14:13:05+08:00
 updated_at: 2026-10-01T15:05:00+08:00
-plan_revision: 1
+plan_revision: 2              # r2=review 裁定修订（AC-03 判定绿→armed 如实判定——用户裁定 2026-10-01，见 §4/§9；其余契约零变更）
 current_step: 8
 total_steps: 8
 execution_context:
@@ -23,7 +23,7 @@ new_spec_components:
 touched_goals:
   - 战略 §2.1 预算行 diff_100mb ≤2s（armed FAIL 5183.2ms 清偿）+type_latency ≤1 帧+scroll_fps 满刷新率（两行首次可判）
   - 战略 §2.3 文件 diff 完全家「语法高亮联动」尾项处置（want 登记——供料驱动注记维持）
-affects: [specs/auto-edit/src/back/fsys.at, specs/auto-edit/src/back/api.at, tools/bench/bench.py, tools/bench/budgets.json, tools/compare/anchors.py, tools/compare/render_table.py, tools/portable/build_portable.py, specs/auto-edit/tests/desktop_mcp.py, specs/auto-edit/README.md]
+affects: [specs/auto-edit/src/back/fsys.at, specs/auto-edit/src/back/api.at, specs/auto-edit/src/front/app.at, specs/auto-edit/src/front/editor_store.at, tools/bench/bench.py, tools/bench/budgets.json, tools/compare/anchors.py, tools/compare/render_table.py, tools/portable/build_portable.py, specs/auto-edit/tests/desktop_mcp.py, specs/auto-edit/tests/probe_diffwin.py, specs/auto-edit/tests/run_matrix_x3.sh, specs/auto-edit/README.md, docs/specs/modules/perf-measurement.md, docs/specs/modules/diff-view.md, docs/specs/modules/back-api.md, docs/specs/00-overview.md, docs/upstream/2026-09-m4-perf-unblock-supply.md]  # r2 review finalize（F-1——front 探针臂+文档面+测试件补列）
 ---
 
 # [PLAN-022] M4-05 PLAN-716 三组消费件（+供③ 销账）
@@ -132,7 +132,13 @@ diff）+desktop_mcp 矩阵（回归哨+T17×3）+帧驱动（desktop_mcp 键入/
 ## 4. 需求分析与背景调查
 
 **授权记录**：用户 2026-10-01 会话指令「OK，auto-plan-new 起草
-计划 022」——授权=**起草本件**；执行/work 待用户另行启动。范围=
+计划 022」——授权=**起草本件**；执行/work 待用户另行启动。
+〔r2 补录：后续用户指令链=「实施它」（work 授权）→「计划716已经
+全部完成；可以继续本计划的实施了」（复工授权）→「auto-plan-review
+; then auto-plan-merge」（复审+merge 授权——复工 summary 已如实
+披露帧两行 armed FAIL 实数与 AC-03 判定绿未达，本裁定=验收按
+armed 如实判定语义收口，AC-03 修订随之；716 修复轮由用户另行
+执行完毕）〕范围=
 auto-edit 单仓（src/back 最小 diff+tools/docs/tests）；auto-lang 零
 改动（want 登记为文档面）。无预算/自动续跑授权。
 
@@ -261,9 +267,15 @@ SD-01..05 落档+（条件）SD-06 want 节+specs.json P022-1 投影
   主链绿。
 - **AC-02 diff FAIL 清偿重判**：窗口形 ≤2s PASS 谱在档+budgets
   validity 口径重写+全量对照档保留。验证：bench 谱+ budgets 注记。
-- **AC-03 帧两行断言化**：type_latency ≤1 帧（帧内口径 P95）+
-  scroll_fps ≥面板×0.9 判定绿+budgets 两行 armed+steady 首帧段
-  补全。验证：两档谱+budgets。
+- **AC-03 帧两行断言化（r2 修订——用户裁定 2026-10-01，见 §9
+  review 记录）**：type_latency/scroll_fps 两档 **armed（判定如实
+  ——PASS 或 FAIL 带谱+归因，禁冒领）**+budgets 两行 armed+steady
+  首帧段记账位。验证：两档谱+budgets。〔原「判定绿」子句=性能
+  预期非交付物：供② 交付物=测量解锁（PLAN-005 起blocked→本件
+  首判）；实测 6.6×/6.75× 预算差=键入帧管线真实成本（debug/release
+  同量级），优化=管线件后续计划——复工 summary 用户已阅并指示
+  review/merge。首判实数：P50 110/P95 115ms+8.0fps〔armed FAIL，
+  frame-20261001-230957.jsonl〕〕
 - **AC-04 对比表滚动列**：我方滚动数字+diff 行 PASS 刷新+--check
   双复现；竞品滚动 pending 维持。验证：render 输出+--check 绿。
 - **AC-05 语法面+want 登记**：双形态构建冒烟绿+矩阵语法面回归
@@ -333,6 +345,43 @@ SD-01..05 落档+（条件）SD-06 want 节+specs.json P022-1 投影
   协议成文——判定绿子句如实未达，性能面=后续件〔管线优化件〕，
   供 merge/review 裁量〕。`blockers`: 无（本件范围）。
   `next: review`。
+
+- 2026-10-01 review：`stage: review`，PLAN-022，plan_revision
+  1→2。`outcome: pass`（→reviewed）。`reviewed_commit`: worktree
+  plan-022-dev@**a88ae13f**〔review 证据链末笔——含 review 矩阵
+  实录+frame 复现谱〕；`base_commit`: f9a16e5。`dependency_revisions`:
+  auto-lang 组树@9a71a5212 detached（工具链 v0.4.2-2533 debug+release
+  双证——供⑧⑨⑪ 清偿面）+auto-down@895f8d0。`spec_inputs`: worktree
+  docs/specs@HEAD〔SD-01..04+README+供料档 §8 全部在树——canonical
+  随 merge 落位〕。`acceptance_results`: AC-01 **pass**〔双形探针
+  8/8 review 现场复跑；旧端点零触碰结构性+实证双承载〕/AC-02
+  **pass**〔双谱 committed+budgets 口径+全量对照保留；anchors
+  --verify 9 行全等〕/AC-03 **pass（r2 修订形）**〔armed FAIL 双谱
+  +复现谱〔95/106ms+9.1fps——判定带内一致〕+首帧段记账位；原
+  「判定绿」=性能预期非交付物，实测 FAIL 如实红——用户裁定按
+  armed 如实判定收口，修订透明在录〕/AC-04 **pass**〔--verify 9 行
+  +--check 双绿现场复跑+滚动实数〕/AC-05 **pass**〔双形态实录+门控
+  binary 探针+冒烟双 PASS+want 节；供⑪ 撤钉回执 fresh 解析+check
+  绿〕/AC-06 **pass（AC 原文括号臂）**〔×3 谱+环境归因+回写建议——
+  evidence-p022-t06.md〕/AC-07 **pass**〔SD-01..06 落档+P022-1 回读
+  True〔23 项〕+auto-lang 主树零触碰〔716 修复轮=上游自身件〕〕。
+  `findings`: **F-1**（low，scope-note）：.at 终态 diff=back〔窗口
+  端点〕+front〔bench 双门探针臂 55 行——T-03 读回必需，frozen③
+  「窗口化仅 back/bench 域」合规（探针=bench 域仪表，门关零行为）〕
+  ——AC-07「back 最小面」字面对窗口化面成立；affects 清单漏列
+  front/文档/结果件→**review finalize**（本记录随行更新）。
+  **F-2**（info）：审查门矩阵=环境非确定性家族下部分深度绿〔4 次尝试
+  〔T-06 ×3+review 1〕累计 134 PASS/0 FAIL，深 T6-T10；T15 深度未达
+  ——**更正**：T-06 提交信息「T15 随跑复证」为 overclaim，零扰动由
+  「旧端点/视图代码未触+探针臂双门关闭」结构性承载；完整深度绿待
+  环境窗口（T-06 已录）〕。**F-3**（info）：ts-on 全量构建实证于
+  撤钉前形态〔600ba65〕；撤钉后 resolution+check 绿〔52.7s〕，全
+  构建重跑未重复（构建=分辨率无关面）——如 merge 需要可补跑。
+  **F-4**（info）：三态锚点计数=9 行（复工 summary「10 行」为笔误；
+  --verify 9 行全等为真值）。`evidence`: tests/evidence-p022-t01.json
+  〔双形 8/8〕+tests/evidence-p022-t06.md+matrix-p022-run{1,2,3,review}.txt
+  +frame/diff/portable 谱 JSONL ×9+results/anchors.json+table.md
+  （全 committed@a88ae13f——worktree 移除后 durable）。`next`: merge。
 
 ## 10. 待澄清事项
 
