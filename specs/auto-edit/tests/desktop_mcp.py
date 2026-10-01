@@ -3455,7 +3455,13 @@ def main():
     run_appdata = tempfile.mkdtemp(prefix="auto041_matrix_appdata_")
     os.environ["APPDATA"] = run_appdata
 
-    mcp_port = pick_free_port()
+    # PLAN-022 T-06: 主实例端口钉位（P716-D1 销账处方——AUTOUI_MCP_PORT
+    # 环境钉位优先，绕开 924x TOCTOU 竞态带[connect_ex 探测与 app bind
+    # 间死占实录：716 执行期 6 启动 3 败+本件首跑同族]；子实例族
+    # _t13/_t15/_t16/_t17_app 各自动态 pick 不受累）。
+    _pinned = os.environ.get("AUTOUI_MCP_PORT")
+    mcp_port = (int(_pinned) if _pinned and _pinned.isdigit()
+                else pick_free_port())
     mcp_url = f"http://localhost:{mcp_port}/mcp"
     if mcp_port != MCP_PORT_DEFAULT:
         print(f"NOTE: port {MCP_PORT_DEFAULT} busy (stale auto.exe?); "
