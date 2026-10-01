@@ -10,7 +10,14 @@
   ③边界形：offset≥rows_total → rows:[]+truncated=true（total>0）；
     limit 0 → 空+truncated=true；跨 hunk 切片逐行等价。
 
-用法：python tests/probe_diffwin.py   （AUTO_BIN 指 ≥716 工具链）
+形态（--back）：判据走 a2r back exe（L2 形——stage_diff --l2 同款
+spawn：AUTO_HTTP_PORT 端口直拉）。缺省=VM server 形（`run --server
+vm`）。**执行期勘定（2026-10-01）**：VM 轨 9920 codegen intrinsics
+裸名臂缺失（上游供⑧——codegen.rs 三 diff 面无 window 登记，实测
+HTTP 线程挂死）→窗口形断言在 VM 形不可达，本探针默认形态仍验①
+（旧端点零触碰自证），②③须 --back 形。
+
+用法：python tests/probe_diffwin.py [--back]   （AUTO_BIN 指 ≥716 工具链）
 产出：tests/evidence-p022-t01.json（断言明细+端点原文摘要）。
 """
 import json
@@ -26,6 +33,7 @@ import urllib.request
 HERE = os.path.dirname(os.path.abspath(__file__))
 PROJECT = os.path.dirname(HERE)  # specs/auto-edit
 AUTO_BIN = os.environ.get("AUTO_BIN") or "auto"
+BACK_MODE = "--back" in sys.argv
 
 
 def pick_port(start=9470):
@@ -67,11 +75,20 @@ def main():
     fx = tempfile.mkdtemp(prefix="p022_t01_fx_")
     pa, pb, n_changed = make_fixture(fx)
     env = {**os.environ, "APPDATA": ad, "AUTO_PROJECT_DIR": PROJECT}
+    if BACK_MODE:
+        back = os.path.join(PROJECT, "rust-workspace", "target", "release",
+                            "auto-edit-back.exe")
+        if not os.path.exists(back):
+            print(f"FATAL: back 产物缺席（{back}——先 perf.py a2r+release）")
+            return 1
+        env["AUTO_HTTP_PORT"] = str(port)
+        cmd = [back]
+    else:
+        cmd = [AUTO_BIN, "run", "--server", "vm", "-B", str(port)]
     app_log = os.path.join(ad, "app.log")
     log_f = open(app_log, "w")
     proc = subprocess.Popen(
-        [AUTO_BIN, "run", "--server", "vm", "-B", str(port)],
-        cwd=PROJECT, env=env,
+        cmd, cwd=PROJECT, env=env,
         stdout=log_f, stderr=subprocess.STDOUT)
     checks = []
 

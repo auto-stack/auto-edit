@@ -1,0 +1,49 @@
+{
+  "type": "p022-t01-probe",
+  "fixture": {
+    "a": "C:\\Users\\zhaop\\AppData\\Local\\Temp\\p022_t01_fx_j1tag1oi\\w.a.txt",
+    "b": "C:\\Users\\zhaop\\AppData\\Local\\Temp\\p022_t01_fx_j1tag1oi\\w.b.txt"
+  },
+  "checks": [
+    {
+      "check": "①默认形键集恒 8（不增 rows_total）",
+      "ok": true,
+      "detail": "keys=['adds', 'degraded', 'dels', 'err', 'hunks', 'rows', 'truncated']"
+    },
+    {
+      "check": "①默认形计数自洽（adds=dels=散点数+err 空）",
+      "ok": true,
+      "detail": "hunks=5 rows=30 +5/-5 err=''"
+    },
+    {
+      "check": "②窗口形键集+rows_total=全量行数+truncated 激活",
+      "ok": true,
+      "detail": "keys=['adds', 'degraded', 'dels', 'err', 'hunks', 'rows', 'rows_total', 'truncated'] rows_total=30 truncated=True"
+    },
+    {
+      "check": "②hunks 全量保持（与全量形逐字节等价）",
+      "ok": true,
+      "detail": "hunks/counts 全量域一致"
+    },
+    {
+      "check": "②rows 窗口物化=全量[0:5] 逐行等价",
+      "ok": true,
+      "detail": "len(win)=5"
+    },
+    {
+      "check": "②跨 hunk 切片=全量[3:11] 逐行等价",
+      "ok": true,
+      "detail": "len(win)=8"
+    },
+    {
+      "check": "③offset≥total → rows:[]+truncated=true",
+      "ok": true,
+      "detail": "rows=0 truncated=True"
+    },
+    {
+      "check": "③limit 0 → 空+truncated=true（total>0）",
+      "ok": true,
+      "detail": "rows=0 truncated=True"
+    }
+  ]
+}
