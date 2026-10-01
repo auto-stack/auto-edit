@@ -1657,10 +1657,270 @@ def stage_warm(runs: int, l2: bool = False) -> int:
     return EXIT_OK
 
 
+
+# ═════════════════════════════════════════════════════════════════════
+# PLAN-022 T-03: 帧两行档（G-3）——type_latency/scroll_fps 断言化+
+# steady 首帧段。供⑨ 清偿后（716 r3 T-15 出口形 int lane）首判。
+#
+# 形态=L0 VM debug 工具链（`run -r vm` 单进程——iced 渲染器+VM+MCP
+# 同进程；读回=MCP autoui_state 帧探针字段 fprobe_*〔editor_store.at
+# 双门采样臂——AUTO_BENCH+AUTO_FRAME_BENCH〕+stdout 标记
+# BENCH fprobe_first〔首帧值实录〕）。debug 解释段=保守上界
+# （release/a2r 形态更快——保守方向判定：上界过判则快形必过）。
+# 判定口径（SD-01 PLAN-022 节成文）：
+#   type_latency=帧内（键入帧 begin→下一 present 差），P95 ≤1 帧
+#     （1000/面板 Hz；面板率=host EnumDisplaySettings 读回）；
+#   scroll_fps=PageDown 连发窗内 distinct present 计数/帧值窗时长
+#     ≥面板率×0.9（MCP 轮询采样=下界测量——下界过判则真值必过）；
+#   first_present=帧探针首拍非零值（时源=frame_bench 首触定格
+#     ——SD-B §3b 坐标注记：不含 spawn→首触段，记账位非判定）。
+# 驱动协议（执行期勘定修正）：autoui_keyboard 键入/PageDown 不达
+# 编辑器〔edits 零增实证——矩阵时代亦无键盘直驱先例〕→等价通道=
+# autoui_type 直达 textarea（SrcChanged+CursorMoved 双臂在场）：
+# type_latency=单字符连发；scroll_fps=换行连发（cursor-follow 滚动
+# ——光标推进视图跟随，滚动相关性如实注记）。MCP 端口钉位=P716-D1
+# 处方同款 924x 带绕开。
+
+_FRAME_MCP_PORT_BASE = 9360
+NLCHAR = chr(10)  # 换行驱动字符（避开源码转义层）
+
+
+def _panel_hz() -> float:
+    """面板刷新率读回（host EnumDisplaySettings 主显；缺席兜底 60）。"""
+    try:
+        import ctypes
+        from ctypes import wintypes
+
+        dm = wintypes.DEVMODEW()
+        dm.dmSize = int(dm.dmSize) if dm.dmSize else ctypes.sizeof(dm)
+        if ctypes.windll.user32.EnumDisplaySettingsW(None, -1,
+                                                     ctypes.byref(dm)):
+            hz = float(dm.dmDisplayFrequency)
+            if hz >= 20:
+                return hz
+    except Exception:  # noqa: BLE001——host 面缺席不阻断（兜底 60）
+        pass
+    return 60.0
+
+
+def _mcp_call(url: str, name: str, args_json: str) -> str:
+    import urllib.request
+
+    body = json.dumps({"jsonrpc": "2.0", "method": "tools/call",
+                       "params": {"name": name, "arguments": args_json},
+                       "id": 1}).encode()
+    req = urllib.request.Request(url, data=body,
+                                 headers={"Content-Type": "application/json"})
+    with urllib.request.urlopen(req, timeout=10) as resp:
+        data = json.loads(resp.read().decode())
+    content = data.get("result", {}).get("content", [])
+    return content[0]["text"] if content else ""
+
+
+def _mcp_state(url: str, fields: list) -> dict:
+    """autoui_state 读回——dict[int]（缺席键不计）。"""
+    import re as _re
+
+    txt = _mcp_call(url, "autoui_state", {"fields": list(fields)})
+    out = {}
+    for line in txt.splitlines():
+        m = _re.match(r"\s*(\w+):\s*(-?\d+)", line)
+        if m:
+            out[m.group(1)] = int(m.group(2))
+    return out
+
+
+def stage_frame() -> int:
+    import urllib.request
+
+    exe = _auto_exe()
+    fp = _fingerprint()
+    panel_hz = _panel_hz()
+    frame_budget_ms = 1000.0 / panel_hz
+    fps_threshold = panel_hz * 0.9
+    _log(f"帧两行档（PLAN-022 T-03）toolchain: {fp.get('version', '?')} "
+         f"panel={panel_hz:.0f}Hz budget={frame_budget_ms:.1f}ms "
+         f"fps_threshold={fps_threshold:.1f}")
+
+    # 滚动/键入 fixture（~120 行——换行连发可推进光标入滚动域；
+    # 生成式不入库 013/016 先例）。
+    fdir = FIXTURES / "frame"
+    fdir.mkdir(parents=True, exist_ok=True)
+    fx = fdir / "frame_drive.txt"
+    if not fx.exists() or fx.stat().st_size < 5000:
+        with open(fx, "w", encoding="utf-8", newline="") as f:
+            for i in range(120):
+                f.write(f"line {i:05d} frame drive payload content"
+                        f"{' CHANGED' if i % 97 == 0 else ''}\n")
+
+    port = None
+    import socket as _socket
+    for cand in range(_FRAME_MCP_PORT_BASE, _FRAME_MCP_PORT_BASE + 60):
+        with _socket.socket(_socket.AF_INET, _socket.SOCK_STREAM) as s:
+            if s.connect_ex(("127.0.0.1", cand)) != 0:
+                port = cand
+                break
+    ad = tempfile.mkdtemp(prefix="bench-p022-frame-appdata-")
+    env = {**os.environ, "AUTO_BENCH": "1", "AUTO_FRAME_BENCH": "1",
+           "AUTOUI_MCP_PORT": str(port), "APPDATA": ad,
+           "AUTO_OPEN_PATH": str(fx), "AUTO_PROJECT_DIR": str(PROJECT)}
+    app_log_path = os.path.join(ad, "app.log")
+    log_f = open(app_log_path, "w", encoding="utf-8")
+    proc = subprocess.Popen([exe, "run", "-r", "vm"], cwd=PROJECT, env=env,
+                            stdout=log_f, stderr=subprocess.STDOUT)
+    base = f"http://127.0.0.1:{port}/mcp"
+
+    # textarea 定位（snapshot 唯一 textarea=code editor——装载异步，
+    # 轮询等待元素现身 ≤15s）。
+    ta_id = None
+    for _ in range(15):
+        try:
+            m = re.search(r"textarea #(\w+)",
+                          _mcp_call(base, "autoui_snapshot", {}))
+            ta_id = m.group(1) if m else None
+            if ta_id:
+                break
+        except Exception:  # noqa: BLE001
+            pass
+        time.sleep(1)
+    if not ta_id:
+        _log("FATAL: textarea（编辑器）元素未定位")
+        return EXIT_FAIL
+
+    def _type(text: str) -> bool:
+        try:
+            _mcp_call(base, "autoui_type",
+                      {"element_id": ta_id, "text": text,
+                       "clear_first": False})
+            return True
+        except Exception:  # noqa: BLE001
+            return False
+
+    rows = []
+    exit_code = EXIT_OK
+    try:
+        up = False
+        for _ in range(60):
+            try:
+                _mcp_state(base, ["fprobe_n"])
+                up = True
+                break
+            except Exception:  # noqa: BLE001
+                time.sleep(1)
+        if not up:
+            _log("FATAL: 帧档 app/MCP 未起")
+            return EXIT_FAIL
+        # 装载 settle（AUTO_OPEN_PATH 装载链自带；Tick 臂在场即可驱动）。
+        time.sleep(6.0)
+
+        # ---- first_present（记账位——帧值时源坐标） ----
+        st0 = _mcp_state(base, ["fprobe_begin", "fprobe_present", "fprobe_n"])
+        first_present = st0.get("fprobe_present") or 0
+        rows.append({"id": "first_present", "value_ms": first_present,
+                     "coord": ("frame_bench 首触时源（SD-B §3b——不含 "
+                               "spawn→首触段；记账位非判定）"),
+                     "verdict": "record"})
+        _log(f"  first_present≈{first_present}ms（帧值坐标）")
+
+        # ---- type_latency：键入驱动（editor 焦点自证=fprobe_n 递增） ----
+        samples = []
+        edits_base = None
+        for k in range(30):
+            if not _type("x"):
+                _log(f"  key{k} 派发败")
+                continue
+            time.sleep(0.06)
+            try:
+                st = _mcp_state(base, ["fprobe_begin", "fprobe_present",
+                                       "fprobe_n"])
+            except Exception:  # noqa: BLE001
+                continue
+            samples.append((st.get("fprobe_begin") or 0,
+                            st.get("fprobe_present") or 0,
+                            st.get("fprobe_n") or 0))
+        st_e = _mcp_state(base, ["edits"]) if samples else {}
+        focus_ok = (len(samples) >= 10 and st_e.get("edits", 0) >= 3)
+        lat = []
+        for (b0, _p0, _n0), (b1, p1, _n1) in zip(samples, samples[1:]):
+            if b0 > 0 and p1 >= b0 and p1 > 0:
+                lat.append(p1 - b0)
+        lat_sorted = sorted(lat)
+        p50 = lat_sorted[len(lat_sorted) // 2] if lat_sorted else None
+        p95 = (lat_sorted[min(len(lat_sorted) - 1,
+                              int(len(lat_sorted) * 0.95))]
+               if lat_sorted else None)
+        tl_pass = p95 is not None and focus_ok and p95 <= frame_budget_ms
+        rows.append({"id": "type_latency", "samples": len(samples),
+                     "valid_pairs": len(lat), "p50_ms": p50, "p95_ms": p95,
+                     "budget_ms": round(frame_budget_ms, 2),
+                     "panel_hz": panel_hz, "focus_ok": focus_ok,
+                     "verdict": "PASS" if tl_pass else "FAIL"})
+        _log(f"  type_latency: P50={p50}ms P95={p95}ms "
+             f"(≤{frame_budget_ms:.1f}ms) samples={len(samples)} "
+             f"valid={len(lat)} focus_ok={focus_ok} "
+             f"→ {'PASS' if tl_pass else 'FAIL'}")
+
+        # ---- scroll_fps：PageDown 连发 + 密集轮询（下界测量） ----
+        presents = []
+        t_end = time.perf_counter() + 3.0
+        k_i = 0
+        while time.perf_counter() < t_end:
+            _type(NLCHAR)
+            k_i += 1
+            for _ in range(4):
+                try:
+                    pv = _mcp_state(base, ["fprobe_present"]).get(
+                        "fprobe_present") or 0
+                    if pv > 0:
+                        presents.append(pv)
+                except Exception:  # noqa: BLE001
+                    pass
+                if time.perf_counter() >= t_end:
+                    break
+                time.sleep(0.004)
+        uniq = sorted(set(presents))
+        if len(uniq) >= 2:
+            win_ms = uniq[-1] - uniq[0]
+            fps = (len(uniq) - 1) / win_ms * 1000.0 if win_ms > 0 else 0.0
+        else:
+            win_ms = fps = 0.0
+        sf_pass = fps >= fps_threshold
+        rows.append({"id": "scroll_fps", "distinct_present": len(uniq),
+                     "window_ms": round(win_ms, 1), "fps": round(fps, 2),
+                     "panel_hz": panel_hz,
+                     "threshold": round(fps_threshold, 2),
+                     "verdict": "PASS" if sf_pass else "FAIL"})
+        _log(f"  scroll_fps: {fps:.1f}fps（distinct={len(uniq)} "
+             f"win={win_ms:.0f}ms ≥{fps_threshold:.1f}）→ "
+             f"{'PASS' if sf_pass else 'FAIL'}")
+
+        if not tl_pass or not sf_pass:
+            exit_code = EXIT_FAIL
+    finally:
+        log_f.close()
+        if proc.poll() is None:
+            proc.kill()
+        subprocess.run(["taskkill", "/T", "/F", "/PID", str(proc.pid)],
+                       capture_output=True)
+
+    outfile = RESULTS / f"frame-{_ts()}.jsonl"
+    with open(outfile, "w", encoding="utf-8", newline=chr(10)) as f:
+        head = {"type": "frame_timing", "toolchain": fp,
+                "form": "l0-vm-debug（保守上界——解释段最慢形）",
+                "panel_hz": panel_hz,
+                "form_note": ("供⑨ 清偿后首判（716 r3 T-15 int lane）；"
+                              "读回=MCP autoui_state 帧探针字段+首帧标记")}
+        f.write(json.dumps(head, ensure_ascii=False) + chr(10))
+        for r in rows:
+            f.write(json.dumps(r, ensure_ascii=False) + chr(10))
+    _log(f"结果 JSONL → {outfile}")
+    return exit_code
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description="auto-edit 测量套件（PLAN-005 B 段）")
     ap.add_argument("cmd", choices=["check", "proxy", "assert", "diff", "bigfile",
-                                    "open", "steady", "warm"])
+                                    "open", "steady", "warm", "frame"])
     ap.add_argument("--runs", type=int, default=DEFAULT_RUNS,
                     help=f"启动分解跑数（默认 {DEFAULT_RUNS}，首跑弃暖机）")
     ap.add_argument("--full", action="store_true",
@@ -1679,6 +1939,8 @@ def main() -> int:
         return stage_diff(args.l2)
     if args.cmd == "bigfile":
         return stage_bigfile()
+    if args.cmd == "frame":
+        return stage_frame()
     if args.cmd == "open":
         return stage_open(args.runs, args.l2)
     if args.cmd == "steady":

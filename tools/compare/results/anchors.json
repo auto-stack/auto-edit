@@ -106,11 +106,16 @@
       "note": "PLAN-022 窗口形清偿重判（判定口径切换——9920 /api/diff_files_window offset=0/limit=600 渲染 cap 对齐「出结果」口径=全量 hunks/counts/rows_total[126550]+首窗 rows）：median 784.8ms ≤2000ms → armed PASS——021 FAIL 清偿（6.5× 倍率；全量对照 5078.2ms 同谱在档 diff_100mb_full 行）；工具链 v0.4.2-2474-g95dcfb55b[含 716]"
     },
     {
-      "state": "l2-pending",
+      "state": "l2",
       "metric": "scroll_fps",
-      "median_ms": null,
+      "median_ms": 8.01,
+      "unit": "fps",
       "runs_ms": null,
-      "note": "PLAN-022 T-03 供⑨ 上游阻塞（9918/9919 VM 轨 .at i64→int 桥退化——shim 直读真值实证但 .at 侧落 0/.str()→None）；判定协议已备（滚动驱动→distinct present 计数≥面板率×0.9），清偿后首判——零数字虚席位（冒领禁则 PLAN-020 §2 约束①）"
+      "window_ms": 2995,
+      "budget": 54.0,
+      "verdict": "fail",
+      "source": "tools\\bench\\results\\frame-20261001-230957.jsonl",
+      "note": "PLAN-022 T-03 供② 清偿后首判 armed FAIL（换行连发 cursor-follow 滚动驱动）：8.01fps vs ≥54.0（面板×0.9@60Hz）→ FAIL——键入帧全量重建管线容率上限（~110ms/帧，type_latency 同根因；debug 对照谱 11.4fps 同量级）；下界测量（MCP 轮询≤真值——下界不过阈=FAIL 成立）；管线优化=后续件；工具链 v0.4.2-2533-g9a71a5212（供⑨ 清偿后）"
     }
   ]
 }

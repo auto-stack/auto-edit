@@ -48,6 +48,8 @@ SRC_L2_OPEN = Path("tools/bench/results/open-20260930-230121.jsonl")
 # PLAN-022 窗口形清偿重判谱（9920 消费——判定口径切换；全量对照档
 # 同谱在档 full-ref 行）
 SRC_L2_DIFF_022 = Path("tools/bench/results/diff-20261001-144526.jsonl")
+# PLAN-022 帧两行首判谱（供② 清偿后——scroll_fps armed FAIL 实数）
+SRC_FRAME_022 = Path("tools/bench/results/frame-20261001-230957.jsonl")
 
 
 def _rows(rel: Path) -> list[dict]:
@@ -77,6 +79,9 @@ def extract() -> dict:
     # PLAN-022 窗口形清偿重判直读
     l2diff22 = _rows(SRC_L2_DIFF_022)
     dl22 = next(r for r in l2diff22 if r.get("id") == "diff_100mb")
+    # PLAN-022 帧两行首判直读（供② 清偿后——armed FAIL 实数）
+    frame22 = _rows(SRC_FRAME_022)
+    sf22 = next(r for r in frame22 if r.get("id") == "scroll_fps")
     return {
         "schema": "p020-our-anchors/1",
         "generated": "tools/compare/anchors.py 直读（零重算——AC-04 逐字对照）",
@@ -141,13 +146,19 @@ def extract() -> dict:
                      "——021 FAIL 清偿（6.5× 倍率；全量对照 5078.2ms 同谱"
                      "在档 diff_100mb_full 行）；工具链 "
                      "v0.4.2-2474-g95dcfb55b[含 716]"},
-            {"state": "l2-pending", "metric": "scroll_fps",
-             "median_ms": None, "runs_ms": None,
-             "note": "PLAN-022 T-03 供⑨ 上游阻塞（9918/9919 VM 轨 .at "
-                     "i64→int 桥退化——shim 直读真值实证但 .at 侧落 0/"
-                     ".str()→None）；判定协议已备（滚动驱动→distinct "
-                     "present 计数≥面板率×0.9），清偿后首判——零数字"
-                     "虚席位（冒领禁则 PLAN-020 §2 约束①）"},
+            {"state": "l2", "metric": "scroll_fps",
+             "median_ms": sf22["fps"], "unit": "fps",
+             "runs_ms": None, "window_ms": sf22.get("window_ms"),
+             "budget": sf22.get("threshold"),
+             "verdict": "fail", "source": str(SRC_FRAME_022),
+             "note": "PLAN-022 T-03 供② 清偿后首判 armed FAIL（换行"
+                     "连发 cursor-follow 滚动驱动）："
+                     f"{sf22['fps']}fps vs ≥{sf22['threshold']}（面板"
+                     "×0.9@60Hz）→ FAIL——键入帧全量重建管线容率上限"
+                     "（~110ms/帧，type_latency 同根因；debug 对照谱"
+                     " 11.4fps 同量级）；下界测量（MCP 轮询≤真值——"
+                     "下界不过阈=FAIL 成立）；管线优化=后续件；"
+                     "工具链 v0.4.2-2533-g9a71a5212（供⑨ 清偿后）"},
         ],
     }
 

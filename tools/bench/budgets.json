@@ -44,16 +44,16 @@
     "metric": "键入到上屏",
     "budget": "<= 1 帧（16 ms，120 Hz 下 8 ms）",
     "tier": "ledger",
-    "validity": "测量本身待供料（T-03 实勘：.at 层无帧时间戳观测通道）——供② 排队（m4-perf-unblock-supply §2，2026-09-29 落档）。PLAN-022 T-03 执行期更新（2026-10-01）：供② 通道已交付（716——9918/9919）但 **VM 轨 .at 消费面 i64→int 桥退化（供⑨）**：shim 直读真值在档[进程内 FB-DBG read=1435 同址单调]但 .at 侧三面全断——`var int = frame.begin_ms()` 落 0/.str()→None〔Tick TypeError 'str'+'NoneType' 实录〕/json.from_value→0〔api frame_probe 实测〕——time 族 now_ms 返 0 同根因[PLAN-005 T-03 登记]；上游 probe 测试驻 Rust i64 lane 未过 .at 面[plan716_supply_probes call_i64 直读形]；**a2r ui_gen handler 臂第三面缺口**：front 探针臂预埋尝试→regen E0425 cannot find value frame〔ui_gen 不路由 frame 二段名——供料档 §8 实录〕→臂撤除（front 回零改动）；下游读回通道全空（`--server vm` 无 UI/`-r vm` 无 HTTP/MCP 状态域依赖 .at 桥）。判定面已成文=L0 形 MCP autoui_state 读回+帧内口径 present−begin≤1 帧 P95（Q-2 默认）；unblock=供⑨ 双面（VM i64 桥+a2r ui_gen 臂）上游清偿",
-    "unlock": "供⑨ 上游修复（i64 native→.at int 桥）后首判；L2 形态判定=front 探针 a2r 臂后续件"
+    "validity": "供② 通道交付后首判（PLAN-022 T-03，2026-10-01——716 r3 T-15 出口形 int lane 清偿供⑨ 后值流贯通）：**armed FAIL（首基线锚点——测量解锁达成，性能缺口如实红）**：帧内口径（键入帧 begin→下一 present 差）P50 110ms/P95 115ms（N=30 采样/25 有效对，release 工具链 v0.4.2-2533-g9a71a5212 L0 VM 形）vs ≤1 帧〔16.7ms@60Hz 面板 EnumDisplaySettings 读回〕→ **FAIL（~6.6 帧，预算差 6.6×）**；debug 工具链同谱 78/159ms 同量级〔frame-20261001-225541.jsonl〕=**编译形态无关归因强证**——键入帧全量重建管线主耗（视图重建+语法臂+layout+present 串行链 ~110ms/帧），优化 want（增量高亮/局部重绘）=后续件[禁调优纪律：优化实施走计划]。判定协议=SD-01 PLAN-022 节成文（帧内口径 P95；全链口径注记并列不判定）；读回通道=MCP autoui_state 帧探针字段〔editor_store.at 双门采样臂——供⑨ 清偿后值流贯通；驱动=autoui_type 直达 textarea（勘定修正：键盘直驱不达编辑器，edits 零增实证）〕；源=frame-20261001-230957.jsonl（release）+frame-20261001-225541.jsonl（debug 对照谱）；上游消费链=供⑨ 已清偿+供⑬ 适配（i64 字段）+供⑫ 适配（标记行撤除）在案",
+    "unlock": "测量已解锁（本件首判 armed FAIL）；性能面收口=键入帧管线优化件（增量高亮/局部重绘——后续件，预算差 6.6×）"
   },
   {
     "id": "scroll_fps",
     "metric": "滚动帧率",
     "budget": "满刷新率（120 Hz 面板跑满）",
     "tier": "ledger",
-    "validity": "测量本身待供料（同上）——供② 排队（m4-perf-unblock-supply §2）。PLAN-022 T-03 同源更新（2026-10-01）：供⑨ 双面缺口同阻断（VM 轨 i64→int 桥+a2r ui_gen handler 臂——type_latency 行 validity 全证据链）；判定协议已成文（滚动驱动[PageDown 连发]→窗口内 distinct present 计数/host 窗口时长→fps≥面板率×0.9[面板率=host EnumDisplaySettings 读回]）——供⑨ 清偿后即判；竞品列 pending 维持（020 Q-2 捕获自动化双缺陷实证）；对比表滚动行已落位（l2-pending 零数字虚席——anchors/render 机制在档）",
-    "unlock": "小文件已解；大文件满帧率需 rope；供⑨ 上游修复后首判（下游协议+对比表机制已备）"
+    "validity": "同上（供② 通道交付后首判，PLAN-022 T-03）：**armed FAIL（首基线锚点）**：换行连发驱动（cursor-follow 滚动——滚动相关性注记）窗内 distinct present 25 帧/2995ms=**8.0fps** vs 满刷新率×0.9〔54fps@60Hz〕→ **FAIL**——与 type_latency 同根因（键入帧管线 ~110ms/帧容率上限≈9fps，容量解释自洽）；下界测量注记〔MCP 轮询采样≤真实帧率——下界仍不过阈=FAIL 成立〕；debug 对照谱 11.4fps 同量级；源=frame-20261001-230957.jsonl+frame-20261001-225541.jsonl；对比表滚动行=本谱实数落位（armed FAIL 形态，竞品 pending 维持）",
+    "unlock": "同 type_latency——管线优化件后复判；对比表我方实数已落（本件）"
   },
   {
     "id": "diff_100mb",

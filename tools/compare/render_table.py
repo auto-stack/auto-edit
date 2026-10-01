@@ -86,6 +86,16 @@ def _our_cell(anchors: list[dict], metric: str) -> str:
         elif st == "l2":
             assert a["median_ms"] is not None, f"l2 态必出数：{a}"
             verdict = a.get("verdict", "")
+            if a.get("unit") == "fps":
+                # PLAN-022：帧率行（unit=fps——非 ms 语义，runs_ms 缺席，
+                # 谱面=distinct/window 随行）
+                note = ("armed PASS——判定绿" if verdict == "pass"
+                        else "armed FAIL（首基线锚点）——归因随行")
+                parts.append(f"{a['median_ms']:,.1f} fps"
+                             f"〔**L2 直拉判定·{note}**——窗 "
+                             f"{a.get('window_ms', 0):,.0f} ms vs 阈 "
+                             f"{a.get('budget', 0):,.1f}〕")
+                continue
             mark = "**" if verdict == "pass" else ""
             note = ("armed PASS——硬门禁正式判定绿" if verdict == "pass"
                     else "armed FAIL（记录性）——归因随行")

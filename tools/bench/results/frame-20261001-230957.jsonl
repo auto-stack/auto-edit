@@ -1,0 +1,4 @@
+{"type": "frame_timing", "toolchain": {"auto_path": "D:/autostack/.wt/edit-022/auto-lang/target/release/auto.exe", "auto_version": "auto 0.1.0+v0.4.2-2533-g9a71a5212", "auto_mtime": "2026-10-01T23:03", "psutil": true, "project": "D:\\autostack\\.wt\\edit-022\\auto-edit\\specs\\auto-edit", "os": "win32"}, "form": "l0-vm-debug（保守上界——解释段最慢形）", "panel_hz": 60.0, "form_note": "供⑨ 清偿后首判（716 r3 T-15 int lane）；读回=MCP autoui_state 帧探针字段+首帧标记"}
+{"id": "first_present", "value_ms": 4989, "coord": "frame_bench 首触时源（SD-B §3b——不含 spawn→首触段；记账位非判定）", "verdict": "record"}
+{"id": "type_latency", "samples": 30, "valid_pairs": 25, "p50_ms": 110, "p95_ms": 115, "budget_ms": 16.67, "panel_hz": 60.0, "focus_ok": true, "verdict": "FAIL"}
+{"id": "scroll_fps", "distinct_present": 25, "window_ms": 2995, "fps": 8.01, "panel_hz": 60.0, "threshold": 54.0, "verdict": "FAIL"}

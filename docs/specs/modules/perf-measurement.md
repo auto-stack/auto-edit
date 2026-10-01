@@ -356,29 +356,39 @@ Plan 413 原始缺口：`code_editor (key: t.key)` 动态 key 属性在 a2r 视�
   窗口形节（SD-02）；端点形=modules/back-api.md 第 16 端点节
   （SD-03）。
 
-### 帧两行断言化（G-3——blocked 待供⑨，协议成文）
+### 帧两行断言化（G-3——供⑨ 清偿后首判 armed FAIL，2026-10-01）
 
 - **通道面**：9918 `auto.frame.begin_ms`/9919 `auto.frame.present_ms`
   （716 组B 交付——进程级单调毫秒，0=未捕获；AUTO_FRAME_BENCH 门控
-  零开销[716 实证，不重测]）。**下游消费 blocked=供⑨ 双缺口**（VM
-  轨 .at i64→int 桥退化〔shim 真值实测但 .at 赋值落 0/.str()→None/
-  json→0——time 族同根因 PLAN-005〕+a2r ui_gen handler 臂不路由
-  frame 二段名〔E0425 实录〕；上游供料档 §8 全证据链）。
-- **判定协议（供⑨ 清偿后即判，成文在档）**：type_latency=**帧内
-  口径**（Q-2 默认定参——键入帧 begin→下一 present 差，P95 ≤1 帧
-  [@面板 Hz 换算 16ms@60Hz/8ms@120Hz]；input→present 全链口径注记
-  并列不判定）；scroll_fps=滚动驱动（PageDown 连发）→采样窗内
-  distinct present_ms 计数/host 窗口时长→**fps ≥ 面板刷新率×0.9**
-  （面板率=host EnumDisplaySettings 读回）；读回通道=L0 形 MCP
-  autoui_state 帧探针字段（`--server vm` 无 UI/`-r vm` 无 HTTP/
-  a2r 无 HTTP 面——单进程 MCP 状态域为唯一通道，T-00④ 勘定）。
-- **steady 首帧段（spawn→first present）**：同供⑨ 阻断——清偿后
-  采样臂帧序首拍 present 非零值即 spawn 相对首 present 时间戳
-  （帧值=进程起点起算，零 host 时钟对齐需求）；021 三段分解
-  （spawn→vm_init→ws_loaded）的首帧缺口待此闭合。
-- **budgets 行**：type_latency/scroll_fps 两行维持 ledger tier，
-  validity=供⑨ 全证据链+协议成文（本件 2026-10-01 更新在档）——
-  **不冒领零数字**。
+  零开销）。供⑨ 双缺口经 716 r3 T-15/T-16 清偿（int lane 出口形+
+  handler 体二段名双轨臂）——下游探针臂重埋后两轨值流贯通
+  （VM 轨真值实录+a2r regen exit 0〔i64 字段适配=供⑬，trans 臂
+  i64→int 直赋 E0308 上游解形建议在案供料档 §8〕）。
+- **首判结果（armed FAIL——测量解锁达成，性能缺口如实红）**：
+  type_latency 帧内口径 P50 110ms/P95 115ms vs ≤1 帧〔16.7ms@60Hz
+  面板 EnumDisplaySettings 读回〕→ FAIL ~6.6 帧；scroll_fps
+  （换行连发 cursor-follow 滚动驱动）8.0fps vs ≥54 → FAIL——同
+  根因（键入帧全量重建管线 ~110ms/帧容率上限≈9fps）；**debug 对照
+  谱同量级**（78/159ms+11.4fps）=编译形态无关归因强证（管线主耗=
+  视图重建+语法臂+layout+present 串行链）；优化 want（增量高亮/
+  局部重绘）=后续件。源=frame-20261001-230957.jsonl（release）+
+  frame-20261001-225541.jsonl（debug 对照）。
+- **判定协议（成文+执行期勘定修正）**：type_latency=帧内口径
+  （键入帧 begin→下一 present 差，P95 判定；全链口径注记并列）；
+  scroll_fps=滚动驱动→窗内 distinct present 计数/帧值窗时长→
+  ≥面板率×0.9（下界测量——MCP 轮询采样≤真值，下界不过阈=FAIL
+  成立）；**驱动通道勘定修正**：autoui_keyboard 键入/PageDown 不达
+  编辑器（edits 零增实证）→autoui_type 直达 textarea（双臂在场
+  值流+光标推进）；**读回通道**=`run -r vm` 单进程 MCP autoui_state
+  帧探针字段（`--server vm` 无 UI/`-r vm` 无 HTTP——T-00④ 勘定）。
+- **steady 首帧段（记账位）**：帧探针首拍非零 present=4989ms
+  〔帧值坐标〕——**时源勘定修正（716 r3 SD-B §3b）**：frame_bench
+  时源=首次触及时定格，**非进程起点**——帧值不含 spawn→首触段，
+  「spawn→first present」全段分解需 host 标记锚（供⑫ print 拼接
+  缺口下标记形撤除，MCP 首采承载——记账位非判定）。
+- **budgets 行**：type_latency/scroll_fps 两行 **armed FAIL 落位**
+  （ledger tier；首基线锚点=021 diff FAIL 同款语义——测量解锁即
+  供② 交付物，性能面收口=管线优化件后续）。
 
 ### 对比表滚动列（G-4）
 
