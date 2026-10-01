@@ -6,7 +6,7 @@ author: [agent]
 created_at: 2026-10-01T14:13:05+08:00
 updated_at: 2026-10-01T15:05:00+08:00
 plan_revision: 1
-current_step: 6
+current_step: 8
 total_steps: 8
 execution_context:
   worktree: D:/autostack/.wt/edit-022/auto-edit（branch plan-022-dev，base f9a16e5）
@@ -280,11 +280,11 @@ SD-01..05 落档+（条件）SD-06 want 节+specs.json P022-1 投影
 | # | 任务 | 依赖 | 落点（实勘锚） | 产出/意图 | AC | 验证（命令/预期） |
 |---|---|---|---|---|---|---|
 | 0 | T-00 消费勘定 | — | 本件 §5 T-00 节 | 四口径定参+构建面盘点 | 全 | [x] 勘定记录在档（2026-10-01 执行期勘定：①**diff 窗口 limit=600**（Q-1 默认定参——011 渲染 cap 对齐；首屏语义）；②**type_latency=帧内口径**（Q-2 默认——present−begin 通道原生；全链口径注记并列不判定）；③**api 形态适应（新证据）**：VM HTTP 服务侧「缺参 400」实证〔auto-lang vm/ffi/http_server.rs:37「路径段→body→query，缺参 400」〕+merged 轨进程内 CALL 按位装配——同端点「可选 query 参数」在双轨皆不可表达〔3 参调用打 5 参 fn=HTTP 400/arity 炸〕→**采用上游 9920 同构形**：api.at 增独立第 16 端点 `diff_files_window`（五参全必填，HTTP 串形=SD-C 原文）+fsys.at 增 `diff_files_window_json` 五参转发；旧 `diff_files`/`diff_files_json` 逐字节零触碰=默认形零扰动最强形；「缺席=全量」语义由端点二分承载（缺席窗口参数=旧端点=全量形）——SD-02/03 落档随此形；④**帧读回通道**：api.at 增 `/api/frame_probe` 端点（back 域——in-proc 读 9918/9919 进程级原子〔ui::frame_bench OnceLock+AtomicI64 进程全局，SD-B〕），判定形=L0 server-vm release 工具链（`run --server vm`——iced 渲染器同进程实证锚 main.rs:1049 注记「same process for -r vm」；执行期活体探针复核 begin_ms>0）；**L2 拓扑无帧读回通道**（a2r app 零旗标无 HTTP 面——back exe 无渲染器原子恒 0）→两行判定=L0 server-vm 形 armed（VM 解释段=保守上界——过判则 a2r 形必快，保守方向判定；tier 维持 ledger+形态注记；L2 武装=front 探针件后续件注记）；面板率读回=host 侧 EnumDisplaySettings（bench python ctypes）；steady 首帧段=spawn→frame_probe present_ms 首个非零 host 时刻（零 front 触碰——affects 面保持）；⑤**T-06 择路=fallback**（Q-3）：auto-lang 并行会话在途〔.wt/lang-721 等〕+本件非目标「auto-lang 零改动」→多跑 evidence 入本仓+供料档 §3 销账注记+KNOWN-DEBT 回写建议文随附（AC-06 括号臂）；⑥**构建面盘点**：sibling 工具链（上）+auto-down 组树必需复活〔autodown-core `../../../auto-down/…` 相对路径自 sibling 解析→组树缺失=regen/build 即败——首建败实录在案〕+a2r regen=perf.py a2r→release=perf.py release（api.at 第 16 端点入 back exe 需 regen+release 重建）；主检出外来 WIP=specs/stylekit 两文件删除态在案〔他属会话——零触碰零包含，落地时另行路由〕） |
-| 1 | T-01 back 窗口贯通 | T-00 | fsys.at+api.at（最小 diff） | 9920 转发+可选参数 | AC-01 | [x] 等价哨+字段族探针绿（commit 480ba6e+验证收口：fsys.diff_files_window_json 9920 五参裸名直调+api.at 第 16 端点[独立五参端点形——T-00③ 双轨约束适应]；probe_diffwin --back 形 8/8 PASS[evidence-p022-t01.json——①默认形键集恒 8 不增 rows_total+②窗口形 rows_total/truncated/hunks 全量/切片逐行等价+③边界净形]；**执行期发现供⑧**：9920 VM codegen 裸名臂缺失〔codegen.rs:559-561 三 diff 面无 window——实测 HTTP 线程挂死〕，a2r trans/ui_gen 臂 716 已交付〔生成物 main.rs:2259 直调 a2r_std 实证〕——探针判据走 --back 形+供⑧ 上游登记；016 消费面零触碰=frozen③ 最强形；矩阵 T15 主链哨=front 零改动自证随 T-06 ×3 复跑） |
+| 1 | T-01 back 窗口贯通 | T-00 | fsys.at+api.at（最小 diff） | 9920 转发+可选参数 | AC-01 | [x] 等价哨+字段族探针绿（commit 480ba6e+验证收口：fsys.diff_files_window_json 9920 五参裸名直调+api.at 第 16 端点[独立五参端点形——T-00③ 双轨约束适应]；probe_diffwin --back 形 8/8 PASS[evidence-p022-t01.json——①默认形键集恒 8 不增 rows_total+②窗口形 rows_total/truncated/hunks 全量/切片逐行等价+③边界净形]；**执行期发现供⑧**：9920 VM codegen 裸名臂缺失〔codegen.rs:559-561 三 diff 面无 window——实测 HTTP 线程挂死〕，a2r trans/ui_gen 臂 716 已交付〔生成物 main.rs:2259 直调 a2r_std 实证〕——探针判据走 --back 形+供⑧ 上游登记；016 消费面零触碰=frozen③ 最强形；矩阵 T15 主链哨=front 零改动自证随 T-06 ×3 复跑；**供⑧ 清偿回执（716 r3 T-14）**：撞号改签 9920→9921[PLAN-095 ui.focus 占位]+codegen 裸名臂补全——probe_diffwin 缺省 VM 形 8/8 PASS〔2026-10-01，工具链 v0.4.2-2533-g9a71a5212〕+--back 形 8/8 双绿，9920→9921 引用全链对齐） |
 | 2 | T-02 diff 重判 | T-01 | bench.py+budgets+compare | FAIL→PASS 清偿 | AC-02/04 | [x] 窗口谱 ≤2s+口径在档（commit 845f584+收口批：bench L2 判定档切窗口形[offset=0/limit=600]+diff_100mb_full 对照档[kind=full-ref 不判定]+N≥4 谱；**armed PASS median 784.8ms**〔4 跑谱 756.6-928.8——vs 全量对照 5078.2ms 同谱复现 021 形态，清偿倍率 6.5×；021 归因①envelope 全量投影+双层 JSON 随窗口物化消除〕；budgets validity 口径重写[出结果语义+全量对照不删]+对比表 diff 行三态并陈[016 1906/021 FAIL 5183.2/022 PASS 784.8]——anchors --verify 9 行全等+render --check 双绿；谱 diff-20261001-144526.jsonl 入仓；L0 VM 形维持全量旧径零扰动[供⑧ 下 VM 轨窗口调用不可用]；复现终跑谱随 T-05 后补入注） |
-| 3 | T-03 帧两行断言化 | T-00 | bench.py 增两档+frame 读回 | 两行 armed+首帧段 | AC-03 | [ ] **blocked（供⑨ 上游）**——判定面/协议已成文+budgets 两行 blocked 证据链行落档：①VM 轨 .at i64→int 桥退化〔shim 直读真值实证[进程内 FB-DBG read=1435 同址单调]+.at 侧三面全断：int 赋值落 0/.str()→None[Tick TypeError 实录]/json.from_value→0——time 族 now_ms 返 0 同根因[PLAN-005 已登记]〕②a2r ui_gen handler 臂不路由 frame 二段名〔front 探针臂预埋尝试→regen E0425 cannot find value frame 实录→臂撤除 front 回零改动〕③上游 probe 驻 Rust i64 lane 未过 .at 面[plan716_supply_probes call_i64 直读形]；读回通道全空勘定[`--server vm` 无 UI/`-r vm` 无 HTTP/MCP 状态域依赖 .at 桥]；unblock=供⑨ 双面（VM i64 桥+a2r ui_gen 臂）；判定协议在档[滚动驱动→distinct present 计数≥面板率×0.9+面板率 host EnumDisplaySettings 读回；帧内口径 present−begin≤1 帧 P95]；对比表滚动行已落位 l2-pending 零数字虚席（不冒领） |
+| 3 | T-03 帧两行断言化 | T-00 | bench.py 增两档+frame 读回 | 两行 armed+首帧段 | AC-03 | [x] 两档谱+首帧段收口（2026-10-01 复工——供⑨ 经 716 r3 T-15/T-16 清偿后首判）：**armed FAIL 双行落位**〔测量解锁=供② 交付物达成；性能缺口如实红——type_latency 帧内口径 P50 110/P95 115ms vs ≤16.7ms→FAIL ~6.6 帧+scroll_fps 8.0fps vs ≥54→FAIL（换行连发 cursor-follow 滚动驱动，下界测量不过阈）；debug 对照谱 78/159ms+11.4fps 同量级=编译形态无关归因强证——键入帧全量重建管线 ~110ms/帧主耗，优化=管线件后续〕；bench frame 档实现〔MCP 帧探针字段读回+autoui_type 驱动——勘定修正：键盘直驱不达编辑器〕+steady 首帧段记账位〔4989ms 帧值坐标——SD-B §3b 时源勘定修正注记〕+budgets 两行 armed+SD-01 帧节重写+对比表滚动行实数落位〔8.0fps armed FAIL——anchors unit=fps 分支 --verify 10 行全等+--check 双绿〕；谱 JSONL ×2 入仓；上游消费链=供⑨ 清偿回执+供⑬ 适配（i64 字段——a2r trans 臂 E0308 上游解形建议在案）+供⑫ 适配（标记行撤除）在案 | 
 | 4 | T-04 对比表滚动列 | T-03 | compare/{anchors,render}.py+README | 滚动行+diff 行刷新 | AC-04 | [x] --verify/--check 绿（收口批 commit：anchors 增 SRC_L2_DIFF_022 窗口谱源+022 PASS 行+scroll l2-pending 行〔零数字虚席——冒领禁则〕+render diff 行三态并陈+滚动行落位[我方供⑨ 注记+竞品 020 Q-2 pending 维持]；anchors --verify **9 行三态数据与源 JSONL 全等**+render --check **README 区间复现一致**双绿实录） |
-| 5 | T-05 双形态+语法面 | T-00 | build_portable.py+矩阵抽档+供料档 | ts 开关+want 登记 | AC-05 | [x] 双冒烟绿+want 节在档（build_portable --ts on|off 收口 commit：feature workspace dep 行注入+产物双命名[ts-off=auto-edit.exe 30,355,456B 预算判定域/ts-on=auto-edit-ts-on.exe 51,457,024B 记录位——**Δ+21.1MB vs 716 实测 +18.9MB 同量级复现**]；双形态 boot/装载冒烟 PASS[release 零旗标直拉 bench_open_done 2s 同拍]+feature 门控 binary 探针[tree_sitter 符号 on=23/off=0 干净]；**供⑪ cc 夹缝首建实录+回避钉 blake3 1.5.5 幂等锁定**[供料档 §8]；语法联动 want 登记[三面 grep 零命中——M3 尾巴注记维持]；语法面边界=T-15 视觉门注记[语法着色非机器断言面——upstream 716 22 语言 fixture 矩阵为上游锚]） |
+| 5 | T-05 双形态+语法面 | T-00 | build_portable.py+矩阵抽档+供料档 | ts 开关+want 登记 | AC-05 | [x] 双冒烟绿+want 节在档（build_portable --ts on|off 收口 commit：feature workspace dep 行注入+产物双命名[ts-off=auto-edit.exe 30,355,456B 预算判定域/ts-on=auto-edit-ts-on.exe 51,457,024B 记录位——**Δ+21.1MB vs 716 实测 +18.9MB 同量级复现**]；双形态 boot/装载冒烟 PASS[release 零旗标直拉 bench_open_done 2s 同拍]+feature 门控 binary 探针[tree_sitter 符号 on=23/off=0 干净]；**供⑪ cc 夹缝首建实录+回避钉 blake3 1.5.5 幂等锁定**[供料档 §8]；语法联动 want 登记[三面 grep 零命中——M3 尾巴注记维持]；**供⑪ 撤钉回执（716 r3 T-17 零 diff——registry 演进 sequel 0.3.11）**：blake3 1.5.5 回避钉移除+fresh cargo update〔blake3 1.8.7/sequel 0.3.11/cc 1.2.67〕+check 绿 52.7s；语法面边界=T-15 视觉门注记[语法着色非机器断言面——upstream 716 22 语言 fixture 矩阵为上游锚]） |
 | 6 | T-06 供③ 销账 | — | desktop_mcp T17×3+债务档 | P716-D1 清偿 | AC-06 | [ ] **销账未达（维持挂账——不假销账）**：处方 part-1 落实[主实例 MCP 端口高带钉位臂——924x TOCTOU 带 3/6→0/3 清零]+全矩阵 ×3 谱[93 PASS/**0 FAIL**——T1-T9 深度全绿含 T15 diff 主链零扰动哨随跑复证；T17 不可达：app 动作相关净退 ×2〔T6/T9——**空闲对照 420s 存活排除自退**，vnode 漂移误击家族嫌疑=环境态非确定性 P716-D1 原录口径〕+T10 子实例 spawn 败 ×1]+共栖 721 desktop 会话在途〔空闲窗口期处方前提不成立〕→P716-D1 维持「确认复核件」挂账+回写建议文随附[evidence-p022-t06.md+matrix-p022-run{1,2,3}.txt+供料档 §3 复试更新]——AC-06 括号臂（evidence+upstream 登记）承载；下次空闲窗口期按 runner 复跑即续 |
 | 7 | T-07 规范+账本 | T-01..06 | SD-01..06+specs.json | 消费收口落账 | AC-07 | [x] P022-1 True+范围断言（SD-01 perf-measurement PLAN-022 节〔窗口口径+帧协议+滚动列〕/SD-02 diff-view 窗口形节/SD-03 back-api 十六端点+第 16 端点节/SD-04 overview M4 第五件注记/SD-05 README PLAN-022 口径/SD-06 供料档 §8〔供⑧⑨⑪+want+供③ 复试更新〕全落档；specs.json P022-1 外科插入 22→23〔roundtrip 守卫：他五段+reviews 前缀 21 项零扰动+插入项逐字回读〕；范围断言=.at diff 限 back 最小面[fsys.at+api.at]——front 执行期零最终改动[探针臂预埋尝试已撤]+auto-lang 主树 tracked 零改动[porcelain 实证]+sibling 两树 clean） |
 
@@ -319,6 +319,20 @@ SD-01..05 落档+（条件）SD-06 want 节+specs.json P022-1 投影
   本件非 execution_done（AC-03 未达——keep executing）；已交付面可
   先行 review 供merge 评估〔供⑨ 清偿后 T-03 在本件或后续件收口——
   用户裁定〕。
+
+- 2026-10-01 work 复工 handoff（716 Phase 2 交付后）：`stage: work`
+  续，PLAN-022，plan_revision 1（语义契约未变——blocked 面清偿收口
+  =原任务完成，非修订）。`outcome: pass`（execution_done——八任务
+  全终态：T-01 供⑧ 回执〔VM 形 8/8+9921 对齐〕；T-03 供⑨ 清偿后
+  首判 armed FAIL 双行落位〔测量解锁=供② 交付物；性能缺口归因=
+  键入帧全量重建管线 ~110ms/帧——debug/release 同量级，优化=管线
+  件后续〕+首帧段记账位+对比表滚动实数；T-05 供⑪ 撤钉回执；T-06
+  维持 fallback 臂已录；供⑫⑬ 新缺口登记随供料档 §8）。`code_commit`:
+  worktree plan-022-dev 终笔。`task_ids`: 全部（T-00..T-07）。`evidence`:
+  AC-01/02/04/05/06/07 维持+AC-03 断言化交付〔armed FAIL 谱/归因/
+  协议成文——判定绿子句如实未达，性能面=后续件〔管线优化件〕，
+  供 merge/review 裁量〕。`blockers`: 无（本件范围）。
+  `next: review`。
 
 ## 10. 待澄清事项
 
