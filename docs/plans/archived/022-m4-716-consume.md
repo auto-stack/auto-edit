@@ -1,6 +1,7 @@
 ---
 plan_id: PLAN-022
-status: executing
+status: archived             # merge 收口（2026-10-01——reviewed r2 → archived 终态）
+completion_kind: delivered   # 复工全弧交付：供⑧⑨⑪ 回执+帧两行首判 armed FAIL 落账+对比表滚动实数+供⑫⑬ 登记（性能面=管线优化件后续计划）
 feature_name: M4-05 PLAN-716 三组消费件（组C diff 窗口切换+FAIL 清偿重判/组B 帧两行断言化+对比表滚动列/组A 双构建形态+语法面回归与语法联动 want 登记）+供③ P716-D1 销账
 author: [agent]
 created_at: 2026-10-01T14:13:05+08:00
@@ -382,6 +383,36 @@ SD-01..05 落档+（条件）SD-06 want 节+specs.json P022-1 投影
   〔双形 8/8〕+tests/evidence-p022-t06.md+matrix-p022-run{1,2,3,review}.txt
   +frame/diff/portable 谱 JSONL ×9+results/anchors.json+table.md
   （全 committed@a88ae13f——worktree 移除后 durable）。`next`: merge。
+
+- 2026-10-01 merge：`stage: merge`，PLAN-022，plan_revision 2（r2）。
+  `outcome: pass`（delivered——五检查点全落，见下）。`delivery_commit`:
+  main@**69e6cc9**〔ff-only 线性——rebase 旧→新映射 a88ae13f→69e6cc9
+  尾笔，range-diff 14 work 提交全等〔3 main 记账提交随行吸收〕〕；
+  `base_commit`: f9a16e5。
+  - **prepared**：reviewed r2 基线=main@88bdb64/工作树 plan-022-dev
+    @a88ae13f；canonical Spec diff=worktree docs/specs 已提交面
+    〔SD-01..04+README+供料档 §8——本树 docs/specs@69e6cc9 即落位
+    形〕；projection 目标=.autoos/specs.json reviews 段 P022-2
+    （tracked ledger main 轨循 021 P021-2 先例）；delivery_commit
+    推定=69e6cc9。
+  - **landed**：plan-022-dev rebase main〔88bdb64〕零冲突——range-diff
+    14 提交全等实证；`git merge --ff-only`=main tip **69e6cc9**〔零
+    merge 提交〕；main 烟测三绿〔anchors --verify 9 行全等+render
+    --check 复现一致+probe_diffwin VM 形 8/8〕。
+  - **ledger_refreshed**：.autoos/specs.json reviews 段 P022-2 外科
+    插入〔23→24——merge 收据：四检查点+对照表终态+三域回归+上游
+    清偿回执+供⑫⑬ 登记；roundtrip 守卫=json.loads 新旧深等〔他五段
+    +reviews 前缀零扰动〕+插入项逐字回读；本格=随归档提交后置实测
+    回读——P021-2 先例〕。
+  - **archived**：docs/plans/archived/022-m4-716-consume.md〔git mv〕
+    +status: archived+completion_kind: delivered〔本格即归档格〕。
+  - **cleaned**：待回填〔worktree/branch/组树三树注销+wt-guard 后实
+    录——归档提交后执行〕。
+  - **部署观察**：本仓无运行中生产进程/daemon；dist/portable 双形态
+    exe=测量证据件〔ts 尺寸/门控与探针字段无关——ts-on 为撤钉前
+    分辨率态构建，分辨率已证等价〕；rust-workspace 生成物=测量
+    工件非部署件——**零重建项维持**（021 同款观察）。批量回归=
+    本仓无 .last-batch-regression 机制不适用〔021 同录〕。
 
 ## 10. 待澄清事项
 
