@@ -256,6 +256,14 @@
   `("diff_files_window", NATIVE_DIFF_FILES_WINDOW)` 一行+下游复验=
   `probe_diffwin.py`（缺省 VM 形）8/8 PASS[VM 轨窗口形断言解封]；
   回执后下游 L0 形 diff 档可切窗（当前 L0 维持全量旧径零扰动）。
+- **清偿回执（2026-10-01，PLAN-716 r3 T-14 delivered@9a71a5212 谱）**：
+  实勘升级=根因双重（intrinsics 漏登记+**9920 与 PLAN-095 ui.focus
+  撞号**〔shim 表注册序后者覆盖→VM 轨窗口调用恒派 ui_focus 静默
+  no-op〕）→窗口件改签 **9921**+intrinsics 补臂（守护探针
+  native_catalog_ids_and_names_unique 随行）。下游回执=
+  `probe_diffwin.py` 缺省 VM 形 **8/8 PASS**（2026-10-01，工具链
+  v0.4.2-2533-g9a71a5212）+--back 形 8/8 维持双绿；auto-edit 侧
+  9920→9921 引用全链对齐。
 
 ### 供⑨：9918/9919 帧通道 .at 消费面双缺口
 
@@ -283,6 +291,20 @@
   regen exit 0+帧值流经面。清偿后下游 T-03 帧两行判定面即活
   （协议在档：type_latency=帧内 P95≤1 帧/scroll_fps=distinct
   present 计数≥面板率×0.9——budgets 两行 blocked 证据链行）。
+- **清偿回执（2026-10-01，716 r3 T-15/T-16 delivered）**：①出口形=
+  int lane 统一（stdlib `-> int`+shim push_i32+catalog Int；值域
+  毫秒 saturating<2^31≈24.8 天；SD-B §3b 时源坐标勘定修正
+  〔process_start=首触定格非进程起点〕）；②handler 体二段名路由
+  补臂（ui_gen 直调+trans Dot-path 双轨）。下游回执=front 探针臂
+  重埋后 VM 轨值流贯通〔fprobe_begin 4535/present 3561 真值+首帧
+  帧值 33ms 实录〕+**a2r regen exit 0**〔23s，含探针臂——i64 字段
+  适配形，见供⑬〕。**供⑬（本轮下游复验新发现）**：a2r trans 臂
+  发射 Rust 原生 `frame_begin_ms(): i64` 直赋 .at int（i32）字段
+  →**E0308 mismatched types**〔a2r-20261001-225955.log 实录——
+  T-16 探针=grep 发射形未过编译赋值面〕；下游适配=探针字段
+  `i64` 承接（VM 轨 int 源隐式加宽两轨验证绿）；上游解形建议=
+  trans 臂发射 `as i32` 收窄或 Rust 面 frame fn 改 i32 返回
+  〔值域毫秒 saturating 与 SD-B §3b 一致〕。
 
 ### 供⑪：highlight-treesitter+sql 的 cc 版本夹缝（PLAN-022 T-05 首建实证）
 
@@ -301,6 +323,25 @@
   实证；build_portable stage_ts_patch 内建幂等钉位）。
 - **验收形态建议**：上游 Cargo.toml 面解钉（sequel 升级/换源或
   blake3 需求面放宽）→ 下游撤回避钉复验 `--ts on` 构建绿。
+- **清偿回执（2026-10-01，716 r3 T-17 零 diff）**：registry 演进
+  自然解钉——tree-sitter-sequel 0.3.2→**0.3.11**〔cc ~1.0.90→
+  ~1.2.1〕与 blake3 1.8.7 交集非空。下游**撤钉回执完成**：
+  build_portable blake3 1.5.5 回避钉移除+fresh `cargo update`
+  （blake3 1.8.7/sequel 0.3.11/cc 1.2.67）+`cargo check -p
+  auto-edit` 绿〔52.7s 含 feature〕。
+
+### 供⑫：a2r trans print 拼接形缺口（PLAN-022 复工期新发现，2026-10-01）
+
+- **现象**：.at `print("前缀" + int值.str())`（帧探针首帧标记行）
+  → a2r 发射 `println!(format!("{}{}", …))`——**println! 首参须
+  字符串字面量→编译错误**〔a2r-20261001-225955.log
+  "format argument must be a string literal" 实录，多处〕。
+- **根因面**：trans print 臂对拼接实参发射 format! 内嵌形——历史
+  无事因 print() 消费面=bench 标记族全常量（front 消息面走
+  console_log 非此臂）。
+- **下游适配**：首帧标记行撤除（帧值经 MCP 字段读回，等价承载）。
+- **验收形态建议**：print 臂拼接实参发射 `println!("{}", format!(…))`
+  或拆 print! 链；下游回执=探针标记行重埋 regen exit 0。
 
 ### 语法高亮联动 want 登记（M3 尾巴处置——本件 §1 G-5 定案）
 

@@ -107,27 +107,12 @@ def stage_ts_patch(ws: Path, ts_on: bool) -> tuple[int, str]:
                                "（生成器形变——基面演化）")
         manifest.write_text(new + ("" if new.endswith("\n") else "\n"),
                             encoding="utf-8", newline="\n")
-    # PLAN-022 T-05: blake3 锁定钉位（供⑪ cc 夹缝回避——tree-sitter-
-    # sequel 0.3.2 的 cc `~1.0.90` 钉 vs 新纪元 blake3[1.8.7]的
-    # cc `^1.1.12`：同 major 单版本选一→空交集不可解析〔首建败实录
-    # release-20261001-160555.log〕；blake3 1.5.5 纪元兼容→锁定降钉后
-    # cc 1.2.67 双满足，cargo check 绿[1m06s 实证]）。幂等=1.5.x 在位跳过。
-    import subprocess as _sp
-    lock = ws / "Cargo.lock"
-    blake3_ok = False
-    if lock.exists():
-        m = re.search(r'name = "blake3"\r?\nversion = "([^"]+)"',
-                      lock.read_text(encoding="utf-8"))
-        blake3_ok = bool(m and m.group(1).startswith("1.5."))
-    if not blake3_ok:
-        proc = _sp.run(["cargo", "update", "-p", "blake3",
-                        "--precise", "1.5.5", "--manifest-path",
-                        str(manifest)], capture_output=True, text=True)
-        if proc.returncode != 0:
-            return EXIT_FAIL, ("FATAL: blake3 钉位失败——"
-                               f"{(proc.stderr or proc.stdout)[-160:]}")
-        return EXIT_OK, "ts-on（feature 注入+blake3 1.5.5 锁定钉位——供⑪ cc 夹缝回避）"
-    return EXIT_OK, "ts-on（feature 在场+blake3 1.5.x 已钉——幂等跳过）"
+    # PLAN-022 T-05→复工批：供⑪ 已清偿（上游 r3 T-17 零 diff——registry
+    # 演进 tree-sitter-sequel 0.3.2→0.3.11〔cc ~1.0.90→~1.2.1 放宽〕，
+    # 与 blake3 1.8.7〔cc ^1.1.12〕交集非空=现势 fresh 解析自然可建）。
+    # 原 blake3 1.5.5 回避钉已撤（2026-10-01 撤钉回执——fresh 解析+
+    # cargo check 实证在 plan 复工记录）；若未来 registry 回退再触
+    # 夹缝，回避钉形见 git 史[600ba65 前的 stage_ts_patch]。
 
 EXIT_OK, EXIT_FAIL, EXIT_BLOCKED = 0, 1, 3
 
