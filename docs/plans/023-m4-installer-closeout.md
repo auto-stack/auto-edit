@@ -6,7 +6,7 @@ author: [agent]
 created_at: 2026-10-02T09:09:08+08:00
 updated_at: 2026-10-02T10:05:00+08:00
 plan_revision: 1
-current_step: 0
+current_step: 1
 total_steps: 6
 supersedes_spec_components: []
 new_spec_components:
@@ -214,16 +214,31 @@ SD-01..03 落档+（条件）上游缺口登记（深裁路线不可达大头→
 
 | # | 任务 | 依赖 | 落点（实勘锚） | 产出/意图 | AC | 验证（命令/预期） |
 |---|---|---|---|---|---|---|
-| 0 | T-00 现势谱+库存量+冲突面 | — | build_portable+evidence-p023 | 裁定材料三件套 | AC-01 | [ ] 三表在档 |
+| 0 | T-00 现势谱+库存量+冲突面 | — | build_portable+evidence-p023 | 裁定材料三件套 | AC-01 | [x] 三表在档（evidence-p023-survey@worktree 75d7ca6：三代谱〔V2b 30,403,072/opt-z 22,206,976/abort 22,646,272——三路无一达门〕+库存量 R1-R9〔可达池仅 R2 axum<0.5MB〕+冲突面 17 语句/8 语义点） |
 | 1 | T-01 门控裁定 | T-00 | §10 Q-1 请示+budgets/SD | 用户裁定落档 | AC-02 | [ ] 裁定回执在录 |
 | 2 | T-02 终态手段集 | T-01 | build_portable 注入面 | 依裁定执行 | AC-03 | [ ] 手段谱+护栏门 |
 | 3 | T-03 判定收口 | T-02 | budgets.json+判定报告 | installer 终态 | AC-03 | [ ] armed/归因终表 |
 | 4 | T-04 护栏+烟测 | T-02 | bench 五行+烟测四段 | 零回退证 | AC-04 | [ ] 谱+记录绿 |
 | 5 | T-05 规范+账本 | T-01..04 | SD-01..03+specs.json | 收口落账 | AC-05/06 | [ ] P023-1 True+范围断言 |
 
-## 9. 复审记录
-
 - 2026-10-02 起草 handoff：`stage: new`，PLAN-023，plan_revision 1。
+
+- **2026-10-02 work 进度（T-00 落）**：工作树组 edit-023 三树
+  （auto-edit@plan-023-dev base 5dbfd79+auto-lang@986e765ac+auto-down
+  @895f8d0 detached）+工具链 v0.4.2-2546-g986e765ac 组树 clean 重建
+  〔主检出 exe=2511-dirty 纪律剔除〕。T-00 三件套落档
+  （evidence-p023-survey@75d7ca6）：①三代谱 ts-off——V2b
+  **30,403,072B**/opt-z **22,206,976B**/abort 记录档 **22,646,272B**
+  （增量 z -8.2MB/abort -7.76MB；节表三分全列——.rdata 12.35→8.11MB
+  =716 two-face 退役显影）；**组合投影 16.5~16.8MB（超门 ~1MB）——
+  三路无一达门，019「距门 714KB 即可达标」叙事翻转入案**。②库存量
+  R1-R9：可达池仅 R2（axum 0.7 根行 diet≈0.2~0.5MB）；tokio/reqwest/
+  iced 底座=auto-lang 自声明（上游域）；image-pipeline=功能依赖实锚
+  （auto_media 端点）；tungstenite=通道禁令+上游域双壁垒。③冲突面
+  17 语句/8 语义点成文（会话恢复 fresh-start+512MB 拒绝门
+  =load-bearing）。前置修复：stage_ts_patch ts-on 终迹 return 复位
+  （c0b402d——68432be 撤钉批误删，单元级三路径验证）。`outcome:
+  (执行中)`——T-01 Q-1/Q-2 请示在途（用户件）。
   `outcome: pass`（起草完备：三前置在位[ts-off 通道/退役翻转/手段
   谱]；**起草期核心发现=panic=abort×catch_unwind 语义冲突**——
   019 未裁门控项经 710 G-B 升格为语义冲突项，三路裁定面成文防
