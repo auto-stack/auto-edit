@@ -4,10 +4,10 @@ status: executing
 feature_name: 供⑮ 消费件（M4 挂账清偿——PLAN-728 后援分页 rope 下游兑现：512MB 拒绝位退役〔裁定〕+1GB E2E 全链+budgets open_1gb 断言化重测+供料档回执闭环）
 author: [agent]
 created_at: 2026-10-02T17:23:39+08:00
-updated_at: 2026-10-02T17:35:00+08:00
+updated_at: 2026-10-02T18:05:00+08:00
 plan_revision: 1
-current_step: 0
-total_steps: 8
+current_step: 5
+total_steps: 6
 supersedes_spec_components: []
 new_spec_components:
   - docs/specs/modules/perf-measurement.md（SD-01：open_1gb 行断言化——unlock 指针兑现+判定口径+谱）
@@ -238,12 +238,12 @@ SD-01..04+供料档 §10 **消费回执节**（供⑮ 全弧终结——want 登
 
 | # | 任务 | 依赖 | 落点（实勘锚） | 产出/意图 | AC | 验证（命令/预期） |
 |---|---|---|---|---|---|---|
-| 0 | T-00 消费勘定 | — | 本件 §5 T-00 节 | 五勘定+Q-1 材料定稿 | 全 | [ ] 勘定记录在档 |
-| 1 | T-01 门退役 | T-00+Q-1 裁定 | editor_store.at（10 处臂清理） | 拒绝语义退役 | AC-02 | [ ] 负验证+护栏锚绿 |
-| 2 | T-02 1GB E2E 扩容 | T-01 | desktop_mcp T17 组+生成式 fixture | 四链+边界双轨 | AC-03 | [ ] 扩容检查绿 |
-| 3 | T-03 open_1gb 断言化 | T-02 | bench.py open 档+budgets | armed+口径+复现谱 | AC-01/04 | [ ] 档谱+budgets 注记 |
-| 4 | T-04 会话收口 | T-00 | SD-02 注记面 | 现状成文 | AC-05 | [ ] 注记在档 |
-| 5 | T-05 规范+账本+回执 | T-01..04 | SD-01..05+specs.json | 全弧闭环 | AC-06/07 | [ ] P025-1 True+回执节在档 |
+| 0 | T-00 消费勘定 | — | 本件 §5 T-00 节 | 五勘定+Q-1 材料定稿 | 全 | [x] 勘定记录在档（工具链门：组三树 edit-025〔auto-edit@plan-025-dev base de6cb95/auto-lang@1a15c8eee detached 含 728@69059dfaa 祖先链/auto-down@895f8d0 detached〕——auto --version=v0.4.2-2603-g1a15c8eee release 组树构建；拒绝臂全景 11 处分类=退役面〔门臂/标签族/ro_reason big〕vs 保持面〔encoding 形/readonly 外层/ReplaceAll+EolConvert big 护栏 grep 锚 6+3〕；会话面：tab 全量入册懒恢复无排除位——1GB 恢复=激活再装载 ~4s 按现状；三轮实证探针 probe_p025_consume：014 大文件实例全死症状在 728 未复现〔装载/点击/Ctrl+F 全活〕+编辑器光标键盘不达 code_editor=普适驱动限制〔小文件对照同〕+查找下一处分页 100MB 21s 未决=728 查找债下游确认） |
+| 1 | T-01 门退役 | T-00+Q-1 裁定 | editor_store.at（10 处臂清理） | 拒绝语义退役 | AC-02 | [x] 负验证+护栏锚绿（Q-1 用户裁 (a) 移除——AskUserQuestion 回执 2026-10-02；拒绝分支+BENCH 标记+拒绝 console 行+「只读(超大拒绝)」标签臂整支退役——现存单级 ≥50MB big 置位；grep 负验证全零〔536870912/bench_open_rejected/load rejected/ro_reason=="big"〕+护栏锚零回退@worktree） |
+| 2 | T-02 1GB E2E 扩容 | T-01 | desktop_mcp T17 组+生成式 fixture | 四链+边界双轨 | AC-03 | [ ] 扩容检查绿（码面已落：T17.5 翻转 513MB+1B 装载成功形+T17.9-12 四链新增+T18.1 重铸零编辑直写往返@worktree——矩阵实跑验证中） |
+| 3 | T-03 open_1gb 断言化 | T-02 | bench.py open 档+budgets | armed+口径+复现谱 | AC-01/04 | [x] 档谱+budgets 注记（open 档重铸 truncate 探针档退役→真内容锚点族全绿：open_1gb 3774.4ms〔上游 4.0s 带内〕+boundary_513mb 1912.2ms+threshold 双轨 204.4/408.7ms+100MB 重判 383.3ms〔后援臂红利 ~2.25×〕；budgets open_1gb=armed 判定口径成文；RSS 记账 235MB@1GB@worktree results/open-20261002-174223.jsonl） |
+| 4 | T-04 会话收口 | T-00 | SD-02 注记面 | 现状成文 | AC-05 | [x] 注记在档（editor-store.md 会话恢复兼容节：全量入册懒恢复+1GB 恢复=再装载 ~4s 按现状接受——不发明语义@worktree） |
+| 5 | T-05 规范+账本+回执 | T-01..04 | SD-01..05+specs.json | 全弧闭环 | AC-06/07 | [x] 回执节在档+P025-1 待 merge（SD-01..05 全落档@worktree〔perf-measurement 断言化节/editor-store 退役注记/overview 后续件注记/README 025 口径/供料档 §10 消费回执节——三段弧终结+消费反馈两项 upstream 登记〕；P025-1=merge 期项 015-024 先例——work 不碰活账本） |
 
 ## 9. 复审记录
 
