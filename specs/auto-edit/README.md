@@ -534,6 +534,30 @@ l2-pending 零数字+竞品 020 Q-2 pending 维持——anchors --verify
 ⑨/⑪+语法联动 want——highlight_segments 三面 grep 零命中，M3
 尾巴供料驱动注记维持）。front 消费面零改动（frozen③）。
 
+PLAN-023 口径（2026-10-02，工具链=v0.4.2-2546-g986e765ac 组树 debug
+构建[组三树 edit-023/{auto-edit@plan-023-dev base 5dbfd79,
+auto-lang@986e765ac+auto-down@895f8d0 detached}——组结构=构建
+load-bearing：生成 ws 根 auto-lang.path 直指组 sibling]）。**M4-06
+installer 收口件（判定终态）**：①**门重基线（用户裁定）**——
+installer ≤15MB→**≤50MB**、idle_mem ≤60MB→**≤150MB**（渲染暖态）
+：独立渲染期过渡口径，RQHost 渲染拓扑落地后回归严格门（≤15MB+
+≤10MB 级；战略 §2.1 追记在案）；②**判定终态 armed PASS**——终态
+手段集 **V2b 维持**（lto=fat+cgu1+strip+tokio 子集；opt-level=3 保
+性能+panic=unwind 保 17 处 catch_unwind 兜底）30,403,072B ≤ 50MB
+（余量 22.0MB）；三代谱 V2b/opt-z -8.2MB/abort -7.76MB〔abort 因
+catch_unwind×17 语句/8 语义点冲突出局——证据
+tests/evidence-p023-survey §③〕；组合投影 16.5~16.8MB（019「距门
+714KB」叙事翻转——缺口大头=上游域，深裁可达池仅 axum <0.5MB）；
+③**发布构建用法（终态）**——`python tools/portable/build_portable
+.py --regen`（默认=ts-off 发布形+V2b 手段集+50MB 门断言，产物
+dist/portable/auto-edit.exe；`--ts on` 语法完整形=记录位，>50MB
+撞线=非发布形正确信号；`--set` 可注入谱测量）；④**护栏零回退**——
+工具链轨五行 v2546 复跑全绿（steady 17.8ms/open 865.8ms/warm
+2.6ms/idle 9.1MB/diff 窗口 635.0ms——021/022 对照带内，谱 JSONL×5
+入仓）。P023-1 账本投影=merge 期项（015-022 先例）。规范详
+modules/perf-measurement.md installer 判定终态节（SD-01）+
+00-overview M4 第六件注记（SD-02）+战略 §2.1 追记（SD-04）。
+
 注：Plan 451 起 T10「热重载」走 DSL 源路径（reload 工具或 mtime 轮询重读
 app.at 重新提取 actions + generation bump → 视图重建），实测 50/0 全绿。
 OS 用户键位层（`%APPDATA%/auto/keymaps/auto-edit.at`）保持外部文件——那是

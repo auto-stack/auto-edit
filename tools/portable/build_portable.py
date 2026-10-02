@@ -58,7 +58,12 @@ RESULTS = HERE / "results"
 PATCHES = HERE / "patches.json"
 DIST = ROOT / "dist" / "portable"
 
-BUDGET_BYTES = 15 * 1024 * 1024                 # 战略 §2.1 installer 行
+# 战略 §2.1 installer 行——PLAN-023 用户重基线（2026-10-02 AskUserQuestion
+# 回执：独立渲染期〔iced+wgpu 栈在 exe 内〕≤50MB；RQHost 渲染拓扑落地后
+# 回归 ≤15MB 严格门——渲染栈移出编辑器 exe 语义。原 ≤15MB 时代下游手段
+# 天花板=组合 16.5~16.8MB〔evidence-p023-survey §①三谱实证〕，缺口大头
+# 全在上游域）。
+BUDGET_BYTES = 50 * 1024 * 1024
 EXE_NAME = "auto-edit.exe"                      # pac 包名（perf.py _release_exe 同锚）
 
 # [profile.release] 注入 MARKER（幂等检测锚——重复注入跳过）。

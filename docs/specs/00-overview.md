@@ -334,6 +334,30 @@ installer 收口件**（ts-off 形态尺寸判定+门控手段裁定——本件
 modules/back-api.md 第 16 端点节（SD-03）+README PLAN-022 口径
 （SD-05）+供料档 §8（SD-06）。
 
+**M4 第六件注记（PLAN-023，2026-10-02——installer 收口件，判定终态
+）**：**①现势三代谱重测**（工具链 v0.4.2-2546-g986e765ac，ts-off
+发布形）——V2b **30,403,072B**/opt-z 22,206,976B/abort 记录档
+22,646,272B；组合投影 16.5~16.8MB——019「距门 714KB 可达标」叙事
+实证翻转（下游深裁可达池仅 axum diet <0.5MB，缺口大头=上游域）；
+**②panic=abort×catch_unwind 冲突勘定**（生成物 17 语句/8 语义点
+——会话恢复 fresh-start+512MB 拒绝门=load-bearing）→abort 出局；
+**③门重基线（用户裁定——AskUserQuestion 回执 2026-10-02）**：
+installer ≤15MB→**≤50MB**、idle_mem ≤60MB→**≤150MB**（渲染暖态
+）——独立渲染期过渡口径，**RQHost 渲染拓扑落地后回归严格门
+（≤15MB+≤10MB 级）**（回收承诺=战略 §2.1 追记在案）；**④判定终态
+=armed PASS**（V2b 维持：opt-level=3 保性能+panic=unwind 保兜底
+——30,403,072B ≤ 50MB 余量 22.0MB；ts-off=发布形默认）；**⑤护栏
+零回退**（工具链轨五行 v2546 复跑全绿——steady 17.8ms/open
+865.8ms/warm 2.6ms/idle 9.1MB/diff 窗口 635.0ms，021/022 对照带内
+；产物面 probe_surface+烟测四段随终态 exe）。**M4 剩余清单终态**：
+帧两行 FAIL 清偿（上游管线件——auto-lang 域另行立项）+open_1gb
+裁定（用户件+上游域）+NP++ 列（用户安装后补跑）——**M4 tag 口径
+=installer 行 armed PASS（重基线门下）随第五件帧两行 armed FAIL
+注记并陈**（帧两行=上游管线件不阻 tag，注记在案即可）。规范详
+modules/perf-measurement.md installer 判定终态节（SD-01）+
+specs/auto-edit/README.md PLAN-023 口径（SD-03）+
+docs/strategy/002-north-star-v2.md §2.1 重基线追记（SD-04）。
+
 **兄弟仓 Q1 裁定摘要（2026-09-22，战略补注十收口）**：jade-edit 与
 auto-edit **两产品长期并存**（auto=原生旗舰轻量编辑器、jade=web 轻量
 版并向知识库发展），组件尽量共用（未来插件级共用）。jade 侧战略文档

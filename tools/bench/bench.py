@@ -362,10 +362,12 @@ _L0_STATES = {
                    "硬门禁 M4 收口"),
     "idle_mem": ("ledger", "L0 采样记账不阻塞；锚点在档（PLAN-018 stage "
                  "warm：空窗/20tab 两形态采样）；预算断言 M4 收口"),
-    "installer": ("ledger", "Q3 裁定落地+首件数字在案（PLAN-019：终态手段集 "
-                  "29,844,480B -24.3% 未达标=分阶段语义——门控组合 16.46MB 距门 "
-                  "714KB 待用户裁定+上游 want 排队[供料档 §5]；构建通道 "
-                  "tools/portable/build_portable.py）——≤15MB 判定 M4 收口"),
+    "installer": ("ledger", "Q3 裁定+019 数字在档；PLAN-023 收口（2026-10-02 "
+                  "用户重基线——独立渲染期 ≤50MB/RQHost 后回归 ≤15MB）：V2b "
+                  "终态手段集 30,403,072B armed PASS（余量 22.0MB；abort 因 "
+                  "catch_unwind×17 冲突面出局——evidence-p023-survey §③）；"
+                  "构建通道 tools/portable/build_portable.py）——≤50MB 判定 "
+                  "armed 绿"),
 }
 _STATE_ORDER = ["not-armed", "pending-feature", "arch-blocked",
                 "blocked-upstream", "ledger"]
@@ -418,11 +420,14 @@ def _l2_row(rid: str, entry: dict, m: dict | None) -> tuple[str, str]:
         v = m.get("idle_mean_bytes")
         entry["l2_app_mem_bytes"] = v
         if v is not None:
-            entry["verdict"] = ("pass" if v <= 60 * 1048576 else "fail")
+            # PLAN-023 重基线（2026-10-02 用户裁定）：≤60MB→≤150MB——语义
+            # =独立渲染期渲染暖态预算（wgpu 缓存 ~100MB 级）；空窗测量位
+            # 维持如实记录；RQHost 后回归 ≤10MB 级（budgets.json validity）。
+            entry["verdict"] = ("pass" if v <= 150 * 1048576 else "fail")
             return ("armed",
-                    "L2 武装（PLAN-021 判定升级）：空窗 app 工作集 mean vs "
-                    "≤60MB（psutil/WorkingSet64，单 iced 无守护单列）；N 跑"
-                    "谱=bench warm --l2 专用档")
+                    "L2 武装（PLAN-021 判定升级；PLAN-023 重基线 ≤150MB）："
+                    "空窗 app 工作集 mean vs ≤150MB（psutil/WorkingSet64，"
+                    "单 iced 无守护单列）；N 跑谱=bench warm --l2 专用档")
         state, note = _L0_STATES[rid]
         return state, note + "；L2 附 app 实测（单 iced 无守护单列；预算随 Q2）"
     state, note = _L0_STATES[rid]

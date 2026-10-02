@@ -221,6 +221,47 @@ ui_gen 臂——a2r 探针 exit 3 实证，生成物占位全景在
   a2r 门旁路=regen 阻塞期记录性通道，供① 清偿后回归 proxy --mode l2
   标准链）。锚点=记账不阻塞原则不变（硬判定维持 L2 唯一效力）。
 
+### installer/portable 判定终态（PLAN-023，2026-10-02——收口件）
+
+- **现势三代谱重测（工具链 v0.4.2-2546-g986e765ac 组树 clean，ts-off
+  发布形）**：V2b 手段集[lto=fat+cgu1+strip+tokio 子集]**30,403,072B**
+  （vs 022 代 30,355,456B=+0.16% 代差带内；vs 019 +1.9%）/opt-z 追加谱
+  22,206,976B（z 增量 **-8.2MB**）/panic=abort 记录档 22,646,272B
+  （abort 增量 **-7.76MB**——.text -4.84/.rdata -2.46/.pdata -0.46MB
+  节表三分）；组合（z+abort）投影 16.5~16.8MB——**019「距门 714KB
+  即可达标」叙事实证翻转**（716 two-face 退役实收仅 -0.6MB+工具链
+  代差；下游深裁可达池仅 axum diet <0.5MB——库存量表 R1-R9，
+  evidence-p023-survey §①②）。716 退役红利在节表显影：.rdata
+  12.35→8.11MB（-4.2MB）。
+- **panic=abort×catch_unwind 语义冲突勘定（本件核心裁定材料）**：
+  710 G-B 落地后 `.at try`→`std::panic::catch_unwind` 为现役生成
+  语义——生成物 **17 语句/8 语义点**（fsys.at 6 try 块×back/front
+  双成员+editor_store.at 5 try；evidence §③ 全列）。abort 下兜底
+  全部「进程死亡」化，其中 **load-bearing 两点**：会话恢复
+  fresh-start（损坏会话文件=拒启）+装载探测门（512MB 拒绝位/50MB
+  big 态门——open_1gb 行判定语义域）；另有搜索/copy/delete 逐项
+  错误隔离×3 语义点（back/front 双副本）与 diff badge 装饰面；内核
+  back_proxy.rs FFI 隔离点亦破。**abort 出局**（收益 ~7.8MB 对价=
+  兜底语义全面致命化）。
+- **门重基线（用户裁定 2026-10-02，AskUserQuestion 回执）**：
+  installer 行 ≤15MB→**≤50MB**、idle_mem 行 ≤60MB→**≤150MB**
+  （渲染暖态语义）——独立渲染期（iced+wgpu 栈在 exe 内）过渡口径；
+  **RQHost 渲染拓扑**（编辑器只往 RenderQueue 写 RenderCmd，渲染栈
+  移出编辑器 exe）落地后**回归严格门（≤15MB+≤10MB 级）**——回收
+  承诺随战略 §2.1 追记（PLAN-023）在案。发布语义不变：重基线后的
+  门即当前门（战略「预算未达标的功能不发布」原文不受扰——非放宽
+  换绿，系预算随拓扑重分期）。
+- **判定终态（armed PASS）**：终态手段集=**V2b 维持**（lto=fat+
+  codegen-units=1+strip+tokio 子集；opt-level=3 保性能——M4 速度
+  王座语义；panic=unwind 保 17 处兜底；abort/opt-z 留测量档不启用）
+  ——30,403,072B ≤ 52,428,800B（**余量 21,998,336B**）。ts-off=
+  发布形默认（dist/portable/auto-edit.exe）；ts-on=记录位
+  （51,457,024B 022 在档——>50MB 撞线=非发布形正确信号）。源=
+  portable-20261002-093055.jsonl；构建通道 build_portable.py
+  （BUDGET_BYTES=50MB 随重基线）。工具链轨五行锚点复跑全绿
+  （v2546：steady 17.8ms/warm 2.6ms/open 865.8ms/idle 9.1MB/
+  diff 窗口形 635.0ms——021/022 对照零回退，evidence §⑤）。
+
 ## 公开对比表（PLAN-020，2026-09-29——竞品侧先行件）
 
 战略 §5 指定表位（README 发布与 NP++/VSCode/Zed[打开/滚动] 及 Beyond

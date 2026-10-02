@@ -66,17 +66,17 @@
   {
     "id": "idle_mem",
     "metric": "空闲内存（app 实例）",
-    "budget": "<= 60 MB",
+    "budget": "<= 150 MB（重基线 2026-10-02——独立渲染期渲染暖态口径；RQHost 后回归 ≤10 MB 级）",
     "tier": "ledger",
-    "validity": "L0 采样记录基线（记账不阻塞）；锚点在档（PLAN-018 T-05 stage warm，2026-09-29，release 工具链 v2205 记账形态，marker-hit 采样点）：空窗 mean 51.4MB（≤60MB 预算行内）/20tab 恢复 mean 306.2MB（Δ+255MB=active 10MB 单文件装载+语法臂成本——10MB<50MB 非 big 态全语法路径，放大归因注记[PLAN-006 4.8x 形态同源]，非 20 文件全量装载）；预算断言 M4 收口。PLAN-021 L2 直拉形态正式判定（同上谱）：空窗 app 工作集 mean 9.7MB（4 跑 9.48-10.04MB）vs ≤60MB → **armed PASS**；018 记账 51.4MB 的 VM 形态放大随直拉形态收缩；源=steady JSONL mem_idle",
-    "unlock": "rope 化（去整串镜像）+ exe 打包；共享渲染器进程单列，预算随 Q2"
+    "validity": "L0 采样记录基线（记账不阻塞）；锚点在档（PLAN-018 T-05 stage warm，2026-09-29，release 工具链 v2205 记账形态，marker-hit 采样点）：空窗 mean 51.4MB（≤60MB 预算行内）/20tab 恢复 mean 306.2MB（Δ+255MB=active 10MB 单文件装载+语法臂成本——10MB<50MB 非 big 态全语法路径，放大归因注记[PLAN-006 4.8x 形态同源]，非 20 文件全量装载）；预算断言 M4 收口。PLAN-021 L2 直拉形态正式判定（同上谱）：空窗 app 工作集 mean 9.7MB（4 跑 9.48-10.04MB）vs ≤60MB → **armed PASS**；018 记账 51.4MB 的 VM 形态放大随直拉形态收缩；源=steady JSONL mem_idle。**PLAN-023 重基线（2026-10-02 用户裁定——AskUserQuestion 回执）**：≤60MB→**≤150MB**（语义=独立渲染期〔iced+wgpu〕**渲染暖态**预算——wgpu 管线/着色器/GPU 缓存主导 ~100MB 级，现役空窗测量位未触及该域）；空窗测量位维持如实记录（PLAN-023 复跑 9.1MB——021 9.7MB 同带，armed PASS 维持）；RQHost 渲染拓扑落地后回归 **≤10MB 级**严格门（与 installer ≤15MB 同批——渲染栈移出编辑器进程语义）",
+    "unlock": "rope 化（去整串镜像）+ exe 打包；共享渲染器进程单列，预算随 Q2；RQHost 后重估（重基线回收承诺）"
   },
   {
     "id": "installer",
     "metric": "安装包",
-    "budget": "<= 15 MB 单 exe，无运行时依赖",
+    "budget": "<= 50 MB 单 exe（重基线 2026-10-02——独立渲染期口径；RQHost 后回归 ≤15 MB），无运行时依赖",
     "tier": "ledger",
-    "validity": "Q3 裁定落地（2026-09-29 用户：a2r 原生化瘦身+纯 portable——winget/自动更新不入后续件议，PLAN-019 §4 授权记录）。首件（PLAN-019）**未达标=分阶段语义**：基线 39,411,200B（last-good 基面重测——37.8MB 旧锚同源生成物+依赖钉版 5bb3f53be；37,851,136B 旧锚差 -243KB=依赖代差不可直比）→ 终态手段集[lto=fat+codegen-units=1+strip+tokio 子集]29,844,480B（**-24.3%，超门 14,115,840B**）；门控手段测量位在案：panic=abort -7.11MB（**back_proxy.rs catch_unwind 隔离语义面**——默认不启用）/opt-level=z -7.65MB（性能护栏位）/组合 16,459,264B（**距门仅 714KB**——用户裁定后+上游 want 即可达标）；剩余差距归因=上游域（wgpu 栈 4.1MB .text+two-face 全量语法集[.rdata 12.4MB 主项]+image 2.0/HTTP 1.5/字体 2.4MiB——构成表 evidence-p019-survey §④）；two-face 子集/lazy 装载 want 已登记（m4-perf-unblock-supply §5 条件触发兑现）；构建通道=tools/portable/build_portable.py（regen→补丁注入→release→strip→dist 断言——regen 现势化=供① 阻塞维持，本件 regen 探针 133 错实录）",
-    "unlock": "瘦身第二段收口件（two-face 子集/wgpu 渲染臂裁剪/auto-lang 依赖 diet——上游 want 排队）+（可选）panic=abort/opt-level=z 用户裁定（收益数字在案）"
+    "validity": "Q3 裁定落地（2026-09-29 用户：a2r 原生化瘦身+纯 portable——winget/自动更新不入后续件议，PLAN-019 §4 授权记录）。首件（PLAN-019）**未达标=分阶段语义**：基线 39,411,200B（last-good 基面重测——37.8MB 旧锚同源生成物+依赖钉版 5bb3f53be；37,851,136B 旧锚差 -243KB=依赖代差不可直比）→ 终态手段集[lto=fat+codegen-units=1+strip+tokio 子集]29,844,480B（**-24.3%，超门 14,115,840B**）；门控手段测量位在案：panic=abort -7.11MB（**back_proxy.rs catch_unwind 隔离语义面**——默认不启用）/opt-level=z -7.65MB（性能护栏位）/组合 16,459,264B（距门 714KB）；剩余差距归因=上游域（wgpu 栈 4.1MB .text+two-face 全量语法集[.rdata 12.4MB 主项]+image 2.0/HTTP 1.5/字体 2.4MiB——构成表 evidence-p019-survey §④）。**PLAN-023 收口（2026-10-02，判定终态件）**：①现势三代谱重测（工具链 v0.4.2-2546-g986e765ac，ts-off 发布形）——V2b 手段集同法 **30,403,072B**/opt-z 22,206,976B〔z 增量 -8.2MB〕/panic=abort 记录档 22,646,272B〔abort 增量 -7.76MB——**catch_unwind×17 语句/8 语义点冲突面成文（evidence-p023-survey §③），abort 判出局**〕；组合投影 16.5~16.8MB——**019「距门 714KB 即可达标」叙事实证翻转**（716 退役实收 -0.6MB+工具链代差；下游可达池仅 axum diet <0.5MB——库存量表 §②）；②**用户重基线裁定（AskUserQuestion 回执 2026-10-02）**：独立渲染期（iced+wgpu 栈在 exe 内——wgpu 4.1MB/字体 2.4MB/HTTP 1.5MB 等=上游域大头）门放宽 **≤15MB→≤50MB**，RQHost 渲染拓扑（编辑器只写 RenderCmd）落地后回归 ≤15MB 严格门；③**armed PASS（终态）**：V2b 手段集维持（lto=fat+cgu1+strip+tokio 子集；opt-level=3 保性能——M4 速度王座语义；panic=unwind 保 17 处兜底）30,403,072B ≤ 52,428,800B（**余量 21,998,336B**）→ **判定绿**；ts-off=发布形默认（dist/portable/auto-edit.exe），ts-on=auto-edit-ts-on.exe 记录位（51,457,024B 022 在档——>50MB 撞线=非发布形正确信号）；源=portable-20261002-093055.jsonl（终态谱）",
+    "unlock": "RQHost 渲染拓扑落地（上游 683 面）→回归 ≤15MB 严格门（届时字体栈 2.4MB/HTTP 栈 1.5MB 上游 diet 同批议）；上游域 want（tiny-skia/依赖 diet）排队位维持"
   }
 ]

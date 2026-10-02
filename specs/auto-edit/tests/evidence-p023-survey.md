@@ -155,7 +155,38 @@ JSONL：steady-20261002-100425/warm-20261002-100436/open-20261002-
 产物面（probe_surface 三行+烟测四段）=终态手段集 exe 依赖——T-02
 裁定后件（dist/portable 现存 abort 记录档产物，非终态形）。
 
-## ⑥ 附：主检出预检记录（入场）
+## ⑥ 裁定收口与终态判定（T-01/T-02/T-03——用户回执后）
+
+- **裁定回执（2026-10-02，AskUserQuestion 两轮）**：第一轮（三路
+  裁定）自主会话未获应答→blocked handoff；用户随后在对话中提出
+  **门重基线**提议，第二轮问询定案：**installer ≤15MB→≤50MB、
+  idle_mem ≤60MB→≤150MB（渲染暖态语义）——独立渲染期（iced+wgpu）
+  过渡口径，RQHost 渲染拓扑落地后回归严格门（≤15MB+≤10MB 级）**；
+  口径采 **50MB+150MB（推荐档）**。Q-1 收口为 **(c) 变体**：手段集
+  维持 V2b（opt-level=3 保性能——M4 速度王座语义；panic=unwind 保
+  17 处兜底；abort/opt-z 留测量档不启用）。Q-2 消解：installer 行
+  重基线门下 **armed PASS**——tag 携带「重基线注记」而非「未达
+  注记」。裁定语义=预算随渲染拓扑重分期（非放宽换绿）——战略
+  §2.1 追记（PLAN-023）+发布语义原文不受扰。
+- **落地面（双 face 同步——019 F-1 纪律）**：build_portable.py
+  `BUDGET_BYTES=50*1024*1024`（注释=裁定出处+RQHost 回收）；
+  budgets.json installer/idle_mem 两行（budget+validity+unlock——
+  历史数字在档不删）；bench.py `_L0_STATES.installer` 文本+
+  `idle_mem` 硬编码 60→150MB（armed 注记更新）。验证：py_compile
+  ×2+JSON 有效性+`bench check` 绿（四证）。
+- **终态判定（armed PASS——随终态构建回填）**：终态 V2b canonical
+  构建（regen→V2b 补丁→release→50MB 门断言）在途——数字/sha/
+  JSONL 名以 tools/portable/results/ 终态记录为准（首谱 V2b
+  30,403,072B ≤ 52,428,800B 预期余量 21,998,336B——判定以实测
+  为准不预写）。dist/portable/auto-edit.exe=发布形定稿（ts-off
+  默认）。
+- **产物面护栏（T-04 后半）**：见 §⑦。
+
+## ⑦ 产物面护栏（终态 exe——probe_surface+烟测）
+
+（随终态 exe 探针回填。）
+
+## ⑧ 附：主检出预检记录（入场）
 
 - `specs/stylekit/pac.at`+`specs/stylekit/src/front/styles.at` 删除态
   （43 行）+`tools/compare/results/table.md` 行尾幻影 M（零内容 diff
