@@ -1,6 +1,6 @@
 ---
 plan_id: PLAN-025
-status: execution_done
+status: reviewed
 feature_name: 供⑮ 消费件（M4 挂账清偿——PLAN-728 后援分页 rope 下游兑现：512MB 拒绝位退役〔裁定〕+1GB E2E 全链+budgets open_1gb 断言化重测+供料档回执闭环）
 author: [agent]
 created_at: 2026-10-02T17:23:39+08:00
@@ -289,6 +289,31 @@ SD-01..04+供料档 §10 **消费回执节**（供⑮ 全弧终结——want 登
   负验证+护栏锚/AC-03 矩阵两连绿/AC-04 budgets armed+档谱/
   AC-05 SD-02 注记/AC-06 SD-01..05+回执节〔P025-1=merge 期〕/
   AC-07 双仓 porcelain+diff 路径断言；worktree 清洁态 0 dirty）。
+- `stage: review | PLAN-025 | plan_revision 1 | outcome: pass |
+  reviewed_commit: worktree plan-025-dev@3917eb11a1188e84e59857d48834b8c71ed179e2
+  （0 dirty）| base_commit: de6cb95 | dependency_revisions:
+  auto-lang@1a15c8eee detached[728@69059dfaa 祖先链复审重验 ✓——
+  master 期间被并行会话推进 730 起草 1a15c8eee→ecc2d6710 docs-only
+  不受累]+auto-down@895f8d0 detached | spec_inputs: 五 SD 目标文件
+  @3917eb1[frozen delta=本提交树] | acceptance_results: AC-01..07
+  **七项全 pass**（复审独立重建：①AC-02 负验证 grep 全零+护栏锚
+  6+1 重跑✓②AC-01 谱 JSONL↔budgets 数字逐项一致重验✓
+  [open_1gb 3774.4/boundary 1912.2/阈界 204.4·408.7/median100
+  383.3]+728 祖先链重验✓③AC-06 P025-1 **彩排 True**〔reviews 26→27
+  副本插入+他五段深等+前缀零扰动+逐字回读四守卫——活账本零触碰〕
+  ④AC-07 diff 全清单 13 文件均预期面+.at 限 editor_store.at+
+  status_bar.at✓⑤durable receipt 全量性核验：matrix-p025-run1.txt
+  141 PASS/0 FAIL 全在档+**T12.6 真实 PASS**〔line90 mixed→LF——
+  menubar-sub 债本工具链实际消散，README 措辞准确〕）|
+  findings: F-1(info)=frontmatter affects 列 app.at 零 diff——起草期
+  保守预估，实际拒绝臂引用全在 editor_store.at/status_bar.at，
+  无需变更=正确行为非范围缩减；F-2(info)=auto-lang master 并行
+  推进注记（钉版不受累）| evidence: 运行时证据复用理由=两连矩阵
+  141/0+bench 谱均执行于复审提交树内容（3917eb1=da300f2 树+README
+  谱回填+receipt 文件；代码/依赖/测试配置零变化）+工具链
+  2603-g1a15c8eee 复审重验同版——静态面（grep/JSONL/budgets/
+  祖先链/SD/彩排）全部复审独立重跑| next: merge（用户已授权全链
+  ——review 通过后移交 auto-plan-merge；P025-1 正式落账随 merge）。
 
 ## 10. 待澄清事项
 
