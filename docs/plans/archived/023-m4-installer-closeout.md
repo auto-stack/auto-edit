@@ -321,7 +321,30 @@ SD-01..03 落档+（条件）上游缺口登记（深裁路线不可达大头→
   - **archived**：git mv→docs/plans/archived/023-m4-installer-
     closeout.md+status: archived+completion_kind: delivered ✓
     （本行）。
-  - **cleaned**：待清理检查点后录。
+  - **cleaned**：wt-guard 三树——auto-edit 首轮 BLOCKED（regen
+    物化 junction 两枚 deps/bps+deps/stylekit——019 同款处方
+    `MSYS_NO_PATHCONV=1 cmd /c rmdir` link-only 移除，目标零穿透
+    [bps→组 auto-lang blueprints/stylekit→本树，均随组注销；主检出
+    specs/stylekit 完好单验]）→复跑 clean；auto-lang/auto-down 一次
+    clean→三 worktree 注销（auto-edit 首发静默绿）+branch 删
+    plan-023-dev（was e138364——**内容全落：8 笔 ff@d2b8623+ledger
+    笔 cherry-pick 54900f3 字节等价已验**）+组目录 .wt/edit-023 清
+    ✓（worktree list 三仓仅余 main+他属计划组树零触碰）。
+  - **路由纠偏注记（如实录）**：ledger 插入提交 e138364 实际落于
+    worktree 分支（cd 后执行）——main 当时未含 P023-1；发现后
+    cherry-pick→main@**54900f3**（与 e138364 版账本字节等价
+    ——`git diff e138364:… 54900f3:…` 零行；main 回读 reviews=25
+    latest=P023-1）；归档提交 86f4657（main）在其前——时序与
+    P022 先例（landed→archive→ledger）有别但三检查点最终态齐备，
+    偏差与本纠偏一并入档。
+  - 部署观察：本件=tools/docs/budgets 面（无 .at/无后端/无 vue 束
+    改动）——后端 release 二进制/依赖仓产物/生成 web 束零触及
+    （零重建项维持，021/022 同录）；portable 产物=可再生工件
+    （build_portable 一键链，非部署面）；dist/portable/auto-edit.exe
+    30,403,072B=worktree 构建定稿随组注销消隐——再生即得
+    （sha/尺寸收据在档）。
+  - 批量回归：本仓无机制（无 .last-batch-regression.json——022
+    同录不适用）。
 
 - **2026-10-02 review**：`stage: review` | PLAN-023 | plan_revision
   1 | `outcome: pass`（→reviewed）| reviewed_commit: worktree
