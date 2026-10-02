@@ -5,7 +5,7 @@ completion_kind: delivered
 feature_name: M4-07 收口件（PLAN-725 帧两行重判转绿+open_1gb 裁定落账+NP++ 列条件补齐+M4 四面终检表+v0.1-M4 tag 打点）
 author: [agent]
 created_at: 2026-10-02T14:03:15+08:00
-updated_at: 2026-10-02T16:05:00+08:00
+updated_at: 2026-10-02T16:15:00+08:00
 plan_revision: 1
 current_step: 6
 total_steps: 6
@@ -334,7 +334,22 @@ SD-01..03（+条件 SD-04）落档+specs.json P024-1（015-023 外科
   插入项逐字回读——015-023 九连先例；main 回读 26 项末位 P024-1
   验真；投影专属后代不触实现/依赖——delivery_commit=0079174〕。
   **archived**=本行〔git mv→archived/+status: archived+
-  completion_kind: delivered〕。cleaned=随清理检查点后续落账。
+  completion_kind: delivered〕。**cleaned**=五检查点全落
+  delivered——wt-guard 三树 fresh clean〔auto-edit 复验前孤儿目录
+  再扫=零 reparse point〕+三 worktree 注销〔auto-edit 首发树内 CWD
+  占用失败如实记录——git 注册表已摘、目录经树外 guard 复验后
+  rm；auto-lang/auto-down 树外一次成〕+branch 删 plan-024-dev
+  （was 0079174=六笔全落 5901be6 祖先链）+组目录 .wt/edit-024 清
+  ✓（worktree list 三仓仅余 main+他属计划组树零触碰；table.md
+  CRLF 幻影=复审复跑 --check 重写，零内容 diff checkout 还原如实
+  入档）。部署观察=零重建项〔本件纯 tools/docs/budgets/tag 判定面
+  ——后端 release/守护/web bundle 三产物零消费，维持不适用〕；
+  批量回归=不适用〔auto-edit 仓无 .last-batch-regression.json
+  ——auto-lang fix-test-tiering 惯例域，023 同判〕；**v0.1-M4 tag
+  打点=随本行后执行**（五检查点完备——素材
+  specs/auto-edit/tests/evidence-p024-m4-final-check.md 逐字对账
+  在档，annotated tag 惯例 v0.1-M1 b497db7/M2 ed8c107/M3 f4e34c1
+  同款）。
 
 ## 10. 待澄清事项
 
