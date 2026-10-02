@@ -218,7 +218,7 @@ SD-01..03 落档+（条件）上游缺口登记（深裁路线不可达大头→
 | 1 | T-01 门控裁定 | T-00 | §10 Q-1 请示+budgets/SD | 用户裁定落档 | AC-02 | [ ] 裁定回执在录 |
 | 2 | T-02 终态手段集 | T-01 | build_portable 注入面 | 依裁定执行 | AC-03 | [ ] 手段谱+护栏门 |
 | 3 | T-03 判定收口 | T-02 | budgets.json+判定报告 | installer 终态 | AC-03 | [ ] armed/归因终表 |
-| 4 | T-04 护栏+烟测 | T-02 | bench 五行+烟测四段 | 零回退证 | AC-04 | [ ] 谱+记录绿 |
+| 4 | T-04 护栏+烟测 | T-02 | bench 五行+烟测四段 | 零回退证 | AC-04 | [ ] 工具链轨五行 **armed PASS 全绿**（v2546 复跑谱@worktree 0d49e65——裁定无关先行落地；产物面 probe_surface+烟测四段=终态手段集依赖，裁定后件） |
 | 5 | T-05 规范+账本 | T-01..04 | SD-01..03+specs.json | 收口落账 | AC-05/06 | [ ] P023-1 True+范围断言 |
 
 - 2026-10-02 起草 handoff：`stage: new`，PLAN-023，plan_revision 1。
@@ -239,6 +239,28 @@ SD-01..03 落档+（条件）上游缺口登记（深裁路线不可达大头→
   =load-bearing）。前置修复：stage_ts_patch ts-on 终迹 return 复位
   （c0b402d——68432be 撤钉批误删，单元级三路径验证）。`outcome:
   (执行中)`——T-01 Q-1/Q-2 请示在途（用户件）。
+
+- **2026-10-02 work handoff（blocked）**：`stage: work` | PLAN-023
+  | plan_revision 1 | `outcome: blocked` | code_commit: worktree
+  plan-023-dev@**eed88ec**（base 5dbfd79；四笔=c0b402d 修复/
+  75d7ca6 T-00 证据/0d49e65 T-04 五行/eed88ec 节序；worktree 清洁态
+  +组双树 detached clean=AC-06 零越界）| task_ids: T-00 全落
+  ／T-04 工具链轨半落／T-01 blocked／T-02/T-03/T-04 产物面/T-05
+  pending（裁定后件）| evidence: evidence-p023-survey（①三代谱
+  V2b 30,403,072B/opt-z 22,206,976B/abort 22,646,272B+节表三分；
+  ②库存量 R1-R9 可达池仅 R2；③冲突面 17 语句/8 语义点；⑤五行
+  armed PASS 全绿谱——steady 17.8/warm 2.6/open 865.8/idle 9.1MB/
+  diff 窗口 635.0ms+1gb 拒绝位双复证）+portable JSONL×3+bench
+  JSONL×5 入仓 | blockers: **Q-1 三路裁定+Q-2 tag 口径=用户件**
+  （AskUserQuestion 2026-10-02 已发未获应答——自主会话；
+  **解锁动作=用户回执三选一**（a：abort 入集·最近门但 17 语句
+  兜底致命化+内核隔离破，超门 ~1MB／b：深裁 opt-z+R2·零语义
+  代价，超门 ~6.2MB+上游登记／c：维持 V2b·超门 14MB 遗留）+
+  Q-2（tag 带未达注记 vs tag 顺延——三路无一达门已实证，本问
+  必活））| next: 用户裁定回执→T-02 终态手段集执行（依裁定）
+  →T-03 判定收口（未达标=差距归因终表+裁定态注记已定局）→
+  T-04 产物面收尾→T-05 规范+账本。**工作树保留**（edit-023 三树
+  ——复用至 merge）。
   `outcome: pass`（起草完备：三前置在位[ts-off 通道/退役翻转/手段
   谱]；**起草期核心发现=panic=abort×catch_unwind 语义冲突**——
   019 未裁门控项经 710 G-B 升格为语义冲突项，三路裁定面成文防
@@ -250,19 +272,28 @@ SD-01..03 落档+（条件）上游缺口登记（深裁路线不可达大头→
 ## 10. 待澄清事项
 
 - **Q-1 门控手段三路裁定（用户件——T-00 材料齐后请示）**：
-  **(a) panic=abort 入集**（尺寸最优路径[组合 ~15.9MB 修正谱]
-  ——代价=try/catch 兜底降级：4+ 处生成 catch_unwind 失效，fsys
-  装载兜底/editor_store 会话恢复等点的 panic 从「catch 兜底」变
-  「进程死亡」；需逐点风险接受记录）；**(b) 深裁路线**（无
-  panic=abort——opt-z+deps 库存量全落，缺口 ~6.6MB 中下游可达
-  部分待 T-00 量化；不可达大头=上游域登记）；**(c) 分阶段维持**
-  （≤15MB 遗留注记——v0.1-M4 tag 口径随此裁定：installer 行
-  未达标记或 tag 顺延，Q-2）。
-- **Q-2 M4 tag 口径（随 Q-1 联动，用户件）**：若 Q-1 裁 (c) 或
-  (b) 不达——tag 是否携带 installer 未达注记（「预算未达标的
+  **【2026-10-02 blocked：AskUserQuestion 已发（三路+现势谱数字
+  全列），自主会话未获应答——解锁动作=用户三选一回执（a/b/c），
+  T-02/T-03 随裁定放行】**。
+  **(a) panic=abort 入集**（尺寸最优路径[组合投影 **16.5~16.8MB
+  ——仍超门 ~1MB**；019「距门 714KB 可达标」叙事经 716/022/工具链
+  代差后翻转]——代价=try/catch 兜底降级：**生成物 17 语句/8 语义
+  点** catch_unwind 失效〔evidence-p023-survey §③ 全列——会话恢复
+  fresh-start/512MB 拒绝装载门=load-bearing+搜索/copy/delete 逐项
+  隔离×2 成员+badge 装饰面〕+内核 back_proxy 隔离破；需逐点风险
+  接受记录）；**(b) 深裁路线**（无 panic=abort——opt-z -8.2MB
+  +可达池仅 R2 axum <0.5MB〔库存量表 R1-R9 实证：tokio/reqwest/
+  iced 底座=auto-lang 自声明上游域；image-pipeline=功能依赖〕，
+  落地 ~21.9MB **超门 ~6.2MB**——缺口归因+上游域登记）；**(c)
+  分阶段维持**（V2b 30.4MB 超门 14.0MB 遗留注记——手段集零改动）。
+  **核心事实：三路无一达 ≤15MB**（材料=evidence-p023-survey §①）。
+- **Q-2 M4 tag 口径（随 Q-1 联动，用户件）**：**【2026-10-02
+  blocked：与 Q-1 同批请示未获应答——T-00 实证三路无一达门，本问
+  在任一路径下均为活问题（计划原「若 (a)/(b) 达标则消解」臂已实证
+  落空）】**。tag 是否携带 installer 未达注记（「预算未达标的
   功能不发布」战略原文的发布语义裁定：auto-edit 当前无对外发布
   动作，tag=里程碑标记非发布——建议口径：tag 允许携带已知未达
   注记，对外发布动作前必须全绿）；若 Q-1 裁 (a) 或 (b) 达标则
-  本问消解。
+  本问消解（该臂已不成立）。
 - **Q-3 opt-z 护栏容差（无需裁定，确认口径）**：承 019 G-4 默认
   ——五行预算行零回退+steady ±10% 容差带；021 判定谱为对照基。
