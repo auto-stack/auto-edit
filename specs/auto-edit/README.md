@@ -558,6 +558,29 @@ dist/portable/auto-edit.exe；`--ts on` 语法完整形=记录位，>50MB
 modules/perf-measurement.md installer 判定终态节（SD-01）+
 00-overview M4 第六件注记（SD-02）+战略 §2.1 追记（SD-04）。
 
+PLAN-024 口径（2026-10-02，工具链=v0.4.2-2579-gb385534d7 release 组树
+构建[组三树 edit-024/{auto-edit@plan-024-dev base 957686f,
+auto-lang@b385534d7 含 725+auto-down@895f8d0 detached}]）。**M4-07
+收口件（判定面快照态）**：①**帧两行重判**——725 管线增量交付后同机
+复判 N=4 有效谱：P50 110→1-4ms（中位 ~30×——单帧单建生效，脏帧
+builds=1 全体+段和 ~1.8ms）而判定行 FAIL 维持（P95 95-112ms>16.7ms/
+scroll 6.7-8.8fps<54——022 首判同带）；分段归因=段外 ~108ms=S5 域
+〔layout/shaping/draw 未插桩——尾部帧与 ce_widget_new 组件重建同现+
+滚动帧 ~108ms/帧节奏；下游 handler 臂成本排除〕，S5 增量化=auto-lang
+余题（evidence-p024-frame-rejudge）；判定口径 frozen 零改动；budgets
+两行重判纪元追加。②**对比表滚动行刷新**——022 首判 8.0fps+024 重判
+7.0fps 并陈（anchors --verify 10 行+render --check 双绿）；NP++ 未装
+四路探测在案→pending 维持+**Q-3 默认口径落表脚注：列完整性=后续补列
+域非里程碑判定门——tag 不等待**。③**M4 终检表**——预算十行终态
+（6 PASS+2 FAIL+renderer n/a+open_1gb 裁定待用户 Q-1 在途）+四面核销
+（installer/对比表/语法高亮首批核销；预算面帧两行双态如实）=
+modules/perf-measurement.md M4 判定收口节+00-overview M4 第七件注记+
+evidence-p024-m4-final-check（tag 素材逐字对账档）。④**v0.1-M4 tag
+记录位**——打点=本件 merge 收据（五检查点后；023 已录口径「帧两行不
+阻 tag+注记并陈」+里程碑标记≠发布）；M4 完全收口=帧两行清偿+open_1gb
+裁定落账后。P024-1 账本投影=merge 期项（015-023 先例——work 不碰
+活账本）。
+
 注：Plan 451 起 T10「热重载」走 DSL 源路径（reload 工具或 mtime 轮询重读
 app.at 重新提取 actions + generation bump → 视图重建），实测 50/0 全绿。
 OS 用户键位层（`%APPDATA%/auto/keymaps/auto-edit.at`）保持外部文件——那是

@@ -440,3 +440,61 @@ Plan 413 原始缺口：`code_editor (key: t.key)` 动态 key 属性在 a2r 视�
 - **diff 行三态并陈**：016 release-judged 1906.0ms+021 l2 FAIL
   5183.2ms（全量形对照）+022 l2 窗口形 PASS 784.8ms——anchors
   --verify 9 行全等+render --check 复现一致双绿（本件收口实录）。
+
+## M4 判定收口（PLAN-024，2026-10-02——M4-07 收口件）
+
+### 帧两行重判（725 管线增量交付后同机复判——T-01）
+
+- **判定谱（N=4 有效谱，release 工具链 v0.4.2-2579-gb385534d7——组树
+  edit-024 重建，021-023 核哈希纪律；`bench.py check` 绿）**：
+  type_latency P50 1-4ms（**改前 110ms——中位 ~30× 改善，725 单帧单建
+  /载荷增量/脏域重建中位生效实证：脏帧 builds=1 全体+S1-S4 分段和
+  ~1.8ms**）vs **P95 95-112ms 仍 >16.7ms → FAIL 维持**；scroll_fps
+  6.7/7.0/7.5/8.8fps vs ≥54 → **FAIL 维持（022 首判 8.0fps 同带）**。
+  源=frame-20261002-141456/141537/141553/141631.jsonl
+  （141522=无效跑弃用[focus_ok=False 启动瞬态——驱动未贯通]）。
+- **分段归因（[P725-FRAME] 逐帧探针——evidence-p024-frame-rejudge.md）**：
+  尾部帧与滚动帧的 ~108ms 均为 **段外耗时=S5 域**（layout/shaping/
+  draw，未插桩）——尾部帧与 `ce_widget_new`（编辑器组件重建→全量重
+  整形）事件帧同现（每突发 1-2 帧）；滚动帧 begin→begin ~108ms/帧
+  节奏+present=-1 掉泵直落主导（视口推进→新暴露行整形）。725 handoff
+  预告「上游谱不含 S5 残差」如实显影；**下游 handler 臂成本排除**
+  （S2/S3 合计 <1ms）。**S5 增量化=auto-lang 余题**（上游域另立）。
+- **判定口径零改动**（frozen ①——帧内 P95/面板×0.9 原样，022 协议
+  节为准）；budgets 两行重判纪元追加（022 首基线对照保留不删）。
+
+### 预算十行终态表（M4 收口快照——对账基=budgets.json@plan-024-dev）
+
+| # | 行 | 终态 | 判定谱锚 |
+|---|---|---|---|
+| 1 | steady_start | armed PASS（15.6/17.8ms 双谱带） | steady-20260930-204546 |
+| 2 | renderer_cold_start | n/a（arch note——683 重设计随形） | budgets row2 |
+| 3 | warm_start | armed PASS（0.0/2.6ms） | warm-20260930-230317 |
+| 4 | open_100mb | armed PASS（863.2ms） | open-20260930-230121 |
+| 5 | open_1gb | **裁定待用户（Q-1 在途）**——512MB 拒绝位活体；两案材料 designs/002 | budgets row5 |
+| 6 | type_latency | armed FAIL 维持（P95 95-112ms；725 中位 ~30×——S5 归因） | frame-20261002 四谱 |
+| 7 | scroll_fps | armed FAIL 维持（6.7-8.8fps——S5 域同源） | 同上 |
+| 8 | diff_100mb | armed PASS（窗口形 784.8ms；全量对照 FAIL 保留） | diff-20261001-144526/164312 |
+| 9 | idle_mem | armed PASS（9.1MB——≤150MB 重基线门下；RQHost 后回归 ≤10MB 级承诺） | portable-20261002-093055 |
+| 10 | installer | armed PASS（30,403,072B——≤50MB 重基线；RQHost 后 ≤20MB 承诺） | 同上 |
+
+- **过渡门口径注记**：9/10 两行=独立渲染期重基线门（023 用户裁定——
+  AskUserQuestion 回执链在录），RQHost 渲染拓扑落地后回归严格门
+  （≤20MB/≤10MB 级）承诺在案（战略 §2.1 追记）；帧两行 FAIL=上游
+  余题双态如实（tag 口径=023 已录「不阻 tag+注记并陈」先例——
+  里程碑标记≠发布）。
+
+### M4 四面核销清单（战略 §6）
+
+1. **预算全绿**：6 PASS+2 FAIL（帧两行 S5 余题）+renderer n/a+
+   open_1gb 待裁——过渡门口径随行注记。
+2. **installer/portable**：armed PASS 终态+RQHost 回归承诺指针——核销。
+3. **公开对比表**：我方 L2 四行全实数（滚动行 022/024 并陈）+竞品三家
+   实数+NP++ pending（**Q-3 默认：列完整性=后续补列域非里程碑判定门
+   ——tag 不等待**）；--verify 10 行+--check 双绿——核销（带注记）。
+4. **语法高亮首批**：716 组A 交付消费+供⑭ 插件化演进指针——核销。
+
+**v0.1-M4 tag 记录位**：打点=本件 merge 收据（五检查点后 annotated
+tag——v0.1-M1/M2/M3 惯例）；素材=evidence-p024-m4-final-check.md（与
+本表逐字对账）；M4 完全收口=帧两行清偿（S5 上游件）+open_1gb 裁定
+落账后；L1/L2 线开篇=tag 后另议（战略 §6 顺序）。

@@ -358,6 +358,31 @@ modules/perf-measurement.md installer 判定终态节（SD-01）+
 specs/auto-edit/README.md PLAN-023 口径（SD-03）+
 docs/strategy/002-north-star-v2.md §2.1 重基线追记（SD-04）。
 
+**M4 第七件注记（PLAN-024，2026-10-02——M4 收口件，判定面快照态）**：
+**①帧两行重判（725 帧管线增量交付后同机复判，release v0.4.2-2579-
+gb385534d7，N=4 有效谱）**——P50 110→1-4ms（**中位 ~30×：单帧单建/
+载荷增量/脏域重建生效实证，脏帧 builds=1 全体**）而判定行 **FAIL
+维持**（P95 95-112ms>16.7ms/scroll 6.7-8.8fps<54——022 首判同带）；
+分段归因=**段外 ~108ms=S5 域（layout/shaping/draw 未插桩）**〔尾部帧
+与 ce_widget_new 组件重建事件同现；滚动帧 begin→begin ~108ms 节奏+
+掉泵直落主导——725 handoff 预告如实显影；下游 handler 臂成本排除〕；
+**S5 增量化=auto-lang 余题**（归因回执 evidence-p024-frame-rejudge）；
+判定口径 frozen 零改动。**②收口三注记**：NP++ 未装（四路探测 2026-
+10-02）→对比表 pending 维持+**Q-3 默认口径落档：列完整性=后续补列域
+非里程碑判定门——tag 不等待**；对比表滚动行=022 首判+024 重判并陈
+（--verify 10 行+--check 双绿）；**open_1gb 裁定=用户件 Q-1 在途**
+（512MB 拒绝位活体，两案材料 designs/002——(a) 降范围注记/(b) 供料
+档 §10 流式装载 want，落账随裁）。**③M4 终检表**=预算十行终态
+（6 PASS+2 FAIL+renderer n/a+open_1gb 待裁——过渡门口径注记随行）+
+四面核销（installer/对比表/语法高亮首批=核销；预算面=帧两行余题
+双态如实）——详 modules/perf-measurement.md M4 判定收口节（SD-01）+
+specs/auto-edit/README.md PLAN-024 口径（SD-03）。**④v0.1-M4 tag
+记录位**：打点=本件 merge 收据（五检查点后——v0.1-M1/M2/M3 惯例；
+素材 evidence-p024-m4-final-check 逐字对账；口径=023 已录「帧两行
+不阻 tag+注记并陈」+里程碑标记≠发布）；**M4 完全收口=帧两行清偿
+（S5 上游件）+open_1gb 裁定落账后**；L1/L2 线开篇=tag 后另议
+（战略 §6 顺序）。
+
 **兄弟仓 Q1 裁定摘要（2026-09-22，战略补注十收口）**：jade-edit 与
 auto-edit **两产品长期并存**（auto=原生旗舰轻量编辑器、jade=web 轻量
 版并向知识库发展），组件尽量共用（未来插件级共用）。jade 侧战略文档
