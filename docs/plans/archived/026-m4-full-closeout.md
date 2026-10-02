@@ -312,9 +312,16 @@ SD-01..03+P026-1（015-025 外科插入先例）+范围断言（零 .at diff）�
   不适用〔auto-edit 无 batch 文件——.last-batch-regression.json
   缺失+023/024/025 同判〕| archived: docs/plans/archived/
   026-m4-full-closeout.md〔status=archived+completion_kind=delivered〕|
-  cleaned: 待清理检查点回填 | 部署观察: 零重建项维持〔auto-edit=
-  按需构建应用仓——无常驻服务消费本仓代码；dist/portable 产物=
-  发布期按需构建；组工具链=构建期依赖随计划重建，随组目录清理退场〕。
+  cleaned: ✓〔wt-guard 三树 fresh clean+三 worktree 注销〔auto-edit/
+  auto-lang/auto-down 各归属主仓——注销前占用预检=零 auto.exe/
+  auto-edit.exe 进程+三树零 reparse point〕+branch 删 plan-026-dev
+  was fc6870e 全落祖先链+组目录 edit-026 清——.wt 无残留+三仓
+  registry 零〕| 部署观察: 零重建项维持〔auto-edit=按需构建应用仓
+  ——无常驻服务消费本仓代码；dist/portable 产物=发布期按需构建；
+  组工具链=构建期依赖随计划重建，随组目录清理退场〕。**v0.1-M4.2
+  tag=本收据打点（五检查点后——v0.1-M1..M4.1 惯例；素材=
+  specs/auto-edit/tests/evidence-p026-m4-closeout.md 逐字对账；
+  语义=重判收口〔Q-2〕非十行全绿——发布门不解锁如实注记）。**
 
 ## 10. 待澄清事项
 
