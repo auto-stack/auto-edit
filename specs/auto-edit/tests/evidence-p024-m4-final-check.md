@@ -8,7 +8,7 @@
 | 2 | renderer_cold_start | 随 Q2 | **n/a**（arch note——单 iced 进程内无分离冷启面；683 重设计随形重估） | budgets row2 |
 | 3 | warm_start | ≤120ms | **armed PASS**（021：恢复净段 0.0ms；023 复跑 2.6ms） | budgets row3+warm-20260930-230317 |
 | 4 | open_100mb | ≤1s | **armed PASS**（021 直拉 863.2ms；「滚动不掉帧」半行=帧两行域注记） | budgets row4+open-20260930-230121 |
-| 5 | open_1gb | 可打开（流式） | **裁定待用户（Q-1 在途）**——512MB 拒绝位活体维持（018 实证+021/023 双复证）；两案材料 designs/002 在案，请示已发 | budgets row5+designs/002 |
+| 5 | open_1gb | 可打开（流式） | **ledger-blocked-with-plan（用户裁 (b)，2026-10-02）**——供⑮ 文件后援分页 rope want 入供料档 §10（完整标准设计）；512MB 拒绝位活体维持至供⑮ 交付 | budgets row5+供料档 §10+designs/002 回执 |
 | 6 | type_latency | ≤1 帧 | **armed FAIL 维持**（024 重判 P95 95-112ms vs 16.7ms；725 中位 110→1-4ms ~30×——S5 段 layout/shaping/draw 残差归因=auto-lang 余题） | budgets row6+frame-20261002 四谱+evidence-p024-frame-rejudge |
 | 7 | scroll_fps | 满刷新率 | **armed FAIL 维持**（024 重判 6.7-8.8fps vs ≥54；022 首判 8.0 同带——S5 域同源） | budgets row7+同上 |
 | 8 | diff_100mb | ≤2s | **armed PASS**（022 窗口形 784.8ms 双谱；全量对照档 5183.2ms FAIL 保留在档） | budgets row8+diff-20261001-144526/164312 |
@@ -18,7 +18,7 @@
 ## M4 四面验收核销（战略 §6：预算全绿/installer/portable/公开对比表/语法高亮首批）
 
 1. **预算全绿**：十行终态=6 PASS+2 FAIL（帧两行——S5 上游余题归因回执
-   在档）+renderer n/a+open_1gb 待裁。**过渡门口径注记**：idle/installer
+   在档）+renderer n/a+open_1gb=(b) 登记收口（供⑮ §10）。**过渡门口径注记**：idle/installer
    两行=独立渲染期重基线门（023 用户裁定——AskUserQuestion 回执链在
    录），RQHost 后回归严格门（≤20MB/≤10MB 级）承诺在案。帧两行双态
    如实（Q-2 口径——tag 随裁）。
@@ -38,7 +38,8 @@
 
 素材正文（merge 期按 023 已录口径打点——帧两行不阻 tag+注记并陈
 〔00-overview M4 第六件注记成文+023 Q-2 用户裁定「里程碑标记≠发布」〕；
-Q-2/Q-1 请示在途——若 merge 前用户改裁，本素材随裁回填）：
+Q-1 已裁 (b) 落账（2026-10-02——供⑮ 供料档 §10），Q-2 按 023 已录
+口径备料——若 merge 前用户改裁，本素材随裁回填）：
 
 ```
 M4 速度王座与发布 本仓面收口态（战略 §6——判定面快照）
@@ -55,9 +56,8 @@ diff 窗口 784.8ms PASS（全量对照 FAIL 在档）｜idle 9.1MB PASS（≤15
 重基线）｜installer 30,403,072B PASS（≤50MB 重基线）｜renderer n/a｜
 type_latency P95 95-112ms FAIL 维持（725 增量管线中位 110→1-4ms ~30×
 生效——残余=S5 段 layout/shaping/draw，auto-lang 余题在册）｜scroll
-6.7-8.8fps FAIL 维持（S5 域同源）｜open_1gb=〔merge 期回填：用户裁定态
-——Q-1 (a) 降范围注记 / (b) ledger-blocked-with-plan；未裁则如实注
-「裁定待用户——512MB 拒绝位活体」〕。
+6.7-8.8fps FAIL 维持（S5 域同源）｜open_1gb=(b) 登记收口——供⑮ 文件后援分页 rope want 入供料档 §10
+（用户裁定 2026-10-02）；512MB 拒绝位活体维持至供⑮ 交付。
 
 对比表：我方 L2 判定谱四行全实数（滚动行 022/024 并陈）；竞品 VS Code/
 Zed/BC5 三家实数+NP++ pending（Q-3：列完整性非里程碑判定门）。语法高亮

@@ -16,7 +16,7 @@
   "id": "P024-1",
   "section": "reviews",
   "status": "stable",
-  "title": "PLAN-024 — M4-07 收口件 merge 收据（work handoff blocked@r1 <work-commit>：帧两行重判 FAIL 维持〔725 中位 110→1-4ms ~30× 生效+P95 95-112ms/scroll 6.7-8.8fps 维持红——段外 ~108ms=S5 域 layout/shaping/draw 归因，auto-lang 余题回执〕+open_1gb 裁定待用户 Q-1〔(a) 降范围/(b) 供料 §10——designs/002 材料齐〕+NP++ 未装 Q-3 默认（列完整性非判定门 tag 不等待）+终检表十行（6 PASS+2 FAIL+n/a+待裁）+tag 素材备档〔023 已录口径：帧两行不阻 tag——merge 期五检查点后打点〕）",
+  "title": "PLAN-024 — M4-07 收口件 merge 收据（work handoff pass@r1 <work-commit>：帧两行重判 FAIL 维持〔725 中位 110→1-4ms ~30× 生效+P95 95-112ms/scroll 6.7-8.8fps 维持红——段外 ~108ms=S5 域 layout/shaping/draw 归因，auto-lang 余题回执〕+open_1gb 用户裁 (b) 登记收口〔供⑮ 文件后援分页 rope want 入供料档 §10——ledger-blocked-with-plan〕+NP++ 未装 Q-3 默认（列完整性非判定门 tag 不等待）+终检表十行（6 PASS+2 FAIL+n/a+(b) 登记收口）+tag 素材备档〔023 已录口径：帧两行不阻 tag——merge 期五检查点后打点〕）",
   "file": "docs/plans/archived/024-m4-closeout.md",
   "related": ["PLAN-024"],
   "superseded_by": null,

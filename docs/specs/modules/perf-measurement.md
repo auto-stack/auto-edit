@@ -471,7 +471,7 @@ Plan 413 原始缺口：`code_editor (key: t.key)` 动态 key 属性在 a2r 视�
 | 2 | renderer_cold_start | n/a（arch note——683 重设计随形） | budgets row2 |
 | 3 | warm_start | armed PASS（0.0/2.6ms） | warm-20260930-230317 |
 | 4 | open_100mb | armed PASS（863.2ms） | open-20260930-230121 |
-| 5 | open_1gb | **裁定待用户（Q-1 在途）**——512MB 拒绝位活体；两案材料 designs/002 | budgets row5 |
+| 5 | open_1gb | **ledger-blocked-with-plan（用户裁 (b)，2026-10-02）**——供⑮ 文件后援分页 rope want 入供料档 §10；512MB 拒绝位活体维持至供⑮ 交付 | budgets row5+供料档 §10 |
 | 6 | type_latency | armed FAIL 维持（P95 95-112ms；725 中位 ~30×——S5 归因） | frame-20261002 四谱 |
 | 7 | scroll_fps | armed FAIL 维持（6.7-8.8fps——S5 域同源） | 同上 |
 | 8 | diff_100mb | armed PASS（窗口形 784.8ms；全量对照 FAIL 保留） | diff-20261001-144526/164312 |
@@ -487,7 +487,8 @@ Plan 413 原始缺口：`code_editor (key: t.key)` 动态 key 属性在 a2r 视�
 ### M4 四面核销清单（战略 §6）
 
 1. **预算全绿**：6 PASS+2 FAIL（帧两行 S5 余题）+renderer n/a+
-   open_1gb 待裁——过渡门口径随行注记。
+   open_1gb=(b) 登记收口（ledger-blocked-with-plan——供⑮ §10）——
+   过渡门口径随行注记。
 2. **installer/portable**：armed PASS 终态+RQHost 回归承诺指针——核销。
 3. **公开对比表**：我方 L2 四行全实数（滚动行 022/024 并陈）+竞品三家
    实数+NP++ pending（**Q-3 默认：列完整性=后续补列域非里程碑判定门
@@ -496,5 +497,6 @@ Plan 413 原始缺口：`code_editor (key: t.key)` 动态 key 属性在 a2r 视�
 
 **v0.1-M4 tag 记录位**：打点=本件 merge 收据（五检查点后 annotated
 tag——v0.1-M1/M2/M3 惯例）；素材=evidence-p024-m4-final-check.md（与
-本表逐字对账）；M4 完全收口=帧两行清偿（S5 上游件）+open_1gb 裁定
-落账后；L1/L2 线开篇=tag 后另议（战略 §6 顺序）。
+本表逐字对账）；M4 完全收口=帧两行清偿（S5 上游件）后
+〔open_1gb 已按 (b) 落账即收口——ledger-blocked-with-plan，达标待
+供⑮ 交付另件重测〕；L1/L2 线开篇=tag 后另议（战略 §6 顺序）。

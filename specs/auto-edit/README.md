@@ -572,13 +572,13 @@ scroll 6.7-8.8fps<54——022 首判同带）；分段归因=段外 ~108ms=S5 �
 7.0fps 并陈（anchors --verify 10 行+render --check 双绿）；NP++ 未装
 四路探测在案→pending 维持+**Q-3 默认口径落表脚注：列完整性=后续补列
 域非里程碑判定门——tag 不等待**。③**M4 终检表**——预算十行终态
-（6 PASS+2 FAIL+renderer n/a+open_1gb 裁定待用户 Q-1 在途）+四面核销
+（6 PASS+2 FAIL+renderer n/a+open_1gb=(b) 登记收口——供⑮ 供料档 §10，ledger-blocked-with-plan）+四面核销
 （installer/对比表/语法高亮首批核销；预算面帧两行双态如实）=
 modules/perf-measurement.md M4 判定收口节+00-overview M4 第七件注记+
 evidence-p024-m4-final-check（tag 素材逐字对账档）。④**v0.1-M4 tag
 记录位**——打点=本件 merge 收据（五检查点后；023 已录口径「帧两行不
-阻 tag+注记并陈」+里程碑标记≠发布）；M4 完全收口=帧两行清偿+open_1gb
-裁定落账后。P024-1 账本投影=merge 期项（015-023 先例——work 不碰
+阻 tag+注记并陈」+里程碑标记≠发布）；M4 完全收口=帧两行清偿后（open_1gb
+已按 (b) 落账收口——供⑮ §10，2026-10-02 用户裁定）。P024-1 账本投影=merge 期项（015-023 先例——work 不碰
 活账本）。
 
 注：Plan 451 起 T10「热重载」走 DSL 源路径（reload 工具或 mtime 轮询重读
