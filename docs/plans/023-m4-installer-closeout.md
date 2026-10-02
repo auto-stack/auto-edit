@@ -181,7 +181,7 @@ SD-01..03 落档+（条件）上游缺口登记（深裁路线不可达大头→
 | SD-01 | modify | docs/specs/modules/perf-measurement.md | before：installer/portable 形态节=分阶段（29.8MB+门控待裁） / after：判定终态节——现势三代谱+门控裁定记录（含冲突面语义表）+终态手段集+判定结果（armed PASS/归因终表）+ts-off 发布形默认 | installer 面收口真源 | AC-02/03 |
 | SD-02 | modify | docs/specs/00-overview.md | before：M4 第五件注记（剩余=installer 收口+帧两行+open_1gb） / after：M4 第六件注记（installer 终态+M4 剩余清单=帧两行[上游管线件]+open_1gb 裁定[+NP++ 建议]——tag 口径注记） | 面进度与 tag 前置总览 | AC-05 |
 | SD-03 | modify | specs/auto-edit/README.md | before：PLAN-022 口径 / after：PLAN-023 口径（发布构建用法[ts-off 默认]+判定数字回填位） | 运行矩阵/工具单源 | AC-05 |
-| SD-04 | modify（执行期增补——用户重基线裁定触发） | docs/strategy/002-north-star-v2.md | before：§2.1 安装包 ≤15MB/空闲内存 ≤60MB / after：≤50MB（独立渲染期口径）+≤150MB（渲染暖态语义）——RQHost 后回归 ≤15MB/≤10MB 级；变更记录追记行（PLAN-023） | 用户裁定落账（预算随渲染拓扑重分期——019 SD-04 先例同款） | AC-02/05 |
+| SD-04 | modify（执行期增补——用户重基线裁定触发） | docs/strategy/002-north-star-v2.md | before：§2.1 安装包 ≤15MB/空闲内存 ≤60MB / after：≤50MB（独立渲染期口径）+≤150MB（渲染暖态语义）——RQHost 后回归 ≤20MB〔同日精调 15→20，双已知路径校准〕/≤10MB 级；变更记录追记行（PLAN-023） | 用户裁定落账（预算随渲染拓扑重分期——019 SD-04 先例同款） | AC-02/05 |
 
 ## 6. 测试设计
 
@@ -286,6 +286,15 @@ SD-01..03 落档+（条件）上游缺口登记（深裁路线不可达大头→
   四段绿；⑤P023-1 账本投影=merge 期项（015-022 先例）；⑥主检
   出外来 WIP（stylekit 两 .at）零触碰零包含维持（022 T-00⑥
   先例），落地路由属其属主会话。
+
+- **2026-10-02 work 追记（重基线同日精调——评审基线前移）**：
+  用户追询后 RQHost 期 exe 门 **15→20MB**（内存 ≤10MB 级维持）
+  ——精调依据=evidence §⑥ 精调行（RQHost 单项≈24.8MB/+opt-z
+  ≈16.6MB；20MB=双已知路径即达）；八面同步 commit
+  worktree plan-023-dev@**b823d28**（残留 grep 零命中）；独立
+  渲染期 50MB/150MB 门不变。**评审基线随 b823d28**（前录
+  ad40699 为其真前缀）。`outcome: pass` 维持——范围/AC 面无
+  新变化（纯承诺数字精调+文档面）。
   `outcome: pass`（起草完备：三前置在位[ts-off 通道/退役翻转/手段
   谱]；**起草期核心发现=panic=abort×catch_unwind 语义冲突**——
   019 未裁门控项经 710 G-B 升格为语义冲突项，三路裁定面成文防
@@ -299,9 +308,11 @@ SD-01..03 落档+（条件）上游缺口登记（深裁路线不可达大头→
 - **Q-1 门控手段三路裁定（用户件——T-00 材料齐后请示）**：
   **【已裁定收口 2026-10-02：两轮 AskUserQuestion——用户提出并
   确认门重基线（installer ≤15MB→≤50MB+idle_mem ≤60MB→≤150MB
-  渲染暖态；RQHost 后回归 ≤15MB/≤10MB 级），手段集采 (c) 变体
-  V2b 维持。落档=SD-04 战略追记+budgets 双行+build_portable 门
-  常量+bench 断言面】**。
+  渲染暖态；RQHost 后回归 **≤20MB**/≤10MB 级——**同日精调：
+  15→20MB 经实测校准**〔RQHost 单项≈24.8MB/+opt-z≈16.6MB；
+  20MB=opt-z 或 ~5MB 上游 diet 双已知路径即达〕），手段集采 (c)
+  变体 V2b 维持。落档=SD-04 战略追记+budgets 双行+build_portable
+  门常量+bench 断言面】**。
   **(a) panic=abort 入集**（尺寸最优路径[组合投影 **16.5~16.8MB
   ——仍超门 ~1MB**；019「距门 714KB 可达标」叙事经 716/022/工具链
   代差后翻转]——代价=try/catch 兜底降级：**生成物 17 语句/8 语义
