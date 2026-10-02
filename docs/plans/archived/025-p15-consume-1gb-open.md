@@ -331,8 +331,15 @@ SD-01..04+供料档 §10 **消费回执节**（供⑮ 全弧终结——want 登
   批量回归到期判定: 不适用〔auto-edit 无 batch 文件——.last-batch-
   regression.json 缺失+023/024 同判〕| archived:
   docs/plans/archived/025-p15-consume-1gb-open.md〔status=archived+
-  completion_kind=delivered〕| cleaned: 待清理检查点补记〔wt-guard+
-  三树注销+branch 删〕。
+  completion_kind=delivered〕| cleaned: ✓〔wt-guard 三树 fresh clean
+  +三 worktree 注销〔auto-edit 树注册表先摘目录删除被占=024 同款
+  lesson 二度——占用者经镜像路径鉴别=本会话 run1 时代漏网实例
+  PID 26896〔组树 release exe〕精确 taskkill 后 rm 成；共栖会话
+  PATH master 实例 17808/21664 零触碰〕+branch 删 plan-025-dev
+  was 33f8814 全落祖先链+组目录 edit-025 清——.wt 无残留+三仓
+  registry 零〕| 部署观察: 零重建项维持〔auto-edit=按需构建应用仓
+  ——无常驻服务消费本仓代码；dist/portable 产物=发布期按需构建；
+  组工具链=构建期依赖随计划重建〕。
 
 ## 10. 待澄清事项
 
