@@ -1,10 +1,10 @@
 ---
 plan_id: PLAN-024
-status: executing
+status: reviewed
 feature_name: M4-07 收口件（PLAN-725 帧两行重判转绿+open_1gb 裁定落账+NP++ 列条件补齐+M4 四面终检表+v0.1-M4 tag 打点）
 author: [agent]
 created_at: 2026-10-02T14:03:15+08:00
-updated_at: 2026-10-02T15:20:00+08:00
+updated_at: 2026-10-02T15:55:00+08:00
 plan_revision: 1
 current_step: 6
 total_steps: 6
@@ -275,6 +275,45 @@ SD-01..03（+条件 SD-04）落档+specs.json P024-1（015-023 外科
   材料域内）。blockers: 无——Q-2 备料口径在档（023 已录，merge 期
   可改裁）；Q-3 默认臂已落。`next: review`（→ auto-plan-review；
   merge 期事项=P024-1 活账本插入+v0.1-M4 tag 打点——素材齐备）。
+
+- 2026-10-02 review：`stage: review`，PLAN-024，plan_revision 1，
+  `outcome: pass`（→reviewed）。reviewed_commit: worktree
+  plan-024-dev@**ab67b5a131e0e954bb0d82eacb06e51f50318cfc**
+  （base 957686f；五笔 db58f20/7ccb584/312ae85/a2727ec/ab67b5a；
+  worktree 清洁态 0 dirty）。dependency_revisions: auto-lang
+  b385534d77b040eeb19ad0c234fc674af7d0c450（含 725——master tip）+
+  auto-down 895f8d0f9355c9f5ec3ce8fca268bdb768395846（双树 clean）。
+  spec_inputs: SD-01 docs/specs/modules/perf-measurement.md（M4 判定
+  收口节——十行终态+帧重判+四面核销）/SD-02 docs/specs/00-overview.md
+  （M4 第七件注记）/SD-03 specs/auto-edit/README.md（PLAN-024 口径）/
+  SD-04 docs/upstream/2026-09-m4-perf-unblock-supply.md §10（供⑮——
+  Q-1 (b) 臂落定，strategy (b) 路零改动已断言）——四 SD 与实现逐项
+  对应，before/after 规则与现势行为相符，无执行日记体漂移；canonical
+  零发布+活账本零触碰（review 期纪律）。
+  acceptance_results: **AC-01..06 全 pass 独立重构复证**——AC-01
+  五谱 JSONL 逐行（判定一致性 p95>16.67→FAIL×4+scroll<54×4+预算/
+  阈值换算复核+run2 focus_ok=False 弃用如实）+budgets 两行 validity
+  数字/归因逐项吻合+anchors 滚动行 022(8.01)/024(7.04) 并陈与源全等
+  +复跑 --verify 10 行绿；AC-02 供⑮ §10 七面锚+优先级链尾+designs/002
+  回执在档；AC-03 NP++ 独立四路重探未装+表 pending/Q-3 脚注在档
+  +render --check 复现绿；AC-04 SD-01 十行/核销 12 锚全命中（数字
+  溯源 budgets+判定谱）；AC-05 tag 素材十项数字/口径锚与终检表一致
+  +§9 merge 期预留位在录；AC-06 P024-1 彩排独立复跑 True（25→26
+  内存 rehearsal+readback 逐字等+活账本零触碰实证）+.at 零 diff
+  （18 文件全在 SD/证据/谱/生成物/材料域）+组双树 clean+bench check
+  绿（2579≥1588）。findings: **无 F 级**；注记两条——N-1 bench.py
+  JSONL head `form` 字段静态文案「l0-vm-debug」与 release 判定形
+  不符（022 起既有非本件引入；判定以 toolchain.auto_path 为准——
+  后续 bench 域小改 want，非阻塞）；N-2 分段归因原始日志在 %TEMP%
+  时效性面（耐久摘录已录 evidence-p024-frame-rejudge §分段归因——
+  worktree 移除后可解析性满足，非阻塞）。evidence: 上列复现命令与
+  锚点全在档（五谱 JSONL/budgets/anchors/table/三册 SD/供料档 §10/
+  designs-002/三 evidence 档——随仓持久）。独立性限制如实声明：本
+  review 与实施同会话，结论由在档工件独立重构（复跑双检+逐字对账
+  +独立彩排）而非执行摘要；独立会话复审=后续可另行。next: merge
+  （merge 期=P024-1 活账本插入〔材料+彩排在档〕+v0.1-M4 tag 打点
+  〔素材逐字对账在档；023 已录口径「帧两行不阻 tag+里程碑标记≠
+  发布」备料——merge 前用户改裁窗口保留〕）。
 
 ## 10. 待澄清事项
 
