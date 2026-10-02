@@ -372,6 +372,18 @@
           ],
           "superseded_by": null,
           "content": "- merge 五检查点（r1）：prepared=review 基线 main@266b227/工作树 plan-024-dev@0d35b5d〔base 957686f；五笔 db58f20→6fe7ba6/7ccb584→ca7774e/312ae85→ec5bb29/a2727ec→86c4d54/ab67b5a→0d35b5d——range-diff 5 对全=安全重写证明〕；landed=ff-only 零合并提交+main tip=0d35b5d〔18 文件 397+14-；main 烟测三绿=check 门 2579≥1588+canonical 四 SD 锚点+账本可解析〕；ledger_refreshed=本条 P024-1 外科插入 25→26〔roundtrip 守卫=json.loads 新旧深等〔他五段+reviews 前缀 25 项零扰动〕+插入项逐字回读——015-023 九连先例〕；work 判定面=N=4 帧谱（frame-20261002-141456/141537/141553/141631——141522 无效跑弃用如实）+anchors --verify 10 行+render --check 双绿+范围断言（.at 零 diff+组双树 clean）；archived/cleaned=随归档/清理检查点后续落账。"
+        },
+        {
+          "id": "P025-1",
+          "section": "reviews",
+          "status": "stable",
+          "title": "PLAN-025 — 供⑮ 消费件 merge 收据（work handoff pass@r1 3917eb1[rebase 全等映射 ff-landed 61f7bff]：512MB 拒绝位退役〔用户裁 Q-1=(a) 移除 2026-10-02 AskUserQuestion 回执——拒绝臂/bench_open_rejected/「只读(超大拒绝)」标签族退役；big 命令护栏+readonly 编码形兜底零回退 grep 锚〕+1GB E2E 全链〔T17.5 翻转 513MB+1B 装载成功形+T17.9-12 四链+T18.1 重铸零编辑直写往返——矩阵两连 141 passed/0 failed 全绿〔durable receipt matrix-p025-run1.txt〕；014 已知 blocked 集 T17.2/17.3/17.4/17.8 在 728 工具链自动复绿·检查零改动〔m1-supply §17 登记形应验〕〕+open_1gb budgets 行 armed 断言化〔判定口径=装载成功 E2E 断言非时间预算；bench open 档重铸真内容锚点族：1GB 3774.4ms 上游 4.0s 带内/513MB 1912.2ms/阈界双轨 204.4·408.7ms/100MB 重判 383.3ms ~2.25×——results/open-20261002-174223.jsonl〕+SD-01..05 落档+供料档 §10 消费回执节〔供⑮ 三段弧 024 登记→728 实施→025 消费闭环+消费反馈两项 upstream 登记：查找分页扫描债高优先[分页 100MB 21s 未决实测]+014 冻结未复现〕+会话/边界现状成文〔tab 全量入册懒恢复〕）",
+          "file": "docs/plans/archived/025-p15-consume-1gb-open.md",
+          "related": [
+            "PLAN-025"
+          ],
+          "superseded_by": null,
+          "content": "- merge 五检查点（r1）：prepared=review 基线 main@9a06d7f/工作树 plan-025-dev@3917eb1〔base de6cb95；三笔 da300f2→adf8225/e022d4d→54b99f5/3917eb1→61f7bff——range-diff 3 对全=安全重写证明〕；landed=ff-only 零合并提交+main tip=61f7bff〔13 文件 737+/220-；main 烟测绿=probe_p025_consume 100MB 装载 0.01s/big 态/保存 0.31s 活体〔编辑器键盘驱动限制=落地前同状非回归；字节往返权威面=矩阵 T17.12 两连绿〕+五 SD 锚点 main 在档〕；ledger_refreshed=本条 P025-1 外科插入 26→27〔roundtrip 守卫=json.loads 新旧深等〔他五段+reviews 前缀 26 项零扰动〕+插入项逐字回读——015-024 十连先例；通道=git 跟踪文件 .autoos/specs.json 经 worktree+Git〕；SD 越界目标先例=specs/auto-edit/README.md[024 SD-03]+docs/upstream 供料档[024 SD-04/de6cb95]——recorded reviewed precedent 在档；archived/cleaned=随归档/清理检查点后续落账。"
         }
       ],
       "status": "Empty",
