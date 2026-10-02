@@ -164,7 +164,10 @@ def build_table() -> str:
        f"| {_our_cell(anchors, 'scroll_fps')} |")
     ap("")
     ap("Notepad++ 缺位=安装属用户面（PLAN-020 §10 Q-1），装后 harness 补跑"
-       "即得列（通道与 VS Code 同形）。**我方 L2 正式列=PLAN-021 直拉判定"
+       "即得列（通道与 VS Code 同形）。**M4 收口口径（PLAN-024 Q-3 默认）**"
+       "：竞品列完整性=对比表后续补列域，**非里程碑判定门——v0.1-M4 tag "
+       "不等待 NP++**（三家竞品实数已足表位成立；2026-10-02 探测四路全空"
+       "=未装在案）。**我方 L2 正式列=PLAN-021 直拉判定"
        "谱**（steady/open——armed 判定随格；diff 行=PLAN-022 窗口形清偿"
        "重判 PASS+021 全量形 FAIL 对照并陈；scroll 行=PLAN-022 首判 FAIL"
        "+PLAN-024 重判 FAIL 并陈——725 帧管线增量后同机复判，中位改善而 "
