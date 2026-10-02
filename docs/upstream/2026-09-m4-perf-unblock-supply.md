@@ -427,3 +427,20 @@ auto-edit 侧以零改动或最小改动复验解阻（669 先例；供① 回�
 `perf.py a2r` exit 0 + L2 锚点补跑；供③ 回执=矩阵 T17 族复绿），
 并在本仓 budgets.json 对应行 unlock/validity 注记更新（§2.1 预算
 表 M4 收口路径）。
+
+**回执预告位（供⑮——PLAN-728 承接实施，2026-10-02）**：上游
+auto-lang PLAN-728（文件后援分页 rope 实施件，worktree
+plan-728-dev）已实施七面内核能力——`Node::Chunk` 页描述符+预扫页表
+（打开即答行数/摘要，零驻留）、LRU 页缓存（6MB 预算+≤12MB@1GB 结构
+计量契约）、异步预取（±16 页保温）、合并保存（temp+原子改名+外部修
+改拒绝+byte-for-byte）、`Rope`/`RopeSnapshot` API 零破坏（签名钉在
+案）、装载链 50MB 阈值分臂（`code_editor_load_file` 替换全量读）。
+契约册=auto-lang `docs/specs/auto-lang/ui/design/paged-rope.md`
+（SD-01）。**下游消费件待立**（669 模式）：①512MB 拒绝位处置
+（editor_store.at:946——移除 vs 抬升两案在 SD-01 回执节，本仓裁定）；
+②open_1gb budgets 行 unlock 断言化重测；③适配件面（`code_editor_
+text` 全量读出改走 doc_snapshot/分段读；S2 视口物化窗口滚动/窗口外
+打字/fold 面三件与本件头窗口（2MB）协同——673 延后裁定在案）；
+④1GB E2E 矩阵（装载/编辑/保存/内存实测谱：auto-lang 侧基准
+`docs/reports/p728-bench.jsonl` 已含四线谱先行）。回执行文按「回执
+方式」节惯例：零改动/最小改动复验解阻后在本节追加清偿回执行。
