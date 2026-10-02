@@ -4,15 +4,16 @@ status: executing
 feature_name: M4-06 installer 收口件（ts-off 发布形尺寸判定+门控手段裁定〔panic=abort×catch_unwind 语义冲突勘定〕+deps 深裁挤压→≤15MB armed）
 author: [agent]
 created_at: 2026-10-02T09:09:08+08:00
-updated_at: 2026-10-02T10:05:00+08:00
+updated_at: 2026-10-02T10:45:00+08:00
 plan_revision: 1
-current_step: 1
+current_step: 6
 total_steps: 6
 supersedes_spec_components: []
 new_spec_components:
   - docs/specs/modules/perf-measurement.md（SD-01：installer/portable 形态节收口——判定终态+门控裁定记录+冲突面注记）
   - docs/specs/00-overview.md（SD-02：M4 第六件注记——installer 收口+M4 剩余清单终态）
   - specs/auto-edit/README.md（SD-03：PLAN-023 口径+发布构建用法）
+  - docs/strategy/002-north-star-v2.md（SD-04：§2.1 两行重基线〔用户裁定 2026-10-02——执行期增补，见 §5 规范增量表〕）
 touched_goals:
   - 战略 §2.1 预算行「安装包 ≤15 MB 单 exe，无运行时依赖」——本件判定收口（M4 验收面四件之 installer 的终态件）
 affects: [tools/portable/build_portable.py, tools/bench/budgets.json, tools/bench/bench.py, specs/auto-edit/README.md]
@@ -180,6 +181,7 @@ SD-01..03 落档+（条件）上游缺口登记（深裁路线不可达大头→
 | SD-01 | modify | docs/specs/modules/perf-measurement.md | before：installer/portable 形态节=分阶段（29.8MB+门控待裁） / after：判定终态节——现势三代谱+门控裁定记录（含冲突面语义表）+终态手段集+判定结果（armed PASS/归因终表）+ts-off 发布形默认 | installer 面收口真源 | AC-02/03 |
 | SD-02 | modify | docs/specs/00-overview.md | before：M4 第五件注记（剩余=installer 收口+帧两行+open_1gb） / after：M4 第六件注记（installer 终态+M4 剩余清单=帧两行[上游管线件]+open_1gb 裁定[+NP++ 建议]——tag 口径注记） | 面进度与 tag 前置总览 | AC-05 |
 | SD-03 | modify | specs/auto-edit/README.md | before：PLAN-022 口径 / after：PLAN-023 口径（发布构建用法[ts-off 默认]+判定数字回填位） | 运行矩阵/工具单源 | AC-05 |
+| SD-04 | modify（执行期增补——用户重基线裁定触发） | docs/strategy/002-north-star-v2.md | before：§2.1 安装包 ≤15MB/空闲内存 ≤60MB / after：≤50MB（独立渲染期口径）+≤150MB（渲染暖态语义）——RQHost 后回归 ≤15MB/≤10MB 级；变更记录追记行（PLAN-023） | 用户裁定落账（预算随渲染拓扑重分期——019 SD-04 先例同款） | AC-02/05 |
 
 ## 6. 测试设计
 
@@ -215,11 +217,11 @@ SD-01..03 落档+（条件）上游缺口登记（深裁路线不可达大头→
 | # | 任务 | 依赖 | 落点（实勘锚） | 产出/意图 | AC | 验证（命令/预期） |
 |---|---|---|---|---|---|---|
 | 0 | T-00 现势谱+库存量+冲突面 | — | build_portable+evidence-p023 | 裁定材料三件套 | AC-01 | [x] 三表在档（evidence-p023-survey@worktree 75d7ca6：三代谱〔V2b 30,403,072/opt-z 22,206,976/abort 22,646,272——三路无一达门〕+库存量 R1-R9〔可达池仅 R2 axum<0.5MB〕+冲突面 17 语句/8 语义点） |
-| 1 | T-01 门控裁定 | T-00 | §10 Q-1 请示+budgets/SD | 用户裁定落档 | AC-02 | [ ] 裁定回执在录 |
-| 2 | T-02 终态手段集 | T-01 | build_portable 注入面 | 依裁定执行 | AC-03 | [ ] 手段谱+护栏门 |
-| 3 | T-03 判定收口 | T-02 | budgets.json+判定报告 | installer 终态 | AC-03 | [ ] armed/归因终表 |
-| 4 | T-04 护栏+烟测 | T-02 | bench 五行+烟测四段 | 零回退证 | AC-04 | [ ] 工具链轨五行 **armed PASS 全绿**（v2546 复跑谱@worktree 0d49e65——裁定无关先行落地；产物面 probe_surface+烟测四段=终态手段集依赖，裁定后件） |
-| 5 | T-05 规范+账本 | T-01..04 | SD-01..03+specs.json | 收口落账 | AC-05/06 | [ ] P023-1 True+范围断言 |
+| 1 | T-01 门控裁定 | T-00 | §10 Q-1 请示+budgets/SD | 用户裁定落档 | AC-02 | [x] 裁定回执在录（两轮 AskUserQuestion——首轮三路问询自主会话未应答→用户提出门重基线→次轮定案 **50MB+150MB/手段集 V2b 维持**；回执原文+落地面=evidence §⑥+SD-04 战略追记） |
+| 2 | T-02 终态手段集 | T-01 | build_portable 注入面 | 依裁定执行 | AC-03 | [x] 手段谱+护栏门（(c) 变体=V2b 维持终态：opt-level=3 保性能+panic=unwind 保 17 兜底；abort/opt-z 留测量档；ts_on return 修复 c0b402d；BUDGET_BYTES=50MB 随重基线；ts-off 默认发布形双命名维持） |
+| 3 | T-03 判定收口 | T-02 | budgets.json+判定报告 | installer 终态 | AC-03 | [x] **armed PASS**（30,403,072B ≤ 52,428,800B 余量 22,025,728B——portable-103531 exit 0 整链绿；103518 伪红录〔陈旧门〕如实注记；三次构建尺寸字节一致=确定性；budgets installer/idle_mem 双行改判在档） |
+| 4 | T-04 护栏+烟测 | T-02 | bench 五行+烟测四段 | 零回退证 | AC-04 | [x] 双轨全绿（工具链轨五行 armed PASS：steady 17.8/open 865.8/warm 2.6/idle 9.1MB/diff 窗口 635.0ms——021/022 对照带内；产物面 probe_surface steady 17.3/open 866.5/idle 9.8MB 同带+烟测四段 exit 0——0d49e65+ad40699） |
+| 5 | T-05 规范+账本 | T-01..04 | SD-01..03+specs.json | 收口落账 | AC-05/06 | [x] SD-01..04 落档（SD-04=执行期增补战略 §2.1 重基线追记）+范围断言（.at 零 diff+组双树 clean+变更路径全在 affects 域——git diff main..plan-023-dev 全列核）；P023-1 账本投影=merge 期项（015-022 先例——work 不碰活账本） |
 
 - 2026-10-02 起草 handoff：`stage: new`，PLAN-023，plan_revision 1。
 
@@ -261,6 +263,29 @@ SD-01..03 落档+（条件）上游缺口登记（深裁路线不可达大头→
   →T-03 判定收口（未达标=差距归因终表+裁定态注记已定局）→
   T-04 产物面收尾→T-05 规范+账本。**工作树保留**（edit-023 三树
   ——复用至 merge）。
+
+- **2026-10-02 work handoff（pass——execution_done）**：`stage:
+  work` | PLAN-023 | plan_revision 1 | `outcome: pass` |
+  code_commit: worktree plan-023-dev@**ad40699**（base 5dbfd79；
+  七笔=c0b402d 修复/75d7ca6 T-00/0d49e65 T-04 五行/eed88ec 节序/
+  ef7189d 裁定落地批/ad40699 终态收口+范围审计；worktree 清洁态）
+  | task_ids: T-00..T-05 全落（current_step 6/6）| evidence:
+  evidence-p023-survey（①三代谱+节表；②库存量 R1-R9；③冲突面
+  17 语句/8 语义点；⑤五行 armed PASS；⑥裁定收口+终态判定；⑦
+  产物面双轨全绿）+JSONL×12 入仓（portable×5/bench×5/surface+
+  smoke）| blockers: 无 | next: review。
+  收口要点：①**用户重基线裁定**（两轮 AskUserQuestion——
+  installer ≤50MB+idle_mem ≤150MB 渲染暖态，RQHost 后回归
+  ≤15MB/≤10MB 级；手段集 (c) 变体 V2b 维持）——Q-1/Q-2 双收口
+  （Q-2 消解=armed PASS 路径，tag 携重基线注记）；②判定终态
+  **armed PASS** 30,403,072B ≤ 50MB 余量 22.0MB（exit 0 整链绿
+  ——15MB 门时代后首绿；陈旧门伪红录如实注记）；③冲突面勘定
+  为 019 未有的现役语义事实（catch_unwind×17——abort 出局的
+  量化依据，上游 back_proxy 隔离面注记）；④产物双轨零回退
+  （17.3/866.5/9.8MB vs 工具链轨 17.8/865.8/9.1 同带）+烟测
+  四段绿；⑤P023-1 账本投影=merge 期项（015-022 先例）；⑥主检
+  出外来 WIP（stylekit 两 .at）零触碰零包含维持（022 T-00⑥
+  先例），落地路由属其属主会话。
   `outcome: pass`（起草完备：三前置在位[ts-off 通道/退役翻转/手段
   谱]；**起草期核心发现=panic=abort×catch_unwind 语义冲突**——
   019 未裁门控项经 710 G-B 升格为语义冲突项，三路裁定面成文防
@@ -272,9 +297,11 @@ SD-01..03 落档+（条件）上游缺口登记（深裁路线不可达大头→
 ## 10. 待澄清事项
 
 - **Q-1 门控手段三路裁定（用户件——T-00 材料齐后请示）**：
-  **【2026-10-02 blocked：AskUserQuestion 已发（三路+现势谱数字
-  全列），自主会话未获应答——解锁动作=用户三选一回执（a/b/c），
-  T-02/T-03 随裁定放行】**。
+  **【已裁定收口 2026-10-02：两轮 AskUserQuestion——用户提出并
+  确认门重基线（installer ≤15MB→≤50MB+idle_mem ≤60MB→≤150MB
+  渲染暖态；RQHost 后回归 ≤15MB/≤10MB 级），手段集采 (c) 变体
+  V2b 维持。落档=SD-04 战略追记+budgets 双行+build_portable 门
+  常量+bench 断言面】**。
   **(a) panic=abort 入集**（尺寸最优路径[组合投影 **16.5~16.8MB
   ——仍超门 ~1MB**；019「距门 714KB 可达标」叙事经 716/022/工具链
   代差后翻转]——代价=try/catch 兜底降级：**生成物 17 语句/8 语义
@@ -287,13 +314,10 @@ SD-01..03 落档+（条件）上游缺口登记（深裁路线不可达大头→
   落地 ~21.9MB **超门 ~6.2MB**——缺口归因+上游域登记）；**(c)
   分阶段维持**（V2b 30.4MB 超门 14.0MB 遗留注记——手段集零改动）。
   **核心事实：三路无一达 ≤15MB**（材料=evidence-p023-survey §①）。
-- **Q-2 M4 tag 口径（随 Q-1 联动，用户件）**：**【2026-10-02
-  blocked：与 Q-1 同批请示未获应答——T-00 实证三路无一达门，本问
-  在任一路径下均为活问题（计划原「若 (a)/(b) 达标则消解」臂已实证
-  落空）】**。tag 是否携带 installer 未达注记（「预算未达标的
-  功能不发布」战略原文的发布语义裁定：auto-edit 当前无对外发布
-  动作，tag=里程碑标记非发布——建议口径：tag 允许携带已知未达
-  注记，对外发布动作前必须全绿）；若 Q-1 裁 (a) 或 (b) 达标则
-  本问消解（该臂已不成立）。
+- **Q-2 M4 tag 口径（随 Q-1 联动，用户件）**：**【已消解
+  2026-10-02：installer 行在重基线门（≤50MB）下 armed PASS——tag
+  携带「重基线注记」而非「未达注记」；战略「预算未达标的功能
+  不发布」发布语义原文不受扰（重基线系预算随拓扑重分期非放宽
+  换绿，回收承诺在案）】**。
 - **Q-3 opt-z 护栏容差（无需裁定，确认口径）**：承 019 G-4 默认
   ——五行预算行零回退+steady ±10% 容差带；021 判定谱为对照基。
