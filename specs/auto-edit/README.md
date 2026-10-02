@@ -581,6 +581,36 @@ evidence-p024-m4-final-check（tag 素材逐字对账档）。④**v0.1-M4 tag
 已按 (b) 落账收口——供⑮ §10，2026-10-02 用户裁定）。P024-1 账本投影=merge 期项（015-023 先例——work 不碰
 活账本）。
 
+PLAN-025 口径（2026-10-02，工具链=v0.4.2-2603-g1a15c8eee release 组树
+构建[组三树 edit-025/{auto-edit@plan-025-dev base de6cb95,
+auto-lang@1a15c8eee 含 728@69059dfaa+auto-down@895f8d0 detached}；
+判据前核 `auto --version` 纪律延续]）。**供⑮ 消费件（M4 挂账头号
+清偿）**：①**512MB 拒绝位退役**（用户裁 Q-1=(a) 移除——editor_store.at
+拒绝臂/`bench_open_rejected` 标记/「只读(超大拒绝)」标签族退役；
+big 态命令护栏零回退[ReplaceAll/EolConvert 拦截+save 直写——grep 锚
+6+3 处在档]；50MB=唯一分域线）。②**1GB E2E 全链**（T17 组扩容）——
+**T17.5 翻转**（513MB+1B 拒绝形→分页装载成功形）+**T17.9-17.12 新
+增四链**（1GB 装载[loaded_bytes 全量+big 态]/交互活体+帧带[fprobe_n
+前进——占位不冻结下游观测形]/编辑记账[cut 脏标记+关闭确认证实]/
+保存 byte-for-byte[全卷 md5 全等]）+**T18.1 重铸**（readonly 兜底·
+513MB 拒形→零编辑直写往返 byte-for-byte——编码形兜底由 T12.7/T13.4
+承接维持）。**T-00 实勘注记**：编辑器光标键盘[Down/Ctrl+End/字符键]
+autoui_keyboard 不达 code_editor（小文件对照同=普适测试基建限制）；
+查找下一处在分页 100MB 21s 未决（728 查找债下游实测确认——upstream
+回执登记）；014 期大文件实例 UI 硬卡死在 728 未复现（点击/应用级键
+全活）。③**open_1gb 断言化**（budgets 行 armed：判定口径=装载成功
+E2E 断言非时间预算，4.0s 上游谱=记账注记；bench open 档重铸=真内容
+装载锚点族：threshold_50mb 恰界/threshold_50mb_1b 界下 1B 阈界双轨
++boundary_513mb+open_1gb——谱 JSONL 在 results/）。④**检查集变更
+注记**：完成态 **141**（137 + T17.9-12 四新检查；T17.5/T18.1 原位
+翻转不计新）；**判绿口径=≥139 passed / 0 failed**（014 期已知 blocked
+集 T12.6[menubar-sub MCP 失明]+T17.2/17.3/17.4/17.8[大文件实例 UI
+硬卡死]在 728 工具链预期自动复绿——复绿后口径收紧注记随矩阵谱回
+填；轮换 flake 重跑条款[T13.6/T12 BOM 族]沿用）。谱与裁定回执=
+供料档 §10 消费回执节+modules/perf-measurement.md PLAN-025 节+
+editor-store SD（拒绝位退役历史注记+会话现状成文）。P025-1 账本
+投影=merge 期项（015-024 先例——work 不碰活账本）。
+
 注：Plan 451 起 T10「热重载」走 DSL 源路径（reload 工具或 mtime 轮询重读
 app.at 重新提取 actions + generation bump → 视图重建），实测 50/0 全绿。
 OS 用户键位层（`%APPDATA%/auto/keymaps/auto-edit.at`）保持外部文件——那是

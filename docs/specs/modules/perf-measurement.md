@@ -471,7 +471,7 @@ Plan 413 原始缺口：`code_editor (key: t.key)` 动态 key 属性在 a2r 视�
 | 2 | renderer_cold_start | n/a（arch note——683 重设计随形） | budgets row2 |
 | 3 | warm_start | armed PASS（0.0/2.6ms） | warm-20260930-230317 |
 | 4 | open_100mb | armed PASS（863.2ms） | open-20260930-230121 |
-| 5 | open_1gb | **ledger-blocked-with-plan（用户裁 (b)，2026-10-02）**——供⑮ 文件后援分页 rope want 入供料档 §10；512MB 拒绝位活体维持至供⑮ 交付 | budgets row5+供料档 §10 |
+| 5 | open_1gb | **ledger-blocked-with-plan（用户裁 (b)，2026-10-02）**——供⑮ 文件后援分页 rope want 入供料档 §10；512MB 拒绝位活体维持至供⑮ 交付〔**已清偿：同日 PLAN-025 断言化收口——见下节**〕 | budgets row5+供料档 §10 |
 | 6 | type_latency | armed FAIL 维持（P95 95-112ms；725 中位 ~30×——S5 归因） | frame-20261002 四谱 |
 | 7 | scroll_fps | armed FAIL 维持（6.7-8.8fps——S5 域同源） | 同上 |
 | 8 | diff_100mb | armed PASS（窗口形 784.8ms；全量对照 FAIL 保留） | diff-20261001-144526/164312 |
@@ -500,3 +500,34 @@ tag——v0.1-M1/M2/M3 惯例）；素材=evidence-p024-m4-final-check.md（与
 本表逐字对账）；M4 完全收口=帧两行清偿（S5 上游件）后
 〔open_1gb 已按 (b) 落账即收口——ledger-blocked-with-plan，达标待
 供⑮ 交付另件重测〕；L1/L2 线开篇=tag 后另议（战略 §6 顺序）。
+
+### open_1gb 断言化收口（PLAN-025，2026-10-02——供⑮ 消费件）
+
+上游 PLAN-728（文件后援分页 rope，delivered@69059dfaa）交付后同日
+消费兑现——M4 挂账余题清单头号件清偿。**判定口径成文（frozen）**：
+「可打开」=**装载成功 E2E 断言**（装载标记对齐[bench_open_start/
+done]+矩阵 T17.9-12 四链全绿：装载/交互活体+帧带/编辑记账/保存
+byte-for-byte）——**非时间预算，本行无 ≤ 值**；4.0s 上游谱=记账
+注记。**装载锚点族谱**（bench open 档重铸：拒绝位对照档〔truncate
+探针+rejected 断言〕退役→真内容装载锚点族；results/
+open-20261002-174223.jsonl，工具链 v0.4.2-2603-g1a15c8eee release
+记账形态）：
+
+| 档 | 装载 | 墙钟 | 记账 |
+|---|---|---|---|
+| open_1gb | ✓ | **3774.4ms** | 上游 p728 基准 4.0s **带内 ✓** |
+| boundary_513mb | ✓ | 1912.2ms | 原拒绝位边界档（装载成功形） |
+| threshold_50mb（恰界） | ✓ | 204.4ms | 后援臂（≥50MB 探测门） |
+| threshold_50mb_1b | ✓ | 408.7ms | 纯内存臂——阈界双轨行为一致 |
+
+**RSS 记账**：进程 RSS@1GB done=235MB（013 全量物化时代外推
+~1.55GB@200MB 对照——上界契约兑现形）；阈界 RSS 对照=后援臂
+238MB vs 纯内存臂 671MB@50MB（分页内存契约下游实证）。
+**上游谱三线复现**（消费复验面）：装载线 3774.4ms vs 4.0s **带内**；
+即答/保存线=矩阵 E2E 域随行（T17.12 保存谱+byte-for-byte；即答
+可驱动面缺失=T-00 实勘注记——编辑器光标键盘/查找跳驱动限制，见
+供料档 §10 消费回执）。**重判纪元附记**：open_100mb 同谱重判
+median 383.3ms（后援臂承接后 vs 021 L2 判定 863.2ms——~2.25×；
+L2 正式判定锚仍=021 谱）。门退役裁定=(a) 移除（AskUserQuestion
+回执 2026-10-02）；消费反馈两项（查找分页扫描债高优先+014 冻结
+未复现）随供料档 §10 回执登记 upstream。

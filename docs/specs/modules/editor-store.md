@@ -312,8 +312,9 @@ SyncByteMeta 重算→视图重建（big↔normal 往返无残留；ActNew untit
 确认链直呼防御）仍拦截；③`WriteFidelity`（save）**已解禁改道**
 （PLAN-014 T-05，2026-09-25）：big 分支直调上游 `code_editor_save`
 端点（PLAN-701 供①——rope 直写落盘，零全文 VM 往返；护栏时代拦截
-语义退役）。**readonly 外层先行**（超大拒绝/编码错误形拦截落盘不变
-——008/013 兜底语义；空 rope 清写盘防线保持）。字节保真归属（T-04
+语义退役）。**readonly 外层先行**（编码错误形拦截落盘不变——008 兜
+底语义；空 rope 清写盘防线保持；PLAN-025 超大拒绝形退役后唯一形态）。
+字节保真归属（T-04
 探针实证）：端点**裸写 rope 字节**——未编辑内容 LF/CRLF/BOM 三变体
 +50MB 逐字节全等（load_file 装载保真+CRLF 存于 rope；BOM 剥离是
 front ProbeByteMeta 编辑语义、非 rope 行为），50MB save≈46ms（护栏
@@ -323,21 +324,29 @@ text` 读出位随 normal 链保留——原「读出位四→三」预记不成
 记录）。EolConvert 菜单入口在 menubar-sub（MCP 失明=T12.6
 同源已知上游缺——护栏门不可矩阵直驱，门本体在 store 侧成文）。
 
-**超大拒绝位**：**536870912B=512MB**（Q-3 定参；依据=探针 200MB 峰值
-RSS ~1.55GB 实测外推 512MB→~4GB 不可控域+687 锚交叉）。`file_size >
-512MB` → **拒绝装载**（零 rope 分配——pre 形实质优势）：错误形 tab
-（readonly 置位+`ro_reason:"big"`+标题后缀「超大文件-拒绝装载」+
-loaded=true 终结装载链[防 TabActivate 懒装载重触发]）+console 注记
-（含架构阻塞指向）。readonly 必须保留：空 rope+WriteFidelity 无栏=原
-文件被清写盘成 0B（008 T-04 同根拦截面）。状态栏只读标签派生化
-`readonly_label`（编码错误/超大拒绝两形态分立）。1GB 线（战略 §2.1
-预算行）在拒绝位之上=两段式成文：**拒绝位之内 50MB+ 可开（模式态），
-之外拒绝（真分块 IO=上游阻塞，upstream §16）**；分块解码/1GB 可打开
-=非目标（v1 纪律）。
+**超大拒绝位（退役——PLAN-025 T-01，2026-10-02 历史注记）**：原参
+**536870912B=512MB**（013 Q-3 定参；依据=探针 200MB 峰值 RSS ~1.55GB
+实测外推+687 锚交叉）。`file_size > 512MB` → 拒绝装载（错误形 tab
+readonly+`ro_reason:"big"`+标题后缀「超大文件-拒绝装载」+BENCH
+bench_open_rejected 机读标记）——**随上游 728 后援分页 rope 交付
+（delivered@69059dfaa）退役**：用户裁定 (a) 移除（AskUserQuestion
+回执 2026-10-02；728 契约册退役回执 (a) 臂=「内核上界契约+budgets
+open_1gb 断言化重测兜底」；裁定回执链 designs/002+供料档 §10 消费
+回执）。退役后 **50MB 界=唯一分域线**（≥52428800B 判 big→内核后援
+分页臂装载——阈值与内核 `PAGED_LOAD_THRESHOLD` 对齐，双界统一）；
+`ro_reason` 字段保持 "encoding"/"" 两态（"big" 值域随之退役）；
+状态栏 `readonly_label` 只读标签=编码错误单形态。安全语义零回退：
+big 态命令护栏（①②拦截+save 直写）与 readonly 外层先行（编码形）
+原样——门退役≠护栏退役。
 
 **会话恢复兼容**：会话只存 path——重装载即重探（恢复链 big=false，
-RunPendingLoad 探测门统一置位）；拒绝形 tab 的 loaded=true 语义=装载
-链已终结（拒绝），恢复后激活不重触发。
+RunPendingLoad 探测门统一置位）。**>50MB tab 会话语义现状勘定
+（PLAN-025 T-00③/T-04——按现状成文不发明）**：会话 tab 全量入册
+（无大文件排除位——010 懒装载×013 big 态交互实况：tab 结构持久化
+loaded=false/src 恒空，仅激活 tab 首轮装载、其余 TabActivate 懒装
+载）；1GB tab 会话恢复=激活时再装载（728 谱 ~4s 量级，现状可接
+受——不新增排除/预装载语义）；拒绝形 tab loaded=true 终结语义随
+门退役消亡。
 
 **检测器口径**：白名单五件封闭集**零变更**（护栏=前置门，不动读出
 位；探测链走 back file_size，零 `code_editor_text` 新面）。

@@ -349,9 +349,11 @@ _L0_STATES = {
                    "≥50MB 探测门 plain 旁路臂）；禁调优随 rope[673]+分块读"
                    "[687] 交付解除；硬判定（≤1s+滚动不掉帧）待供① 后 L2 "
                    "正式评估"),
-    "open_1gb": ("ledger", "解锁待测→拒绝位实证（PLAN-018 stage open：1GB"
-                 ">512MB 超大拒绝位〔013 Q-3 定参〕——可打开待门放开重测；"
-                 "513MB 边界对照在档）；战略 ledger 态记录"),
+    "open_1gb": ("ledger", "断言化收口（PLAN-025 T-03，2026-10-02：512MB 拒"
+                 "绝位退役〔Q-1 裁定 (a)〕+728 后援分页臂承载——「可打开」="
+                 "装载成功 E2E 断言〔矩阵 T17.9-12+stage open 装载锚点族〕"
+                 "，非时间预算；墙钟谱=记账注记〔上游 p728 基准 4.0s 带外对"
+                 "照〕）"),
     "type_latency": ("blocked-upstream", "内核帧时间戳插桩（T-03 勘无 .at 层"
                      "通道）——供② 排队（docs/upstream/2026-09-m4-perf-"
                      "unblock-supply.md）"),
@@ -1225,16 +1227,9 @@ def stage_bigfile() -> int:
 # SessionSave 与会话恢复链均锚 $APPDATA/auto-edit-session.json，
 # 隔离保护用户真实会话且空目录=「全新启动」纯态（矩阵 T11 先例；
 # 既有 proxy open 链未隔离=观察件 want，非本件面）。
-
-def _probe_fixture(path: Path, total: int) -> float:
-    """拒绝位探针 fixture（truncate 形）：逻辑尺寸达标、内容零填充——
-    拒绝路径仅 file_size 元数据读零内容消费（T-00③ 裁定）；门放开
-    后需真内容重造。"""
-    t0 = time.perf_counter()
-    with open(path, "wb") as f:
-        f.seek(total - 1)
-        f.write(b"\n")
-    return time.perf_counter() - t0
+# PLAN-025 T-03：_probe_fixture（truncate 探针形）随 512MB 拒绝位对照
+# 档退役——真内容装载锚点族统一走 _open_fixture（018 探针注「门放开
+# 后需真内容重造」兑现）。
 
 
 def _open_fixture(path: Path, mb: int) -> float:
@@ -1265,15 +1260,19 @@ def _dump_rows(outfile: Path, head: dict, rows: list[dict]) -> None:
 
 
 def stage_open(runs: int, l2: bool = False) -> int:
-    """PLAN-018 T-03（G-3/AC-03）：open_100mb/open_1gb 锚点档。
+    """PLAN-018 T-03（G-3/AC-03）→ PLAN-025 T-03 重铸：open 锚点档。
 
-    100MB 生成式文本装载墙钟 ×N（首跑弃暖机）+513MB 拒绝位对照
-    +1GB 尝试（>512MB 同门拒绝=战略 ledger 态记录——「可打开」待
-    门放开重测，不硬造假象；013 Q-3 定参 upstream §16）。big 态
-    注记：100MB 必经 fsize≥50MB 探测门（plain 旁路臂）——装载
-    墙钟=big 态语义数字。计时卫生=fixture 生成后沉降窗 5s（016
-    writeback 教训）。退出码 0=锚点齐。PLAN-021 --l2：release 产物
-    零旗标直拉=正式武装判定谱（≤1s 判定生效）。"""
+    100MB 生成式文本装载墙钟 ×N（首跑弃暖机）——018 原样。PLAN-025
+    （2026-10-02，Q-1 裁定 (a) 512MB 拒绝位退役）：原「513MB/1GB
+    truncate 探针+rejected 断言」对照档随门退役翻转——真内容装载锚
+    点族（018 探针注「门放开后需真内容重造」兑现）：threshold_50mb
+    （恰界——后援臂）/threshold_50mb_1b（界下 1B——纯内存臂）阈界双
+    轨 + boundary_513mb（原拒绝位边界档）+ open_1gb（装载墙钟锚点）。
+    判定口径=「可打开」E2E 断言（装载成功=标记对齐，非时间预算）；
+    墙钟谱=记账注记（上游 p728-bench 同机带外对照：1GB 装载 4.0s/
+    保存 657ms 量级）。big 态注记：≥50MB 档必经 fsize 探测门（plain
+    旁路臂）——装载墙钟=big 态语义数字。计时卫生=fixture 生成后沉降
+    窗 5s（016 writeback 教训）。退出码 0=锚点齐+装载族全成。"""
     exe = _auto_exe()
     fp = _fingerprint()
     if runs < 2:
@@ -1316,25 +1315,42 @@ def stage_open(runs: int, l2: bool = False) -> int:
         _log(f"  run{i}{'(暖机弃)' if i == 0 else ''}: open={wall}ms "
              f"mem={rec['mem_loaded'] and rec['mem_loaded'][0] // 1048576}MB")
 
-    for label, mb, note in (("reject_513mb", 513, "拒绝位边界+1B 对照"),
-                            ("open_1gb", 1024, "1GB 尝试——同门拒绝=ledger 态记录")):
+    # PLAN-025 T-03 装载锚点族（真内容——拒绝位对照档退役重铸）：
+    # 阈界双轨（50MB 恰界/界下 1B）+513MB 边界+1GB 锚点。trim=字节级
+    # 修边（truncate——恰界/界下 1B 精确档位）。
+    for label, mb, trim, note in (
+            ("threshold_50mb", 50, 0,
+             "阈界上侧（52428800B 恰界——后援臂）"),
+            ("threshold_50mb_1b", 50, 1,
+             "阈界下侧（52428799B——纯内存臂；双轨等价下游观测）"),
+            ("boundary_513mb", 513, 0,
+             "原拒绝位边界档（门退役装载成功形）"),
+            ("open_1gb", 1024, 0,
+             "1GB 装载墙钟锚点（记账谱——判定=E2E 断言非时间预算）")):
         fxp = FIXTURES / f"open-{label}.txt"
-        gen_s = _probe_fixture(fxp, mb * 1024 * 1024)
-        _log(f"{label} 探针 fixture 生成 {gen_s:.2f}s（truncate 形——拒绝路径"
-             "零内容消费）——沉降窗 2s")
-        time.sleep(2.0)
-        with tempfile.TemporaryDirectory(prefix="bench-p018-appdata-") as ad:
+        gen_s = _open_fixture(fxp, mb)
+        if trim:
+            os.truncate(fxp, mb * 1024 * 1024 - trim)
+        _log(f"{label} fixture 生成 {gen_s:.2f}s（gitignored）——沉降窗 5s"
+             "（writeback 计时卫生，016 教训）")
+        time.sleep(5.0)
+        with tempfile.TemporaryDirectory(prefix="bench-p025-appdata-") as ad:
             r = _spawn_tracked(
                 _spawn_cmd(exe, l2),
                 {"AUTO_BENCH": "1", "AUTO_OPEN_PATH": str(fxp),
                  "APPDATA": ad, "AUTO_PROJECT_DIR": str(PROJECT)},
-                ["bench_open_rejected"],
-                timeout_s=120.0, log_name=f"open-{label}",
-                mem_after=["bench_open_rejected"])
-        rejected = "bench_open_rejected" in r["markers"]
-        rows.append({"id": label, "size_mb": mb, "rejected": rejected,
+                ["bench_open_start", "bench_open_done"],
+                timeout_s=min(_open_timeout_s(mb), 600.0),
+                log_name=f"open-{label}",
+                mem_after=["bench_open_done"])
+        m = r["markers"]
+        ok = "bench_open_start" in m and "bench_open_done" in m
+        wall = round(m["bench_open_done"] - m["bench_open_start"], 1) if ok else None
+        rows.append({"id": label, "size_mb": mb, "loaded": ok,
+                     "open_ms": wall,
+                     "mem_loaded": r["mem"].get("bench_open_done"),
                      "note": note, "log": r["log"]})
-        _log(f"  {label}: rejected={rejected}")
+        _log(f"  {label}: loaded={ok} open={wall}ms")
 
     med = sorted(walls)[len(walls) // 2] if walls else None
     if l2:
@@ -1361,7 +1377,9 @@ def stage_open(runs: int, l2: bool = False) -> int:
                rows)
     bad = [r["id"] for r in rows if r["id"] == "open_100mb"
            and r["open_ms"] is None]
-    bad += [r["id"] for r in rows if "rejected" in r and not r["rejected"]]
+    # PLAN-025 T-03: 装载锚点族判定=「可打开」E2E 断言（装载成功——
+    # 标记对齐）；原「拒绝形未现」门随拒绝位对照档退役。
+    bad += [r["id"] for r in rows if r.get("loaded") is False]
     if bad:
         _log(f"FATAL: 档缺数字/拒绝形未现：{bad}")
         return EXIT_FAIL

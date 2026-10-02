@@ -444,3 +444,39 @@ text` 全量读出改走 doc_snapshot/分段读；S2 视口物化窗口滚动/�
 ④1GB E2E 矩阵（装载/编辑/保存/内存实测谱：auto-lang 侧基准
 `docs/reports/p728-bench.jsonl` 已含四线谱先行）。回执行文按「回执
 方式」节惯例：零改动/最小改动复验解阻后在本节追加清偿回执行。
+
+**消费回执（供⑮——PLAN-025 兑现，2026-10-02）**：669 模式闭环，
+供⑮ 全弧终结——want 登记〔本件 §10，024 期用户裁定 (b)〕→ 内核
+实施〔auto-lang PLAN-728 delivered@69059dfaa：七面能力+阈值 50MB
+定案+基准谱 1GB 装载 4.0s/即答 0.16ms/结构 3.03MB/RSS 17MB/保存
+657ms〕→ 下游消费〔PLAN-025：门退役+1GB E2E+budgets 断言化〕
+三段链成文。分项：
+
+- **①512MB 拒绝位处置=用户裁 (a) 移除**（AskUserQuestion 回执
+  2026-10-02；728 契约册退役回执两案中 (a) 臂——「内核上界契约
+  +下游 budgets open_1gb 断言化重测兜底」）：editor_store.at 拒绝
+  臂整支退役（拒绝分支/BENCH bench_open_rejected/拒绝 console 行
+  /「只读(超大拒绝)」标签族），安全语义由 big 态命令护栏承载
+  （ReplaceAll/EolConvert 拦截+save 直写零回退——grep 锚在档）；
+  50MB 界=唯一分域线（与内核 PAGED_LOAD_THRESHOLD 对齐注记）。
+- **②open_1gb budgets 行 unlock 断言化重测=armed**：「可打开」
+  判定口径成文（装载成功 E2E 断言——矩阵 T17.9-12 四链+bench
+  stage open 装载锚点族全成；非时间预算；4.0s 谱=记账注记）。
+  bench open 档重铸：拒绝位对照档（truncate 探针+rejected 断言）
+  退役→真内容装载锚点族（threshold_50mb 恰界/threshold_50mb_1b
+  界下 1B 阈界双轨+boundary_513mb+open_1gb）。
+- **③适配件面**：`code_editor_text` 全量读出改道/S2 视口物化/
+  fold 面三件=673 延后裁定维持（本件零触碰——矩阵大文件链零
+  `code_editor_text` 白名单口径不变）。
+- **④1GB E2E 矩阵**：T17 组扩容（17.9-17.12 四链冒烟：装载/
+  交互活体+帧带/编辑记账/保存 byte-for-byte——全绿谱见 README
+  PLAN-025 口径+results JSONL）。**消费反馈两项**（下游实勘回传，
+  upstream 余题域）：(a) **查找全文档扫描债确认为高优先**——
+  find 下一处在分页 100MB（release 工具链）21s 未决（728 契约册
+  「帧域协同注记」已知债务位 800ms@50MB debug 的下游实测放大），
+  页级换行索引/行游标缓存=建议上游承接件；(b) **014 期「大文件
+  实例 UI 线程硬卡死」在 728 工具链未复现**（装载/点击/应用级键
+  全活——T17 交互簇 blocked 集预期自动复绿；m1-supply §17 登记
+  形态随本回执更新注记）。MCP 驱动面缺口（编辑器光标键盘/字符
+  键不达 code_editor——小文件对照同，普适测试基建限制非产品缺）
+  =测试域注记，不在上游域。
