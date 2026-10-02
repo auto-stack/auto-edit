@@ -1,10 +1,11 @@
 ---
 plan_id: PLAN-024
-status: reviewed
+status: archived
+completion_kind: delivered
 feature_name: M4-07 收口件（PLAN-725 帧两行重判转绿+open_1gb 裁定落账+NP++ 列条件补齐+M4 四面终检表+v0.1-M4 tag 打点）
 author: [agent]
 created_at: 2026-10-02T14:03:15+08:00
-updated_at: 2026-10-02T15:55:00+08:00
+updated_at: 2026-10-02T16:05:00+08:00
 plan_revision: 1
 current_step: 6
 total_steps: 6
@@ -314,6 +315,26 @@ SD-01..03（+条件 SD-04）落档+specs.json P024-1（015-023 外科
   （merge 期=P024-1 活账本插入〔材料+彩排在档〕+v0.1-M4 tag 打点
   〔素材逐字对账在档；023 已录口径「帧两行不阻 tag+里程碑标记≠
   发布」备料——merge 前用户改裁窗口保留〕）。
+
+- 2026-10-02 merge 收据（r1——PLAN-024:0d35b5d 归档）：**prepared**
+  =review 基线 main@266b227/工作树 plan-024-dev@ab67b5a〔base
+  957686f；五笔 db58f20/7ccb584/312ae85/a2727ec/ab67b5a；canonical
+  Spec diff=SD-01..04 四目标（docs/specs/modules/perf-measurement.md+
+  docs/specs/00-overview.md+specs/auto-edit/README.md+docs/upstream/
+  2026-09-m4-perf-unblock-supply.md §10）+投影目标=reviews 段 P024-1
+  25→26；SD-03/SD-04 落 docs/specs/ 之外知识库=在录 reviewed 先例
+  〔specs/auto-edit README=020/022/023 三连；上游供料档=018/021/022/
+  023 四连——本件沿例登记〕〕。**landed**=rebase main 零冲突〔range-
+  diff 5 对全=——db58f20→6fe7ba6/7ccb584→ca7774e/312ae85→ec5bb29/
+  a2727ec→86c4d54/ab67b5a→0d35b5d 安全重写证明〕+ff-only 零合并
+  提交+main tip=**0d35b5d**〔18 文件 397+14-；main 烟测三绿=check 门
+  2579≥1588+canonical 四 SD 锚点+账本可解析〕。**ledger_refreshed**
+  =本条 P024-1 外科插入 25→26〔worktree 0079174 笔+ff 递进——
+  roundtrip 守卫=json.loads 新旧深等〔他五段+前缀 25 项零扰动〕+
+  插入项逐字回读——015-023 九连先例；main 回读 26 项末位 P024-1
+  验真；投影专属后代不触实现/依赖——delivery_commit=0079174〕。
+  **archived**=本行〔git mv→archived/+status: archived+
+  completion_kind: delivered〕。cleaned=随清理检查点后续落账。
 
 ## 10. 待澄清事项
 
