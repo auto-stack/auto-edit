@@ -134,7 +134,7 @@ ts-on 记录档构建通道断；ts-off 默认臂早退零扰）。修复 commit
 （注入 (0,msg)/幂等二遍 (0,msg)/ts-off 早退）+py_compile 绿。全链
 ts-on 实录不重跑（022 在档 51,457,024B——非目标判定域）。
 
-## ⑥ T-04 工具链轨五行锚点复跑（v2546 工具链——裁定无关独立证据，
+## ⑤ T-04 工具链轨五行锚点复跑（v2546 工具链——裁定无关独立证据，
 先于 T-02 落地：L2 判定面与 portable 手段集设计不敏感〔probe_surface
 header 勘定语义〕，对三路裁定均有效）
 
@@ -155,7 +155,7 @@ JSONL：steady-20261002-100425/warm-20261002-100436/open-20261002-
 产物面（probe_surface 三行+烟测四段）=终态手段集 exe 依赖——T-02
 裁定后件（dist/portable 现存 abort 记录档产物，非终态形）。
 
-## ⑤ 附：主检出预检记录（入场）
+## ⑥ 附：主检出预检记录（入场）
 
 - `specs/stylekit/pac.at`+`specs/stylekit/src/front/styles.at` 删除态
   （43 行）+`tools/compare/results/table.md` 行尾幻影 M（零内容 diff
