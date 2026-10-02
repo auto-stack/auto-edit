@@ -540,8 +540,8 @@ auto-lang@986e765ac+auto-down@895f8d0 detached}——组结构=构建
 load-bearing：生成 ws 根 auto-lang.path 直指组 sibling]）。**M4-06
 installer 收口件（判定终态）**：①**门重基线（用户裁定）**——
 installer ≤15MB→**≤50MB**、idle_mem ≤60MB→**≤150MB**（渲染暖态）
-：独立渲染期过渡口径，RQHost 渲染拓扑落地后回归严格门（≤15MB+
-≤10MB 级；战略 §2.1 追记在案）；②**判定终态 armed PASS**——终态
+：独立渲染期过渡口径，RQHost 渲染拓扑落地后回归严格门（≤20MB+
+≤10MB 级——同日精调 15→20，双已知路径；战略 §2.1 追记在案）；②**判定终态 armed PASS**——终态
 手段集 **V2b 维持**（lto=fat+cgu1+strip+tokio 子集；opt-level=3 保
 性能+panic=unwind 保 17 处 catch_unwind 兜底）30,403,072B ≤ 50MB
 （余量 22.0MB）；三代谱 V2b/opt-z -8.2MB/abort -7.76MB〔abort 因

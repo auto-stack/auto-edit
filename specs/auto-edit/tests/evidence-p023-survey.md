@@ -161,13 +161,22 @@ JSONL：steady-20261002-100425/warm-20261002-100436/open-20261002-
   裁定）自主会话未获应答→blocked handoff；用户随后在对话中提出
   **门重基线**提议，第二轮问询定案：**installer ≤15MB→≤50MB、
   idle_mem ≤60MB→≤150MB（渲染暖态语义）——独立渲染期（iced+wgpu）
-  过渡口径，RQHost 渲染拓扑落地后回归严格门（≤15MB+≤10MB 级）**；
+  过渡口径，RQHost 渲染拓扑落地后回归严格门（≤20MB+≤10MB 级）**；
   口径采 **50MB+150MB（推荐档）**。Q-1 收口为 **(c) 变体**：手段集
   维持 V2b（opt-level=3 保性能——M4 速度王座语义；panic=unwind 保
   17 处兜底；abort/opt-z 留测量档不启用）。Q-2 消解：installer 行
   重基线门下 **armed PASS**——tag 携带「重基线注记」而非「未达
   注记」。裁定语义=预算随渲染拓扑重分期（非放宽换绿）——战略
   §2.1 追记（PLAN-023）+发布语义原文不受扰。
+- **同日精调（用户追询，2026-10-02）**：RQHost 期 exe 门
+  **15→20MB**（15MB 较难实证——RQHost 单项≈24.8MB〔V2b 30.4−渲染
+  栈 5.6MB .text，维持 opt-level=3〕；RQHost+opt-z≈16.6MB 贴线需
+  再搭字体/HTTP 上游 diet；**20MB=opt-z 或 ~5MB 上游 diet 双已知
+  路径即达**，校准更实）；内存 **≤10MB 级维持**（空窗现测
+  9.1-9.8MB 已贴目标；RQHost 后渲染暖态移出编辑器进程——渲染器
+  host 自身暖态=跨实例摊销独立账）。八面同步（build_portable/
+  budgets 双行/bench/战略 §2.1+追记/SD-01/SD-02/SD-03/本档），
+  残留 grep 零命中。
 - **落地面（双 face 同步——019 F-1 纪律）**：build_portable.py
   `BUDGET_BYTES=50*1024*1024`（注释=裁定出处+RQHost 回收）；
   budgets.json installer/idle_mem 两行（budget+validity+unlock——

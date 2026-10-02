@@ -344,7 +344,7 @@ modules/back-api.md 第 16 端点节（SD-03）+README PLAN-022 口径
 **③门重基线（用户裁定——AskUserQuestion 回执 2026-10-02）**：
 installer ≤15MB→**≤50MB**、idle_mem ≤60MB→**≤150MB**（渲染暖态
 ）——独立渲染期过渡口径，**RQHost 渲染拓扑落地后回归严格门
-（≤15MB+≤10MB 级）**（回收承诺=战略 §2.1 追记在案）；**④判定终态
+（≤20MB+≤10MB 级——同日精调 15→20MB，双已知路径校准）**（回收承诺=战略 §2.1 追记在案）；**④判定终态
 =armed PASS**（V2b 维持：opt-level=3 保性能+panic=unwind 保兜底
 ——30,403,072B ≤ 50MB 余量 22.0MB；ts-off=发布形默认）；**⑤护栏
 零回退**（工具链轨五行 v2546 复跑全绿——steady 17.8ms/open

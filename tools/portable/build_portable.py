@@ -60,7 +60,7 @@ DIST = ROOT / "dist" / "portable"
 
 # 战略 §2.1 installer 行——PLAN-023 用户重基线（2026-10-02 AskUserQuestion
 # 回执：独立渲染期〔iced+wgpu 栈在 exe 内〕≤50MB；RQHost 渲染拓扑落地后
-# 回归 ≤15MB 严格门——渲染栈移出编辑器 exe 语义。原 ≤15MB 时代下游手段
+# 回归 ≤20MB 严格门（2026-10-02 同日精调：15MB 经实测较难——RQHost+opt-z 实测路径 16.6MB 贴线，20MB=两条已知路径即达）——渲染栈移出编辑器 exe 语义。原 ≤15MB 时代下游手段
 # 天花板=组合 16.5~16.8MB〔evidence-p023-survey §①三谱实证〕，缺口大头
 # 全在上游域）。
 BUDGET_BYTES = 50 * 1024 * 1024

@@ -363,7 +363,7 @@ _L0_STATES = {
     "idle_mem": ("ledger", "L0 采样记账不阻塞；锚点在档（PLAN-018 stage "
                  "warm：空窗/20tab 两形态采样）；预算断言 M4 收口"),
     "installer": ("ledger", "Q3 裁定+019 数字在档；PLAN-023 收口（2026-10-02 "
-                  "用户重基线——独立渲染期 ≤50MB/RQHost 后回归 ≤15MB）：V2b "
+                  "用户重基线——独立渲染期 ≤50MB/RQHost 后回归 ≤20MB）：V2b "
                   "终态手段集 30,403,072B armed PASS（余量 22.0MB；abort 因 "
                   "catch_unwind×17 冲突面出局——evidence-p023-survey §③）；"
                   "构建通道 tools/portable/build_portable.py）——≤50MB 判定 "
