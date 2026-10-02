@@ -619,6 +619,35 @@ E2E 断言非时间预算，4.0s 上游谱=记账注记；bench open 档重铸=�
 editor-store SD（拒绝位退役历史注记+会话现状成文）。P025-1 账本
 投影=merge 期项（015-024 先例——work 不碰活账本）。
 
+PLAN-026 口径（2026-10-03，工具链=v0.4.2-2640-gcb2da5fba release
+组树构建[组三树 edit-026/{auto-edit@plan-026-dev base 08685d6,
+auto-lang@cb2da5fba 含 731@30bda6831+733@550895b68+auto-down@895f8d0
+detached}；判据前核 `auto --version` 纪律延续；autodown-core 组
+sibling 解析 load-bearing 维持]）。**M4 完全体收口件=731 消费帧两
+行终判（Q-2 双态如实臂：重判收口态）**：①**重判前置四门全绿**——
+工具链核哈希 clean+**731 上游谱带内复验**（组树 ladder.py 处方复
+跑：1mb s5 P50 0.37/0.35/0.33ms+泵率 1.95/0.41/2.14 vs 回执
+0.36/0.42/0.34+1.46/0.41/1.69 三线全带内——复验谱 tests/
+evidence-p026-upstream-reverify.jsonl；100kb/typenl 相位 MCP 中途
+拒连瞬态注记）+**帧档 frozen 断言**（stage_frame 区域 f183f53→
+08685d6 逐字节全等——判定口径/驱动协议/面板读回零改动）。②**终
+判 FAIL 维持**（bench frame 档 N=4 全有效：type P50 71-78ms/P95
+156-160ms vs ≤16.7ms+scroll 8.1-9.5fps vs ≥54——谱 JSONL×4 入仓；
+三代谱系 022 110/115→024 95-112/6.7-8.8→026 156-160/8.1-9.5 不
+删）。③**归因换代**（evidence-p026-frame-rejudge）——S5 增量化
+下游生效实证（024 段外 ~108ms 消散→s5 三子段 0.1-0.2ms；突发重
+建退位单帧单建 segsum ~2ms 帧工作面全绿余量 ~8×）+红面换代=帧泵
+呈现交付通道（__frame_pump 消费滞后/合并 paired ~11%→fprobe_
+present 读回=泵消费时刻陈旧度；scroll 交付率实测——上游域余题
+第二段回执）。④**对比表滚动行三代并陈**（022/024/026——anchors
+--verify 11 行+render --check 双绿；FAIL 谱历史不删 024 先例）。
+⑤budgets 两行 026 代注记+发布门维持不解锁（战略 §2.1 如实执行）
+。⑥**v0.1-M4.2 tag 记录位**——打点=本件 merge 收据（五检查点后；
+Q-1 默认命名；素材 evidence-p026-m4-closeout 与十行终态逐字对账
+；语义=重判收口非十行全绿）。P026-1 账本投影=merge 期项（015-025
+先例——work 不碰活账本）。规范详 modules/perf-measurement.md
+PLAN-026 终判节（SD-01）+00-overview M4 完全体收口件注记（SD-02）。
+
 注：Plan 451 起 T10「热重载」走 DSL 源路径（reload 工具或 mtime 轮询重读
 app.at 重新提取 actions + generation bump → 视图重建），实测 50/0 全绿。
 OS 用户键位层（`%APPDATA%/auto/keymaps/auto-edit.at`）保持外部文件——那是
@@ -696,7 +725,7 @@ menubar {
 | 打开 5 MB | 各对象 t_ready（语义列同左口径） | 4,289.1 ms（N=4，4,256.3–4,340.8） | 296.0 ms（N=4，272.6–310.0） | pending（未装——Q-1） | —（diff 对象不适用） | —（无同档在档谱） |
 | 打开 100 MB | VS Code=RSS 物化；Zed=首帧（rope 惰性）；本仓=全量装载 | 4,677.7 ms（N=4，4,621.4–4,718.5） | 295.6 ms（N=4，275.4–310.3） | pending（未装——Q-1） | —（diff 对象不适用） | **841.0 ms**〔锚点·VM 形态——非 L2〕；38.2 ms〔产物面·last-good 基面——非 L2〕；**863.2 ms**〔**L2 直拉判定·armed PASS——硬门禁正式判定绿**——N=4，862.7–889.5〕 |
 | diff 100 MB（文件对） | BC=report 产出；本仓=diff 端点全链墙钟 （022 起=窗口形判定，全量对照在档） | —（未测） | —（未测） | — | 123,279.8 ms（N=4，119,849.6–126,246.9） | **1,906.0 ms**〔release 全链判定先例（016，仅限 diff）〕；5,183.2 ms〔**L2 直拉判定·armed FAIL（记录性）——归因随行**——N=3，4,985.8–5,412.4〕；**784.8 ms**〔**L2 直拉判定·armed PASS——硬门禁正式判定绿**——N=4，756.6–928.8〕 |
-| 滚动帧率 | 各对象=编辑器滚动帧率（语义随行：本仓=present 频率采样，面板率×0.9 判据——PLAN-022 协议在档） | pending（未测——020 Q-2 捕获自动化双缺陷） | pending（未测——020 Q-2 同） | pending（未装——Q-1） | —（diff 对象不适用） | 8.0 fps〔**L2 直拉判定·armed FAIL（首基线锚点）——归因随行**——窗 2,995 ms vs 阈 54.0〕；7.0 fps〔**L2 直拉判定·armed FAIL（首基线锚点）——归因随行**——窗 2,840 ms vs 阈 54.0〕 |
+| 滚动帧率 | 各对象=编辑器滚动帧率（语义随行：本仓=present 频率采样，面板率×0.9 判据——PLAN-022 协议在档） | pending（未测——020 Q-2 捕获自动化双缺陷） | pending（未测——020 Q-2 同） | pending（未装——Q-1） | —（diff 对象不适用） | 8.0 fps〔**L2 直拉判定·armed FAIL（首基线锚点）——归因随行**——窗 2,995 ms vs 阈 54.0〕；7.0 fps〔**L2 直拉判定·armed FAIL（首基线锚点）——归因随行**——窗 2,840 ms vs 阈 54.0〕；9.5 fps〔**L2 直拉判定·armed FAIL（首基线锚点）——归因随行**——窗 3,042 ms vs 阈 54.0〕 |
 
-Notepad++ 缺位=安装属用户面（PLAN-020 §10 Q-1），装后 harness 补跑即得列（通道与 VS Code 同形）。**M4 收口口径（PLAN-024 Q-3 默认）**：竞品列完整性=对比表后续补列域，**非里程碑判定门——v0.1-M4 tag 不等待 NP++**（三家竞品实数已足表位成立；2026-10-02 探测四路全空=未装在案）。**我方 L2 正式列=PLAN-021 直拉判定谱**（steady/open——armed 判定随格；diff 行=PLAN-022 窗口形清偿重判 PASS+021 全量形 FAIL 对照并陈；scroll 行=PLAN-022 首判 FAIL+PLAN-024 重判 FAIL 并陈——725 帧管线增量后同机复判，中位改善而 S5 残差[layout/shaping/draw]维持红，归因回执在档；未入表行 warm/idle 判定谱=budgets.json validity）。锚点/产物面数字不冒领（018 分层纪律表内延伸）。发布动作（对外宣传/链接分发）=数字齐后另行；本节=战略 §5 指定表位。
+Notepad++ 缺位=安装属用户面（PLAN-020 §10 Q-1），装后 harness 补跑即得列（通道与 VS Code 同形）。**M4 收口口径（PLAN-024 Q-3 默认）**：竞品列完整性=对比表后续补列域，**非里程碑判定门——v0.1-M4 tag 不等待 NP++**（三家竞品实数已足表位成立；2026-10-02 探测四路全空=未装在案）。**我方 L2 正式列=PLAN-021 直拉判定谱**（steady/open——armed 判定随格；diff 行=PLAN-022 窗口形清偿重判 PASS+021 全量形 FAIL 对照并陈；scroll 行=PLAN-022 首判 FAIL+PLAN-024 重判 FAIL+PLAN-026 终判 FAIL **三代并陈**——026 归因换代：S5 整形域清偿（024 段外 ~108ms 消散）后的帧泵呈现交付节奏〔上游域余题第二段〕，FAIL 谱历史不删（024 先例），归因回执在档；未入表行 warm/idle 判定谱=budgets.json validity）。锚点/产物面数字不冒领（018 分层纪律表内延伸）。发布动作（对外宣传/链接分发）=数字齐后另行；本节=战略 §5 指定表位。
 <!-- COMPARE-TABLE:END -->

@@ -128,6 +128,18 @@
       "verdict": "fail",
       "source": "tools\\bench\\results\\frame-20261002-141631.jsonl",
       "note": "PLAN-024 T-01 重判（725 帧管线增量交付[d7e48e8b5]后同机复判，release 工具链 v0.4.2-2579-gb385534d7，N=4 有效谱）：终跑谱 7.04fps vs ≥54.0 → FAIL 维持——四谱带 6.7/7.0/7.5/8.8fps 与 022 首判 8.0fps 同带（滚动帧 begin→begin ~108ms/帧：视口推进→新暴露行整形=S5 域主导，725 增量管线对该域零效果=预期内；type_latency 中位 1-4ms 大幅改善而尾部帧段外 ~110ms 同域——归因回执 evidence-p024-frame-rejudge.md）；下界测量口径不变；S5 增量化=auto-lang 余题"
+    },
+    {
+      "state": "l2",
+      "metric": "scroll_fps",
+      "median_ms": 9.53,
+      "unit": "fps",
+      "runs_ms": null,
+      "window_ms": 3042,
+      "budget": 54.0,
+      "verdict": "fail",
+      "source": "tools\\bench\\results\\frame-20261003-004030.jsonl",
+      "note": "PLAN-026 T-01 终判（731 S5 帧尾段增量化交付[30bda6831]后同机下游重判，release 工具链 v0.4.2-2640-gcb2da5fba，N=4 全有效谱）：终跑谱 9.53fps vs ≥54.0 → FAIL 维持——四谱带 8.1/8.4/8.8/9.5fps 三代同带（022 8.0/024 6.7-8.8/026 8.1-9.5）；归因换代=S5 整形域清偿后的帧泵呈现交付节奏（024 ~108ms/帧整形节奏消散→s5 子段 0.1-0.2ms——帧工作面全绿实证；`__frame_pump` 消费滞后/合并→交付率实测 8-9.5fps 双读法 FAIL 稳健）——呈现交付节奏+判定通道语义适配=上游域余题第二段（归因回执 evidence-p026-frame-rejudge.md）；下界测量口径不变；Q-2 双态如实臂=发布门不解锁"
     }
   ]
 }

@@ -53,6 +53,10 @@ SRC_FRAME_022 = Path("tools/bench/results/frame-20261001-230957.jsonl")
 # PLAN-024 帧两行重判谱（725 帧管线增量交付后同机复判——armed FAIL
 # 维持；终跑谱=行值源，N=4 有效谱带随行注记）
 SRC_FRAME_024 = Path("tools/bench/results/frame-20261002-141631.jsonl")
+# PLAN-026 帧两行终判谱（731 S5 帧尾段增量化交付后同机下游重判——
+# armed FAIL 维持（泵呈现交付通道归因）；终跑谱=行值源，N=4 全有效
+# 谱带随行注记）
+SRC_FRAME_026 = Path("tools/bench/results/frame-20261003-004030.jsonl")
 
 
 def _rows(rel: Path) -> list[dict]:
@@ -88,6 +92,9 @@ def extract() -> dict:
     # PLAN-024 帧两行重判直读（725 管线增量后同机复判——FAIL 维持）
     frame24 = _rows(SRC_FRAME_024)
     sf24 = next(r for r in frame24 if r.get("id") == "scroll_fps")
+    # PLAN-026 帧两行终判直读（731 S5 增量化后同机下游重判——FAIL 维持）
+    frame26 = _rows(SRC_FRAME_026)
+    sf26 = next(r for r in frame26 if r.get("id") == "scroll_fps")
     return {
         "schema": "p020-our-anchors/1",
         "generated": "tools/compare/anchors.py 直读（零重算——AC-04 逐字对照）",
@@ -182,6 +189,24 @@ def extract() -> dict:
                      "1-4ms 大幅改善而尾部帧段外 ~110ms 同域——"
                      "归因回执 evidence-p024-frame-rejudge.md）；"
                      "下界测量口径不变；S5 增量化=auto-lang 余题"},
+            {"state": "l2", "metric": "scroll_fps",
+             "median_ms": sf26["fps"], "unit": "fps",
+             "runs_ms": None, "window_ms": sf26.get("window_ms"),
+             "budget": sf26.get("threshold"),
+             "verdict": "fail", "source": str(SRC_FRAME_026),
+             "note": "PLAN-026 T-01 终判（731 S5 帧尾段增量化交付"
+                     "[30bda6831]后同机下游重判，release 工具链 "
+                     "v0.4.2-2640-gcb2da5fba，N=4 全有效谱）：终跑谱 "
+                     f"{sf26['fps']}fps vs ≥{sf26['threshold']} → "
+                     "FAIL 维持——四谱带 8.1/8.4/8.8/9.5fps 三代同带"
+                     "（022 8.0/024 6.7-8.8/026 8.1-9.5）；归因换代="
+                     "S5 整形域清偿后的帧泵呈现交付节奏（024 ~108ms/"
+                     "帧整形节奏消散→s5 子段 0.1-0.2ms——帧工作面全绿"
+                     "实证；`__frame_pump` 消费滞后/合并→交付率实测 "
+                     "8-9.5fps 双读法 FAIL 稳健）——呈现交付节奏+判定"
+                     "通道语义适配=上游域余题第二段（归因回执 "
+                     "evidence-p026-frame-rejudge.md）；下界测量口径"
+                     "不变；Q-2 双态如实臂=发布门不解锁"},
         ],
     }
 
