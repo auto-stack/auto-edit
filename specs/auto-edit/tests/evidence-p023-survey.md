@@ -134,6 +134,27 @@ ts-on 记录档构建通道断；ts-off 默认臂早退零扰）。修复 commit
 （注入 (0,msg)/幂等二遍 (0,msg)/ts-off 早退）+py_compile 绿。全链
 ts-on 实录不重跑（022 在档 51,457,024B——非目标判定域）。
 
+## ⑥ T-04 工具链轨五行锚点复跑（v2546 工具链——裁定无关独立证据，
+先于 T-02 落地：L2 判定面与 portable 手段集设计不敏感〔probe_surface
+header 勘定语义〕，对三路裁定均有效）
+
+L2 直拉标准链：perf.py a2r（14s——生成器缓存绿）→release（3m47s
+pristine 无补丁基面——与 portable 补丁面分离纪律）→bench --l2 五行。
+JSONL：steady-20261002-100425/warm-20261002-100436/open-20261002-
+100505（首谱）+100637（复跑谱）/diff-20261002-100551。
+
+| 行 | 现势谱（v0.4.2-2546-g986e765ac） | 021/022 对照基 | 判定 |
+|---|---|---|---|
+| steady_start | mean 17.8ms（median 17.0） | 021: 15.6ms | **armed PASS**（≤80；+2.2ms 工具链代漂注记——预算余量 4.5×） |
+| warm_start 净段 | 2.6ms（全链 40.0ms；active 1130.6ms；Δmem 257MB） | 021: 0.0ms（2ms 轮询粒度带） | **armed PASS**（≤120） |
+| open_100mb | median 865.8ms（4 跑 863.6-866.1 紧带） | 021: 863.2ms | **armed PASS**（≤1s——同带 ±0.3%；**首谱 1467.5ms〔open-100505〕=三连 release 构建余压机器态噪声——复跑如实显影，重试理由=瞬态条件改变，022 diff 784.8/1261.1 波动带同族先例**） |
+| idle_mem | 9.1MB（空窗工作集 9,527,296B） | 021: 9.7MB | **armed PASS**（≤60） |
+| diff_100mb 窗口形 | median 635.0ms（over_size 18.6/over_lines 84.7 全绿） | 022: 784.8/1261.1ms | **armed PASS**（≤2s——022 双谱带内偏好）；full-ref 对照档 5254.0ms（021 FAIL 5183.2ms 同形互证——数字在档不删） |
+| open_1gb/513mb | rejected=True ×2 | 021 同形 | 拒绝位复证——**装载探测兜底链（③-a load-bearing 点）在 unwind 态活体功能正常** |
+
+产物面（probe_surface 三行+烟测四段）=终态手段集 exe 依赖——T-02
+裁定后件（dist/portable 现存 abort 记录档产物，非终态形）。
+
 ## ⑤ 附：主检出预检记录（入场）
 
 - `specs/stylekit/pac.at`+`specs/stylekit/src/front/styles.at` 删除态

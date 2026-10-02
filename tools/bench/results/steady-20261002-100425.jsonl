@@ -1,0 +1,6 @@
+{"type": "steady_decomp", "toolchain": {"auto_path": "D:/autostack/.wt/edit-023/auto-lang/target/debug/auto.exe", "auto_version": "auto 0.1.0+v0.4.2-2546-g986e765ac", "auto_mtime": "2026-10-02T09:15", "psutil": true, "project": "D:\\autostack\\.wt\\edit-023\\auto-edit\\specs\\auto-edit", "os": "win32"}, "form": "l2-direct", "toolchain_note": "L2 直拉形态（PLAN-021：a2r release 零旗标——武装判定谱）"}
+{"run": 0, "warmup": true, "spawn_to_vm_init_ms": 144.1, "vm_init_to_ws_loaded_ms": 12.7, "steady_start_ms": 156.9, "mem_idle": [10584064, "psutil.Process.rss"]}
+{"run": 1, "warmup": false, "spawn_to_vm_init_ms": 9.3, "vm_init_to_ws_loaded_ms": 10.3, "steady_start_ms": 19.6, "mem_idle": [9613312, "psutil.Process.rss"]}
+{"run": 2, "warmup": false, "spawn_to_vm_init_ms": 9.2, "vm_init_to_ws_loaded_ms": 7.6, "steady_start_ms": 16.8, "mem_idle": [9592832, "psutil.Process.rss"]}
+{"run": 3, "warmup": false, "spawn_to_vm_init_ms": 9.4, "vm_init_to_ws_loaded_ms": 7.6, "steady_start_ms": 17.0, "mem_idle": [9580544, "psutil.Process.rss"]}
+{"id": "steady_summary", "runs_ms": [19.6, 16.8, 17.0], "mean_ms": 17.8, "median_ms": 17.0, "budget_ms": 80.0, "verdict": "pass（L2 直拉形态武装判定：mean ≤80ms 预算行内——硬门禁正式判定绿）", "segments_mean_ms": {"spawn_to_vm_init": 9.3, "vm_init_to_ws_loaded": 8.5}, "note": "分解=进程起（host spawn）→逻辑 init（bench_vm_init）→workspace（bench_ws_loaded）；首帧段=勘无通道（供② 排队）；2ms 轮询粒度"}
