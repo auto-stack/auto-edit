@@ -384,6 +384,18 @@
           ],
           "superseded_by": null,
           "content": "- merge 五检查点（r1）：prepared=review 基线 main@9a06d7f/工作树 plan-025-dev@3917eb1〔base de6cb95；三笔 da300f2→adf8225/e022d4d→54b99f5/3917eb1→61f7bff——range-diff 3 对全=安全重写证明〕；landed=ff-only 零合并提交+main tip=61f7bff〔13 文件 737+/220-；main 烟测绿=probe_p025_consume 100MB 装载 0.01s/big 态/保存 0.31s 活体〔编辑器键盘驱动限制=落地前同状非回归；字节往返权威面=矩阵 T17.12 两连绿〕+五 SD 锚点 main 在档〕；ledger_refreshed=本条 P025-1 外科插入 26→27〔roundtrip 守卫=json.loads 新旧深等〔他五段+reviews 前缀 26 项零扰动〕+插入项逐字回读——015-024 十连先例；通道=git 跟踪文件 .autoos/specs.json 经 worktree+Git〕；SD 越界目标先例=specs/auto-edit/README.md[024 SD-03]+docs/upstream 供料档[024 SD-04/de6cb95]——recorded reviewed precedent 在档；archived/cleaned=随归档/清理检查点后续落账。"
+        },
+        {
+          "id": "P026-1",
+          "section": "reviews",
+          "status": "stable",
+          "title": "PLAN-026 — M4 完全体收口件 merge 收据（work handoff pass@r1 185f206 ff-landed 同哈希：731 消费帧两行终判 FAIL 维持〔P95 156-160ms/scroll 8.1-9.5fps——三代谱系 022/024/026 不删〕+归因换代〔S5 增量化下游生效实证——024 段外 ~108ms 消散→s5 三子段 0.1-0.2ms+红面=帧泵呈现交付通道+判定通道语义适配=上游域余题第二段〕+十行 as-is 态〔8 PASS+2 FAIL+renderer n/a〕+发布门不解锁〔Q-2 双态如实臂——战略 §2.1 如实执行〕+v0.1-M4.2 tag 素材〔重判收口语义——Q-1 默认命名〕+SD-01..03）",
+          "file": "docs/plans/archived/026-m4-full-closeout.md",
+          "related": [
+            "PLAN-026"
+          ],
+          "superseded_by": null,
+          "content": "- merge 五检查点（r1）：prepared=review 基线 main@08685d6/工作树 plan-026-dev@185f206〔base 08685d6；两笔 0b74750 T-00+T-01/185f206 T-02..T-05——零 .at diff 纯判定/文档/tag 面；依赖钉版 auto-lang@cb2da5fba detached[731@30bda6831+733@550895b68 祖先链]+auto-down@895f8d0 detached；SD 越界目标先例=specs/auto-edit/README.md[024 SD-03/025 SD-04]——recorded reviewed precedent 在档〕；landed=ff-only 零合并提交+main tip=185f206〔15 文件 597+/8-；main 烟测绿=budgets 十行 026 纪元在录+anchors --verify 11 行+render --check 双绿+三 SD 锚点在档+帧谱 JSONL×4〕；ledger_refreshed=本条 P026-1 外科插入 27→28〔roundtrip 守卫=json.loads 新旧深等〔他五段+reviews 前缀 27 项零扰动〕+插入项逐字回读——015-025 十一连先例；通道=git 跟踪文件 .autoos/specs.json 经 worktree+Git〕；archived/cleaned=随归档/清理检查点后续落账。"
         }
       ],
       "status": "Empty",
