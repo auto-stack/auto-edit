@@ -4,9 +4,9 @@ status: executing
 feature_name: M4-07 收口件（PLAN-725 帧两行重判转绿+open_1gb 裁定落账+NP++ 列条件补齐+M4 四面终检表+v0.1-M4 tag 打点）
 author: [agent]
 created_at: 2026-10-02T14:03:15+08:00
-updated_at: 2026-10-02T14:45:00+08:00
+updated_at: 2026-10-02T15:20:00+08:00
 plan_revision: 1
-current_step: 5
+current_step: 6
 total_steps: 6
 supersedes_spec_components: []
 new_spec_components:
@@ -222,7 +222,7 @@ SD-01..03（+条件 SD-04）落档+specs.json P024-1（015-023 外科
 |---|---|---|---|---|---|---|
 | 0 | T-00 重判勘定 | — | 本件 §5 T-00 节 | 预期校准+协议复核+NP++ 探测 | AC-01/03 | [x] 勘定记录在档（evidence-p024-frame-rejudge §T-00：725 谱复核〔5KB 11.68→5.30/100KB 24.04→5.83/1MB 126.76→8.07ms——handoff 预告「上游谱不含 S5」在录〕+工具链门绿〔组树 edit-024/auto-lang@b385534d7 release 重建 v0.4.2-2579-gb385534d7 clean——核哈希含 725+bench check 绿〕+协议复核〔022 判定谱头 release 形实证——frozen ① 原样〕+NP++ 四路探测未装） |
 | 1 | T-01 帧两行重判 | T-00 | bench frame 档+budgets+compare | 转绿判定（或归因回执） | AC-01 | [x] 谱+判定+--check 绿（**仍红臂——双态如实**：N=4 有效谱〔+1 无效跑弃用 focus_ok=False 如实〕P95 95-112ms/scroll 6.7-8.8fps FAIL 维持——**725 中位 110→1-4ms ~30× 生效**〔builds=1 全体+段和 ~1.8ms〕；分段归因=段外 ~108ms=**S5 域**〔尾部帧×ce_widget_new 同现+滚动帧 ~108ms/帧节奏——下游 handler 排除〕→S5 增量化=auto-lang 余题回执；budgets 两行重判纪元+对比表滚动行 022/024 并陈〔--verify 10 行+--check 双绿〕@worktree db58f20） |
-| 2 | T-02 open_1gb 落账 | — | §10 Q-1 请示+SD-04 | 裁定两路执行 | AC-02 | [ ] **blocked——Q-1 用户裁定未应答**（2026-10-02 AskUserQuestion 已发无应答；两案材料齐〔designs/002+023 双复证〕；unblock=用户裁 (a)/(b) 后落账〔(a) 战略行注记+budgets 终态/(b) 供料档 §10 want+ledger-blocked-with-plan〕+SD-04 随裁落档——**无预裁定禁代裁**） |
+| 2 | T-02 open_1gb 落账 | — | §10 Q-1 请示+SD-04 | 裁定两路执行 | AC-02 | [x] 回执+落档在案（**用户裁 (b)「实现完整的标准的文件后援分页 rope」**——AskUserQuestion 回执 2026-10-02：SD-04=供料档 §10 供⑮ want 登记〔完整标准设计七面+验收形+量级≈供① 三类或更大+优先级链尾挂〕+budgets open_1gb 行 **ledger-blocked-with-plan 收口**〔validity 纪元+unlock 指针——不以已登记冒充已达标〕+designs/002 裁定回执+SD-01/02/03 与终检表/tag 素材槽位同步@worktree ab67b5a） |
 | 3 | T-03 NP++ 列 | T-00 | compare harness（条件） | 列转正或终态注记 | AC-03 | [x] 未装臂落档（四路探测全空在案→pending 终态注记+**Q-3 默认口径落表脚注〔列完整性=后续补列域非里程碑判定门——tag 不等待〕**@worktree 7ccb584；harness 通道留待装后即用——未跑零数字不冒领） |
 | 4 | T-04 终检表+tag 素材 | T-01..03 | SD-01..03+README+素材档 | M4 收口快照 | AC-04/05 | [x] 十行对账+素材一致（预算十行终态〔6 PASS+2 FAIL+renderer n/a+open_1gb 待裁——grep 锚逐行溯源〕+四面核销清单〔installer/对比表/语法高亮首批=核销；预算面=帧两行 S5 余题双态如实+过渡门口径注记〕+**v0.1-M4 tag 素材备档**〔message 草稿逐字对账+merge 期打点位注记——023 已录口径「帧两行不阻 tag+里程碑标记≠发布」；Q-1/Q-2 在途随裁回填〕@worktree 312ae85——SD-01/02/03 三册同笔落档） |
 | 5 | T-05 规范+账本 | 全 | SD 落档+specs.json | 收口落账 | AC-06 | [x] P024-1 True+范围断言（SD-01..03 落档随 T-04 笔；**P024-1 材料彩排 True**〔reviews 25→26+roundtrip 守卫〔他五段深等+前缀 25 项零扰动〕+逐字回读——活账本零触碰=015-023 九连先例，**落账=merge 期项**〕；范围断言绿〔.at 零 diff——16 文件全在 SD/证据/谱/生成物惯例位；bench.py+compare.py+strategy 零触碰如实记录〔前者=协议 frozen，后者=Q-1 待裁〕+组双树 clean〕；**SD-04=Q-1 条件件未落待裁**@worktree a2727ec） |
@@ -258,14 +258,33 @@ SD-01..03（+条件 SD-04）落档+specs.json P024-1（015-023 外科
   tag+注记并陈」备料，打点=merge 期，用户可改裁）。next: work
   （Q-1 裁定后续行 T-02→handoff pass→review）。
 
+- 2026-10-02 work handoff 续行（Q-1 裁定落账）：`stage: work`，
+  PLAN-024，plan_revision 1，`outcome: pass`（**六任务全落
+  T-00..T-05，execution_done**）。code_commit: worktree
+  plan-024-dev@**ab67b5a**（base 957686f；五笔=db58f20 T-01/
+  7ccb584 T-03/312ae85 T-04/a2727ec T-05/ab67b5a T-02 裁定落账；
+  worktree 清洁态 0 dirty）。裁定链=**用户裁 Q-1=(b)**（AskUserQuestion
+  回执 2026-10-02 原话「实现完整的标准的文件后援分页 rope」——第一轮
+  请示未应答如实入档，续答后落账）：SD-04 供⑮ want 入供料档 §10
+  （完整标准设计七面——不可变基底+编辑覆盖层+LRU/RSS 上界+异步调入
+  +保存合并+消费方契约+big 态保持/拒绝位退役；设计种子=会话期推演
+  随登）+budgets open_1gb 行 ledger-blocked-with-plan 收口+designs/002
+  回执+SD-01..03/终检表/tag 素材槽位同步。evidence: 同前条全部在档
+  （帧四谱/S5 归因/双检绿/十行终态/P024-1 彩排 True/范围断言——
+  范围面新增 supply-doc §10+designs-002 两文件，均在本件 SD-04 与
+  材料域内）。blockers: 无——Q-2 备料口径在档（023 已录，merge 期
+  可改裁）；Q-3 默认臂已落。`next: review`（→ auto-plan-review；
+  merge 期事项=P024-1 活账本插入+v0.1-M4 tag 打点——素材齐备）。
+
 ## 10. 待澄清事项
 
 - **Q-1 open_1gb 裁定（用户件——T-02 请示）**：(a) 降范围〔战略
   行注记——512MB 拒绝位=独立渲染期形态，1GB=远期流式域〕或 (b)
   登记上游供料〔流式装载 want——M4 以 ledger-blocked-with-plan
   收口〕。材料=designs/002+023 双复证。默认无预裁定——请示后执行。
-  **状态 2026-10-02：AskUserQuestion 已发未应答——T-02 blocked**
-  （唯一余留任务；unblock=用户裁 (a)/(b)，落账+SD-04 半日内可清）。
+  **状态 2026-10-02 终：用户裁 (b)**「实现完整的标准的文件后援分页
+  rope」——供⑮ 入供料档 §10+budgets 行 ledger-blocked-with-plan 收口
+  （T-02 清偿@ab67b5a；首轮请示未应答如实入档，续答落账）。
 - **Q-2 帧两行仍红处置（条件活——仅 T-01 复跑不达时）**：默认=
   新谱分段归因+回 auto-lang 余题（tag 口径随裁：等清偿 or 携注记
   打——023 Q-2 裁定先例[里程碑标记≠发布]可援引）；725 阶梯谱若
