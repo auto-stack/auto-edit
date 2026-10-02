@@ -348,6 +348,18 @@
           ],
           "superseded_by": null,
           "content": "- merge 五检查点（r2）：prepared=reviewed 基线 main@88bdb64/工作树 plan-022-dev@a88ae13f+canonical diff=worktree docs/specs 已提交面〔SD-01..04+README+供料档 §8〕；landed=plan-022-dev rebase main 零冲突〔range-diff 14 提交全等〕+ff-only=main tip 69e6cc9〔零 merge 提交〕+main 烟测三绿〔anchors --verify 9 行全等+render --check 复现一致+probe_diffwin VM 形 8/8〕；archived=docs/plans/archived/022-m4-716-consume.md〔git mv+completion_kind: delivered〕；cleaned=三树注销+wt-guard clean〔待回填格——清理后 plan 尾行补记〕；ledger=本条插入。\n- 判定收口终态（对照表+预算面板）：diff_100mb **armed PASS** 窗口形〔9921 消费——median 784.8/1261.1ms 双谱 ≤2s，021 FAIL 5183.2ms 清偿 4-6.5×；全量对照档不删〕/open_100mb armed PASS 863.2ms/warm armed PASS/steady armed PASS/idle armed PASS/**type_latency armed FAIL**〔P50 110/P95 115ms vs ≤16.7ms→~6.6 帧〕/**scroll_fps armed FAIL**〔8.0fps vs ≥54〕——帧两行首基线锚点〔供② 测量解锁=交付物；debug 对照谱同量级=编译形态无关→键入帧全量重建管线 ~110ms/帧归因，优化=管线优化件后续计划〕。\n- 上游消费闭环：供⑧〔撞号改签 9921+裸名臂——probe 双形 8/8〕/供⑨〔int lane 出口形+handler 双轨臂——值流贯通+a2r regen exit 0〕/供⑪〔registry 解钉——撤钉回执〕全回执；新登记供⑫〔print 拼接 trans 缺口〕/供⑬〔trans 臂 i64→int 直赋 E0308——i64 字段适配〕+语法联动 want〔供料档 §8〕。\n- 范围收口：.at diff=back 窗口端点+front 双门探针臂〔F-1——frozen③ 合规：窗口化仅 back/bench 域，探针=bench 域仪表〕；auto-lang 主树零触碰〔716 修复轮=上游自身件〕；对照表滚动行竞品 pending 维持〔020 Q-2〕；部署观察=零重建项维持〔021 同录〕；批量回归=本仓无机制不适用。\n- findings〔review F-1..F-4〕：F-1 affects finalize+back 最小面 scope-note/F-2 矩阵环境族 4 尝试 0 FAIL 部分深度〔T15 overclaim 更正〕/F-3 撤钉后 ts-on 全构建未重跑〔resolution+check 已证〕/F-4 锚点计数 9 行〔summary 笔误更正〕。"
+        },
+        {
+          "id": "P023-1",
+          "section": "reviews",
+          "status": "stable",
+          "title": "PLAN-023 — M4-06 installer 收口件 merge 收据（reviewed pass @ r1 c0cc3e3[rebase 全等映射 ff-landed d2b8623]：门重基线用户裁定〔独立渲染期 installer ≤50MB+idle_mem ≤150MB 渲染暖态；RQHost 后 ≤20MB/≤10MB 级——同日精调双已知路径校准〕+判定终态 armed PASS 30,403,072B ≤50MB 余量 22.0MB〔exit 0 整链绿+门双态在档〕+三代谱/库存量 R1-R9/catch_unwind×17 冲突面勘定〔abort 出局〕+手段集 V2b 维持+产物双轨零回退+供⑭ TS 插件化 want 登记——AC-01..06 全 pass 独立重构复证）",
+          "file": "docs/plans/archived/023-m4-installer-closeout.md",
+          "related": [
+            "PLAN-023"
+          ],
+          "superseded_by": null,
+          "content": "- merge 五检查点（r1）：prepared=reviewed 基线 main@c159445/工作树 plan-023-dev@c0cc3e3〔base 5dbfd79；八笔 c0b402d..c0cc3e3；blob 冻结五件 fcc60abe/626b7285/2bedf705/193e5b58/5da4870e〕；landed=rebase main 零冲突〔range-diff 8 对全=——c0b402d→cda9081/75d7ca6→0d561c6/0d49e65→d119228/eed88ec→41751ac/ef7189d→bda49de/ad40699→24ff800/b823d28→3e505da/c0cc3e3→d2b8623〕+ff-only 零合并提交+main tip=d2b8623〔21 文件 427+；main 烟测三绿=check 门+canonical 六文件锚点+账本可解析〕；ledger_refreshed=本条 P023-1 外科插入 24→25〔roundtrip 守卫=json.loads 新旧深等〔他五段零扰动+reviews 前缀 24 项零扰动〕+插入项逐字回读——015-022 八连先例〕；用户裁定链=门重基线两轮 AskUserQuestion 回执〔50MB/150MB→精调 20MB/10MB 级〕+供⑭ TS 插件化方向——原文在录 evidence §⑥；判定面=armed PASS〔portable-103531 exit 0+双态 103518 伪红如实注记〕+五行/surface 键值全 MATCH。archived/cleaned=随归档/清理检查点后续落账。"
         }
       ],
       "status": "Empty",
