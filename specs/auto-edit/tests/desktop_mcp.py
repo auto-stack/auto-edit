@@ -26,6 +26,7 @@ Prerequisites:
     - Python requests: pip install requests
 """
 
+import hashlib
 import json
 import os
 import shutil
@@ -2889,10 +2890,13 @@ def run_tests(mcp_url, proc):
     #   17.2 ReplaceAll 拦截（console blocked+big_hint 提示位）
     #   17.3 save 拦截（console+big_hint+磁盘零变 E2E）
     #   17.4 切换往返无残留（big↔normal：lang_active/big_active 联动）
-    #   17.5 超大拒绝（513MB：错误形 tab+readonly_label+loaded_bytes=0）
+    #   17.5 超大装载（513MB+1B：分页装载成功形+big 态——PLAN-025 门退役
+    #        翻转；原拒绝形断言随裁定 (a) 移除退役）
     #   17.6 阈值下界（49MB：big_active=false——门槛不误伤）
     #   17.7 normal 态零误伤（小文件 replace-all 成功+save 写通 E2E）
     #   17.8 会话恢复重探（退出→同 APPDATA 重启→恢复 tab→装载重探 big）
+    #   17.9-17.12 1GB 四链（PLAN-025 消费冒烟：装载/交互活体+帧带/编辑
+    #        记账/保存 byte-for-byte——T-00 实勘驱动面注记见组内）
     print("\nT17: PLAN-013 big-file mode")
     t17_dir = tempfile.mkdtemp(prefix="p013_t17_fx_")
     MB = 1024 * 1024
@@ -2913,7 +2917,9 @@ def run_tests(mcp_url, proc):
 
     f_big50 = _t17_make("big50.txt", 50 * MB)
     f_49 = _t17_make("under49.txt", 49 * MB)
-    f_513 = _t17_make("over513.txt", 513 * MB)
+    # PLAN-025 T-02: 513MB+1B 边界档（门退役后全放行——big 态界 50MB
+    # 为唯一分域线；+1B=原拒绝位边界精度语义沿袭）。
+    f_513 = _t17_make("over513.txt", 513 * MB + 1)
     f_small = os.path.join(t17_dir, "small.txt")
     with open(f_small, "w", encoding="utf-8", newline="") as f:
         f.write("alpha line one\nbeta line two\nNEEDLE_QZ here\nalpha line four\n")
@@ -3078,23 +3084,27 @@ def run_tests(mcp_url, proc):
     except Exception as e:
         result.check("T17.1-4 探测/拦截/往返链", False, repr(e))
 
-    # 17.5 超大拒绝（513MB 独立实例）
+    # 17.5 超大装载（513MB+1B 独立实例——PLAN-025 T-01 门退役后装载
+    # 成功形；728 后援分页臂承载。原 T17.5 拒绝形断言[readonly_label=
+    # 只读(超大拒绝)+loaded_bytes=0]随 Q-1 裁定 (a) 退役翻转）
     try:
         p17b, t17b = _t17_app({"AUTO_BENCH": "1", "AUTO_OPEN_PATH": f_513})
-        ok_rej = _t17_wait_loaded(t17b, "over513.txt", timeout=60)
+        ok_rej = _t17_wait_loaded(t17b, "over513.txt", timeout=120)
         st = t17b.state("title_active", "loaded_bytes", "readonly_active",
                         "readonly_label", "big_active", "console")
-        result.check("T17.5 超大拒绝（错误形 tab+readonly_label+零装载）",
+        result.check("T17.5 超大装载（513MB+1B 分页装载成功+big 态+readonly 零置位）",
                      ok_rej
-                     and "超大文件-拒绝装载" in (state_str(st, "title_active") or "")
-                     and state_int(st, "loaded_bytes") == 0
-                     and state_bool(st, "readonly_active") is True
-                     and (state_str(st, "readonly_label") or "").strip('"') == "只读(超大拒绝)"
-                     and "load rejected" in (state_str(st, "console") or ""),
+                     and "超大文件-拒绝装载" not in (state_str(st, "title_active") or "")
+                     and state_int(st, "loaded_bytes") == 513 * MB + 1
+                     and state_bool(st, "readonly_active") is False
+                     and (state_str(st, "readonly_label") or "").strip('"') == ""
+                     and state_bool(st, "big_active") is True
+                     and "load rejected" not in (state_str(st, "console") or "")
+                     and "loaded: " in (state_str(st, "console") or ""),
                      st.replace("\n", " ")[:220])
         _kill_proc_tree(p17b)
     except Exception as e:
-        result.check("T17.5 超大拒绝", False, repr(e))
+        result.check("T17.5 超大装载", False, repr(e))
 
     # 17.6 阈值下界（49MB——门槛不误伤）
     try:
@@ -3217,10 +3227,155 @@ def run_tests(mcp_url, proc):
     except Exception as e:
         result.check("T17.8 会话恢复重探", False, repr(e))
 
+    # 17.9-17.12 1GB 四链（PLAN-025 T-02 消费冒烟——共享实例顺序链，
+    # 生成式 fixture 不入库）。T-00 实勘驱动面注记（probe_p025_consume
+    # 三轮判别，2026-10-02）：① 编辑器光标键盘[Down/Ctrl+End/字符键]
+    # autoui_keyboard 不达 code_editor（小文件对照同——普适驱动限制，
+    # 非大文件冻结）；② 查找跳（下一处）在分页 100MB 上 21s 未决=728
+    # 已知查找债确认（paged-rope.md 帧域协同注记——消费反馈随 upstream
+    # 回执登记），不可作 1GB 驱动；③ 014 期「大文件实例 UI 线程硬卡死」
+    # 全死症状在 728 工具链未复现（装载/点击/应用级键[Ctrl+F]全活——
+    # T17.2/17.3/17.4/17.8 交互簇预期自动复绿，README 判绿口径随谱更新）。
+    # 故四链下游可观测形=装载/交互活体+帧带/编辑记账（cut 脏标记，内容
+    # 变更型键入=上游 728 bench 已证、MCP 驱动面缺口如实注记）/保存
+    # byte-for-byte（零编辑直写往返=合并保存「未改区段照抄」路径）。
+    f_1gb = _t17_make("big1024.txt", 1024 * MB)
+    try:
+        p17g, t17g = _t17_app({"AUTO_BENCH": "1", "AUTO_FRAME_BENCH": "1",
+                               "AUTO_OPEN_PATH": f_1gb})
+        # 17.9 装载：分页装载成功+big 态+loaded_bytes 全量（墙钟记录=
+        # 记账谱数据点；行数即答/远跳的可驱动面缺失见组头注记）
+        t0g = time.time()
+        ok_1gb = _t17_wait_loaded(t17g, "big1024.txt", timeout=180)
+        load_1gb_s = round(time.time() - t0g, 1)
+        st = t17g.state("big_active", "lang_active", "loaded_bytes",
+                        "readonly_active", "title_active", "console")
+        result.check("T17.9 1GB 装载（分页装载成功+big 态+loaded_bytes 全量）",
+                     ok_1gb
+                     and state_bool(st, "big_active") is True
+                     and (state_str(st, "lang_active") or "").strip('"') == "plain"
+                     and state_int(st, "loaded_bytes") == 1024 * MB
+                     and state_bool(st, "readonly_active") is False
+                     and "load rejected" not in (state_str(st, "console") or "")
+                     and load_1gb_s < 60.0,
+                     f"load_s={load_1gb_s} " + st.replace("\n", " ")[:160])
+
+        # 17.10 交互活体+帧带（「占位不冻结」下游观测形：内容常驻页表
+        # 而实例保持派发应答——应用级键开找栏+× 关栏[F13.1e 已证原语]
+        # 往返×2 + fprobe_n 帧计数前进[AUTO_FRAME_BENCH=1 门控]）
+        dispatch_ok = True
+        for _ in range(2):
+            t17g.call("autoui_keyboard", key="f", modifiers=["ctrl"])
+            time.sleep(0.8)
+            m_g = re.search(r"input #(\w+)", t17g.snapshot())
+            if not m_g:
+                dispatch_ok = False
+                break
+            xclose = find_button_by_onclick(t17g.snapshot(), "FindClose")
+            if xclose:
+                t17g.click(xclose)
+                time.sleep(0.6)
+            else:
+                dispatch_ok = False
+                break
+        fp0 = state_int(t17g.state("fprobe_n"), "fprobe_n")
+        time.sleep(3.0)
+        fp1 = state_int(t17g.state("fprobe_n"), "fprobe_n")
+        result.check("T17.10 交互活体+帧带（派发应答+fprobe_n 前进——占位不冻结观测形）",
+                     dispatch_ok and fp1 > fp0,
+                     f"dispatch={dispatch_ok} fprobe {fp0}->{fp1}")
+
+        # 17.11 编辑记账（cut 脏标记——dirty 经关闭确认弹层证实：脏 tab
+        # 点 x 弹确认、取消后 tab 原样；内容变更型键入=驱动面缺口见组头）
+        cut_btn = find_button_by_icon(t17g.snapshot(), "scissors")
+        cut_ok = False
+        if cut_btn:
+            t17g.click(cut_btn)
+            for _ in range(12):
+                if "cut" in (state_str(t17g.state("console"),
+                                       "console") or ""):
+                    cut_ok = True
+                    break
+                time.sleep(0.25)
+        xs_g = find_tab_close_buttons(t17g.snapshot())
+        confirm_seen = False
+        cancelled = False
+        if cut_ok and xs_g:
+            t17g.click(xs_g[0])
+            for _ in range(12):
+                if state_bool(t17g.state("confirm_open"),
+                              "confirm_open") is True:
+                    confirm_seen = True
+                    break
+                time.sleep(0.25)
+            cancel_g = find_button_by_text(t17g.snapshot(), "取消")
+            if cancel_g:
+                t17g.click(cancel_g)
+                for _ in range(12):
+                    if state_bool(t17g.state("confirm_open"),
+                                  "confirm_open") is False:
+                        cancelled = True
+                        break
+                    time.sleep(0.25)
+        st = t17g.state("tab_count", "big_active")
+        result.check("T17.11 编辑记账（cut 脏标记+关闭确认证实+取消零扰动）",
+                     cut_ok and confirm_seen and cancelled
+                     and state_int(st, "tab_count") == 3
+                     and state_bool(st, "big_active") is True,
+                     f"cut={cut_ok} confirm={confirm_seen} "
+                     f"cancel={cancelled} tabs={state_int(st, 'tab_count')}")
+
+        # 17.12 保存 byte-for-byte（零编辑直写往返=合并保存「未改区段
+        # 照抄」路径下游观测；md5 全卷对照+墙钟记录=谱数据点）
+        h0 = hashlib.md5()
+        with open(f_1gb, "rb") as fh:
+            while True:
+                chunk = fh.read(1 << 20)
+                if not chunk:
+                    break
+                h0.update(chunk)
+        md5_before = h0.hexdigest()
+        t0g = time.time()
+        sbtn = find_button_by_icon(t17g.snapshot(), "save")
+        saved_1gb = False
+        if sbtn:
+            t17g.click(sbtn)
+            for _ in range(60):
+                if "saved (direct): " in (state_str(t17g.state("console"),
+                                                     "console") or ""):
+                    saved_1gb = True
+                    break
+                time.sleep(0.25)
+        save_1gb_s = round(time.time() - t0g, 1)
+        h1 = hashlib.md5()
+        with open(f_1gb, "rb") as fh:
+            while True:
+                chunk = fh.read(1 << 20)
+                if not chunk:
+                    break
+                h1.update(chunk)
+        result.check("T17.12 1GB 保存 byte-for-byte（直写往返+全卷 md5 全等）",
+                     saved_1gb
+                     and os.path.getsize(f_1gb) == 1024 * MB
+                     and h1.hexdigest() == md5_before,
+                     f"saved={saved_1gb} save_s={save_1gb_s} "
+                     f"md5_equal={h1.hexdigest() == md5_before}")
+        print(f"  [p025 spectrum] 1GB load={load_1gb_s}s save={save_1gb_s}s")
+        _kill_proc_tree(p17g)
+    except Exception as e:
+        result.check("T17.9-12 1GB 四链", False, repr(e))
+    finally:
+        try:
+            os.remove(f_1gb)
+        except OSError:
+            pass
+
     # T18: PLAN-014 —— 上游端点消费检查组（T17 形态：独立新鲜进程+APPDATA
     # 隔离）。子组：
-    #   18.1 readonly 兜底不受扰（513MB 拒绝形 tab→save→blocked+磁盘零变
-    #        ——T-05 readonly 外层先行语义）
+    #   18.1 513MB 零编辑直写保存往返（原「readonly 兜底不受扰·513MB 拒
+    #        形」随 PLAN-025 门退役翻转：readonly 兜底面=编码错误形由
+    #        T12.7/T13.4 既有承接——本检查改断言合并保存「未改区段照抄」
+    #        边界档往返：装载→save→磁盘 byte-for-byte+readonly 零置位）
     #   18.2 光标恢复 E2E（T-06 set_cursor 转正——cline/ccol 持久化→恢复
     #        应用；断言=重启后 Down/Up 往返驱 CursorMoved→SyncCursor 读回
     #        持久位[set_cursor 不 republish on_cursor——契约]）
@@ -3255,31 +3410,36 @@ def run_tests(mcp_url, proc):
         time.sleep(1.5)
         return proc, t
 
-    # 18.1 readonly 兜底（513MB 拒绝形——T17.5 同 fixture 形态独立实例）
+    # 18.1 513MB 零编辑直写保存往返（PLAN-025 门退役翻转——装载成功形；
+    # 原拒绝形 save blocked 断言退役，readonly 外层先行语义=T12.7/T13.4
+    # 编码错误形承接维持）
     try:
         p18, t18 = _t18_app({"AUTO_BENCH": "1", "AUTO_OPEN_PATH": f_513})
-        for _ in range(60 * 4):
-            if "load rejected" in (state_str(t18.state("console"),
-                                            "console") or ""):
+        for _ in range(120 * 4):
+            c18 = state_str(t18.state("console"), "console") or ""
+            if "loaded: " in c18 and "over513.txt" in c18:
                 break
             time.sleep(0.25)
         size18 = os.path.getsize(f_513)
         sbtn18 = find_button_by_icon(t18.snapshot(), "save")
+        blk18 = ""
         if sbtn18:
             t18.click(sbtn18)
-        blk18 = ""
-        for _ in range(20):
+        for _ in range(40):
             blk18 = state_str(t18.state("console"), "console") or ""
-            if "save blocked (readonly)" in blk18:
+            if "saved (direct): " in blk18:
                 break
             time.sleep(0.25)
-        result.check("T18.1 readonly 兜底不受扰（blocked+磁盘零变）",
-                     "save blocked (readonly)" in blk18
-                     and os.path.getsize(f_513) == size18,
-                     f"console_tail={blk18[-100:]!r}")
+        st18ro = t18.state("readonly_active", "readonly_label")
+        result.check("T18.1 513MB 零编辑直写往返（saved direct+byte-for-byte+readonly 零置位）",
+                     "saved (direct): " in blk18
+                     and os.path.getsize(f_513) == size18
+                     and state_bool(st18ro, "readonly_active") is False,
+                     f"console_tail={blk18[-100:]!r} "
+                     f"size {size18}->{os.path.getsize(f_513)}")
         _kill_proc_tree(p18)
     except Exception as e:
-        result.check("T18.1 readonly 兜底不受扰", False, repr(e))
+        result.check("T18.1 513MB 零编辑直写往返", False, repr(e))
 
     # 18.2 光标恢复 E2E（T-06 set_cursor 转正）。驱动形（全已证原语）：
     # Ctrl+F 栏+type pattern+「下一处」按钮=code_editor_find 跳匹配

@@ -32,8 +32,9 @@ widget StatusBar {
                 if .store.big_active {
                     text "大文件" { style: status_text }
                 }
-                // PLAN-013 T-01: 只读原因标签派生化（编码错误/超大拒绝
-                // 两形态——readonly_label，SyncByteMeta 重算）。
+                // PLAN-013 T-01: 只读原因标签派生化（编码错误形——
+                // PLAN-025 超大拒绝形退役；readonly_label，SyncByteMeta
+                // 重算）。
                 if .store.readonly_active {
                     text .store.readonly_label { style: status_text }
                 }

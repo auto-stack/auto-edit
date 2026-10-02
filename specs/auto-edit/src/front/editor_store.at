@@ -104,9 +104,9 @@ store EditorStore {
         // 52428800B=50MB，战略 §2.2；装载前探测门置位，见 RunPendingLoad）
         // + 激活 tab 派生标量（SyncByteMeta 重算；状态栏「大文件」标注/
         // 视图 props 条件绑定 [app.at T-02]/矩阵断言面）+ 只读原因标签
-        // （编码错误 vs 超大拒绝两形态分立——拒绝形 readonly 置位必须保
-        // 留：空 rope + WriteFidelity 无栏 = 把原文件清写盘成 0B，008
-        // T-04 同根拦截面）。
+        // （编码错误形——PLAN-025 T-01 超大拒绝位退役后唯一形态；
+        // readonly 置位语义不变：空 rope + WriteFidelity 无栏 = 把原
+        // 文件清写盘成 0B，008 T-04 同根拦截面）。
         var big_active bool = false
         var readonly_label str = ""
         // PLAN-013 T-02: 模式切换链派生标量——激活 tab 的 lang 绑定值
@@ -625,14 +625,12 @@ store EditorStore {
                 }
                 .lang_active = la
                 .big_hint = ""
-                // PLAN-013 T-01: 只读原因标签（编码错误/超大拒绝两形态
-                // 分立——ro_reason 空=既有编码兜底形缺省，向后兼容）。
+                // PLAN-013 T-01: 只读原因标签（编码错误形——PLAN-025 T-01
+                // 超大拒绝位退役后唯一形态；ro_reason "big" 值域随之退役，
+                // 字段保持 "encoding"/"" 两态）。
                 var rl str = ""
                 if .readonly_active {
                     rl = "只读(编码错误)"
-                    if .tabs[.tab].ro_reason == "big" {
-                        rl = "只读(超大拒绝)"
-                    }
                 }
                 .readonly_label = rl
                 var e str = .tabs[.tab].eol
@@ -943,14 +941,16 @@ store EditorStore {
                     // Q-1）。file_size 一次性（envelope JSON——裸 int 过
                     // HTTP=serialize null，T-00 实勘）；负值=缺席/IO（跳过
                     // 模式判定——既有 load_file 错误形承接，零行为差异）。
-                    // 两级：>超大拒绝位（536870912B=512MB，Q-3 定参）→
-                    // 拒绝装载（零 rope 分配——拒绝先于装载是 pre 形的实
-                    // 质优势）；≥模式阈值（52428800B=50MB，战略 §2.2）→
-                    // big 置位先于 load_file——装载完成渲染时 lang/wrap
-                    // props 已按模式态走（apply_config 热应用+同 handler
-                    // 原子性=首帧即模式态）。json.to_value 内联包裹（vue
-                    // 转译吸收面，FifSearch 同款）；try 门=fsys 侧零 try
-                    // 形的竞态窗兜底（异常→-1→既有错误形承接）。
+                    // PLAN-025 T-01（Q-1 用户裁定 (a) 移除，2026-10-02）：
+                    // 原两级门中 >512MB 拒绝臂退役——728 后援分页 rope 承
+                    // 载 >50MB 装载（预扫页表+LRU 上界契约；历史形注记=
+                    // editor-store SD-02）；现存单级=≥模式阈值（52428800B
+                    // =50MB，战略 §2.2）→ big 置位先于 load_file——装载
+                    // 完成渲染时 lang/wrap props 已按模式态走（apply_config
+                    // 热应用+同 handler 原子性=首帧即模式态）。
+                    // json.to_value 内联包裹（vue 转译吸收面，FifSearch
+                    // 同款）；try 门=fsys 侧零 try 形的竞态窗兜底（异常→
+                    // -1→既有错误形承接）。
                     var fsize int = -1
                     try {
                         let vsize = json.to_value(file_size(path))
@@ -958,137 +958,98 @@ store EditorStore {
                     } catch {
                         fsize = -1
                     }
-                    if fsize > 536870912 {
-                        // 超大拒绝：错误形 tab（readonly+标题后缀）+
-                        // loaded=true（装载链终结——防 TabActivate 懒装载
-                        // 重触发）+ console 架构阻塞指向。readonly 置位
-                        // 必须保留：空 rope + WriteFidelity 无栏 = 原文件
-                        // 被清写盘成 0B（008 T-04 同根拦截面）。1GB 线
-                        // 非目标注记：拒绝位在 1GB 之下，真分块 IO 清偿
-                        // 前不进半装载态（upstream §16 登记）。
-                        var ridx int = -1
-                        var ri int = 0
-                        while ri < .tabs.len() {
-                            if .tabs[ri].key == key {
-                                ridx = ri
+                    if fsize >= 52428800 {
+                        var bidx int = -1
+                        var bi int = 0
+                        while bi < .tabs.len() {
+                            if .tabs[bi].key == key {
+                                bidx = bi
                             }
-                            ri = ri + 1
+                            bi = bi + 1
                         }
-                        if ridx >= 0 {
-                            .tabs[ridx].readonly = true
-                            .tabs[ridx].ro_reason = "big"
-                            .tabs[ridx].loaded = true
-                            .tabs[ridx].title = file_basename(path) + "（超大文件-拒绝装载）"
-                            if .tab == ridx {
-                                .title_active = .tabs[ridx].title
-                            }
+                        if bidx >= 0 {
+                            .tabs[bidx].big = true
                             store.SyncByteMeta()
                         }
-                        .loaded_bytes = 0
-                        .load_key = ""
-                        console_log("load rejected: " + fsize.str() + " bytes > 超大拒绝位 536870912（50MB+ 为大文件模式域；>512MB 拒绝装载——真分块 IO=上游阻塞，docs/upstream §16）— " + path)
-                        .console = console_lines()
-                        // PLAN-018 T-03: 超大拒绝形机读标记（AUTO_BENCH 门控
-                        // ——拒绝分支在装载标记包夹之前且 console_log 不落
-                        // stdout，512MB 拒绝位对照/1GB ledger 记录观测用。
-                        // 未设门零行为差异）。
-                        if env_str("AUTO_BENCH") == "1" {
-                            print("BENCH bench_open_rejected")
+                    }
+                    try {
+                        code_editor_set_text(key, "")
+                    } catch {
+                        // guard no-op——last_external 已对齐，达标
+                    }
+                    if env_str("AUTO_BENCH") == "1" {
+                        print("BENCH bench_open_start")
+                    }
+                    let total int = code_editor_load_file(key, path)
+                    if total >= 0 {
+                        .loaded_bytes = total
+                        // PLAN-008 T-01: 字节元数据探测（BOM/EOL/采样窗，
+                        // 协议见 ProbeByteMeta 头注；错误形分支 T-04）
+                        store.ProbeByteMeta(key, path)
+                        // PLAN-010 T-02: 装载完成位置位（TabActivate 触发
+                        // 门的关闭侧——此后激活免重装载；错误形不置位，
+                        // 文件修复后可重试）。
+                        var lidx int = -1
+                        var li int = 0
+                        while li < .tabs.len() {
+                            if .tabs[li].key == key {
+                                lidx = li
+                            }
+                            li = li + 1
+                        }
+                        if lidx >= 0 {
+                            .tabs[lidx].loaded = true
+                            // PLAN-014 T-06: 光标恢复应用启用（010 前
+                            // 向兼容位转正——供② code_editor_set_cursor
+                            // 端点，PLAN-701）。cline/ccol 会话持久化
+                            // 1 基 → 端点 0 基换算（-1）；端点内建钳位
+                            // （越界→末行/行尾 char，陈旧会话安全）+
+                            // Selection 弃置。fresh 打开 cline=ccol=1 →
+                            // set(0,0)=起点，零行为差异。不 republish
+                            // on_cursor（契约）——SyncCursor 由既有
+                            // CursorMoved/TabActivate 面读回。排序：
+                            // ProbeByteMeta（BOM 剥离 edit）之后——防
+                            // 剥离 edit 复位光标。
+                            code_editor_set_cursor(key, .tabs[lidx].cline - 1, .tabs[lidx].ccol - 1)
                         }
                     } else {
-                        if fsize >= 52428800 {
-                            var bidx int = -1
-                            var bi int = 0
-                            while bi < .tabs.len() {
-                                if .tabs[bi].key == key {
-                                    bidx = bi
+                        .loaded_bytes = 0
+                        // PLAN-008 T-04: 非法 UTF-8 无损兜底——错误提示
+                        // tab + readonly 置位（WriteFidelity 拦截落盘）+
+                        // 状态栏标注；原文件字节零触碰（T-00 实测旧行为
+                        // 会把空编辑器清写盘 32B→0B——拦截对象即此路径）。
+                        // load_file 的 -1 兼指缺席/IO/非法 UTF-8——错误
+                        // 路径专用 exists 前置判定区分「文件缺失」（维持
+                        // 旧静默空 tab 语义）与「编码错误」（兜底形态）。
+                        // widget 无禁编面（T-00 勘，§10-④）——边界=save
+                        // 拦截+显著标注；替换符查看=上游 lossy want。
+                        if exists(path) {
+                            var eidx int = -1
+                            var j int = 0
+                            while j < .tabs.len() {
+                                if .tabs[j].key == key {
+                                    eidx = j
                                 }
-                                bi = bi + 1
+                                j = j + 1
                             }
-                            if bidx >= 0 {
-                                .tabs[bidx].big = true
+                            if eidx >= 0 {
+                                .tabs[eidx].readonly = true
+                                .tabs[eidx].ro_reason = "encoding"
+                                .tabs[eidx].title = file_basename(path) + "（编码错误-只读）"
+                                if .tab == eidx {
+                                    .title_active = .tabs[eidx].title
+                                }
                                 store.SyncByteMeta()
-                            }
-                        }
-                        try {
-                            code_editor_set_text(key, "")
-                        } catch {
-                            // guard no-op——last_external 已对齐，达标
-                        }
-                        if env_str("AUTO_BENCH") == "1" {
-                            print("BENCH bench_open_start")
-                        }
-                        let total int = code_editor_load_file(key, path)
-                        if total >= 0 {
-                            .loaded_bytes = total
-                            // PLAN-008 T-01: 字节元数据探测（BOM/EOL/采样窗，
-                            // 协议见 ProbeByteMeta 头注；错误形分支 T-04）
-                            store.ProbeByteMeta(key, path)
-                            // PLAN-010 T-02: 装载完成位置位（TabActivate 触发
-                            // 门的关闭侧——此后激活免重装载；错误形不置位，
-                            // 文件修复后可重试）。
-                            var lidx int = -1
-                            var li int = 0
-                            while li < .tabs.len() {
-                                if .tabs[li].key == key {
-                                    lidx = li
-                                }
-                                li = li + 1
-                            }
-                            if lidx >= 0 {
-                                .tabs[lidx].loaded = true
-                                // PLAN-014 T-06: 光标恢复应用启用（010 前
-                                // 向兼容位转正——供② code_editor_set_cursor
-                                // 端点，PLAN-701）。cline/ccol 会话持久化
-                                // 1 基 → 端点 0 基换算（-1）；端点内建钳位
-                                // （越界→末行/行尾 char，陈旧会话安全）+
-                                // Selection 弃置。fresh 打开 cline=ccol=1 →
-                                // set(0,0)=起点，零行为差异。不 republish
-                                // on_cursor（契约）——SyncCursor 由既有
-                                // CursorMoved/TabActivate 面读回。排序：
-                                // ProbeByteMeta（BOM 剥离 edit）之后——防
-                                // 剥离 edit 复位光标。
-                                code_editor_set_cursor(key, .tabs[lidx].cline - 1, .tabs[lidx].ccol - 1)
+                                console_log("load error: invalid UTF-8 (readonly, save blocked) — " + path)
                             }
                         } else {
-                            .loaded_bytes = 0
-                            // PLAN-008 T-04: 非法 UTF-8 无损兜底——错误提示
-                            // tab + readonly 置位（WriteFidelity 拦截落盘）+
-                            // 状态栏标注；原文件字节零触碰（T-00 实测旧行为
-                            // 会把空编辑器清写盘 32B→0B——拦截对象即此路径）。
-                            // load_file 的 -1 兼指缺席/IO/非法 UTF-8——错误
-                            // 路径专用 exists 前置判定区分「文件缺失」（维持
-                            // 旧静默空 tab 语义）与「编码错误」（兜底形态）。
-                            // widget 无禁编面（T-00 勘，§10-④）——边界=save
-                            // 拦截+显著标注；替换符查看=上游 lossy want。
-                            if exists(path) {
-                                var eidx int = -1
-                                var j int = 0
-                                while j < .tabs.len() {
-                                    if .tabs[j].key == key {
-                                        eidx = j
-                                    }
-                                    j = j + 1
-                                }
-                                if eidx >= 0 {
-                                    .tabs[eidx].readonly = true
-                                    .tabs[eidx].ro_reason = "encoding"
-                                    .tabs[eidx].title = file_basename(path) + "（编码错误-只读）"
-                                    if .tab == eidx {
-                                        .title_active = .tabs[eidx].title
-                                    }
-                                    store.SyncByteMeta()
-                                    console_log("load error: invalid UTF-8 (readonly, save blocked) — " + path)
-                                }
-                            } else {
-                                console_log("load error: file not found — " + path)
-                            }
+                            console_log("load error: file not found — " + path)
                         }
-                        .load_key = ""
-                        console_log("loaded: " + path + " " + total.str() + " bytes")
-                        if env_str("AUTO_BENCH") == "1" {
-                            print("BENCH bench_open_done")
-                        }
+                    }
+                    .load_key = ""
+                    console_log("loaded: " + path + " " + total.str() + " bytes")
+                    if env_str("AUTO_BENCH") == "1" {
+                        print("BENCH bench_open_done")
                     }
                 }
                 .console = console_lines()
@@ -3058,13 +3019,13 @@ store EditorStore {
         // "\r\n"→"\n" 幂等归一、lone "\r"→"\n"，再统一 "\n"→目标形态——
         // 无编辑的纯形态 rope 两步互抵无损）；lf/mixed 零动作（无编辑
         // =mixed 逐字保真；编辑后=归一 LF 形态，逐行保真为上游 want
-        // §10-⑥）。readonly（T-04 非法 UTF-8 错误形/PLAN-013 超大拒绝
-        // 形）拦截：不落盘。
+        // §10-⑥）。readonly（T-04 非法 UTF-8 错误形——PLAN-025 超大
+        // 拒绝形退役后唯一形态）拦截：不落盘。
         // PLAN-014 T-05: 大文件 save 解禁（013 护栏解除件消费——供①
         // code_editor_save 直写端点，PLAN-701）——big 态改道 rope 直写
         // 落盘（零全文 VM 往返；字节保真归属见 SD-01：端点裸写 rope 字
         // 节，BOM 剥离形态随 rope——T-04 探针实测形）；readonly 兜底
-        // （超大拒绝/编码错误形）保持外层先行。normal 态维持现链（Q-2
+        // （编码错误形）保持外层先行。normal 态维持现链（Q-2
         // v1 界定——读出+包装+write_text 零变更）。Q-2 消费注记：检测器
         // 白名单零变更（code_editor_text 读出位随 normal 链保留——预记
         // 「读出位四→三」不成立，读出位语义未变）。
