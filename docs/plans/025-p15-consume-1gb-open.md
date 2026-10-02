@@ -1,12 +1,12 @@
 ---
 plan_id: PLAN-025
-status: executing
+status: execution_done
 feature_name: 供⑮ 消费件（M4 挂账清偿——PLAN-728 后援分页 rope 下游兑现：512MB 拒绝位退役〔裁定〕+1GB E2E 全链+budgets open_1gb 断言化重测+供料档回执闭环）
 author: [agent]
 created_at: 2026-10-02T17:23:39+08:00
-updated_at: 2026-10-02T18:05:00+08:00
+updated_at: 2026-10-02T19:05:00+08:00
 plan_revision: 1
-current_step: 5
+current_step: 6
 total_steps: 6
 supersedes_spec_components: []
 new_spec_components:
@@ -240,7 +240,7 @@ SD-01..04+供料档 §10 **消费回执节**（供⑮ 全弧终结——want 登
 |---|---|---|---|---|---|---|
 | 0 | T-00 消费勘定 | — | 本件 §5 T-00 节 | 五勘定+Q-1 材料定稿 | 全 | [x] 勘定记录在档（工具链门：组三树 edit-025〔auto-edit@plan-025-dev base de6cb95/auto-lang@1a15c8eee detached 含 728@69059dfaa 祖先链/auto-down@895f8d0 detached〕——auto --version=v0.4.2-2603-g1a15c8eee release 组树构建；拒绝臂全景 11 处分类=退役面〔门臂/标签族/ro_reason big〕vs 保持面〔encoding 形/readonly 外层/ReplaceAll+EolConvert big 护栏 grep 锚 6+3〕；会话面：tab 全量入册懒恢复无排除位——1GB 恢复=激活再装载 ~4s 按现状；三轮实证探针 probe_p025_consume：014 大文件实例全死症状在 728 未复现〔装载/点击/Ctrl+F 全活〕+编辑器光标键盘不达 code_editor=普适驱动限制〔小文件对照同〕+查找下一处分页 100MB 21s 未决=728 查找债下游确认） |
 | 1 | T-01 门退役 | T-00+Q-1 裁定 | editor_store.at（10 处臂清理） | 拒绝语义退役 | AC-02 | [x] 负验证+护栏锚绿（Q-1 用户裁 (a) 移除——AskUserQuestion 回执 2026-10-02；拒绝分支+BENCH 标记+拒绝 console 行+「只读(超大拒绝)」标签臂整支退役——现存单级 ≥50MB big 置位；grep 负验证全零〔536870912/bench_open_rejected/load rejected/ro_reason=="big"〕+护栏锚零回退@worktree） |
-| 2 | T-02 1GB E2E 扩容 | T-01 | desktop_mcp T17 组+生成式 fixture | 四链+边界双轨 | AC-03 | [ ] 扩容检查绿（码面已落：T17.5 翻转 513MB+1B 装载成功形+T17.9-12 四链新增+T18.1 重铸零编辑直写往返@worktree——矩阵实跑验证中） |
+| 2 | T-02 1GB E2E 扩容 | T-01 | desktop_mcp T17 组+生成式 fixture | 四链+边界双轨 | AC-03 | [x] 扩容检查绿（**矩阵两连 141 passed / 0 failed 全绿**@worktree 3917eb1——T17.5 翻转绿+T17.9-12 四链首跑全过〔1GB 装载 3.2/3.1s+保存 1.0/0.8s 上游谱带内〕+T18.1 重铸绿+**014 已知 blocked 集 T17.2/17.3/17.4/17.8 自动复绿**〔m1-supply §17「清偿后自动复绿检查零改动」应验〕+durable receipt tests/matrix-p025-run1.txt；完成态 141=137+4 新检查，判绿口径=141/0） |
 | 3 | T-03 open_1gb 断言化 | T-02 | bench.py open 档+budgets | armed+口径+复现谱 | AC-01/04 | [x] 档谱+budgets 注记（open 档重铸 truncate 探针档退役→真内容锚点族全绿：open_1gb 3774.4ms〔上游 4.0s 带内〕+boundary_513mb 1912.2ms+threshold 双轨 204.4/408.7ms+100MB 重判 383.3ms〔后援臂红利 ~2.25×〕；budgets open_1gb=armed 判定口径成文；RSS 记账 235MB@1GB@worktree results/open-20261002-174223.jsonl） |
 | 4 | T-04 会话收口 | T-00 | SD-02 注记面 | 现状成文 | AC-05 | [x] 注记在档（editor-store.md 会话恢复兼容节：全量入册懒恢复+1GB 恢复=再装载 ~4s 按现状接受——不发明语义@worktree） |
 | 5 | T-05 规范+账本+回执 | T-01..04 | SD-01..05+specs.json | 全弧闭环 | AC-06/07 | [x] 回执节在档+P025-1 待 merge（SD-01..05 全落档@worktree〔perf-measurement 断言化节/editor-store 退役注记/overview 后续件注记/README 025 口径/供料档 §10 消费回执节——三段弧终结+消费反馈两项 upstream 登记〕；P025-1=merge 期项 015-024 先例——work 不碰活账本） |
@@ -258,18 +258,47 @@ SD-01..04+供料档 §10 **消费回执节**（供⑮ 全弧终结——want 登
   budgets 行]；授权=起草[用户「可以继续工作」指令+前议路线在录]，
   执行待用户启动——Q-1 门处置为用户件）。`next: work`（T-00 可
   先行，裁定点在 T-01）。
+- `stage: work | PLAN-025 | plan_revision 1 | outcome: pass |
+  code_commit: worktree plan-025-dev@3917eb1（base de6cb95；
+  三提交=da300f2 T-01+T-02 码面/e022d4d T-03+T-04+T-05 规范账本/
+  3917eb1 T-02 验证收口）| task_ids: T-00..T-05 全 delivered |
+  evidence: ①工具链=v0.4.2-2603-g1a15c8eee release 组树构建
+  [auto-lang@1a15c8eee detached 含 728@69059dfaa 祖先链核验，
+  auto-down@895f8d0 detached——018 跨仓 path 依赖纪律]；②门退役
+  负验证 grep 全零〔536870912/bench_open_rejected/load rejected/
+  ro_reason=="big"〕+护栏锚零回退〔全文命令护栏 6+blocked 臂 3+
+  readonly 外层〕；③矩阵两连 **141 passed / 0 failed**
+  （durable receipt tests/matrix-p025-run1.txt）——T17.5 翻转绿+
+  T17.9-12 四链首跑全过〔1GB 装载 3.2/3.1s+保存 1.0/0.8s vs 上游
+  4.0s/657ms 带内〕+T18.1 重铸绿+**014 已知 blocked 集
+  T17.2/17.3/17.4/17.8 自动复绿**〔检查零改动——m1-supply §17
+  登记形应验〕；④bench open 档重铸谱 results/
+  open-20261002-174223.jsonl：open_1gb 3774.4ms〔带内〕+
+  boundary_513mb 1912.2ms+阈界双轨 204.4/408.7ms+100MB 重判
+  383.3ms〔后援臂红利 ~2.25×，L2 判定锚仍=021 谱〕；budgets
+  open_1gb=armed 判定口径成文；⑤SD-01..05 全落档+供料档 §10 消费
+  回执节〔三段弧终结+消费反馈两项 upstream 登记：查找分页扫描债
+  高优先[分页 100MB 21s 未决实测]+014 冻结未复现〕；⑥范围断言：
+  .at diff 限 editor_store.at+status_bar.at 清理面+auto-lang/
+  auto-down 本会话零改动〔auto-lang master 期间被并行会话推进
+  730 起草 1a15c8eee→ecc2d6710 docs-only——组树钉版 1a15c8eee
+  不受累如实注记；主树 729 WIP=他属会话在档〕| blockers: 无 |
+  next: review（P025-1 账本投影=merge 期项——015-024 先例彩排位
+  随 review/merge）。`execution_done`（六检查点全勾、验收映射
+  AC-01..07 全落：AC-01 谱 JSONL+SD-01 对照表/AC-02 裁定回执+
+  负验证+护栏锚/AC-03 矩阵两连绿/AC-04 budgets armed+档谱/
+  AC-05 SD-02 注记/AC-06 SD-01..05+回执节〔P025-1=merge 期〕/
+  AC-07 双仓 porcelain+diff 路径断言；worktree 清洁态 0 dirty）。
 
 ## 10. 待澄清事项
 
-- **Q-1 512MB 拒绝位处置（用户件——T-00 材料定稿后请示）**：
-  **(a) 移除（默认倾向）**——门全放行，安全语义由 big 命令护栏
-  承载（013 域已设防）+1GB 可开=战略行原文；**(b) 抬升**（常数
-  改如 4GB——防误开超大异常文件[如几十 GB 日志]的兜底语义保留）。
-  两案成本相近（矩阵面同构）——差异在产品语义（无界 vs 有界）。
-  默认 (a)；执行前可示知改 (b)。
-- **Q-2 上游谱超带处置（无需裁定，确认口径）**：默认=登记
-  upstream（消费复验超带=环境/回归疑点——669 模式不在本仓调优）；
-  带内=正常方差注记。
-- **Q-3 >512MB tab 会话恢复（T-00③ 现状勘定后注记，无需预裁）**：
-  按现状成文（若现状=排除则维持排除+注记「后续件按使用反馈议」；
-  若现状=纳入懒恢复则 4s 再装载可接受性注记）——不发明新语义。
+- **Q-1 512MB 拒绝位处置〔已裁定清偿 2026-10-02〕**：**用户裁 (a)
+  移除**（AskUserQuestion 回执——计划默认倾向应验；拒绝臂退役+
+  big 命令护栏承载安全语义；两案成本表见 T-00 勘定记录/728 契约册
+  退役回执节）。
+- **Q-2 上游谱超带处置〔已按默认口径落档〕**：装载线 3774.4ms vs
+  4.0s=**带内**（正常方差注记——无超带登记事件）；保存/即答线=
+  E2E 域粗粒度记账（README/SD-01 注记）。
+- **Q-3 >512MB tab 会话恢复〔已按 T-00③ 现状成文〕**：现状=tab
+  全量入册懒恢复（无排除位）——1GB tab 恢复=激活时再装载 ~4s 按
+  现状接受（editor-store SD 注记；不发明新语义）。
