@@ -113,6 +113,10 @@ def stage_ts_patch(ws: Path, ts_on: bool) -> tuple[int, str]:
     # 原 blake3 1.5.5 回避钉已撤（2026-10-01 撤钉回执——fresh 解析+
     # cargo check 实证在 plan 复工记录）；若未来 registry 回退再触
     # 夹缝，回避钉形见 git 史[600ba65 前的 stage_ts_patch]。
+    # PLAN-023 修复：撤钉批删除钉位臂时连带删去 ts-on 终迹 return
+    # （600ba65 双 return 形）——缺省落 None 使 main 解包 TypeError
+    # （ts-on 记录档构建通道断；ts-off 默认臂早退不受扰）。
+    return EXIT_OK, "ts-on（highlight-treesitter 注入幂等——撤钉后 fresh 解析）"
 
 EXIT_OK, EXIT_FAIL, EXIT_BLOCKED = 0, 1, 3
 
