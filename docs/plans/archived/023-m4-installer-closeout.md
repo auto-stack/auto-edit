@@ -1,10 +1,11 @@
 ---
 plan_id: PLAN-023
-status: executing
+status: archived
+completion_kind: delivered
 feature_name: M4-06 installer 收口件（ts-off 发布形尺寸判定+门控手段裁定〔panic=abort×catch_unwind 语义冲突勘定〕+deps 深裁挤压→≤15MB armed）
 author: [agent]
 created_at: 2026-10-02T09:09:08+08:00
-updated_at: 2026-10-02T10:45:00+08:00
+updated_at: 2026-10-02T11:10:00+08:00
 plan_revision: 1
 current_step: 6
 total_steps: 6
@@ -298,6 +299,29 @@ SD-01..03 落档+（条件）上游缺口登记（深裁路线不可达大头→
   tree-sitter 语法插件化 want——用户方向裁定「到时候把 TS 做成
   插件下载」，现行 ts-off/on 双形态维持零动作）入供料档 §9
   （worktree c0cc3e3）。
+
+- **2026-10-02 merge 收据（PLAN-023:r1）**：`stage: merge` |
+  plan_revision 1 | `outcome: delivered`（五检查点）——
+  - **prepared**：评审基线=main@c159445 记录/worktree plan-023-dev@
+    c0cc3e3（base 5dbfd79；八笔 c0b402d..c0cc3e3）；canonical
+    diff=worktree 已提交面五文件（blob 冻结=review 记录五哈希）；
+    projection 目标=ledger reviews 段 P023-1（24→25）。
+  - **landed**：rebase main 零冲突+range-diff **8 对全 `=`**（映射
+    c0b402d→cda9081/75d7ca6→0d561c6/0d49e65→d119228/eed88ec→
+    41751ac/ef7189d→bda49de/ad40699→24ff800/b823d28→3e505da/
+    c0cc3e3→**d2b8623**）+`git merge --ff-only` 零合并提交+main
+    tip=d2b8623175f75655194c108638a5aab7d7bad86c ✓+main known-good
+    烟测三绿（bench check 门+canonical 六文件 PLAN-023 锚点+账本
+    可解析 24 项）。
+  - **ledger_refreshed**：.autoos/specs.json reviews 段 P023-1 外科
+    插入（24→25——roundtrip 守卫=json.loads 新旧深等〔他五段+
+    reviews 前缀 24 项零扰动〕+插入项逐字回读；tracked 账本
+    routing=主检出落定后直改+commit〔022 1dcf44d 同款先例〕）；
+    P023-1 file 指 archived 路径+content=收据衍生摘要（@e138364）。
+  - **archived**：git mv→docs/plans/archived/023-m4-installer-
+    closeout.md+status: archived+completion_kind: delivered ✓
+    （本行）。
+  - **cleaned**：待清理检查点后录。
 
 - **2026-10-02 review**：`stage: review` | PLAN-023 | plan_revision
   1 | `outcome: pass`（→reviewed）| reviewed_commit: worktree
