@@ -174,17 +174,32 @@ JSONL：steady-20261002-100425/warm-20261002-100436/open-20261002-
   历史数字在档不删）；bench.py `_L0_STATES.installer` 文本+
   `idle_mem` 硬编码 60→150MB（armed 注记更新）。验证：py_compile
   ×2+JSON 有效性+`bench check` 绿（四证）。
-- **终态判定（armed PASS——随终态构建回填）**：终态 V2b canonical
-  构建（regen→V2b 补丁→release→50MB 门断言）在途——数字/sha/
-  JSONL 名以 tools/portable/results/ 终态记录为准（首谱 V2b
-  30,403,072B ≤ 52,428,800B 预期余量 21,998,336B——判定以实测
-  为准不预写）。dist/portable/auto-edit.exe=发布形定稿（ts-off
+- **终态判定（armed PASS）**：终态 V2b canonical 构建两录在档——
+  ①portable-20261002-103518.jsonl（regen-fresh 全链；assert 对照
+  **陈旧 15MB 门**=构建进程先于门常量编辑启动的伪红 exit 1——
+  如实注记，产物本身即终态形）；②portable-20261002-103531.jsonl
+  （**50MB 门重评**：basis=reused-existing+patch 幂等全 skip+
+  manifest_changed=False+cargo 增量 1s 零重编——**30,403,072 B ≤
+  52,428,800 B → pass，余量 22,025,728 B，exit 0 整链绿**）。
+  确定性自证：三次 V2b 构建（093055/103518/103531）字节数完全
+  一致 30,403,072 B〔sha 随 MSVC 链接时间戳漂移=PE 常态，尺寸=
+  确定性面〕。dist/portable/auto-edit.exe=发布形定稿（ts-off
   默认）。
 - **产物面护栏（T-04 后半）**：见 §⑦。
 
-## ⑦ 产物面护栏（终态 exe——probe_surface+烟测）
+## ⑦ 产物面护栏（终态 exe——probe_surface+烟测，全绿）
 
-（随终态 exe 探针回填。）
+- **probe_surface [final-v2b-rebaseline]**（surface-20261002-
+  103539.jsonl，终态 dist exe 30,403,072B 直拉）：steady **17.3ms**
+  （init 9.8+ws 7.5；2 跑弃暖机）/open 100MB **866.5ms**（装载态
+  mem 967MB 记录）/idle **9.8MB**——**与工具链轨五行同带**
+  （17.8/865.8/9.1）=**V2b 手段集产物零回退实证**（019 G-4 双轨
+  收口形态）。
+- **smoke_portable 四段全绿**（smoke-20261002-103539.jsonl，
+  exit 0）：①干净目录直跑（隔离 APPDATA；BENCH 标记对=True+后端
+  就绪=True+进程存活=True——open 链 2060.3ms 内完成）②零残留
+  pass ③单进程（children=无）④back fsys 链（server_up=True+
+  read_ok=True——diff HTTP 面）。
 
 ## ⑧ 附：主检出预检记录（入场）
 
