@@ -1,6 +1,7 @@
 ---
 plan_id: PLAN-025
-status: reviewed
+status: archived
+completion_kind: delivered
 feature_name: 供⑮ 消费件（M4 挂账清偿——PLAN-728 后援分页 rope 下游兑现：512MB 拒绝位退役〔裁定〕+1GB E2E 全链+budgets open_1gb 断言化重测+供料档回执闭环）
 author: [agent]
 created_at: 2026-10-02T17:23:39+08:00
@@ -314,6 +315,24 @@ SD-01..04+供料档 §10 **消费回执节**（供⑮ 全弧终结——want 登
   2603-g1a15c8eee 复审重验同版——静态面（grep/JSONL/budgets/
   祖先链/SD/彩排）全部复审独立重跑| next: merge（用户已授权全链
   ——review 通过后移交 auto-plan-merge；P025-1 正式落账随 merge）。
+- `stage: merge | PLAN-025:r1 | outcome: pass（archived 已落——cleaned
+  待清理检查点补记）| delivery_commit: 61f7bff〔range-diff 3 对全=
+  3917eb1 全等重写映射 da300f2→adf8225/e022d4d→54b99f5/3917eb1→
+  61f7bff；ff-only 零合并 main tip=61f7bff〕| canonical_spec_paths:
+  docs/specs/modules/perf-measurement.md+docs/specs/modules/
+  editor-store.md+docs/specs/00-overview.md+specs/auto-edit/README.md
+  〔越界先例=024 SD-03 在档〕+docs/upstream/2026-09-m4-perf-unblock-
+  supply.md〔越界先例=024 SD-04/de6cb95 在档〕| ledger_targets:
+  .autoos/specs.json reviews 段 P025-1〔外科插入 26→27 四守卫——git
+  跟踪文件经 worktree+Git 通道 commit 33f8814；main 回读 P025-1
+  present/27 items/schema OK〕| main 烟测: probe_p025_consume 100MB
+  装载 0.01s/big 态/保存 0.31s 活体+五 SD 锚点在档〔编辑器键盘驱动
+  限制=落地前同状非回归；字节往返权威面=矩阵 T17.12 两连绿〕|
+  批量回归到期判定: 不适用〔auto-edit 无 batch 文件——.last-batch-
+  regression.json 缺失+023/024 同判〕| archived:
+  docs/plans/archived/025-p15-consume-1gb-open.md〔status=archived+
+  completion_kind=delivered〕| cleaned: 待清理检查点补记〔wt-guard+
+  三树注销+branch 删〕。
 
 ## 10. 待澄清事项
 
