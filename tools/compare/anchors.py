@@ -50,6 +50,9 @@ SRC_L2_OPEN = Path("tools/bench/results/open-20260930-230121.jsonl")
 SRC_L2_DIFF_022 = Path("tools/bench/results/diff-20261001-144526.jsonl")
 # PLAN-022 帧两行首判谱（供② 清偿后——scroll_fps armed FAIL 实数）
 SRC_FRAME_022 = Path("tools/bench/results/frame-20261001-230957.jsonl")
+# PLAN-024 帧两行重判谱（725 帧管线增量交付后同机复判——armed FAIL
+# 维持；终跑谱=行值源，N=4 有效谱带随行注记）
+SRC_FRAME_024 = Path("tools/bench/results/frame-20261002-141631.jsonl")
 
 
 def _rows(rel: Path) -> list[dict]:
@@ -82,6 +85,9 @@ def extract() -> dict:
     # PLAN-022 帧两行首判直读（供② 清偿后——armed FAIL 实数）
     frame22 = _rows(SRC_FRAME_022)
     sf22 = next(r for r in frame22 if r.get("id") == "scroll_fps")
+    # PLAN-024 帧两行重判直读（725 管线增量后同机复判——FAIL 维持）
+    frame24 = _rows(SRC_FRAME_024)
+    sf24 = next(r for r in frame24 if r.get("id") == "scroll_fps")
     return {
         "schema": "p020-our-anchors/1",
         "generated": "tools/compare/anchors.py 直读（零重算——AC-04 逐字对照）",
@@ -157,8 +163,25 @@ def extract() -> dict:
                      "×0.9@60Hz）→ FAIL——键入帧全量重建管线容率上限"
                      "（~110ms/帧，type_latency 同根因；debug 对照谱"
                      " 11.4fps 同量级）；下界测量（MCP 轮询≤真值——"
-                     "下界不过阈=FAIL 成立）；管线优化=后续件；"
+                     "下界不过阈=FAIL 成立）；管线优化=725 已交付"
+                     "（2026-10-02），重判见次行；"
                      "工具链 v0.4.2-2533-g9a71a5212（供⑨ 清偿后）"},
+            {"state": "l2", "metric": "scroll_fps",
+             "median_ms": sf24["fps"], "unit": "fps",
+             "runs_ms": None, "window_ms": sf24.get("window_ms"),
+             "budget": sf24.get("threshold"),
+             "verdict": "fail", "source": str(SRC_FRAME_024),
+             "note": "PLAN-024 T-01 重判（725 帧管线增量交付"
+                     "[d7e48e8b5]后同机复判，release 工具链 "
+                     "v0.4.2-2579-gb385534d7，N=4 有效谱）：终跑谱 "
+                     f"{sf24['fps']}fps vs ≥{sf24['threshold']} → "
+                     "FAIL 维持——四谱带 6.7/7.0/7.5/8.8fps 与 022 "
+                     "首判 8.0fps 同带（滚动帧 begin→begin ~108ms/"
+                     "帧：视口推进→新暴露行整形=S5 域主导，725 增量"
+                     "管线对该域零效果=预期内；type_latency 中位 "
+                     "1-4ms 大幅改善而尾部帧段外 ~110ms 同域——"
+                     "归因回执 evidence-p024-frame-rejudge.md）；"
+                     "下界测量口径不变；S5 增量化=auto-lang 余题"},
         ],
     }
 

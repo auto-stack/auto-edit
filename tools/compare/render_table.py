@@ -166,8 +166,10 @@ def build_table() -> str:
     ap("Notepad++ 缺位=安装属用户面（PLAN-020 §10 Q-1），装后 harness 补跑"
        "即得列（通道与 VS Code 同形）。**我方 L2 正式列=PLAN-021 直拉判定"
        "谱**（steady/open——armed 判定随格；diff 行=PLAN-022 窗口形清偿"
-       "重判 PASS+021 全量形 FAIL 对照并陈；scroll 行=供⑨ 上游阻塞虚席——"
-       "判定协议在档待清偿；未入表行 warm/idle 判定谱=budgets.json "
+       "重判 PASS+021 全量形 FAIL 对照并陈；scroll 行=PLAN-022 首判 FAIL"
+       "+PLAN-024 重判 FAIL 并陈——725 帧管线增量后同机复判，中位改善而 "
+       "S5 残差[layout/shaping/draw]维持红，归因回执在档；未入表行 "
+       "warm/idle 判定谱=budgets.json "
        "validity）。锚点/产物面数字不冒领（018 分层纪律表内延伸）。"
        "发布动作（对外宣传/链接分发）=数字齐后另行；本节=战略 §5 指定表位。")
     return "\n".join(lines)

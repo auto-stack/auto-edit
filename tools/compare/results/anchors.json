@@ -115,7 +115,19 @@
       "budget": 54.0,
       "verdict": "fail",
       "source": "tools\\bench\\results\\frame-20261001-230957.jsonl",
-      "note": "PLAN-022 T-03 供② 清偿后首判 armed FAIL（换行连发 cursor-follow 滚动驱动）：8.01fps vs ≥54.0（面板×0.9@60Hz）→ FAIL——键入帧全量重建管线容率上限（~110ms/帧，type_latency 同根因；debug 对照谱 11.4fps 同量级）；下界测量（MCP 轮询≤真值——下界不过阈=FAIL 成立）；管线优化=后续件；工具链 v0.4.2-2533-g9a71a5212（供⑨ 清偿后）"
+      "note": "PLAN-022 T-03 供② 清偿后首判 armed FAIL（换行连发 cursor-follow 滚动驱动）：8.01fps vs ≥54.0（面板×0.9@60Hz）→ FAIL——键入帧全量重建管线容率上限（~110ms/帧，type_latency 同根因；debug 对照谱 11.4fps 同量级）；下界测量（MCP 轮询≤真值——下界不过阈=FAIL 成立）；管线优化=725 已交付（2026-10-02），重判见次行；工具链 v0.4.2-2533-g9a71a5212（供⑨ 清偿后）"
+    },
+    {
+      "state": "l2",
+      "metric": "scroll_fps",
+      "median_ms": 7.04,
+      "unit": "fps",
+      "runs_ms": null,
+      "window_ms": 2840,
+      "budget": 54.0,
+      "verdict": "fail",
+      "source": "tools\\bench\\results\\frame-20261002-141631.jsonl",
+      "note": "PLAN-024 T-01 重判（725 帧管线增量交付[d7e48e8b5]后同机复判，release 工具链 v0.4.2-2579-gb385534d7，N=4 有效谱）：终跑谱 7.04fps vs ≥54.0 → FAIL 维持——四谱带 6.7/7.0/7.5/8.8fps 与 022 首判 8.0fps 同带（滚动帧 begin→begin ~108ms/帧：视口推进→新暴露行整形=S5 域主导，725 增量管线对该域零效果=预期内；type_latency 中位 1-4ms 大幅改善而尾部帧段外 ~110ms 同域——归因回执 evidence-p024-frame-rejudge.md）；下界测量口径不变；S5 增量化=auto-lang 余题"
     }
   ]
 }

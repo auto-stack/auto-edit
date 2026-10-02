@@ -44,7 +44,7 @@
     "metric": "键入到上屏",
     "budget": "<= 1 帧（16 ms，120 Hz 下 8 ms）",
     "tier": "ledger",
-    "validity": "供② 通道交付后首判（PLAN-022 T-03，2026-10-01——716 r3 T-15 出口形 int lane 清偿供⑨ 后值流贯通）：**armed FAIL（首基线锚点——测量解锁达成，性能缺口如实红）**：帧内口径（键入帧 begin→下一 present 差）P50 110ms/P95 115ms（N=30 采样/25 有效对，release 工具链 v0.4.2-2533-g9a71a5212 L0 VM 形）vs ≤1 帧〔16.7ms@60Hz 面板 EnumDisplaySettings 读回〕→ **FAIL（~6.6 帧，预算差 6.6×）**；debug 工具链同谱 78/159ms 同量级〔frame-20261001-225541.jsonl〕=**编译形态无关归因强证**——键入帧全量重建管线主耗（视图重建+语法臂+layout+present 串行链 ~110ms/帧），优化 want（增量高亮/局部重绘）=后续件[禁调优纪律：优化实施走计划]。判定协议=SD-01 PLAN-022 节成文（帧内口径 P95；全链口径注记并列不判定）；读回通道=MCP autoui_state 帧探针字段〔editor_store.at 双门采样臂——供⑨ 清偿后值流贯通；驱动=autoui_type 直达 textarea（勘定修正：键盘直驱不达编辑器，edits 零增实证）〕；源=frame-20261001-230957.jsonl（release）+frame-20261001-225541.jsonl（debug 对照谱）；上游消费链=供⑨ 已清偿+供⑬ 适配（i64 字段）+供⑫ 适配（标记行撤除）在案",
+    "validity": "供② 通道交付后首判（PLAN-022 T-03，2026-10-01——716 r3 T-15 出口形 int lane 清偿供⑨ 后值流贯通）：**armed FAIL（首基线锚点——测量解锁达成，性能缺口如实红）**：帧内口径（键入帧 begin→下一 present 差）P50 110ms/P95 115ms（N=30 采样/25 有效对，release 工具链 v0.4.2-2533-g9a71a5212 L0 VM 形）vs ≤1 帧〔16.7ms@60Hz 面板 EnumDisplaySettings 读回〕→ **FAIL（~6.6 帧，预算差 6.6×）**；debug 工具链同谱 78/159ms 同量级〔frame-20261001-225541.jsonl〕=**编译形态无关归因强证**——键入帧全量重建管线主耗（视图重建+语法臂+layout+present 串行链 ~110ms/帧），优化 want（增量高亮/局部重绘）=后续件[禁调优纪律：优化实施走计划]。判定协议=SD-01 PLAN-022 节成文（帧内口径 P95；全链口径注记并列不判定）；读回通道=MCP autoui_state 帧探针字段〔editor_store.at 双门采样臂——供⑨ 清偿后值流贯通；驱动=autoui_type 直达 textarea（勘定修正：键盘直驱不达编辑器，edits 零增实证）〕；源=frame-20261001-230957.jsonl（release）+frame-20261001-225541.jsonl（debug 对照谱）；上游消费链=供⑨ 已清偿+供⑬ 适配（i64 字段）+供⑫ 适配（标记行撤除）在案**PLAN-024 重判（2026-10-02——725 帧管线增量交付[d7e48e8b5]后同机下游复判，release 工具链 v0.4.2-2579-gb385534d7 L0 VM 形，N=4 有效谱）**：**P50 1-4ms（改前 110ms——中位 ~30× 改善，增量管线单帧单建生效：脏帧 builds=1 全体+S1-S4 分段和 ~1.8ms）** vs **P95 95-112ms 仍 >16.7ms → FAIL 维持**；尾部帧归因=段外耗时（begin→present ~110ms 而 S1-S4 全计 ~1.8ms——**S5 域[layout/shaping/draw 未插桩]主导**，与 ce_widget_new 编辑器组件重建→全量重整形事件帧同现，每突发 1-2 帧；725 handoff 预告「上游谱不含 S5 残差」如实显影）——S5 增量化=auto-lang 余题（上游域另立），归因回执=specs/auto-edit/tests/evidence-p024-frame-rejudge.md；源=frame-20261002-141456/141537/141553/141631.jsonl（N=4 有效；frame-20261002-141522=无效跑弃用[focus_ok=False 驱动未贯通]）",
     "unlock": "测量已解锁（本件首判 armed FAIL）；性能面收口=键入帧管线优化件（增量高亮/局部重绘——后续件，预算差 6.6×）"
   },
   {
@@ -52,7 +52,7 @@
     "metric": "滚动帧率",
     "budget": "满刷新率（120 Hz 面板跑满）",
     "tier": "ledger",
-    "validity": "同上（供② 通道交付后首判，PLAN-022 T-03）：**armed FAIL（首基线锚点）**：换行连发驱动（cursor-follow 滚动——滚动相关性注记）窗内 distinct present 25 帧/2995ms=**8.0fps** vs 满刷新率×0.9〔54fps@60Hz〕→ **FAIL**——与 type_latency 同根因（键入帧管线 ~110ms/帧容率上限≈9fps，容量解释自洽）；下界测量注记〔MCP 轮询采样≤真实帧率——下界仍不过阈=FAIL 成立〕；debug 对照谱 11.4fps 同量级；源=frame-20261001-230957.jsonl+frame-20261001-225541.jsonl；对比表滚动行=本谱实数落位（armed FAIL 形态，竞品 pending 维持）",
+    "validity": "同上（供② 通道交付后首判，PLAN-022 T-03）：**armed FAIL（首基线锚点）**：换行连发驱动（cursor-follow 滚动——滚动相关性注记）窗内 distinct present 25 帧/2995ms=**8.0fps** vs 满刷新率×0.9〔54fps@60Hz〕→ **FAIL**——与 type_latency 同根因（键入帧管线 ~110ms/帧容率上限≈9fps，容量解释自洽）；下界测量注记〔MCP 轮询采样≤真实帧率——下界仍不过阈=FAIL 成立〕；debug 对照谱 11.4fps 同量级；源=frame-20261001-230957.jsonl+frame-20261001-225541.jsonl；对比表滚动行=本谱实数落位（armed FAIL 形态，竞品 pending 维持）**PLAN-024 重判（2026-10-02，同上工具链 N=4 有效谱）**：6.7/7.0/7.5/8.8fps vs ≥54 → **FAIL 维持（与 022 首判 8.0fps 同带——滚动帧 begin→begin 节奏 ~108ms/帧，每帧视口推进→新暴露行整形[S5 域]主导，725 增量管线对该域零效果=预期内如实显影；present=-1 掉泵直落主导——帧泵呈现率即容率上界实证）**；源=同 type_latency 四谱+evidence-p024-frame-rejudge.md",
     "unlock": "同 type_latency——管线优化件后复判；对比表我方实数已落（本件）"
   },
   {
