@@ -648,6 +648,49 @@ Q-1 默认命名；素材 evidence-p026-m4-closeout 与十行终态逐字对账
 先例——work 不碰活账本）。规范详 modules/perf-measurement.md
 PLAN-026 终判节（SD-01）+00-overview M4 完全体收口件注记（SD-02）。
 
+PLAN-027 口径（2026-10-03，工具链=v0.4.2-2704-gde3a64353 release 组树
+构建[组三树 edit-027/{auto-edit@plan-027-dev base 252028a,
+auto-lang@de3a64353 含 735@4195f7af9+737@59ff4e66f+auto-down@895f8d0
+detached}；判据前核 `auto --version` 纪律延续；autodown-core 组
+sibling 解析 load-bearing 维持]）。**M4 验收全绿件=735 消费帧两行终裁
+（Q-1 双修裁定：验收全绿态）**：①**终裁前置四门全绿**——工具链核
+哈希 clean〔735+737+731 祖先链三实证〕+**735 回执谱同机复验带内**
+（组树 ladder735.py 处方复跑：1mb s5 P50 0.37/0.36/0.36ms+泵率
+10.28/2.76/10.56 vs 回执 0.36/0.33/0.30+10.07/2.60/10.08 三线全带内
++配对率 100% 全相位——复验谱 tests/evidence-p027-upstream-reverify
+.jsonl）+**通道新鲜度勘定带内**（probe_frame_channel.py：fprobe 9919
+消费时刻 vs 行通道 draw_end 真值 ΔP50 1ms/max 19-31ms——**9920 零
+上游依赖不接线**，735 §3.2 建议项条件路由位关闭）+**Q-1 测量实施
+修订用户裁定=双修采纳**（2026-10-03 AskUserQuestion 回执——(a) 读回
+切呈现面行通道〔[P725-FRAME] total_ms=draw_end−begin 真实帧时；
+fprobe 快照差分退役对照列〕+(b) 驱动节拍 60ms→16ms；**判定阈值/
+语义/面板读回零变更**——修订仅测量实施面，防作弊纪律分界=裁定回执
+成文）。②**终裁 type_latency armed PASS 首绿**（行通道 P50 2-3ms/
+P95 3-4ms vs ≤16.7ms——N=4 全有效谱 24-30 脏帧/跑配对 100%；M4 验收
+主面「键入到上屏≤1 帧」兑现；fprobe 对照列 94-110/107-136ms=泵消费
+陈旧度并陈）；**scroll_fps armed FAIL 维持**（9.6-10.0fps vs ≥54——
+红面定谳=**帧泵回环吞吐上限 ~95ms/圈→~10/s 与驱动节拍无关**〔T-00
+校准实证：16ms 节拍下 draw_end 间隔 91-95ms 恒定+突发内 0-1ms 连建
++帧工作面 2-3ms 全绿——735 §4 候选 (b) 下游定谳；735 §3.3「驱动器
+是帧率上限」预判的下游修正：泵上限<驱动上限〕；解锁前置=上游泵域
+清偿——复判通道已备=修订协议即终态协议零工具改动）；**四代谱系
+022 110/115→024 95-112/6.7-8.8→026 156-160/8.1-9.5→027 3-4ms/
+9.6-10.0 不删**（type 面读回通道换代直比禁则注记随行）。③**修订实
+施面四项**（bench stage_frame 一次修订）：读回机制+驱动节拍+成员
+过滤勘定（dirty==1∧present>0——ladder 上游款 s2_us>0 下游不适用）+
+值域锚点窗口切片（app stdout 块缓冲滞后执行期勘定）；谱 JSONL×5
+入仓（frame-20261003-114018 冒烟+114048/114111/114135/114158 N=4）。
+④**对比表滚动行四代并陈**（022/024/026/027——anchors --verify 12 行
++render --check 双绿；FAIL 谱历史不删 024 先例）。⑤budgets 两行 027
+代注记（budget 字段 diff=零 frozen）+**发布门维持不解锁**（scroll
+泵域余题——战略 §2.1 如实执行）。⑥**v0.1-M4.3 tag 记录位**——打点=
+本件 merge 收据（五检查点后；Q-2 默认命名用户裁定 2026-10-03；素材
+evidence-p027-m4-accept-green 与十行终态逐字对账；语义=验收全绿层
+〔type 首绿+验收主面全绿——scroll 泵域余题如实注记随行〕）。P027-1
+账本投影=merge 期项（015-026 先例——work 不碰活账本）。规范详
+modules/perf-measurement.md PLAN-027 终裁节（SD-01）+00-overview M4
+验收全绿注记（SD-02）。
+
 注：Plan 451 起 T10「热重载」走 DSL 源路径（reload 工具或 mtime 轮询重读
 app.at 重新提取 actions + generation bump → 视图重建），实测 50/0 全绿。
 OS 用户键位层（`%APPDATA%/auto/keymaps/auto-edit.at`）保持外部文件——那是
