@@ -26,7 +26,7 @@
   | scroll 泵率 | 2.60/s | 2.76/s | ✓ 同带 |
   | typenl 泵率 | 10.08/s | 10.56/s | ✓ 同带 |
 
-  配对率 **100% 全相位**（复验 264 帧零 orphan——735 §2 改后终态
+  配对率 **100% 全相位**（复验 236 帧零 orphan——735 §2 改后终态
   下游复现）+type total P95 0.01ms 全等——零回退环境噪声排除，重判
   放行。复验谱=tests/evidence-p027-upstream-reverify.jsonl（026 时代
   100kb/typenl 拒连瞬态本轮零复现）。
