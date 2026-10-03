@@ -112,7 +112,7 @@ a2r server 生成器模板假设 api::Db 状态注入 + 契约 fn 转译为空�
 - **`diff_files_window(path_a, path_b, ctx, rows_offset, rows_limit)
   str`**（GET `/api/diff_files_window`——五参全必填）：PLAN-716 组C
   9921 窗口投影消费[上游 r3 T-14 改签——9920 与 PLAN-095 ui.focus
-  撞号定谳]（`fsys.diff_files_window_json` 五参裸名直调纯
+  撞号定责]（`fsys.diff_files_window_json` 五参裸名直调纯
   转发）。envelope 窗口形=hunks/adds/dels 恒**全量**+`rows_total`
   （全量行计数——分页/滚动条真源）+`truncated` 激活（头部 offset>0
   或尾部省略任一即置位；9915 旧端点恒 false 不变）+rows=窗口物化段

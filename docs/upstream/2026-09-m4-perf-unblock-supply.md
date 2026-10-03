@@ -218,7 +218,7 @@
   脱节）。
 - **回归窗口**：ui 构建 2205→2366（嫌疑面：710 ui_gen 774 行面/
   fix-ui-tier WidgetRegistry 增量注册改造[c80887ab7]/r3 内建分发器
-  三处+借位 clone 窄门[29563c588]）——上游二分定谳。
+  三处+借位 clone 窄门[29563c588]）——上游二分定责。
 - **影响**：下游 open_100mb/warm_start 两预算行 L2 直拉形态不可测
   （steady_start/idle_mem/diff_100mb[back 面]不受累——已出实数）；
   装载链 E2E/编辑回路冒烟面 blocked。

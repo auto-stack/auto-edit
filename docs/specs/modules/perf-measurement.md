@@ -331,7 +331,7 @@ evidence-p021-blocked-survey.md；上游登记=供料档 §6/§7）。
   a2r 形态 code_editor 注册断链（装载探测门永假→装载链永递延；
   VM 轨同源正常+旧 a2r 构建正常+新旧视图代码逐字节一致→ui 运行时
   回归，窗口 2205→2366）——回归窗口=710 ui_gen/fix-ui-tier/r3
-  分发器嫌疑，上游二分定谳后 `bench open|warm --l2` 补跑（判据面
+  分发器嫌疑，上游二分定责后 `bench open|warm --l2` 补跑（判据面
   已备）。
 - **生成码首跑+三域冒烟（G-A/G-B 实证绿）**：release exe 零旗标直拉
   ——boot/渲染/AutoUI MCP 面/零 panic；会话恢复 try 成功臂
@@ -346,7 +346,7 @@ evidence-p021-blocked-survey.md；上游登记=供料档 §6/§7）。
 
 ## L2 断言全表收口（PLAN-021 残余补跑，2026-09-30——PLAN-714 r4 清偿日）
 
-前节「残余缺陷」已随 **PLAN-714 r4** 清偿（二分定谳=非回归——生成器
+前节「残余缺陷」已随 **PLAN-714 r4** 清偿（二分定责=非回归——生成器
 Plan 413 原始缺口：`code_editor (key: t.key)` 动态 key 属性在 a2r 视图
 构建路径静默回落 "editor"→注册键≠查找键；修复=e93a717da 动态 key 经
 `ast_expr_to_rust` 发射贯通注册键）。本件判据面 zero 重设计补跑即全收
@@ -600,9 +600,9 @@ as-is 如实：8 PASS+2 FAIL+renderer n/a——十行全绿未达）**：
 ### 帧两行终裁与 M4 验收全绿态（PLAN-027，2026-10-03——735 消费+Q-1 双修裁定）
 
 上游 PLAN-735（帧泵呈现交付节奏清偿件，delivered@4195f7af9——呈现
-事实定谳+发布点错位配对修复+draw_end 真相通道）交付后同机下游终裁
+事实定责+发布点错位配对修复+draw_end 真相通道）交付后同机下游终裁
 重判——**测量实施修订（Q-1 用户裁定=双修采纳）后重判：
-type_latency 首绿（armed PASS），scroll_fps FAIL 维持（红面定谳=
+type_latency 首绿（armed PASS），scroll_fps FAIL 维持（红面定责=
 帧泵回环吞吐上限）**。
 
 - **终裁前置四门（T-00 全绿）**：工具链门=release 组树重建
@@ -631,7 +631,7 @@ type_latency 首绿（armed PASS），scroll_fps FAIL 维持（红面定谳=
   2-3ms 全绿（735 §4 机制候选 (b)「泵回环自 paced」下游实证）
   ——735 §3.3「驱动器是帧率上限」预判的下游修正：**泵上限<
   驱动上限，scroll 判据在任何测量实施修订下物理不可达**（需上游
-  泵域清偿；泵域不在 735 修复范围=上游域余题②定谳）。
+  泵域清偿；泵域不在 735 修复范围=上游域余题②定责）。
 - **终判谱（N=4 全有效，release v2704 L0 VM 形，修订协议）**：
   type_latency 行通道主读 P50 2-3ms/**P95 3-4ms vs ≤16.7ms →
   armed PASS（027 代首绿——帧工作面+呈现时延全绿**；fprobe 对照
@@ -669,7 +669,7 @@ as-is 如实：9 PASS+1 FAIL+renderer n/a——十行全绿差 scroll 一行）*
 | 4 | open_100mb | armed PASS（021 863.2ms L2 判定锚；025 后援臂红利 383.3ms 记账） | open-20260930-230121 |
 | 5 | open_1gb | armed PASS（025 断言化收口——E2E 断言非时间预算；装载 3774.4ms 带内记账） | open-20261002-174223 |
 | 6 | type_latency | **armed PASS（027 终裁首绿——行通道 P95 3-4ms；Q-1 双修后呈现面真值通道）** | frame-20261003-1140xx 四谱 |
-| 7 | scroll_fps | **armed FAIL 维持（027 代 9.6-10.0fps——帧泵回环吞吐上限定谳；上游泵域余题②）** | 同上 |
+| 7 | scroll_fps | **armed FAIL 维持（027 代 9.6-10.0fps——帧泵回环吞吐上限定责；上游泵域余题②）** | 同上 |
 | 8 | diff_100mb | armed PASS（022 窗口形 784.8ms 双谱；全量对照 FAIL 保留） | diff-20261001-144526/164312 |
 | 9 | idle_mem | armed PASS（9.1MB——≤150MB 重基线门下；RQHost 后回归 ≤10MB 级承诺） | portable-20261002-093055 |
 | 10 | installer | armed PASS（30,403,072B——≤50MB 重基线；RQHost 后 ≤20MB 承诺） | 同上 |

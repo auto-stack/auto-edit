@@ -318,9 +318,9 @@ python tools/bench/bench.py <cmd> [--mode l0|l1|l2] [--runs N] [--full]
   矩阵跑次分布（1652 工具链，AUTO_BIN=debug auto.exe）：**50/0×2**
   （run2/run7）+ 39/9（run1 首轮冷降级：菜单快照失联+save 读取竞态，
   加固前形态）+ 49/1（run3/run5：paste 轮转 flake）+ 无 RESULT×2
-  （run4/run6 早崩，按 README 基线条款重跑）。**非回归定谳**：基线
+  （run4/run6 早崩，按 README 基线条款重跑）。**非回归定责**：基线
   原码（主检出 fdc92aa）同工具链同形（base1 早崩@12 PASS 无 RESULT、
-  base2 50/0）；paste flake 机制定谳 = `code_editor_paste` 内
+  base2 50/0）；paste flake 机制定责 = `code_editor_paste` 内
   `clipboard_get()` 瞬态失败静默 no-op（arboard 争用，返回 Bool 不报
   剪贴板成败——供料包 §9 已登记）。**合并后补验**（vm 轨代码与证据轮
   字节级一致，diff 证）：会话末段机况退化（今日 30+ 实例spawn、并行
@@ -390,7 +390,7 @@ python tools/bench/bench.py <cmd> [--mode l0|l1|l2] [--runs N] [--full]
   d845e54 + 3123c50 print 遮蔽缓解；base=main@fdc92aa，执行期 main
   前移 d845e54 已对账合并）·
   task_ids=T-01..T-07 全 · evidence=AC-01..08 全过（终局对照表见 §8
-  执行收据；矩阵 50/0×2 + 基线原码对照定谳非回归 + 合并后 vm 轨代码
+  执行收据；矩阵 50/0×2 + 基线原码对照定责非回归 + 合并后 vm 轨代码
   同一性 diff 证；vue build exit 0 双世界[补件链/退役链各验一次]；
   proxy/l1/l2 构造性三连）· blockers=无阻塞级——两项语义修订
   已按证据落账：① BENCH 行改 host 侧毫秒（VM 轨 time 族未接线四探针
@@ -415,7 +415,7 @@ python tools/bench/bench.py <cmd> [--mode l0|l1|l2] [--runs N] [--full]
   复审全量重跑取证（同会话内审——独立性受限已在判定中声明，结论自
   工件重建）：①AC-01 grep 复现仅两 save 位（L367/L513）；②矩阵复现=
   复审窗口两轮早崩（21/19 PASS 无 RESULT）+ **基线原码同窗口同形早崩**
-  （12 PASS 无 RESULT）——F-RV6 竞态窗口定谳环境归因，完成态门承载=
+  （12 PASS 无 RESULT）——F-RV6 竞态窗口定责环境归因，完成态门承载=
   执行期 50/0×2 且 vm 轨代码与 HEAD 字节同一（git diff 73d07b5..HEAD
   vm 面零改动实证）；③AC-02 vue 复跑首红（strict 生成对 bps 池 dep
   校验非确定中止，绿跑同 Warning 同过）复跑 exit 0+缓解行发射；④AC-04

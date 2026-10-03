@@ -402,9 +402,9 @@ SD-01..03 落档+specs.json P021-1 投影（roundtrip 字节等价先证+
 - **Q-5 a2r 形态 code_editor 注册断链路由（已裁定+已清偿闭环）**：
   用户 2026-09-30 指令「(a) 714 r4 收纳（本次同款通道）」→
   **PLAN-714 r4 收纳**〔auto-lang master@812a75292：archived→executing/
-  plan_revision 4/total_steps 19；R4-T1 二分定谳+R4-T2 修复贯通
+  plan_revision 4/total_steps 19；R4-T1 二分定责+R4-T2 修复贯通
   +R4-T3 census ④行+下游解阻确认〕→ **r4 delivered 归档@c19b5351a**
-  （R4-T1 定谳=非回归——生成器 Plan 413 原始缺口：动态 key 属性静默
+  （R4-T1 定责=非回归——生成器 Plan 413 原始缺口：动态 key 属性静默
   回落 "editor"；R4-T2 修复=e93a717da 动态 key 发射贯通注册键+单测
   四枚；R4-T3 census ④行+下游解阻确认[本仓 edit-021 真仓全绿]）。
   **本件清偿回执**：残余补跑 8d44d9e 落地——open/warm armed PASS+
