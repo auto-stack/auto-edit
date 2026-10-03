@@ -57,6 +57,11 @@ SRC_FRAME_024 = Path("tools/bench/results/frame-20261002-141631.jsonl")
 # armed FAIL 维持（泵呈现交付通道归因）；终跑谱=行值源，N=4 全有效
 # 谱带随行注记）
 SRC_FRAME_026 = Path("tools/bench/results/frame-20261003-004030.jsonl")
+# PLAN-027 帧两行终裁谱（735 消费+Q-1 双修修订协议〔读回切呈现面行通
+# 道+16ms 节拍〕后同机下游终裁——type_latency armed PASS 首绿/
+# scroll_fps armed FAIL 维持（帧泵回环吞吐上限定谳）；终跑谱=行值
+# 源，N=4 全有效谱带随行注记）
+SRC_FRAME_027 = Path("tools/bench/results/frame-20261003-114158.jsonl")
 
 
 def _rows(rel: Path) -> list[dict]:
@@ -95,6 +100,10 @@ def extract() -> dict:
     # PLAN-026 帧两行终判直读（731 S5 增量化后同机下游重判——FAIL 维持）
     frame26 = _rows(SRC_FRAME_026)
     sf26 = next(r for r in frame26 if r.get("id") == "scroll_fps")
+    # PLAN-027 帧两行终裁直读（735 消费+Q-1 双修修订协议——type 首绿/
+    # scroll FAIL 维持；行通道主读行值源）
+    frame27 = _rows(SRC_FRAME_027)
+    sf27 = next(r for r in frame27 if r.get("id") == "scroll_fps")
     return {
         "schema": "p020-our-anchors/1",
         "generated": "tools/compare/anchors.py 直读（零重算——AC-04 逐字对照）",
@@ -207,6 +216,26 @@ def extract() -> dict:
                      "通道语义适配=上游域余题第二段（归因回执 "
                      "evidence-p026-frame-rejudge.md）；下界测量口径"
                      "不变；Q-2 双态如实臂=发布门不解锁"},
+            {"state": "l2", "metric": "scroll_fps",
+             "median_ms": sf27["fps"], "unit": "fps",
+             "runs_ms": None, "window_ms": sf27.get("window_ms"),
+             "budget": sf27.get("threshold"),
+             "verdict": "fail", "source": str(SRC_FRAME_027),
+             "note": "PLAN-027 T-01 终裁（735 消费 delivered@4195f7af9"
+                     "+Q-1 测量实施修订〔用户裁定双修：读回切呈现面行通"
+                     "道+16ms 节拍〕后同机下游终裁，release 工具链 "
+                     "v0.4.2-2704-gde3a64353，N=4 全有效谱）：终跑谱 "
+                     f"{sf27['fps']}fps vs ≥{sf27['threshold']} → "
+                     "FAIL 维持——四谱带 9.6-10.0fps（fprobe 对照列 "
+                     "5.4-8.8fps 同带并陈）；红面定谳=帧泵回环吞吐上限"
+                     "（~95ms/圈→~10/s 与驱动节拍无关——16ms 节拍下"
+                     "draw_end 间隔 91-95ms 恒定+突发内 0-1ms 连建+帧"
+                     "工作面 2-3ms 全绿〔type_latency 027 首绿同谱实证"
+                     "〕=735 §4 机制候选 (b) 下游定谳）；四代谱系 022 "
+                     "8.0/024 6.7-8.8/026 8.1-9.5/027 9.6-10.0 同带—"
+                     "一泵上限主导；解锁前置=上游泵域清偿（复判通道已"
+                     "备=修订协议即终态协议）；下界测量口径不变（值域"
+                     "锚点切片）"},
         ],
     }
 
