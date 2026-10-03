@@ -344,10 +344,21 @@ diff）。
   015-026 十二连先例；git 跟踪账本经 worktree+Git 通道；main 回读
   验真 id/section/status/file〕；④**archived**=本笔〔git mv 等
   价：untracked 计划文件 mv archived/+git add 入册+status: archived
-  +completion_kind: delivered〕；⑤**cleaned**=随清理检查点落账。
-  F-1 补正随交付提交 d7cccaa 落（evidence 档 264→236 两处）；tag
-  v0.1-M4.3=五检查点后打点（Q-2 裁定命名；素材=evidence-p027-m4-
-  accept-green）。`next: cleaned 收据回填+tag 打点。
+  +completion_kind: delivered〕；⑤**cleaned**=三树 fresh clean
+  〔wt-guard 三树 clean+占用预检=唯一 auto.exe 进程为主检出 debug
+  二进制外来遗留〔PID 7968@main auto-lang——非组树非本会话产物，
+  不阻塞〕+零组树进程〕+三 worktree 注销〔edit-027 组目录 rm——
+  auto-edit remove 一次性 Permission denied 后 rm -rf 兜底清净，
+  auto-lang/auto-down prunable 注册 prune 清〕+branch 删 was
+  7f9862b 全落祖先链+组目录清——.wt 无残留+三仓 registry 零
+  〔grep/prune 双验〕。**部署观察=零重建项维持**（本件纯
+  tools/docs/specs/tag 面——零 Rust 生成物/零 web bundle/零
+  后端产物消费面，026 同判）；**批量回归不适用**（auto-edit 无
+  batch 文件——.last-batch-regression.json 缺席实证+023/024/025/
+  026 四连同判）。**v0.1-M4.3 tag 打点=本收据五检查点后**
+  （annotated tag@main tip=612efce——素材 evidence-p027-m4-accept-
+  green 逐字；验收全绿层语义——Q-2 裁定命名）。
+  F-1 补正随交付提交 d7cccaa 落（evidence 档 264→236 两处）。
 
 ## 10. 待澄清事项
 
