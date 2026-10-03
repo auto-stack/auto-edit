@@ -396,6 +396,18 @@
           ],
           "superseded_by": null,
           "content": "- merge 五检查点（r1）：prepared=review 基线 main@08685d6/工作树 plan-026-dev@185f206〔base 08685d6；两笔 0b74750 T-00+T-01/185f206 T-02..T-05——零 .at diff 纯判定/文档/tag 面；依赖钉版 auto-lang@cb2da5fba detached[731@30bda6831+733@550895b68 祖先链]+auto-down@895f8d0 detached；SD 越界目标先例=specs/auto-edit/README.md[024 SD-03/025 SD-04]——recorded reviewed precedent 在档〕；landed=ff-only 零合并提交+main tip=185f206〔15 文件 597+/8-；main 烟测绿=budgets 十行 026 纪元在录+anchors --verify 11 行+render --check 双绿+三 SD 锚点在档+帧谱 JSONL×4〕；ledger_refreshed=本条 P026-1 外科插入 27→28〔roundtrip 守卫=json.loads 新旧深等〔他五段+reviews 前缀 27 项零扰动〕+插入项逐字回读——015-025 十一连先例；通道=git 跟踪文件 .autoos/specs.json 经 worktree+Git〕；archived/cleaned=随归档/清理检查点后续落账。"
+        },
+        {
+          "id": "P027-1",
+          "section": "reviews",
+          "status": "stable",
+          "title": "PLAN-027 — M4 验收全绿件 merge 收据（work handoff pass@r1 552c789+交付=d7cccaa〔F-1 补正 docs-only descendant〕ff-landed：735 消费帧两行终裁〔Q-1 双修裁定——读回切呈现面行通道+16ms 节拍，阈值/语义 frozen〕=type_latency **armed PASS 首绿**〔行通道 P50 2-3/P95 3-4ms≤16.7——四代谱系 022 110/115→024 95-112→026 156-160→027 3-4ms 通道换代直比禁则〕+scroll_fps armed FAIL 维持〔9.6-10.0fps——红面定谳=帧泵回环 ~95ms/圈吞吐上限 ~10/s 与驱动节拍无关，735 §4 候选 (b) 下游定谳；解锁前置=上游泵域清偿〕+通道新鲜度带内 ΔP50 1ms〔9920 零上游依赖不接线〕+十行 as-is 9 PASS+1 FAIL+renderer n/a+发布门不解锁〔Q-1 裁定回执明示〕+对比表滚动行四代并陈双绿+v0.1-M4.3 tag 素材〔验收全绿层——Q-2 默认命名裁定〕+SD-01..03）",
+          "file": "docs/plans/archived/027-m4-735-consume-frame-green.md",
+          "related": [
+            "PLAN-027"
+          ],
+          "superseded_by": null,
+          "content": "- merge 五检查点（r1）：prepared=review 基线 main@252028a/工作树 plan-027-dev@552c789〔base 252028a；四笔 365a21d T-00 终裁勘定/f76e8e5 T-01 终裁+修订实施/d42af6c T-02+T-03 十行态+四代并陈/552c789 T-04+T-05 素材+SD-02/03+交付 d7cccaa F-1 计数补正〔review finding——docs-only descendant，2 行 docs 零代码面核验〕——零 .at diff 判定/工具/文档/tag 面；依赖钉版 auto-lang@de3a64353 detached[735@4195f7af9+737@59ff4e66f+731@30bda6831 祖先链 merge-base 三实证]+auto-down@895f8d0 detached；SD 越界目标先例=specs/auto-edit/README.md[024/025/026 同款]〕；landed=ff-only 零合并提交+main tip=d7cccaa〔19 文件 1283+/45-；main 烟测绿=budgets 10 行+budget/metric/tier 字段 diff=零 frozen+anchors --verify 12 行+render --check 双绿+三 SD 锚点在档+帧谱 JSONL×5+复审 HEAD 复现跑 type PASS/scroll FAIL 判定稳健〕；ledger_refreshed=本条 P027-1 外科插入 28→29〔roundtrip 守卫=json.loads 新旧深等〔他五段+reviews 前缀 28 项零扰动〕+插入项逐字回读——015-026 十二连先例；通道=git 跟踪文件 .autoos/specs.json 经 worktree+Git〕；archived/cleaned=随归档/清理检查点后续落账。"
         }
       ],
       "status": "Empty",
