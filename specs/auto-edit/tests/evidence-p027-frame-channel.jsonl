@@ -1,0 +1,5 @@
+{"type": "meta", "time": "20261003-113025", "toolchain": "auto 0.1.0+v0.4.2-2704-gde3a64353", "auto_bin": "D:/autostack/.wt/edit-027/auto-lang/target/release/auto.exe", "app_log": "C:\\Users\\zhaop\\AppData\\Local\\Temp\\bench-p027-probe-appdata-jb489l2r\\app.log", "freshness_keys": 10, "type_keys": 60, "window_s": 3.0}
+{"type": "freshness_summary", "reads": 10, "matched": 10, "dirty_rows": 23, "row_pairing_pct": 100.0, "deltas_ms": [1, 1, 1, 19, 0, 1, 1, 1, 1, 1]}
+{"type": "call_floor", "n": 15, "p50_ms": 15.8, "min_ms": 14.4, "max_ms": 27.4, "drive_rate_ceiling_hz": 63.3}
+{"type": "type_window", "keys": 60, "win_s": 2.14, "dirty_frames": 3, "total_p50_ms": 3, "total_p95_ms": 3, "total_max_ms": 3, "distinct_draw_end": 3, "draw_end_per_sec": 1.4}
+{"type": "scroll_window", "drive_calls": 118, "win_s": 3.52, "distinct_draw_end": 35, "draw_end_per_sec": 9.95}
