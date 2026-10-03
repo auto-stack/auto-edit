@@ -1703,9 +1703,76 @@ def stage_warm(runs: int, l2: bool = False) -> int:
 # type_latency=单字符连发；scroll_fps=换行连发（cursor-follow 滚动
 # ——光标推进视图跟随，滚动相关性如实注记）。MCP 端口钉位=P716-D1
 # 处方同款 924x 带绕开。
+#
+# PLAN-027 T-01 测量实施修订（Q-1 用户裁定 2026-10-03=双修采纳——
+# 735 回执 v2 §3/§4 建议；判定阈值/语义 frozen 原样，修订仅测量
+# 实施面；T-00 校准实证=evidence-p027-frame-channel.jsonl）：
+#   (a) 读回通道切呈现面——主读=[P725-FRAME] 行通道 total_ms
+#       （present 列=draw_end 优先真值，735 配对修复；同一帧的
+#       begin→present 差=022 帧内口径的如实通道）；fprobe 快照
+#       差分退役为对照列（逐跑并录 role=comparison 不判定——
+#       fprobe=9919 泵消费时刻，泵回环 ~95ms/圈下读数=陈旧度，
+#       026 归因面保留）。通道新鲜度带内（Δ P50 1ms）→9920
+#       零上游依赖不接线（条件路由位关闭）。
+#   (b) 驱动节拍 60ms→16ms——主读相驱动=16ms 节拍（面板周期量
+#       级，判据物理可达前提）；调用时延（p50 ~15ms 实测）使
+#       有效驱动 ~30ms 周期，节拍再降无效。对照相维持 022 原样
+#       （60ms 节拍+密集轮询——A/B 双通道同跑实录）。
+#   行通道解析=[P725-FRAME] stdout 行（frame_segments 735 发布
+#   点——行值=frame_bench 时基进程毫秒）；窗口切片=值域锚点（相
+#   边界 fprobe_begin 读数，帧时基同源）+运行末整读日志（app
+#   stdout 块缓冲滞后使中途行数切片不可靠——执行期勘定），锚端
+#   ±1 帧=旋转滞差边缘语义，双读并录。
 
 _FRAME_MCP_PORT_BASE = 9360
 NLCHAR = chr(10)  # 换行驱动字符（避开源码转义层）
+# PLAN-027 (b)：主读相驱动节拍（ms）——16ms=60Hz 面板周期量级。
+FRAME_DRIVE_CADENCE_MS = 16
+# PLAN-027 (a)：[P725-FRAME] 行解析（与 auto-lang ladder735.py 同款
+# 正则——draw_end_ms 可选列，735 前工具链缺席）。
+_FRAME_ROW_RE = re.compile(
+    r"\[P725-FRAME\] begin=(-?\d+) present=(-?\d+) s1_payload_us=(\d+) "
+    r"s2_vm_us=(\d+) s3a_mcp_us=(\d+) s3b_build_us=(\d+) s4_element_us=(\d+) "
+    r"s5_layout_us=(\d+) s5_shaping_us=(\d+) s5_draw_us=(\d+) "
+    r"builds=(\d+) dirty=(-?\d+)(?: draw_end_ms=(-?\d+))?"
+)
+
+
+def _parse_frame_row(line: str) -> dict | None:
+    m = _FRAME_ROW_RE.search(line)
+    if not m:
+        return None
+    g = m.groups()
+    return {"begin": int(g[0]), "present": int(g[1]),
+            "s2_us": int(g[3]), "builds": int(g[10]), "dirty": int(g[11]),
+            "draw_end_ms": int(g[12]) if g[12] is not None else -1}
+
+
+def _read_frame_rows(path: str, start_line: int, end_line: int | None = None
+                     ) -> list:
+    """[P725-FRAME] 行通道读取（app 日志行号切片——mark 语义）。"""
+    rows = []
+    try:
+        with open(path, encoding="utf-8", errors="replace") as f:
+            for i, line in enumerate(f):
+                if i < start_line:
+                    continue
+                if end_line is not None and i >= end_line:
+                    break
+                r = _parse_frame_row(line)
+                if r:
+                    rows.append(r)
+    except OSError:
+        pass
+    return rows
+
+
+def _count_log_lines(path: str) -> int:
+    try:
+        with open(path, encoding="utf-8", errors="replace") as f:
+            return sum(1 for _ in f)
+    except OSError:
+        return 0
 
 
 def _panel_hz() -> float:
@@ -1761,9 +1828,11 @@ def stage_frame() -> int:
     panel_hz = _panel_hz()
     frame_budget_ms = 1000.0 / panel_hz
     fps_threshold = panel_hz * 0.9
-    _log(f"帧两行档（PLAN-022 T-03）toolchain: {fp.get('version', '?')} "
-         f"panel={panel_hz:.0f}Hz budget={frame_budget_ms:.1f}ms "
-         f"fps_threshold={fps_threshold:.1f}")
+    _log(f"帧两行档（PLAN-027 Q-1 修订协议）toolchain: "
+         f"{fp.get('version', '?')} panel={panel_hz:.0f}Hz "
+         f"budget={frame_budget_ms:.1f}ms "
+         f"fps_threshold={fps_threshold:.1f} "
+         f"cadence={FRAME_DRIVE_CADENCE_MS}ms")
 
     # 滚动/键入 fixture（~120 行——换行连发可推进光标入滚动域；
     # 生成式不入库 013/016 先例）。
@@ -1845,9 +1914,27 @@ def stage_frame() -> int:
                      "verdict": "record"})
         _log(f"  first_present≈{first_present}ms（帧值坐标）")
 
-        # ---- type_latency：键入驱动（editor 焦点自证=fprobe_n 递增） ----
+        # ---- type_latency 主读（行通道——PLAN-027 修订 (a)(b)） ----
+        # 90 键 ×16ms 节拍零轮询；判定=脏帧行 total_ms（present 列
+        # =draw_end 优先真值）P95 ≤1 帧。首脏帧弃暖机（首建域——
+        # 026 归因 s4_element 一次形，非判定域）。相边界=值域锚点
+        # （fprobe_begin 帧时基——行切片延至运行末整读日志后过滤，
+        # 中途行数读数受 app stdout 块缓冲滞后影响不可靠，执行期
+        # 勘定）。
+        ta0 = (_mcp_state(base, ["fprobe_begin"]).get("fprobe_begin") or 0)
+        t0w = time.perf_counter()
+        n_typed = 0
+        for _k in range(90):
+            if _type("x"):
+                n_typed += 1
+            time.sleep(FRAME_DRIVE_CADENCE_MS / 1000.0)
+        t1w = time.perf_counter()
+        ta1 = (_mcp_state(base, ["fprobe_begin"]).get("fprobe_begin") or 0)
+        _log(f"  type 主读驱动完成：keys={n_typed} win="
+             f"{t1w - t0w:.2f}s anchor=[{ta0}..{ta1}]")
+
+        # ---- type_latency 对照（fprobe 快照差分——022 协议原样） ----
         samples = []
-        edits_base = None
         for k in range(30):
             if not _type("x"):
                 _log(f"  key{k} 派发败")
@@ -1861,35 +1948,38 @@ def stage_frame() -> int:
             samples.append((st.get("fprobe_begin") or 0,
                             st.get("fprobe_present") or 0,
                             st.get("fprobe_n") or 0))
-        st_e = _mcp_state(base, ["edits"]) if samples else {}
-        focus_ok = (len(samples) >= 10 and st_e.get("edits", 0) >= 3)
         lat = []
         for (b0, _p0, _n0), (b1, p1, _n1) in zip(samples, samples[1:]):
             if b0 > 0 and p1 >= b0 and p1 > 0:
                 lat.append(p1 - b0)
         lat_sorted = sorted(lat)
-        p50 = lat_sorted[len(lat_sorted) // 2] if lat_sorted else None
-        p95 = (lat_sorted[min(len(lat_sorted) - 1,
-                              int(len(lat_sorted) * 0.95))]
-               if lat_sorted else None)
-        tl_pass = p95 is not None and focus_ok and p95 <= frame_budget_ms
-        rows.append({"id": "type_latency", "samples": len(samples),
-                     "valid_pairs": len(lat), "p50_ms": p50, "p95_ms": p95,
-                     "budget_ms": round(frame_budget_ms, 2),
-                     "panel_hz": panel_hz, "focus_ok": focus_ok,
-                     "verdict": "PASS" if tl_pass else "FAIL"})
-        _log(f"  type_latency: P50={p50}ms P95={p95}ms "
-             f"(≤{frame_budget_ms:.1f}ms) samples={len(samples)} "
-             f"valid={len(lat)} focus_ok={focus_ok} "
-             f"→ {'PASS' if tl_pass else 'FAIL'}")
+        c_p50 = lat_sorted[len(lat_sorted) // 2] if lat_sorted else None
+        c_p95 = (lat_sorted[min(len(lat_sorted) - 1,
+                                int(len(lat_sorted) * 0.95))]
+                 if lat_sorted else None)
+        _log(f"  type[fprobe 对照]: P50={c_p50}ms P95={c_p95}ms "
+             f"samples={len(samples)} valid={len(lat)}（不判定）")
 
-        # ---- scroll_fps：PageDown 连发 + 密集轮询（下界测量） ----
+        # ---- scroll_fps 主读（行通道——PLAN-027 修订 (a)(b)） ----
+        # 换行连发 16ms 节拍零轮询 3s 窗；判定=窗内 distinct draw_end
+        # 计数/窗时长 ≥面板×0.9（值域锚点切片）。
+        sa0 = (_mcp_state(base, ["fprobe_begin"]).get("fprobe_begin") or 0)
+        s0w = time.perf_counter()
+        n_drive = 0
+        while time.perf_counter() - s0w < 3.0:
+            if _type(NLCHAR):
+                n_drive += 1
+            time.sleep(FRAME_DRIVE_CADENCE_MS / 1000.0)
+        s1w = time.perf_counter()
+        sa1 = (_mcp_state(base, ["fprobe_begin"]).get("fprobe_begin") or 0)
+        _log(f"  scroll 主读驱动完成：drive={n_drive} win="
+             f"{s1w - s0w:.2f}s anchor=[{sa0}..{sa1}]")
+
+        # ---- scroll_fps 对照（fprobe 快照差分——022 协议原样） ----
         presents = []
         t_end = time.perf_counter() + 3.0
-        k_i = 0
         while time.perf_counter() < t_end:
             _type(NLCHAR)
-            k_i += 1
             for _ in range(4):
                 try:
                     pv = _mcp_state(base, ["fprobe_present"]).get(
@@ -1903,19 +1993,80 @@ def stage_frame() -> int:
                 time.sleep(0.004)
         uniq = sorted(set(presents))
         if len(uniq) >= 2:
-            win_ms = uniq[-1] - uniq[0]
-            fps = (len(uniq) - 1) / win_ms * 1000.0 if win_ms > 0 else 0.0
+            c_win = uniq[-1] - uniq[0]
+            c_fps = (len(uniq) - 1) / c_win * 1000.0 if c_win > 0 else 0.0
         else:
-            win_ms = fps = 0.0
+            c_win = c_fps = 0.0
+        _log(f"  scroll[fprobe 对照]: {c_fps:.1f}fps "
+             f"(distinct={len(uniq)})（不判定）")
+
+        # ---- 行通道终读+判定（整读日志——缓冲已沉降） ----
+        time.sleep(1.5)  # 末相 settle——Tick 行推缓冲，终读前保完整
+        all_rows = _read_frame_rows(app_log_path, 0)
+        # type 主读切片：anchor 窗内脏帧（首脏帧弃暖机）。成员过滤
+        # =dirty==1∧present>0（配对帧）——ladder 上游款 s2_us>0 条件
+        # 在下游不适用（真实 app 脏帧 VM 段常 0µs——执行期勘定，
+        # ladder735 summarize 成员过滤是 041 例形态）。
+        type_rows = [r for r in all_rows
+                     if ta0 < r["begin"] <= ta1 + 1
+                     and r["dirty"] == 1 and r["present"] > 0][1:]
+        paired = sum(1 for r in type_rows if r["draw_end_ms"] > 0)
+        totals = sorted(r["present"] - r["begin"] for r in type_rows)
+        p50 = totals[len(totals) // 2] if totals else None
+        p95 = (totals[min(len(totals) - 1, int(len(totals) * 0.95))]
+               if totals else None)
+        st_e = _mcp_state(base, ["edits"]) if n_typed else {}
+        focus_ok = (len(type_rows) >= 10 and st_e.get("edits", 0) >= 3)
+        tl_pass = p95 is not None and focus_ok and p95 <= frame_budget_ms
+        rows.append({"id": "type_latency", "readback": "row-channel",
+                     "role": "primary", "keys": n_typed,
+                     "win_s": round(t1w - t0w, 2),
+                     "anchor": [ta0, ta1],
+                     "valid_frames": len(type_rows),
+                     "row_pairing_pct": round(100.0 * paired / len(type_rows),
+                                              1) if type_rows else None,
+                     "p50_ms": p50, "p95_ms": p95,
+                     "budget_ms": round(frame_budget_ms, 2),
+                     "panel_hz": panel_hz, "focus_ok": focus_ok,
+                     "verdict": "PASS" if tl_pass else "FAIL"})
+        _log(f"  type_latency[行通道主读]: P50={p50}ms P95={p95}ms "
+             f"(≤{frame_budget_ms:.1f}ms) frames={len(type_rows)} "
+             f"pairing={rows[-1]['row_pairing_pct']}% focus_ok={focus_ok} "
+             f"→ {'PASS' if tl_pass else 'FAIL'}")
+        rows.append({"id": "type_latency_fprobe", "readback": "fprobe",
+                     "role": "comparison", "samples": len(samples),
+                     "valid_pairs": len(lat), "p50_ms": c_p50,
+                     "p95_ms": c_p95, "budget_ms": round(frame_budget_ms, 2),
+                     "note": ("Q-1(a) 退役对照列——fprobe=泵消费时刻"
+                              "（9919），泵回环下读数=陈旧度（026 归因面"
+                              "保留）；不判定"),
+                     "verdict": "record"})
+        # scroll 主读切片：anchor 窗内 distinct draw_end
+        scroll_rows = [r for r in all_rows
+                       if sa0 < r["begin"] <= sa1 + 1]
+        draw_ends = sorted({r["draw_end_ms"] for r in scroll_rows
+                            if r["draw_end_ms"] > 0})
+        win_ms = (s1w - s0w) * 1000.0
+        fps = (len(draw_ends) / win_ms * 1000.0) if win_ms > 0 else 0.0
         sf_pass = fps >= fps_threshold
-        rows.append({"id": "scroll_fps", "distinct_present": len(uniq),
+        rows.append({"id": "scroll_fps", "readback": "row-channel",
+                     "role": "primary", "drive_calls": n_drive,
+                     "anchor": [sa0, sa1],
+                     "distinct_draw_end": len(draw_ends),
                      "window_ms": round(win_ms, 1), "fps": round(fps, 2),
                      "panel_hz": panel_hz,
                      "threshold": round(fps_threshold, 2),
                      "verdict": "PASS" if sf_pass else "FAIL"})
-        _log(f"  scroll_fps: {fps:.1f}fps（distinct={len(uniq)} "
-             f"win={win_ms:.0f}ms ≥{fps_threshold:.1f}）→ "
-             f"{'PASS' if sf_pass else 'FAIL'}")
+        _log(f"  scroll_fps[行通道主读]: {fps:.1f}fps（distinct="
+             f"{len(draw_ends)} drive={n_drive} win={win_ms:.0f}ms "
+             f"≥{fps_threshold:.1f}）→ {'PASS' if sf_pass else 'FAIL'}")
+        rows.append({"id": "scroll_fps_fprobe", "readback": "fprobe",
+                     "role": "comparison", "distinct_present": len(uniq),
+                     "window_ms": round(c_win, 1), "fps": round(c_fps, 2),
+                     "threshold": round(fps_threshold, 2),
+                     "note": ("Q-1(a) 退役对照列——泵消费时刻 distinct"
+                              "（026 读法），不判定"),
+                     "verdict": "record"})
 
         if not tl_pass or not sf_pass:
             exit_code = EXIT_FAIL
@@ -1931,8 +2082,18 @@ def stage_frame() -> int:
         head = {"type": "frame_timing", "toolchain": fp,
                 "form": "l0-vm-debug（保守上界——解释段最慢形）",
                 "panel_hz": panel_hz,
-                "form_note": ("供⑨ 清偿后首判（716 r3 T-15 int lane）；"
-                              "读回=MCP autoui_state 帧探针字段+首帧标记")}
+                "protocol": {
+                    "revision": "PLAN-027 Q-1 双修裁定（2026-10-03）",
+                    "primary_readback": ("[P725-FRAME] 行通道 total_ms"
+                                        "（present=draw_end 优先真值，"
+                                        "735 配对修复）"),
+                    "comparison_readback": ("fprobe 快照差分（9919 泵消费"
+                                           "时刻——退役对照列）"),
+                    "drive_cadence_ms": FRAME_DRIVE_CADENCE_MS,
+                    "threshold_semantics": "frozen（P95≤1 帧+面板×0.9 原样）"},
+                "form_note": ("供② 清偿后首判（716 r3 T-15 int lane）→"
+                              "PLAN-027 Q-1 测量实施修订（读回呈现面+16ms"
+                              "节拍——阈值/语义零变更）")}
         f.write(json.dumps(head, ensure_ascii=False) + chr(10))
         for r in rows:
             f.write(json.dumps(r, ensure_ascii=False) + chr(10))
