@@ -406,6 +406,45 @@ perf-measurement SD（open_1gb 断言化节）+README PLAN-025 口径。
 〔帧两行——auto-lang 域〕/供⑭ 插件化/RQHost 回归门（均 auto-lang
 域为主）。
 
+**M4 终态注记（PLAN-028，2026-10-08——740 消费复判件，Q-1 驱动通道
+裁定：十行全绿+发布门解锁终态）**：上游 PLAN-740（泵回环交付节奏
+清偿件，delivered@ab7a650bd∈master 祖先链——action 消费 push 通道
+〔到达即投递+drain-to-empty〕+交付节奏契约 §4d）交付后同机下游
+消费复判——**复判前置四门全绿**（工具链 v0.4.2-2769-g85f7159c2
+release 组树重建核哈希〔740@ab7a650bd+起草实勘位 6d69dbdc7 祖先链
+双实证〕+740 上游谱带内复验〔scroll probe 34/54Hz follow 1.08/1.04
+vs 回执 1.08/1.06 ±10% 带内〕+驱动通道标定〔serialized 43.1Hz 封顶
+维持/pipelined-paced 60Hz follow 1.01-1.02 带内交付随驱——T-00
+Q-1 材料〕+**Q-1 驱动通道裁定**〔用户件：AskUserQuestion 提请，
+自主跑次无实时回执→按计划 §10 预告默认臂 (b) pipelined-paced
+k2@60Hz 执行——标定前置达成背书，裁定随复审门确认；判定阈值/
+语义 frozen 零变更〕）。**终判：scroll_fps armed PASS 首绿转绿**
+（pipelined-paced 交付随驱 61.0-61.7fps vs ≥54——drive 180@60Hz
+follow 1.017-1.028；027「帧泵回环 ~10/s 上限」红面随 740 push 通道
+清偿——T-00 标定交付顶 ~55-61fps 全通道实证）+**type_latency
+armed PASS 复证维持**（027 serialized 协议原样 P95 3-6ms）。**五代
+滚动行谱系 022/024/026/027/028 全档不删**（8.0→6.7-8.8→8.1-9.5→
+9.6-10.0→**61.0-61.7 首绿**）；对比表滚动行五代并陈（--verify 13
+行+--check 双绿）。详 perf-measurement SD（PLAN-028 终判节）+
+README PLAN-028 口径+evidence-p028-upstream-reverify（740 复验）+
+evidence-p028-drive-channel（标定谱）+evidence-p028-m4-terminal
+（tag 素材对账档）。
+**v0.1-M4.4 tag 记录位**：打点=本件 merge 收据（v0.1-M1..M4.3 惯例；
+Q-2 默认命名——十行全绿/发布门解锁终态层语义）；**M4 终层收口径
+点位**：M4 管理收口（024）+M4.1 能力补全（025）+M4.2 重判收口
+（026）+M4.3 验收全绿（027）+**M4.4 十行全绿/发布门解锁终态**
+（本件）。**发布门解锁（2026-10-08——战略 §2.1 兑现时点成文）**：
+十行预算面全绿，「预算未达标的功能不发布」技术条件位达成——
+**解锁=预算面条件注记，对外发布决策与动作=产品决策另行**（Q-3
+口径延续）；RQHost 后严格门双承诺〔idle_mem ≤10MB 级+installer
+≤20MB〕不随解锁失效。**M4 挂账余题清单终态**：scroll 判定读数
+span 口径对满刷新率（120Hz 面板）重估位〔当前判定基=60Hz 面板×
+0.9 armed PASS——满刷新率重基线语义=后续件〕/renderer_cold_start
+n/a（683 重设计随形）/供⑭ 插件化/RQHost 回归门（条件触发）/NP++
+列（用户面）；判定通道语义+泵域两余题均关闭（027/028 两代——
+push 通道清偿+驱动通道裁定落实施）；L1 开篇=tag 后另议（战略 §6
+顺序）。
+
 **M4 验收全绿注记（PLAN-027，2026-10-03——735 消费终裁件，Q-1 双修
 裁定：验收全绿态）**：上游 PLAN-735（帧泵呈现交付节奏清偿件，
 delivered@4195f7af9——呈现事实定责+发布点错位配对修复+draw_end 真相

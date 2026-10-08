@@ -691,6 +691,52 @@ evidence-p027-m4-accept-green 与十行终态逐字对账；语义=验收全绿�
 modules/perf-measurement.md PLAN-027 终裁节（SD-01）+00-overview M4
 验收全绿注记（SD-02）。
 
+PLAN-028 口径（2026-10-08，工具链=v0.4.2-2769-g85f7159c2 release 组树
+构建[组三树 edit-028/{auto-edit@plan-028-dev base 25f3015,
+auto-lang@85f7159c2 含 740@ab7a650bd+起草实勘位 6d69dbdc7,
+auto-down@895f8d0 detached}；判据前核 `auto --version` 纪律延续；
+autodown-core 组 sibling 解析 load-bearing 维持]）。**M4 终态件=740
+消费 scroll 复判转绿（Q-1 驱动通道裁定：十行全绿+发布门解锁终态）**
+：①**复判前置四门全绿**——工具链核哈希 clean〔740+起草位祖先链双
+实证〕+**740 上游谱带内复验**（ladder740.py 处方复跑 1mb probe 34/54Hz：
+scroll follow_counts 1.08/1.04 vs 回执 1.08/1.06 ±10% 带内+type http
+1.63/1.11 vs 1.72/1.12 同形——复验谱 tests/evidence-p028-upstream-
+reverify.jsonl）+**驱动通道标定**（probe_frame_channel.py `--drive-cal`
+增量——027 判定面零变更：serialized 43.1Hz 封顶维持〔<54——驱动
+封顶非交付能力〕/pipelined-paced k2/4/8@60Hz fire 60.0Hz+follow
+1.011-1.022 ∈±10% 带内交付随驱〔740 §4d 契约下游复现〕/unpaced
+饱和参照 474Hz 验收≈免费+队列洪水非可用形态；**交付顶 ~55-61fps
+全通道同顶**——count/window 判读 61+，span 口径 55-57 对 54 薄余量
+带；标定谱 tests/evidence-p028-drive-channel.jsonl）+**Q-1 驱动通道
+裁定**（用户件：AskUserQuestion 提请 2026-10-08，自主跑次无实时
+回执→按计划 §10 预告默认臂 (b) 执行〔前置=标定 ≥54Hz 达成〕，
+**裁定随复审门确认**——(a) serialized 让位归因=回声补足语义混/
+(c) in-process 无必要；**判定阈值/语义 frozen 零变更**——修订仅
+测量实施面驱动通道，Q-1 回执=修订合法性，027 前科）。②**终判
+scroll_fps armed PASS 首绿转绿**（pipelined-paced k2@60Hz 交付随驱：
+行通道主读 distinct draw_end 183-185/3s=61.0-61.7fps vs ≥54——drive
+180 follow 1.017-1.028；**四代红谱收口 022 8.0/024 6.7-8.8/026
+8.1-9.5/027 9.6-10.0→028 61.0-61.7**；红面清偿定责链=740 push 通道
+消解 027「帧泵回环 ~10/s 上限」——T-00 标定全通道同顶实证）+
+**type_latency armed PASS 复证维持**（type 面 027 serialized 协议
+原样零变更：P50 2-4/P95 3-6ms≤16.7——N=4 配对 100%）；谱 JSONL×5
+入仓（frame-20261008-214932 冒烟+215003/215028/215053/215117 N=4）。
+③**修订实施面一项**（bench stage_frame 一次修订——Q-1 回执随附）：
+scroll 主读相驱动=节奏器 60Hz 全局派发+k2 线程池 fire-ahead（响应
+不阻塞下一发）；type 相/读回通道/成员过滤/值域锚点/判定公式=027
+原样零触碰；budgets budget 字段 diff=零 frozen。④**对比表滚动行
+五代并陈**（022/024/026/027/028——anchors --verify 13 行+render
+--check 双绿；历史谱零删 024 先例）。⑤budgets 两行 028 代注记
+（budget 字段 diff=零 frozen）+**发布门解锁**（2026-10-08 战略 §2.1
+兑现时点成文——十行全绿「预算未达标不发布」技术条件位达成；
+**解锁=预算面条件注记，对外发布决策另行**；RQHost 后严格门双承诺
+维持）。⑥**v0.1-M4.4 tag 记录位**——打点=本件 merge 收据（五检查
+点后；Q-2 默认命名——十行全绿/发布门解锁终态层语义；素材
+evidence-p028-m4-terminal 与十行终态逐字对账）。P028-1 账本投影=
+merge 期项（015-027 先例——work 不碰活账本）。规范详
+modules/perf-measurement.md PLAN-028 终判节（SD-01）+00-overview M4
+终态注记（SD-02）。
+
 注：Plan 451 起 T10「热重载」走 DSL 源路径（reload 工具或 mtime 轮询重读
 app.at 重新提取 actions + generation bump → 视图重建），实测 50/0 全绿。
 OS 用户键位层（`%APPDATA%/auto/keymaps/auto-edit.at`）保持外部文件——那是
