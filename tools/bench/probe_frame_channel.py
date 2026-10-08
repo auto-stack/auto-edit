@@ -23,6 +23,16 @@
 退出码：0=探针完成（判定材料落盘）；1=探针自身失败（app/MCP 未起）。
 行通道解析复用 ladder735.py 同款 [P725-FRAME] 正则（draw_end 可选列——
 735 前工具链该列缺席=present 列语义不同，本探针要求 735 后工具链）。
+
+PLAN-028 T-00 增量（--drive-cal——驱动通道标定，Q-1 材料件）：
+027 判定面（A/B1-B3）零变更（缺省路径原样=证据连续性）；--drive-cal
+切标定相：serialized（027 协议 16ms 节拍单发——活动期逐调用时延分布
++有效驱动率）vs pipelined（K∈{2,4,8} 并发 fire-ahead 线程池——响应
+不阻塞下一发）各 3s 窗换行驱动，逐相录 issued/时延谱/distinct
+draw_end（值域锚点切片）/follow 交付比初判。740 handoff-v3 §3 环境
+注记内化：静默退出档重试（app 死→重启重试该相一次，失败档不折算
+材料）；scrollable 定位注记=上游 ladder 域（下游 NLCHAR 驱动不经
+autoui_find，不受累——注记在案）。
 """
 import argparse
 import json
@@ -128,6 +138,324 @@ def pct(sorted_vals, q):
     return sorted_vals[min(len(sorted_vals) - 1, int(len(sorted_vals) * q))]
 
 
+def run_drive_cal(fp_exe: str, args) -> int:
+    """PLAN-028 T-00 驱动通道标定（Q-1 材料件）——v2 隔离相设计。
+
+    每相独立 app 会话（pipelined 洪水档会留下分钟级 action 队列尾水
+    ——隔离防相间污染，v1 实勘教训）；逐相 3s 换行驱动（活动滚动期）
+    +锚点切片（相末即读 a1——settle 只用于缓冲沉降后再读日志，不扩
+    窗，与 bench stage_frame 同几何）：
+
+    - serialized：16ms 节拍单发（027 协议原样）——有效驱动率+活动期
+      逐调用时延谱；
+    - pipelined-paced k@60Hz：节奏器 16.7ms 全局派发+k 线程池 fire-ahead
+      （响应不阻塞下一发）——判定协议形态预演：发射数/时延谱/交付
+      follow（T-02 判定读数=distinct draw_end/窗 ≥54 frozen）；
+    - pipelined-unpaced k2（饱和参照）：无节奏 fire-ahead——验收端
+      吞吐 vs 消费端队列洪水如实记录（v1 实勘：HTTP 验收 0.4-1.8ms
+      ≈免费，队列积压 follow 崩——非可用驱动形态，饱和上界参照档）。
+
+    740 handoff-v3 §3 内化：静默退出档重试（相中 app 死→整相作废+
+    重启重试一次——失败档如实记录不折算材料）。
+    """
+    import concurrent.futures
+    import threading
+
+    ks = [int(k) for k in str(args.concurrency).split(",") if k.strip()]
+    win_s = args.window_s
+    pace_period_ms = 1000.0 / 60.0  # 60Hz 节奏器——面板周期量级
+
+    fx = HERE / "fixtures" / "frame" / "frame_drive.txt"
+    fx.parent.mkdir(parents=True, exist_ok=True)
+    if not fx.exists() or fx.stat().st_size < 5000:
+        with open(fx, "w", encoding="utf-8", newline="") as f:
+            for i in range(120):
+                f.write(f"line {i:05d} frame drive payload content"
+                        f"{' CHANGED' if i % 97 == 0 else ''}\n")
+
+    out_rows = [{"type": "meta", "time": _ts(), "mode": "drive-cal-v2",
+                 "toolchain_ver": fp_exe, "window_s": win_s,
+                 "cadence_ms": args.cadence_ms,
+                 "pace_period_ms": round(pace_period_ms, 2),
+                 "concurrency": ks,
+                 "env_note": ("handoff-v3 §3 内化——静默退出档重试"
+                              "（整相作废重启重试一次）；state.at 砖处置="
+                              "boot panic 时删项目 .am/state.at 重试")}]
+    state = {"sess": None, "ta": None}
+
+    def launch():
+        port = None
+        for cand in range(PORT_BASE, PORT_BASE + 60):
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                if s.connect_ex(("127.0.0.1", cand)) != 0:
+                    port = cand
+                    break
+        ad = tempfile.mkdtemp(prefix="bench-p028-drivecal-appdata-")
+        env = {**os.environ, "AUTO_BENCH": "1", "AUTO_FRAME_BENCH": "1",
+               "AUTOUI_MCP_PORT": str(port), "APPDATA": ad,
+               "AUTO_OPEN_PATH": str(fx), "AUTO_PROJECT_DIR": str(PROJECT)}
+        log_path = Path(ad) / "app.log"
+        log_f = open(log_path, "w", encoding="utf-8")
+        proc = subprocess.Popen([fp_exe, "run", "-r", "vm"], cwd=PROJECT,
+                                env=env, stdout=log_f,
+                                stderr=subprocess.STDOUT)
+        state["sess"] = {"proc": proc, "log_f": log_f, "log": log_path,
+                         "base": f"http://127.0.0.1:{port}/mcp"}
+
+    def kill_sess():
+        s = state["sess"]
+        if not s:
+            return
+        try:
+            s["log_f"].close()
+        except OSError:
+            pass
+        if s["proc"].poll() is None:
+            s["proc"].kill()
+        subprocess.run(["taskkill", "/T", "/F", "/PID", str(s["proc"].pid)],
+                       capture_output=True)
+        state["sess"] = None
+        state["ta"] = None  # 重启后 vnode id 换代——强制重定位
+
+    def ensure_session():
+        if state["sess"] is None:
+            launch()
+        s = state["sess"]
+        ta = state["ta"]
+        if ta and s["proc"].poll() is None:
+            return True
+        if s["proc"].poll() is not None:
+            _log("环境注记：app 静默退出（handoff §3）——重启")
+            kill_sess()
+            launch()
+            s = state["sess"]
+        ta = None
+        for _ in range(15):
+            try:
+                txt, _ = mcp_call(s["base"], "autoui_snapshot", {})
+                m = re.search(r"textarea #(\w+)", txt)
+                if m:
+                    ta = m.group(1)
+                    break
+            except Exception:  # noqa: BLE001
+                pass
+            time.sleep(1)
+        if not ta:
+            return False
+        for _ in range(60):
+            try:
+                mcp_state(s["base"], ["fprobe_n"])
+                break
+            except Exception:  # noqa: BLE001
+                time.sleep(1)
+        else:
+            return False
+        state["ta"] = ta
+        time.sleep(6.0)  # 装载 settle
+        return True
+
+    def anchor() -> int:
+        try:
+            st, _ = mcp_state(state["sess"]["base"], ["fprobe_begin"])
+            return st.get("fprobe_begin") or 0
+        except Exception:  # noqa: BLE001
+            return -1
+
+    def slice_draw_ends(a0: int, a1: int):
+        rows = read_log_tail(state["sess"]["log"], 0)
+        des = sorted({r["draw_end_ms"] for r in rows
+                      if a0 < r["begin"] <= a1 + 1 and r["draw_end_ms"] > 0})
+        return des
+
+    def summarize_lat(lats_ms: list) -> dict:
+        ls = sorted(lats_ms)
+        if not ls:
+            return {"lat_p50_ms": None, "lat_p95_ms": None,
+                    "lat_max_ms": None}
+        return {"lat_p50_ms": round(pct(ls, 0.5), 1),
+                "lat_p95_ms": round(pct(ls, 0.95), 1),
+                "lat_max_ms": round(ls[-1], 1)}
+
+    def finish(rec: dict, a0: int) -> dict:
+        # 锚点相末即读（与 bench stage_frame 同几何——settle 不扩窗，
+        # 仅待缓冲沉降后读日志切片）。
+        a1 = anchor()
+        rec["anchor"] = [a0, a1]
+        time.sleep(1.0)
+        des = slice_draw_ends(a0, a1) if a1 >= 0 else []
+        rec["distinct_draw_end"] = len(des)
+        if len(des) >= 2:
+            rec["draw_end_span_ms"] = des[-1] - des[0]
+            rec["delivery_fps_span"] = round(
+                (len(des) - 1) / (des[-1] - des[0]) * 1000.0, 1)
+        if rec.get("issued"):
+            rec["follow_ratio"] = round(len(des) / rec["issued"], 3)
+        return rec
+
+    def phase_serialized() -> dict | None:
+        s, ta = state["sess"], state["ta"]
+        lats: list[float] = []
+        issued = failed = 0
+        a0 = anchor()
+        if a0 < 0:
+            return None
+        t0 = time.perf_counter()
+        while time.perf_counter() - t0 < win_s:
+            try:
+                _, dt = mcp_call(s["base"], "autoui_type",
+                                 {"element_id": ta, "text": NLCHAR,
+                                  "clear_first": False})
+                issued += 1
+                lats.append(dt)  # mcp_call 返回值已是 ms
+            except Exception:  # noqa: BLE001
+                failed += 1
+            time.sleep(args.cadence_ms / 1000.0)
+        if s["proc"].poll() is not None:
+            return None  # 相中途静默退出——整相作废（handoff §3 重试）
+        span = time.perf_counter() - t0
+        rec = {"type": "drive_cal", "channel": "serialized",
+               "cadence_ms": args.cadence_ms, "window_s": round(span, 2),
+               "issued": issued, "failed": failed,
+               "effective_hz": round(issued / span, 1) if span > 0 else None,
+               **summarize_lat(lats)}
+        return finish(rec, a0)
+
+    def phase_paced(k: int) -> dict | None:
+        """节奏器 60Hz 全局派发+k 线程池 fire-ahead（判定协议形态）。"""
+        s, ta = state["sess"], state["ta"]
+        lock = threading.Lock()
+        agg = {"responded": 0, "failed": 0}
+        lats: list[float] = []
+
+        def do_call():
+            try:
+                _, dt = mcp_call(s["base"], "autoui_type",
+                                 {"element_id": ta, "text": NLCHAR,
+                                  "clear_first": False})
+                with lock:
+                    agg["responded"] += 1
+                    lats.append(dt)  # mcp_call 返回值已是 ms
+            except Exception:  # noqa: BLE001
+                with lock:
+                    agg["failed"] += 1
+
+        a0 = anchor()
+        if a0 < 0:
+            return None
+        pool = concurrent.futures.ThreadPoolExecutor(max_workers=k)
+        t0 = time.perf_counter()
+        fired = 0
+        next_fire = t0
+        while True:
+            now = time.perf_counter()
+            if now - t0 >= win_s:
+                break
+            if now >= next_fire:
+                pool.submit(do_call)
+                fired += 1
+                next_fire += pace_period_ms / 1000.0
+                continue
+            time.sleep(min(0.002, max(0.0, next_fire - time.perf_counter())))
+        pool.shutdown(wait=True)
+        if s["proc"].poll() is not None:
+            return None
+        span = time.perf_counter() - t0
+        rec = {"type": "drive_cal", "channel": f"pipelined-paced-k{k}",
+               "pace_hz": 60.0, "window_s": round(span, 2),
+               "fired": fired, "issued": agg["responded"],
+               "failed": agg["failed"],
+               "fire_hz": round(fired / span, 1) if span > 0 else None,
+               **summarize_lat(lats)}
+        return finish(rec, a0)
+
+    def phase_unpaced(k: int) -> dict | None:
+        """无节奏 fire-ahead（饱和参照——队列洪水如实记录）。"""
+        s, ta = state["sess"], state["ta"]
+        stop = threading.Event()
+        lock = threading.Lock()
+        agg = {"responded": 0, "failed": 0}
+        lats: list[float] = []
+
+        def worker():
+            while not stop.is_set():
+                try:
+                    _, dt = mcp_call(s["base"], "autoui_type",
+                                     {"element_id": ta, "text": NLCHAR,
+                                      "clear_first": False})
+                    with lock:
+                        agg["responded"] += 1
+                        lats.append(dt)  # mcp_call 返回值已是 ms
+                except Exception:  # noqa: BLE001
+                    with lock:
+                        agg["failed"] += 1
+
+        a0 = anchor()
+        if a0 < 0:
+            return None
+        t0 = time.perf_counter()
+        threads = [threading.Thread(target=worker, daemon=True)
+                   for _ in range(k)]
+        for t in threads:
+            t.start()
+        time.sleep(win_s)
+        stop.set()
+        for t in threads:
+            t.join(timeout=20)
+        if s["proc"].poll() is not None:
+            return None
+        span = time.perf_counter() - t0
+        rec = {"type": "drive_cal", "channel": f"pipelined-unpaced-k{k}",
+               "window_s": round(span, 2), "issued": agg["responded"],
+               "failed": agg["failed"],
+               "effective_hz": round(agg["responded"] / span, 1)
+               if span > 0 else None,
+               "note": ("饱和参照档——验收≈免费（740 push+737 "
+                        "spawn_blocking），队列积压 follow 崩=非可用"
+                        "驱动形态"),
+               **summarize_lat(lats)}
+        return finish(rec, a0)
+
+    exit_code = 0
+    session_seq = [("serialized", lambda: phase_serialized())]
+    session_seq += [(f"pipelined-paced-k{k}",
+                     (lambda kk=k: lambda: phase_paced(kk))())
+                    for k in ks]
+    session_seq += [(f"pipelined-unpaced-k{ks[0] if ks else 2}",
+                     lambda: phase_unpaced(ks[0] if ks else 2))]
+    for label, fn in session_seq:
+        done = False
+        for attempt in (1, 2):  # 静默退出档重试（handoff §3——一次）
+            if not ensure_session():
+                _log(f"FATAL: {label} app/MCP 未起（attempt {attempt}）")
+                continue
+            rec = fn()
+            if rec is None:
+                _log(f"[-] {label} 相失败（attempt {attempt}——静默退出/"
+                     "锚点不可得）——整相作废重启重试")
+                kill_sess()
+                continue
+            out_rows.append(rec)
+            _log(f"{label}: issued={rec.get('issued', rec.get('fired'))} "
+                 f"eff/fire={rec.get('effective_hz', rec.get('fire_hz'))}Hz "
+                 f"lat P50/P95={rec['lat_p50_ms']}/{rec['lat_p95_ms']}ms "
+                 f"distinct_de={rec['distinct_draw_end']} "
+                 f"de_fps={rec.get('delivery_fps_span')} "
+                 f"follow={rec.get('follow_ratio')}")
+            done = True
+            kill_sess()  # 相隔离——pipelined 尾水不入下相
+            break
+        if not done:
+            out_rows.append({"type": "drive_cal_failed", "channel": label,
+                             "note": "两次尝试均失败（静默退出档如实记录"
+                                     "——不折算判定材料）"})
+            exit_code = 1
+    with open(args.out, "w", encoding="utf-8", newline="\n") as f:
+        for r in out_rows:
+            f.write(json.dumps(r, ensure_ascii=False) + "\n")
+    _log(f"JSONL → {args.out}")
+    kill_sess()
+    return exit_code
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--auto-bin", required=True)
@@ -135,6 +463,13 @@ def main() -> int:
     ap.add_argument("--freshness-keys", type=int, default=10)
     ap.add_argument("--type-keys", type=int, default=60)
     ap.add_argument("--window-s", type=float, default=3.0)
+    ap.add_argument("--drive-cal", action="store_true",
+                    help="PLAN-028 T-00 驱动通道标定相（serialized vs "
+                         "pipelined K——Q-1 材料）；置位时不跑 027 判定面")
+    ap.add_argument("--concurrency", default="2,4,8",
+                    help="pipelined fire-ahead 线程池 K 列表（逗号分隔）")
+    ap.add_argument("--cadence-ms", type=float, default=16.0,
+                    help="serialized 相驱动节拍（027 协议原样）")
     args = ap.parse_args()
 
     fp_exe = args.auto_bin
@@ -145,6 +480,9 @@ def main() -> int:
         _log(f"FATAL: --version 败: {e}")
         return 1
     _log(f"toolchain: {ver}")
+
+    if args.drive_cal:
+        return run_drive_cal(fp_exe, args)
 
     fdir = HERE / "fixtures" / "frame"
     fdir.mkdir(parents=True, exist_ok=True)
