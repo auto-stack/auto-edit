@@ -36,6 +36,7 @@ Windows-only（进程面同 perf.py）；所有 app 输出落 tools/bench/logs/
 （防管道阻塞，PLAN-003 坑位）；每轮按 PID 收（绝不 taskkill //IM）。
 """
 import argparse
+import concurrent.futures
 import json
 import os
 import re
@@ -43,6 +44,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import threading
 import time
 from datetime import datetime
 from pathlib import Path
@@ -1723,6 +1725,18 @@ def stage_warm(runs: int, l2: bool = False) -> int:
 #   边界 fprobe_begin 读数，帧时基同源）+运行末整读日志（app
 #   stdout 块缓冲滞后使中途行数切片不可靠——执行期勘定），锚端
 #   ±1 帧=旋转滞差边缘语义，双读并录。
+#
+# PLAN-028 T-01 Q-1 驱动通道修订（用户件——2026-10-08 AskUserQuestion
+# 提请，自主跑次无实时回执，按计划 §10 预告默认臂执行=裁定随复审门
+# 确认；T-00 标定实证=evidence-p028-drive-channel.jsonl）：
+#   scroll 主读相驱动通道切 pipelined-paced k2@60Hz——节奏器 16.7ms
+#   全局派发+2 线程池 fire-ahead（响应不阻塞下一发）。标定：驱动
+#   60.0Hz 真达 ≥54+follow 1.011-1.022 ∈±10% 带（740 §4d 交付随驱
+#   契约下游复现）；serialized（027 协议）有效驱动 43.1Hz<54 封顶
+#   〔回声帧补足读数 follow 1.41——归因语义混〕故让位。type 面
+#   027 serialized 协议原样复证（PASS 面零变更）。判定阈值/语义
+#   frozen 原样（distinct draw_end/窗 ≥面板×0.9——修订仅测量实施
+#   面驱动通道，Q-1 回执=修订合法性，027 前科）。
 
 _FRAME_MCP_PORT_BASE = 9360
 NLCHAR = chr(10)  # 换行驱动字符（避开源码转义层）
@@ -1828,11 +1842,12 @@ def stage_frame() -> int:
     panel_hz = _panel_hz()
     frame_budget_ms = 1000.0 / panel_hz
     fps_threshold = panel_hz * 0.9
-    _log(f"帧两行档（PLAN-027 Q-1 修订协议）toolchain: "
+    _log(f"帧两行档（PLAN-027 Q-1 修订+PLAN-028 Q-1 驱动通道）toolchain: "
          f"{fp.get('version', '?')} panel={panel_hz:.0f}Hz "
          f"budget={frame_budget_ms:.1f}ms "
          f"fps_threshold={fps_threshold:.1f} "
-         f"cadence={FRAME_DRIVE_CADENCE_MS}ms")
+         f"cadence={FRAME_DRIVE_CADENCE_MS}ms "
+         f"scroll_drive=pipelined-paced-k2@60Hz")
 
     # 滚动/键入 fixture（~120 行——换行连发可推进光标入滚动域；
     # 生成式不入库 013/016 先例）。
@@ -1960,19 +1975,46 @@ def stage_frame() -> int:
         _log(f"  type[fprobe 对照]: P50={c_p50}ms P95={c_p95}ms "
              f"samples={len(samples)} valid={len(lat)}（不判定）")
 
-        # ---- scroll_fps 主读（行通道——PLAN-027 修订 (a)(b)） ----
-        # 换行连发 16ms 节拍零轮询 3s 窗；判定=窗内 distinct draw_end
-        # 计数/窗时长 ≥面板×0.9（值域锚点切片）。
+        # ---- scroll_fps 主读（行通道——PLAN-027 修订 (a)(b)+PLAN-028
+        # Q-1 驱动通道） ----
+        # PLAN-028 Q-1：驱动=pipelined-paced k2@60Hz（节奏器 16.7ms
+        # 全局派发+2 线程池 fire-ahead——响应不阻塞下一发）；判定=
+        # 窗内 distinct draw_end 计数/窗时长 ≥面板×0.9（值域锚点切片
+        # ——frozen 原样）。锚点 sa1=发射窗关+在途排空后读（fire-ahead
+        # 尾帧归属——标定同几何）。
         sa0 = (_mcp_state(base, ["fprobe_begin"]).get("fprobe_begin") or 0)
         s0w = time.perf_counter()
         n_drive = 0
-        while time.perf_counter() - s0w < 3.0:
+        n_responded = 0
+        _pace_hz = 60.0
+        _pace_workers = 2
+        _pace_period = 1.0 / _pace_hz
+        _resp_lock = threading.Lock()
+
+        def _fire_nl() -> None:
+            nonlocal n_responded
             if _type(NLCHAR):
+                with _resp_lock:
+                    n_responded += 1
+
+        _pool = concurrent.futures.ThreadPoolExecutor(
+            max_workers=_pace_workers)
+        _next_fire = s0w
+        while True:
+            _now = time.perf_counter()
+            if _now - s0w >= 3.0:
+                break
+            if _now >= _next_fire:
+                _pool.submit(_fire_nl)
                 n_drive += 1
-            time.sleep(FRAME_DRIVE_CADENCE_MS / 1000.0)
-        s1w = time.perf_counter()
+                _next_fire += _pace_period
+                continue
+            time.sleep(min(0.002, max(0.0, _next_fire - time.perf_counter())))
+        _pool.shutdown(wait=True)
+        s1w = s0w + 3.0  # 发射窗=3s 整（在途排空不计窗——标定同几何）
         sa1 = (_mcp_state(base, ["fprobe_begin"]).get("fprobe_begin") or 0)
-        _log(f"  scroll 主读驱动完成：drive={n_drive} win="
+        _log(f"  scroll 主读驱动完成：drive={n_drive} responded={n_responded} "
+             f"pace={_pace_hz:.0f}Hz k={_pace_workers} win="
              f"{s1w - s0w:.2f}s anchor=[{sa0}..{sa1}]")
 
         # ---- scroll_fps 对照（fprobe 快照差分——022 协议原样） ----
@@ -2050,7 +2092,9 @@ def stage_frame() -> int:
         fps = (len(draw_ends) / win_ms * 1000.0) if win_ms > 0 else 0.0
         sf_pass = fps >= fps_threshold
         rows.append({"id": "scroll_fps", "readback": "row-channel",
-                     "role": "primary", "drive_calls": n_drive,
+                     "role": "primary",
+                     "channel": "pipelined-paced-k2@60Hz",
+                     "drive_calls": n_drive, "responded": n_responded,
                      "anchor": [sa0, sa1],
                      "distinct_draw_end": len(draw_ends),
                      "window_ms": round(win_ms, 1), "fps": round(fps, 2),
@@ -2083,17 +2127,24 @@ def stage_frame() -> int:
                 "form": "l0-vm-debug（保守上界——解释段最慢形）",
                 "panel_hz": panel_hz,
                 "protocol": {
-                    "revision": "PLAN-027 Q-1 双修裁定（2026-10-03）",
+                    "revision": ("PLAN-027 Q-1 双修裁定（2026-10-03）+"
+                                 "PLAN-028 Q-1 驱动通道裁定（2026-10-08——"
+                                 "scroll 主读相切 pipelined-paced k2@60Hz）"),
                     "primary_readback": ("[P725-FRAME] 行通道 total_ms"
                                         "（present=draw_end 优先真值，"
                                         "735 配对修复）"),
                     "comparison_readback": ("fprobe 快照差分（9919 泵消费"
                                            "时刻——退役对照列）"),
                     "drive_cadence_ms": FRAME_DRIVE_CADENCE_MS,
+                    "scroll_drive": ("pipelined-paced k2@60Hz fire-ahead"
+                                     "（T-00 标定 evidence-p028-drive-"
+                                     "channel——阈值/语义 frozen）"),
                     "threshold_semantics": "frozen（P95≤1 帧+面板×0.9 原样）"},
                 "form_note": ("供② 清偿后首判（716 r3 T-15 int lane）→"
                               "PLAN-027 Q-1 测量实施修订（读回呈现面+16ms"
-                              "节拍——阈值/语义零变更）")}
+                              "节拍——阈值/语义零变更）→PLAN-028 Q-1 驱动"
+                              "通道修订（scroll 相 pipelined-paced——740"
+                              " 消费复判）")}
         f.write(json.dumps(head, ensure_ascii=False) + chr(10))
         for r in rows:
             f.write(json.dumps(r, ensure_ascii=False) + chr(10))
