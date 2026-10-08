@@ -370,7 +370,12 @@ SD-01..03+P028-1（merge 期项）+范围断言（零 .at diff+auto-lang
   跟踪账本经 worktree+Git 通道；main 回读验真 id/section/status/
   file〕；④**archived**=本笔〔untracked 计划文件 mv archived/
   +git add 入册+status: archived+completion_kind: delivered〕；
-  ⑤**cleaned**=随清理检查点落（待回填）。**F-1 确认位随收据成
+  ⑤**cleaned**=三树 fresh clean〔wt-guard 三树 clean+占用预检=
+  零 auto.exe 进程〔tasklist 实证——024/025 lesson 免疫〕〕+三
+  worktree 注销〔edit-028 组目录 rmdir 一次清净——027 Permission
+  denied 形态零复现；auto-lang/auto-down 注销零残留〕+branch 删
+  was 28fb017 全落 main 祖先链+组目录清——.wt 零 edit-028 残留+
+  三仓 registry 零〔prune 复验〕。**F-1 确认位随收据成
   文**（Q-1 预告默认臂 (b) pipelined-paced k2@60Hz——标定前置达
   成；改判位=needs_fix 换臂重判）；**部署观察=零重建项**（本件
   纯 tools/docs/specs/tag 面——零 Rust 生成物/零 web bundle/零
