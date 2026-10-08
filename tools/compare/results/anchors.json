@@ -152,6 +152,18 @@
       "verdict": "fail",
       "source": "tools\\bench\\results\\frame-20261003-114158.jsonl",
       "note": "PLAN-027 T-01 终裁（735 消费 delivered@4195f7af9+Q-1 测量实施修订〔用户裁定双修：读回切呈现面行通道+16ms 节拍〕后同机下游终裁，release 工具链 v0.4.2-2704-gde3a64353，N=4 全有效谱）：终跑谱 9.99fps vs ≥54.0 → FAIL 维持——四谱带 9.6-10.0fps（fprobe 对照列 5.4-8.8fps 同带并陈）；红面定责=帧泵回环吞吐上限（~95ms/圈→~10/s 与驱动节拍无关——16ms 节拍下draw_end 间隔 91-95ms 恒定+突发内 0-1ms 连建+帧工作面 2-3ms 全绿〔type_latency 027 首绿同谱实证〕=735 §4 机制候选 (b) 下游定责）；四代谱系 022 8.0/024 6.7-8.8/026 8.1-9.5/027 9.6-10.0 同带—一泵上限主导；解锁前置=上游泵域清偿（复判通道已备=修订协议即终态协议）；下界测量口径不变（值域锚点切片）"
+    },
+    {
+      "state": "l2",
+      "metric": "scroll_fps",
+      "median_ms": 61.33,
+      "unit": "fps",
+      "runs_ms": null,
+      "window_ms": 3000.0,
+      "budget": 54.0,
+      "verdict": "pass",
+      "source": "tools\\bench\\results\\frame-20261008-215117.jsonl",
+      "note": "PLAN-028 T-02 终判（740 消费 delivered@ab7a650bd+Q-1 驱动通道裁定〔pipelined-paced k2@60Hz fire-ahead——标定前置达成背书，阈值/语义 frozen〕后同机下游终判，release 工具链 v0.4.2-2769-g85f7159c2，N=4 全有效谱）：终跑谱 61.33fps vs ≥54.0 → armed PASS 首绿——四代红谱收口（五谱带 61.0-61.7+冒烟 61.0；drive 180@60Hz follow 1.017-1.028 交付随驱=740 §4d 契约下游复现）；红面清偿=740 push 通道（027 泵回环 ~10/s 上限随到达即投递+drain-to-empty 消解——T-00 标定 evidence-p028-drive-channel：交付顶 ~55-61fps 全通道同顶+span 口径 55-57 对 54 薄余量带如实注记）；五代谱系 022 8.0/024 6.7-8.8/026 8.1-9.5/027 9.6-10.0/028 61.0-61.7；发布门解锁注记=SD-01 PLAN-028 节（战略 §2.1 兑现时点）"
     }
   ]
 }

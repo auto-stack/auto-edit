@@ -62,6 +62,10 @@ SRC_FRAME_026 = Path("tools/bench/results/frame-20261003-004030.jsonl")
 # scroll_fps armed FAIL 维持（帧泵回环吞吐上限定责）；终跑谱=行值
 # 源，N=4 全有效谱带随行注记）
 SRC_FRAME_027 = Path("tools/bench/results/frame-20261003-114158.jsonl")
+# PLAN-028 帧两行复判终态谱（740 消费+Q-1 驱动通道裁定〔pipelined-
+# paced k2@60Hz〕后同机下游终判——scroll_fps armed PASS 首绿转绿/
+# type 复证维持；终跑谱=行值源，N=4 全有效谱带随行注记）
+SRC_FRAME_028 = Path("tools/bench/results/frame-20261008-215117.jsonl")
 
 
 def _rows(rel: Path) -> list[dict]:
@@ -104,6 +108,10 @@ def extract() -> dict:
     # scroll FAIL 维持；行通道主读行值源）
     frame27 = _rows(SRC_FRAME_027)
     sf27 = next(r for r in frame27 if r.get("id") == "scroll_fps")
+    # PLAN-028 帧两行复判终态直读（740 消费+Q-1 驱动通道——scroll
+    # 首绿转绿/type 复证；行通道主读行值源）
+    frame28 = _rows(SRC_FRAME_028)
+    sf28 = next(r for r in frame28 if r.get("id") == "scroll_fps")
     return {
         "schema": "p020-our-anchors/1",
         "generated": "tools/compare/anchors.py 直读（零重算——AC-04 逐字对照）",
@@ -236,6 +244,27 @@ def extract() -> dict:
                      "一泵上限主导；解锁前置=上游泵域清偿（复判通道已"
                      "备=修订协议即终态协议）；下界测量口径不变（值域"
                      "锚点切片）"},
+            {"state": "l2", "metric": "scroll_fps",
+             "median_ms": sf28["fps"], "unit": "fps",
+             "runs_ms": None, "window_ms": sf28.get("window_ms"),
+             "budget": sf28.get("threshold"),
+             "verdict": "pass", "source": str(SRC_FRAME_028),
+             "note": "PLAN-028 T-02 终判（740 消费 delivered@ab7a650bd"
+                     "+Q-1 驱动通道裁定〔pipelined-paced k2@60Hz "
+                     "fire-ahead——标定前置达成背书，阈值/语义 frozen〕"
+                     "后同机下游终判，release 工具链 "
+                     "v0.4.2-2769-g85f7159c2，N=4 全有效谱）：终跑谱 "
+                     f"{sf28['fps']}fps vs ≥{sf28['threshold']} → "
+                     "armed PASS 首绿——四代红谱收口（五谱带 "
+                     "61.0-61.7+冒烟 61.0；drive 180@60Hz follow "
+                     "1.017-1.028 交付随驱=740 §4d 契约下游复现）；"
+                     "红面清偿=740 push 通道（027 泵回环 ~10/s 上限随"
+                     "到达即投递+drain-to-empty 消解——T-00 标定 "
+                     "evidence-p028-drive-channel：交付顶 ~55-61fps "
+                     "全通道同顶+span 口径 55-57 对 54 薄余量带如实"
+                     "注记）；五代谱系 022 8.0/024 6.7-8.8/026 "
+                     "8.1-9.5/027 9.6-10.0/028 61.0-61.7；发布门解锁"
+                     "注记=SD-01 PLAN-028 节（战略 §2.1 兑现时点）"},
         ],
     }
 

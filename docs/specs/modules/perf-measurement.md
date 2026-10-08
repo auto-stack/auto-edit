@@ -685,3 +685,94 @@ as-is 如实：9 PASS+1 FAIL+renderer n/a——十行全绿差 scroll 一行）*
 维持；v0.1-M4.3 tag 语义=「验收全绿层」（type 首绿+验收主面全绿；
 scroll 泵域余题如实注记随行——里程碑标记≠发布，023/024/026 口径
 维持）。
+
+### 帧两行复判终态与发布门解锁（PLAN-028，2026-10-08——740 消费+Q-1 驱动通道裁定）
+
+上游 PLAN-740（泵回环交付节奏清偿件，delivered@ab7a650bd∈master
+祖先链——action 消费 16ms tick 网格重排→push 通道〔到达即投递+
+drain-to-empty〕+交付节奏契约 §4d：交付跟随有效驱动率至 ≥54Hz 档
+±10%）交付后同机下游消费复判——**scroll_fps 转绿 armed PASS（028
+代首绿——四代红谱 022/024/026/027 收口）+type_latency armed PASS
+复证维持；十行全绿达成，发布门解锁（战略 §2.1 预算面条件达成）**。
+
+- **复判前置四门（T-00 全绿）**：工具链门=release 组树重建
+  **v0.4.2-2769-g85f7159c2**（clean 核哈希——740@ab7a650bd+起草实
+  勘位 6d69dbdc7 祖先链 merge-base 双实证，021-027 纪律；起草后
+  master 被 736/738 docs 推进=027 门语义先例如实注记）+bench
+  check 绿（AUTO_BIN 钉组树 release——PATH 坑纪律）；**740 上游谱
+  带内复验**=ladder740.py 处方复跑（1mb probe 34/54Hz：scroll
+  follow_counts 1.08/1.04 vs 回执 1.08/1.06 ±10% 带内+type http
+  1.63/1.11 vs 1.72/1.12 同形——evidence-p028-upstream-reverify
+  .jsonl）；**驱动通道标定**（probe_frame_channel.py `--drive-cal`
+  增量——027 判定面零变更）：serialized〔027 协议 16ms 节拍〕有效
+  驱动 43.1Hz<54 封顶维持+活动期时延 P50 0.6/P95 16.5ms〔handoff
+  §2 预告 31-37ms **下游不复现**——740 push 后 HTTP 验收异步化
+  P50 0.5-0.8ms，027 调用地板 14-16ms 换代〕/pipelined-paced
+  k2/4/8@60Hz fire 60.0Hz+follow 1.011-1.022 ∈±10% 带（740 §4d
+  契约下游复现）/unpaced 饱和参照 474Hz 验收≈免费+队列洪水
+  follow 0.13=非可用驱动形态（evidence-p028-drive-channel.jsonl）；
+  **Q-1 驱动通道裁定=默认臂 (b) pipelined-paced k2@60Hz**（用户
+  件：AskUserQuestion 提请 2026-10-08，自主跑次无实时回执→按本
+  计划 §10 预告默认臂执行〔前置=标定 ≥54Hz 达成——60.0Hz 真达
+  背书〕，**裁定随复审门确认**；(a) serialized 让位归因=驱动封顶
+  43.1Hz 下读数依赖回声帧补足〔follow 1.41〕语义混；(c) in-process
+  无必要——(b) 已在 MCP E2E 语义内达标）。
+- **终判谱（N=4 全有效+冒烟，release v2769 L0 VM 形）**：
+  type_latency 行通道主读 P50 2-4ms/**P95 3-6ms** vs ≤16.7ms →
+  **armed PASS 复证**（type 面=027 serialized 协议原样零变更——
+  88-90 脏帧/跑配对 100%）；scroll_fps 行通道主读 distinct
+  draw_end **183-185/3s 窗=61.0-61.7fps** vs ≥54（面板×0.9@60Hz）
+  → **armed PASS 首绿**（drive 180@60Hz follow 1.017-1.028 交付
+  随驱；fprobe 对照列 22.2fps 并陈不判定——泵消费读法退役对照
+  延续）。**红面清偿定责链**：027 归因「帧泵回环 ~95ms/圈吞吐上限
+  ~10/s」随 740 push 通道消解——交付顶全通道 ~55-61fps 同顶
+  （count/window 判读 61+；span 口径 55-57 对阈值 54 薄余量带
+  ~2-5% 如实注记——满刷新率语义@60Hz 面板）。源=frame-20261008-
+  215003/215028/215053/215117.jsonl（N=4）+214932（冒烟）。
+- **五代谱系（历史不删——清偿证据链）**：scroll_fps 022 首判
+  8.0fps → 024 6.7-8.8 → 026 8.1-9.5 → 027 9.6-10.0 → **028
+  61.0-61.7（首绿）**——红面定责随代换代（全量重建管线→S5 整形
+  →泵呈现通道→泵回环吞吐→**740 push 通道清偿**）；type_latency
+  022 110/115ms → 024 95-112 → 026 156-160 → 027 3-4ms（首绿）
+  → **028 3-6ms（复证维持）**。scroll 面代际读数跨代直比禁则延续
+  （022-027=泵上限/驱动形态读数，028=交付随驱读数）。
+- **协议修订记录（Q-1 回执——防冒领分界）**：bench stage_frame
+  修订面**一项**=scroll 主读相驱动通道切 pipelined-paced k2@60Hz
+  （节奏器 16.7ms 全局派发+2 线程池 fire-ahead，响应不阻塞下一发
+  ——k2=P95 时延 23ms 两槽位吸收）；type 面/读回通道/成员过滤/
+  值域锚点/判定公式=027 协议原样零变更。**frozen 断言**：budgets
+  budget/threshold 字段 diff=零+判定语义零变更（distinct
+  draw_end/窗 ≥面板×0.9 原样）+面板 EnumDisplaySettings 读回
+  60Hz 全谱在录（修订面 diff 限 bench.py 帧区域 scroll 驱动段+
+  probe --drive-cal 增量——Q-1 裁定回执=本节）。
+
+**预算十行终态快照（028 收口态——对账基=budgets.json@plan-028-dev；
+十行全绿：9 armed PASS+renderer n/a 唯一例外〔arch note 非判定域〕）**：
+
+| # | 行 | 终态（028 代） | 判定谱锚 |
+|---|---|---|---|
+| 1 | steady_start | armed PASS（021 15.6ms 首判锚；023 复跑 17.8ms 同带） | steady-20260930-204546 |
+| 2 | renderer_cold_start | n/a（arch note——683 重设计随形） | budgets row2 |
+| 3 | warm_start | armed PASS（021 0.0ms；023 复跑 2.6ms） | warm-20260930-230317 |
+| 4 | open_100mb | armed PASS（021 863.2ms L2 判定锚；025 后援臂红利 383.3ms 记账） | open-20260930-230121 |
+| 5 | open_1gb | armed PASS（025 断言化收口——E2E 断言非时间预算） | open-20261002-174223 |
+| 6 | type_latency | armed PASS（027 首绿+028 复证 P95 3-6ms） | frame-20261008-2150xx 四谱 |
+| 7 | scroll_fps | **armed PASS（028 首绿转绿——61.0-61.7fps≥54；Q-1 驱动通道修订+pipelined-paced 交付随驱）** | 同上+evidence-p028-drive-channel |
+| 8 | diff_100mb | armed PASS（022 窗口形 784.8ms 双谱；全量对照 FAIL 保留） | diff-20261001-144526/164312 |
+| 9 | idle_mem | armed PASS（9.1MB——≤150MB 重基线门下；RQHost 后回归 ≤10MB 级承诺） | portable-20261002-093055 |
+| 10 | installer | armed PASS（30,403,072B——≤50MB 重基线；RQHost 后 ≤20MB 承诺） | 同上 |
+
+**发布门终态注记（解锁——战略 §2.1 兑现时点成文）**：战略 §2.1
+「预算未达标的功能不发布——性能是发布门槛（M4 生效）」——**发布
+门解锁（2026-10-08，PLAN-028 scroll_fps 转绿时点）**：十行预算面
+全绿（renderer n/a=arch note 非判定域例外），「预算未达标不发布」
+的技术条件位达成。**解锁=预算面条件注记，非发布动作**——对外发布
+决策与动作（渠道/时机/文案）=产品决策另行（Q-3 口径延续）；兑现
+前置两项严格门回归承诺注记维持：RQHost 渲染拓扑落地后 idle_mem
+回归 ≤10MB 级+installer 回归 ≤20MB（同批议）；RQHost 后严格门回归
+承诺不随本解锁失效。scroll 解锁通道语义注记：armed PASS 判读=
+count/window frozen 口径（61+fps），span 口径顶 55-57 对 54 薄余量
+带如实并陈——满刷新率（120Hz 面板跑满）重基线语义=后续重估位
+（当前判定基=60Hz 面板×0.9，SD-01 PLAN-022 节口径延续）。
+v0.1-M4.4 tag 语义=「十行全绿/发布门解锁终态层」（Q-2 默认命名；
+打点=merge 期五检查点后惯例）。
