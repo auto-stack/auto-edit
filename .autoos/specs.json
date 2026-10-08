@@ -408,6 +408,18 @@
           ],
           "superseded_by": null,
           "content": "- merge 五检查点（r1）：prepared=review 基线 main@252028a/工作树 plan-027-dev@552c789〔base 252028a；四笔 365a21d T-00 终裁勘定/f76e8e5 T-01 终裁+修订实施/d42af6c T-02+T-03 十行态+四代并陈/552c789 T-04+T-05 素材+SD-02/03+交付 d7cccaa F-1 计数补正〔review finding——docs-only descendant，2 行 docs 零代码面核验〕——零 .at diff 判定/工具/文档/tag 面；依赖钉版 auto-lang@de3a64353 detached[735@4195f7af9+737@59ff4e66f+731@30bda6831 祖先链 merge-base 三实证]+auto-down@895f8d0 detached；SD 越界目标先例=specs/auto-edit/README.md[024/025/026 同款]〕；landed=ff-only 零合并提交+main tip=d7cccaa〔19 文件 1283+/45-；main 烟测绿=budgets 10 行+budget/metric/tier 字段 diff=零 frozen+anchors --verify 12 行+render --check 双绿+三 SD 锚点在档+帧谱 JSONL×5+复审 HEAD 复现跑 type PASS/scroll FAIL 判定稳健〕；ledger_refreshed=本条 P027-1 外科插入 28→29〔roundtrip 守卫=json.loads 新旧深等〔他五段+reviews 前缀 28 项零扰动〕+插入项逐字回读——015-026 十二连先例；通道=git 跟踪文件 .autoos/specs.json 经 worktree+Git〕；archived/cleaned=随归档/清理检查点后续落账。"
+        },
+        {
+          "id": "P028-1",
+          "section": "reviews",
+          "status": "stable",
+          "title": "PLAN-028 — M4 终态件 merge 收据（work handoff pass@r1 d9eaf3f+交付=d9eaf3f ff-landed：740 消费 scroll 复判转绿〔Q-1 驱动通道裁定=pipelined-paced k2@60Hz fire-ahead——预告默认臂按标定前置达成执行，阈值/语义 frozen〕=scroll_fps **armed PASS 首绿**〔61.0-61.7fps vs ≥54——四代红谱收口 022 8.0/024 6.7-8.8/026 8.1-9.5/027 9.6-10.0→028 61.0-61.7；红面清偿=740 push 通道消解 027 泵回环 ~10/s 上限——T-00 标定交付顶 ~55-61fps 全通道实证〕+type_latency armed PASS 复证〔P95 3-6ms〕+740 复验带内〔follow 1.08/1.04 vs 回执 1.08/1.06〕+十行全绿〔9 armed PASS+renderer n/a〕+**发布门解锁注记**〔2026-10-08 战略 §2.1 兑现时点——解锁=预算面条件注记，发布动作另行〕+对比表滚动行五代并陈双绿+v0.1-M4.4 tag 素材〔十行全绿/发布门解锁终态层——Q-2 默认命名〕+SD-01..03）",
+          "file": "docs/plans/archived/028-m4-740-consume-scroll-rejudge.md",
+          "related": [
+            "PLAN-028"
+          ],
+          "superseded_by": null,
+          "content": "- merge 五检查点（r1）：prepared=review 基线 main@25f3015/工作树 plan-028-dev@d9eaf3f+依赖钉版 auto-lang@85f7159c2 detached[740@ab7a650bd+起草位 6d69dbdc7 祖先链双实证]+auto-down@895f8d0 detached+wt-guard 三树 clean；landed=ff-only 零合并 main tip=25f3015→d9eaf3f〔merge-base=review 基线=25f3015 实证——rebase 零需要〕+main 烟测绿=budgets 10 行+frozen budget 字段 diff=零+anchors --verify 13 行+render --check 双绿+三 SD 锚点+帧谱 JSONL×5；ledger_refreshed=本条 P028-1 外科 29→30 roundtrip 守卫〔他五段+前缀 29 项零扰动+逐字回读——015-027 十三连先例，git 跟踪账本经 worktree+Git 通道〕；archived/cleaned=随归档/清理检查点后续落账；Q-1 确认位=F-1(info)〔AskUserQuestion 提请 2026-10-08 无实时回执→§10 预告规则执行默认臂 (b)——标定前置达成〔60.0Hz 真达+follow 1.011-1.022 带内〕；改判位=needs_fix 换臂重判〕；F-2(info)=HEAD 复现 58.7fps 带下沿〔阈上 8.7%——verdict 稳健〕；v0.1-M4.4 tag 打点=五检查点后（Q-2 默认命名）"
         }
       ],
       "status": "Empty",
