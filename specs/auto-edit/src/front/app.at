@@ -592,6 +592,17 @@ widget App {
                                     button (text: "内联", variant: "text") { onclick: .DiffToggleView
                                         style: "h-6 px-2 text-[11px] text-muted-foreground" }
                                 }
+                                // 2026-10 BC 对齐：全文⇄差异窗切换（bool 旗标
+                                // 双钮形态——翻转重算 DiffCompute，ctx 3↔
+                                // 100000 钳文件界=整文件；态随 store 保持）。
+                                if .store.diff_full {
+                                    button (text: "差异", variant: "text") { onclick: .DiffToggleFull
+                                        style: "h-6 px-2 text-[11px] text-muted-foreground" }
+                                }
+                                if !.store.diff_full {
+                                    button (text: "全文", variant: "text") { onclick: .DiffToggleFull
+                                        style: "h-6 px-2 text-[11px] text-muted-foreground" }
+                                }
                                 if .store.dir_from_dirs {
                                     button (text: "返回目录", variant: "text") { onclick: .DirBackToDirs
                                         style: "h-6 px-2 text-[11px] text-muted-foreground" }
@@ -602,136 +613,74 @@ widget App {
                             // PLAN-017 T-03: badge probe 隐藏编辑器（h-0
                             // 实化键「diff-probe-a」——T-00③ 轨形勘定件；
                             // 随 diff 视图开/关生命周期建/弃，零布局面）。
-                            code_editor (key: "diff-probe-a", style: "h-0 w-0 overflow-hidden") {
-                                content: ""
+                            // 修复注记：code_editor 的 style 被 iced 渲染层
+                            // 丢弃（CodeEditor 臂 style: _），h-0 w-0 直挂
+                            // 从未生效、编辑器默认 Fill 撑满剩余高度——改由
+                            // 外层 h-0/w-0/overflow-hidden 容器圈定零布局面。
+                            container (style: "h-0 w-0 overflow-hidden shrink-0") {
+                                code_editor (key: "diff-probe-a") {
+                                    content: ""
+                                }
+                            }
+                            // 并排态列头（A/B 双栏分辨——槽宽与行结构逐件
+                            // 对齐：A 钮槽 w-14+行号列 w-12=A 栏起点，分隔
+                            // 线后 B 钮槽+行号列同宽=B 栏起点）。置于
+                            // scroll-pane 外（不随滚动位移——hunk 导航 24px/行
+                            // 偏移公式零扰动）。
+                            if !.store.diff_vmode_inline {
+                                row (style: "h-6 items-center w-full gap-0 shrink-0 bg-muted/30 border-b border-border") {
+                                    div (style: "h-6 w-12 shrink-0") {}
+                                    text "A: ${.store.diff_title_a}" { style: "h-6 flex-1 px-1 text-[11px] font-bold text-red-300" }
+                                    col (style: "h-6 w-px bg-border shrink-0") {}
+                                    div (style: "h-6 w-12 shrink-0") {}
+                                    text "B: ${.store.diff_title_b}" { style: "h-6 flex-1 px-1 text-[11px] font-bold text-emerald-300" }
+                                }
                             }
                             container (style: "flex-1 w-full") {
                                 scroll-pane (controller: .store.diff_scroll, style: "h-full w-full") {
                                     col (style: "gap-0 p-0 w-full") {
-                                        // PLAN-015 T-02: vmode 条件双视图
-                                        //（互斥包裹——并排四循环零改动）。
-                                        // 内联态=三独立 for 循环（ix_del 含
-                                        // pair 展开 del 行 / ix_add 含 add
-                                        // 行 / ix_ctx——pdel≡del-only、
-                                        // padd≡add-only 渲染同构合形）；
-                                        // 行号双列继承（缺席空串零宽保列
-                                        // 对齐），单文本列三段 mid 着重，
-                                        // 色系与并排态一致（del 红/add 绿/
-                                        // ctx 无底色）。
+                                        // PLAN-015 T-02: vmode 条件双视图（互斥包裹）。2026-10 均一化
+                                        // 渲染（BC 对齐形态）：单 for 循环零条件分支——行序=envelope
+                                        // 原序（多分支循环体 vm 渲染损坏/原生挂起实录见 diff-view
+                                        // spec「视图断言口径」节）。形状差异全部 store 侧预变换为
+                                        // 每行字段（btn label 缺席="" + 行号列/三段 style 串）；style
+                                        // 插值=${r.*} 逐字段已证面（extract_string_with 同通道）。
                                         if .store.diff_vmode_inline {
-                                            for ri, r in .store.diff_irows {
-                                                if r.ix_del {
-                                                    row (style: "h-6 w-full gap-0 shrink-0") {
-                                                        // PLAN-017 T-01: 行级编辑
-                                                        // 跳转钮（内联态 irows 投影
-                                                        // 同构——del 行 A 锚）。
-                                                        button (text: "A:${r.d_lo}", variant: "text") { onclick: .DiffIRowEditA(ri)
-                                                            style: "h-6 px-1 text-[11px] font-mono text-red-300 shrink-0" }
-                                                        text "${r.d_lo}" { style: "h-6 w-12 px-1 text-right text-xs font-mono text-red-300 shrink-0" }
-                                                        text "${r.d_ro}" { style: "h-6 w-12 px-1 text-right text-xs font-mono text-muted-foreground shrink-0" }
-                                                        text "${r.pre}" { style: "h-6 text-xs font-mono bg-red-100 shrink-0" }
-                                                        text "${r.mid}" { style: "h-6 text-xs font-mono text-amber-300 bg-red-100 shrink-0" }
-                                                        text "${r.post}" { style: "h-6 flex-1 text-xs font-mono bg-red-100 shrink-0" }
-                                                    }
+                                        for ri, r in .store.diff_irows {
+                                            row (style: "h-6 w-full gap-0 shrink-0") {
+                                                container (style: "h-6 w-12 shrink-0") {
+                                                    text "${r.d_lo}" { style: "${r.ns}" }
+                                                }
+                                                container (style: "h-6 w-12 shrink-0") {
+                                                    text "${r.d_ro}" { style: "${r.ms}" }
+                                                }
+                                                row (style: "${r.cs}") {
+                                                    text "${r.pre}" { style: "${r.ps}" }
+                                                    text "${r.mid}" { style: "${r.mds}" }
+                                                    text "${r.post}" { style: "${r.pts}" }
                                                 }
                                             }
-                                            for ri, r in .store.diff_irows {
-                                                if r.ix_add {
-                                                    row (style: "h-6 w-full gap-0 shrink-0") {
-                                                        button (text: "B:${r.d_ro}", variant: "text") { onclick: .DiffIRowEditB(ri)
-                                                            style: "h-6 px-1 text-[11px] font-mono text-emerald-300 shrink-0" }
-                                                        text "${r.d_lo}" { style: "h-6 w-12 px-1 text-right text-xs font-mono text-muted-foreground shrink-0" }
-                                                        text "${r.d_ro}" { style: "h-6 w-12 px-1 text-right text-xs font-mono text-emerald-300 shrink-0" }
-                                                        text "${r.pre}" { style: "h-6 text-xs font-mono bg-emerald-100 shrink-0" }
-                                                        text "${r.mid}" { style: "h-6 text-xs font-mono text-amber-300 bg-emerald-100 shrink-0" }
-                                                        text "${r.post}" { style: "h-6 flex-1 text-xs font-mono bg-emerald-100 shrink-0" }
-                                                    }
-                                                }
-                                            }
-                                            for ri, r in .store.diff_irows {
-                                                if r.ix_ctx {
-                                                    row (style: "h-6 w-full gap-0 shrink-0") {
-                                                        text "${r.d_lo}" { style: "h-6 w-12 px-1 text-right text-xs font-mono text-muted-foreground shrink-0" }
-                                                        text "${r.d_ro}" { style: "h-6 w-12 px-1 text-right text-xs font-mono text-muted-foreground shrink-0" }
-                                                        text "${r.pre}" { style: "h-6 text-xs font-mono shrink-0" }
-                                                        text "${r.mid}" { style: "h-6 text-xs font-mono shrink-0" }
-                                                        text "${r.post}" { style: "h-6 flex-1 text-xs font-mono shrink-0" }
-                                                    }
-                                                }
-                                            }
+                                        }
                                         }
                                         if !.store.diff_vmode_inline {
-                                        // 四独立 for 循环（每循环单 bool 旗标
-                                        // if——同循环多兄弟 if 对 record 字段
-                                        // 仅首个生效实勘 T-03[ctx 渲染 pair 哑
-                                        // 火，18/3 分裂]；独立循环=结构首位
-                                        // 规避；互斥由 store 侧构造保证）。
                                         for ri, r in .store.diff_rows {
-                                            if r.sx_pair {
-                                                row (style: "h-6 w-full gap-0 shrink-0") {
-                                                    // PLAN-017 T-01: 行级编辑
-                                                    // 跳转钮（label 嵌行号唯一
-                                                    // 性矩阵锚——归属侧判定，
-                                                    // pair 行双侧；裸循环索引
-                                                    // 载荷先例）。
-                                                    button (text: "A:${r.d_lo}", variant: "text") { onclick: .DiffRowEditA(ri)
-                                                        style: "h-6 px-1 text-[11px] font-mono text-red-300 shrink-0" }
-                                                    button (text: "B:${r.d_ro}", variant: "text") { onclick: .DiffRowEditB(ri)
-                                                        style: "h-6 px-1 text-[11px] font-mono text-emerald-300 shrink-0" }
-                                                    text "${r.d_lo}" { style: "h-6 w-12 px-1 text-right text-xs font-mono text-red-300 bg-red-100 shrink-0" }
-                                                    text "${r.d_ro}" { style: "h-6 w-12 px-1 text-right text-xs font-mono text-emerald-300 bg-emerald-100 shrink-0" }
-                                                    text "${r.lpre}" { style: "h-6 text-xs font-mono bg-red-100 shrink-0" }
-                                                    text "${r.lmid}" { style: "h-6 text-xs font-mono text-amber-300 bg-red-100 shrink-0" }
-                                                    text "${r.lpost}" { style: "h-6 flex-1 text-xs font-mono bg-red-100 shrink-0" }
-                                                    text "${r.rpre}" { style: "h-6 text-xs font-mono bg-emerald-100 shrink-0" }
-                                                    text "${r.rmid}" { style: "h-6 text-xs font-mono text-amber-300 bg-emerald-100 shrink-0" }
-                                                    text "${r.rpost}" { style: "h-6 flex-1 text-xs font-mono bg-emerald-100 shrink-0" }
+                                            row (style: "h-6 w-full gap-0 shrink-0") {
+                                                container (style: "h-6 w-12 shrink-0") {
+                                                    text "${r.d_lo}" { style: "${r.nls}" }
                                                 }
-                                            }
-                                        }
-                                        for ri, r in .store.diff_rows {
-                                            if r.sx_ctx {
-                                                row (style: "h-6 w-full gap-0 shrink-0") {
-                                                    text "${r.d_lo}" { style: "h-6 w-12 px-1 text-right text-xs font-mono text-muted-foreground shrink-0" }
-                                                    text "${r.d_ro}" { style: "h-6 w-12 px-1 text-right text-xs font-mono text-muted-foreground shrink-0" }
-                                                    text "${r.lpre}" { style: "h-6 text-xs font-mono shrink-0" }
-                                                    text "${r.lmid}" { style: "h-6 text-xs font-mono shrink-0" }
-                                                    text "${r.lpost}" { style: "h-6 flex-1 text-xs font-mono shrink-0" }
-                                                    text "${r.rpre}" { style: "h-6 text-xs font-mono shrink-0" }
-                                                    text "${r.rmid}" { style: "h-6 text-xs font-mono shrink-0" }
-                                                    text "${r.rpost}" { style: "h-6 flex-1 text-xs font-mono shrink-0" }
+                                                row (style: "${r.lcell}") {
+                                                    text "${r.lpre}" { style: "${r.lps}" }
+                                                    text "${r.lmid}" { style: "${r.lms}" }
+                                                    text "${r.lpost}" { style: "${r.lts}" }
                                                 }
-                                            }
-                                        }
-                                        for ri, r in .store.diff_rows {
-                                            if r.sx_del {
-                                                row (style: "h-6 w-full gap-0 shrink-0") {
-                                                    button (text: "A:${r.d_lo}", variant: "text") { onclick: .DiffRowEditA(ri)
-                                                        style: "h-6 px-1 text-[11px] font-mono text-red-300 shrink-0" }
-                                                    text "${r.d_lo}" { style: "h-6 w-12 px-1 text-right text-xs font-mono text-red-300 bg-red-100 shrink-0" }
-                                                    text "${r.d_ro}" { style: "h-6 w-12 px-1 text-right text-xs font-mono text-muted-foreground shrink-0" }
-                                                    text "${r.lpre}" { style: "h-6 text-xs font-mono bg-red-100 shrink-0" }
-                                                    text "${r.lmid}" { style: "h-6 text-xs font-mono text-amber-300 bg-red-100 shrink-0" }
-                                                    text "${r.lpost}" { style: "h-6 flex-1 text-xs font-mono bg-red-100 shrink-0" }
-                                                    text "" { style: "h-6 flex-1 text-xs font-mono shrink-0" }
-                                                    text "" { style: "h-6 text-xs font-mono shrink-0" }
-                                                    text "" { style: "h-6 flex-1 text-xs font-mono shrink-0" }
+                                                col (style: "h-6 w-px bg-border shrink-0") {}
+                                                container (style: "h-6 w-12 shrink-0") {
+                                                    text "${r.d_ro}" { style: "${r.nrs}" }
                                                 }
-                                            }
-                                        }
-                                        for ri, r in .store.diff_rows {
-                                            if r.sx_add {
-                                                row (style: "h-6 w-full gap-0 shrink-0") {
-                                                    button (text: "B:${r.d_ro}", variant: "text") { onclick: .DiffRowEditB(ri)
-                                                        style: "h-6 px-1 text-[11px] font-mono text-emerald-300 shrink-0" }
-                                                    text "${r.d_lo}" { style: "h-6 w-12 px-1 text-right text-xs font-mono text-muted-foreground shrink-0" }
-                                                    text "${r.d_ro}" { style: "h-6 w-12 px-1 text-right text-xs font-mono text-emerald-300 bg-emerald-100 shrink-0" }
-                                                    text "" { style: "h-6 flex-1 text-xs font-mono shrink-0" }
-                                                    text "" { style: "h-6 text-xs font-mono shrink-0" }
-                                                    text "" { style: "h-6 flex-1 text-xs font-mono shrink-0" }
-                                                    text "${r.rpre}" { style: "h-6 text-xs font-mono bg-emerald-100 shrink-0" }
-                                                    text "${r.rmid}" { style: "h-6 text-xs font-mono text-amber-300 bg-emerald-100 shrink-0" }
-                                                    text "${r.rpost}" { style: "h-6 flex-1 text-xs font-mono bg-emerald-100 shrink-0" }
+                                                row (style: "${r.rcell}") {
+                                                    text "${r.rpre}" { style: "${r.rps}" }
+                                                    text "${r.rmid}" { style: "${r.rms}" }
+                                                    text "${r.rpost}" { style: "${r.rts}" }
                                                 }
                                             }
                                         }
@@ -968,6 +917,8 @@ widget App {
         .DiffPrev -> { store.DiffPrev() }
         // PLAN-015 T-02: 内联视图切换薄委托。
         .DiffToggleView -> { store.DiffToggleView() }
+        // 2026-10 BC 对齐：全文⇄差异窗切换薄委托。
+        .DiffToggleFull -> { store.DiffToggleFull() }
         // PLAN-012 T-03/T-04: 目录 diff 链薄委托。
         .DirDiffOpen -> { store.DirDiffOpen() }
         .DirAInput(v) -> { store.DirAInput(v) }
@@ -999,10 +950,6 @@ widget App {
         .DiffBufClose -> { store.DiffBufClose() }
         .DiffEditJumpA -> { store.DiffEditJumpA() }
         .DiffEditJumpB -> { store.DiffEditJumpB() }
-        .DiffRowEditA(i) -> { store.DiffRowEditA(i) }
-        .DiffRowEditB(i) -> { store.DiffRowEditB(i) }
-        .DiffIRowEditA(i) -> { store.DiffIRowEditA(i) }
-        .DiffIRowEditB(i) -> { store.DiffIRowEditB(i) }
         .ActCut -> { store.ActCut() }
         .ActCopy -> { store.ActCopy() }
         .ActPaste -> { store.ActPaste() }

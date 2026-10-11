@@ -156,10 +156,58 @@ T-00③ 实测行高 24.0=content_h÷行数；float 累加规避 int×float 混�
 ## 视图与快照断言口径（矩阵/探针实证）
 
 - 根视图全幅态 `if .store.diff_open` 条件替换编辑区（console_open
-  同款形态；tab 集零扰动）。行形状四分支=**四个独立 for 循环 ×单
-  bool 旗标 if**（同循环多兄弟 if 对 record 字段仅首个生效、嵌套 if+
-  空串比较两种形态在 2044 有异常史——T-03 三度重构实录，final form
-  为实证绿面；互斥由 store 侧构造保证）。
+  同款形态；tab 集零扰动）。**2026-10 均一化渲染（BC 对齐形态，
+  终稿）**：并排=**单 for 循环零条件分支**——行序还原 envelope 原序，
+  BeyondCompare 式逐行对齐（新增/删除块在对侧占空位）。形状差异全部
+  store 侧预变换为每行字段（`DiffCompute` 尾段）：`btn_a/btn_b`（编辑
+  跳转钮 label，缺席侧=""——handler `lo/ro>0` 守卫=零动作，空槽可点
+  无害）+ `nls/nrs`（行号列 style 串）+ `lps/lms/lts/rps/rms/rts`
+  （三段 style 串，mid=amber 着重）。`style: "${r.*}"` 逐字段插值=
+  已证面（extract_string_with 与 text 同通道，截图像素实证）。
+  动机实录：同循环多兄弟 if 在 vm 轨全分支无条件渲染、else 链仅首
+  分支渲染、原生轨 iced 线程挂起——多分支循环体=平台损坏面（上游
+  债务 want=语义修复）；单 if/循环曾=唯一实证形（四循环按形状分组=
+  行序脱钩），均一零-if 形态绕过该面且行序完整。行结构：**gutter
+  收敛为纯行号双列**（`A:/B:` 行级编辑钮 2026-10-11 用户裁定退役——
+  色块行号已承载形状信息，VSCode/BC gutter 无钮对齐；`DiffRowEditA/
+  B`/`DiffIRowEditA/B` msg+handler+薄委托同步移除，T15.20c 转为退役
+  断言；行级 btn 字段留 store 数据面不渲染）+ 左右 flex-1 单元格
+  （`pl-1` 分隔；**色块落单元格容器级**——段
+  text shrink-0 仅染字形/空段不 paint，BC/VSCode 式整半幅色块=单元格 row
+  的 `bg-red-500/30`/`bg-emerald-500/30`（2026-10 二轮用户反馈加重，
+  初版 /15 过淡）逐行字段 `lcell/rcell`；单侧行空侧 `bg-muted/40`
+  ghost 淡底（VSCode 斜纹占位近似——引擎无斜纹背景图）；行号列**只留字色
+  不染底**（带 bg 的 text 走容器包装路径会吞 w-12 宽度类——色块行行号
+  盒窄 13px 致 gutter 错位实测，2026-10-11 末轮修复；VSCode 行号亦素底）；行内 mid 段
+  `bg-amber-300/25` 底块=VSCode 框选着重等价物）+
+  栏间 w-px 分隔线 + scroll-pane 外并排列头。**全文⇄差异窗切换**
+  （`diff_full` 旗标+`DiffToggleFull` handler+工具栏双钮：ctx 3↔
+  100000 钳文件界=整文件入 envelope——BC 式全量对齐；默认差异窗=
+  矩阵面零扰动，切换态 store 保持；全文态 hunk 归一=导航退化预期形）。
+  已知边界：**引擎修复史**——font-mono 文本走 Rich 语法高亮臂曾只应用
+  字号，`whitespace-nowrap`/`truncate`/宽度/对齐全被忽略（长行折行→行
+  高 48px 翻倍→左右栏纵向错位+滚动条高频抖动，2026-10-11 双问题共因
+  实锤）；auto-lang L0 fix（25ce68e80，Rich 臂对齐 text 构造链消费
+  wrap_none/width/align，日常 5243/5243 绿）后行高恒定 24px、单行裁切。
+  **空侧 gutter 固定槽**（2026-10-11 末末轮用户诊断）：单侧行空侧行号
+  文本为空时节点零宽坍缩，flex-1 单元格左移吃 gutter 区与邻行错位——
+  行号 text 统一包 `container w-12` 固定槽（空内容宽度类仍生效，行头
+  占位同款语义）。**上游搬迁适配**：auto-lang 4707b9742（Plan 763）
+  将 blueprints 迁至 packages/blueprints——pac.at bps dep 路径同步
+  （`auto-lang/blueprints` → `auto-lang/packages/blueprints`；缺失形=
+  tree_util 链接失败 App 启动即挂）。**滚动抖动格斗源修复**（auto-lang
+  L0 fix 三阶）：滚动控制器 F-4 防御回显曾不分来源地把快照偏移重发
+  scroll_to——用户滚轮实测值（on_scroll 读臂）滚动期间天然滞后，回显
+  把滞后值强行写回形成「滚轮推进 vs 回显拉回」来回格斗（大幅滚触发/
+  反向滚退场/差异区重帧放大滞后窗三规律全吻合）；修法=快照加
+  `offset_from_measure` 来源标记——读臂实测值永不回显（注册表即真源），
+  仅写臂投影值重建后补发（terminal/015 防御语义保留）。`sx_*` 旗标
+  保留=导航/调试计数面。
+- **PLAN-017 badge 探针编辑器圈定修正**：`code_editor` 的 style 被
+  iced 渲染层整体丢弃（`AbstractView::CodeEditor { style: _, }`），
+  `h-0 w-0` 直挂从未生效、编辑器默认 Fill 吃掉 diff 视图全部剩余
+  高度（用户实报+截图实证）——改由外层 `h-0 w-0 overflow-hidden`
+  container 包裹圈定零布局面（registry 实化语义不变，badge 链零扰动）。
 - **三段=分离 text 节点**：快照断言必须按分离节点口径（如 `"4-changed"`
   单独成节点），拼接串探针（"L4-changed"）=假阳性（T-03 教训入档）。
 - for 动态行实例在 a11y 快照中**不携带 style 行**——着色断言归截图/
@@ -314,9 +362,13 @@ DiffScrollToHunk 增 vmode 条件扫描源：inline 态扫 `diff_irows`
 
 ### 视图断言口径（P15 实证）
 
-- 内联态=**三独立 for 循环×单 bool 旗标 if**（ix_del/ix_add/ix_ctx
-  ——011 四循环同款结构首位规避）；与并排四循环=vmode 条件互斥包裹
-  （并排态零改动）。
+- 内联态=**单 for 循环零条件分支均一形**（2026-10 与并排同轮改造——
+  行序=irows 投影序，pair 展开 del 先 add 后相邻）；形状字段继承
+  源行（`btn_a/btn_b/ns/ms/ps/mds/pts`——DiffBuildIrows 推送时从
+  diff_rows 新字段继承，缺席侧 btn ""+muted 行号列）。曾试单循环
+  if/else 链=vm 轨 else 分支哑火（截图仅剩 del 行实证）、三独立循环=
+  形状分组行序脱钩——均一零-if 为终稿（同「视图与快照断言口径」节
+  动机实录）。
 - 行布局=行号双列继承（缺席空串零宽保列对齐——w-12×2）+单文本列
   三段；着色与并排态同系（del 红/add 绿/ctx 无底色，mid 着重 amber）。
 - 矩阵断言面：irows 计数+dbg_i\* 三计数=**golden 推导器**期望

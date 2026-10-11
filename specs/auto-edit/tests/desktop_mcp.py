@@ -2372,13 +2372,14 @@ def run_tests(mcp_url, proc):
                          and state_int(st, "tab_count") == 4
                          and line_b == h0["b1"] + 1,
                          f"reopen={ok_re} ok={ok_b} pend={pend_b} line={line_b}")
+            # T15.20c 行级编辑跳转（A:5 行内联钮）——2026-10-11 用户裁定
+            # 退役（色块行号替代 gutter 标记，BC/VSCode 对齐；行级 msg
+            # DiffRowEditA/B/DiffIRowEditA/B 与薄委托同步移除），覆盖收敛
+            # 为工具栏 hunk 级跳转（20b/20d）。
             ok_re2 = _p17_reopen_diff()
             time.sleep(1.0)
-            ok_row = _p17_click_text("A:5")
-            line_r = _p17_readback_line("scattered.a.txt") if ok_row else -1
-            result.check("T15.20c 行级编辑跳转（pair 行 A:5 钮→lo 锚 line=5）",
-                         ok_re2 and ok_row and line_r == 5,
-                         f"reopen={ok_re2} ok={ok_row} line={line_r}")
+            result.check("T15.20c 行级钮退役（视图无 A:/B: gutter 钮）",
+                         ok_re2 and '"A:5"' not in t15.snapshot())
             ok_re3 = _p17_reopen_diff()
             time.sleep(1.0)
             ok_a2 = _p17_click_text("编辑 A 侧")

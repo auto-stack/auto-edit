@@ -254,6 +254,8 @@ store EditorStore {
         // 同款）。
         var diff_vmode str = "side"
         var diff_vmode_inline bool = false
+        // 全文⇄差异窗（2026-10 BC 对齐）：true=ctx 大窗整文件入 envelope。
+        var diff_full bool = false
         var diff_irows list = []
         var diff_irows_count int = 0
         var diff_irows_truncated bool = false
@@ -408,7 +410,7 @@ store EditorStore {
         // PLAN-015 T-01: 内联视图链。DiffToggleView=并排↔内联切换（纯
         // front 投影重建——零 back 调用零重比，AC-02 断言面）；
         // DiffBuildIrows=投影重建内部收口（toggle/compute 尾段双调用位）。
-        DiffToggleView, DiffBuildIrows,
+        DiffToggleView, DiffBuildIrows, DiffToggleFull,
         // PLAN-011 T-02: env 旁路 Tick 消费臂（AUTO_DIFF_A 在档时首拍
         // 自开——矩阵驱动面确定性保障；menubar 展开项不进 vtree 实勘
         // 2044 复认+键盘路径 AltGr 疑虑，双双不可作矩阵依赖）。
@@ -448,14 +450,13 @@ store EditorStore {
         DiffBufClose, DiffBufBypassTick,
         // PLAN-017 T-01: 差异侧编辑跳转链（G-1）。DiffEditJumpA/B=
         // 工具栏双侧钮（静态钮零字面量实参边界——DirFilter* 拆分先例，
-        // 双 msg 薄委托同核）；DiffRowEditA/B(diff)=hunk 变更行内联钮
-        // （裸循环索引载荷+唯一 label——FifResultClick/15.17 先例；并排
-        // 态读 diff_rows、内联态 DiffIRowEditA/B 读 irows 投影）；
+        // 双 msg 薄委托同核；行级内联钮 2026-10-11 用户裁定退役——色块
+        // 行号已承载形状信息，gutter 收敛为纯行号=BC/VSCode 对齐，T15.20c
+        // 同步移除）；
         // DiffEditJumpAt/DiffEditOpen=内部核（side 分派+tab 查径/装载
         // 等待公共收口——handler 互调两参先例 WriteFidelity 同款）；
         // DiffEditTick=装载落点轮转（Tick 尾——RunPendingLoad 之后）。
-        DiffEditJumpA, DiffEditJumpB, DiffRowEditA(int), DiffRowEditB(int),
-        DiffIRowEditA(int), DiffIRowEditB(int),
+        DiffEditJumpA, DiffEditJumpB, 
         DiffEditJumpAt(str), DiffEditOpen(str, int), DiffEditTick,
         // PLAN-017 T-02: 保存感知钩子（WriteFidelity 两臂保存完成位
         // 调用——三域分派见 handler 注）。
@@ -1540,7 +1541,14 @@ store EditorStore {
         .DiffCompute -> {
             if .diff_a != "" {
                 if .diff_b != "" {
-                    let v = json.to_value(diff_files(.diff_a, .diff_b, 3))
+                    // ctx 选择：差异窗=3（默认，矩阵面）；全文态=大窗
+                    // （钳文件界=整文件入 envelope——BC 式全量对齐，切换
+                    // 态由 DiffToggleFull 维护并触发本 handler 重算）。
+                    var ctxv int = 3
+                    if .diff_full {
+                        ctxv = 100000
+                    }
+                    let v = json.to_value(diff_files(.diff_a, .diff_b, ctxv))
                     .diff_err = v.err ?? ""
                     if .diff_err == "" {
                         var capped list = []
@@ -1574,10 +1582,8 @@ store EditorStore {
                                 var rp0 str = r.rpre
                                 var rm0 str = r.rmid
                                 var ro0 str = r.rpost
-                                // bool 形状旗标×4（视图四平铺分支——record
-                                // 字符串字段==字面量的兄弟 if 仅首个生效实勘
-                                // [T-03：ctx 渲染 pair 哑火]，bool 字段 if=
-                                // tab 条 t.dirty 已证面）。
+                                // bool 形状旗标×4（导航/调试计数面保留；
+                                // 视图渲染已改零条件分支均一形——见下）。
                                 var sx_ctx bool = false
                                 var sx_pair bool = false
                                 var sx_del bool = false
@@ -1595,7 +1601,63 @@ store EditorStore {
                                         sx_ctx = true
                                     }
                                 }
-                                capped.push({d_lo: dlo, d_ro: dro, lo: lov, ro: rov, sx_ctx: sx_ctx, sx_pair: sx_pair, sx_del: sx_del, sx_add: sx_add, lk: lk0, rk: rk0, lpre: lp0, lmid: lm0, lpost: lo0, rpre: rp0, rmid: rm0, rpost: ro0})
+                                // 2026-10 均一化渲染预变换（BC 对齐形态）：
+                                // 视图=单循环零条件分支——行序还原 envelope
+                                // 原序（多分支循环体 vm 渲染损坏/原生挂起
+                                // 实录见 diff-view spec「视图断言口径」节）。
+                                // 形状差异全部下沉为每行字段：钮 label
+                                // （缺席侧 ""——handler lo/ro>0 守卫零动作，
+                                // 空槽可点无害）+ 行号列/三段 style 串。
+                                var ba str = ""
+                                var bb str = ""
+                                var nls str = "h-6 w-12 px-1 text-right text-xs font-mono text-muted-foreground shrink-0"
+                                var nrs str = "h-6 w-12 px-1 text-right text-xs font-mono text-muted-foreground shrink-0"
+                                var lps str = "h-6 text-xs font-mono whitespace-nowrap shrink-0"
+                                var lms str = "h-6 text-xs font-mono whitespace-nowrap bg-amber-300/25 shrink-0"
+                                var lts str = "h-6 flex-1 truncate text-xs font-mono"
+                                var rps str = "h-6 text-xs font-mono whitespace-nowrap shrink-0"
+                                var rms str = "h-6 text-xs font-mono whitespace-nowrap bg-amber-300/25 shrink-0"
+                                var rts str = "h-6 flex-1 truncate text-xs font-mono"
+                                // 单元格底色（色块标定容器级=整半幅——段 text
+                                // shrink-0 仅染字形，空段不paint；BC 式色块
+                                // 落 flex-1 单元格 row 上）。
+                                var lcell str = "h-6 flex-1 gap-0 pl-1 overflow-hidden"
+                                var rcell str = "h-6 flex-1 gap-0 pl-1 overflow-hidden"
+                                if sx_pair {
+                                    lcell = "h-6 flex-1 gap-0 pl-1 overflow-hidden bg-red-500/30"
+                                    rcell = "h-6 flex-1 gap-0 pl-1 overflow-hidden bg-emerald-500/30"
+                                    ba = "A:" + dlo
+                                    bb = "B:" + dro
+                                    nls = "h-6 w-12 px-1 text-right text-xs font-mono text-red-300 shrink-0"
+                                    nrs = "h-6 w-12 px-1 text-right text-xs font-mono text-emerald-300 shrink-0"
+                                    lps = "h-6 text-xs font-mono whitespace-nowrap bg-red-500/30 shrink-0"
+                                    lms = "h-6 text-xs font-mono whitespace-nowrap bg-amber-300/25 text-amber-200 bg-red-500/30 shrink-0"
+                                    lts = "h-6 flex-1 truncate text-xs font-mono bg-red-500/30"
+                                    rps = "h-6 text-xs font-mono whitespace-nowrap bg-emerald-500/30 shrink-0"
+                                    rms = "h-6 text-xs font-mono whitespace-nowrap bg-amber-300/25 text-amber-200 bg-emerald-500/30 shrink-0"
+                                    rts = "h-6 flex-1 truncate text-xs font-mono bg-emerald-500/30"
+                                } else {
+                                    if sx_del {
+                                        ba = "A:" + dlo
+                                        nls = "h-6 w-12 px-1 text-right text-xs font-mono text-red-300 shrink-0"
+                                        lps = "h-6 text-xs font-mono whitespace-nowrap bg-red-500/30 shrink-0"
+                                        lms = "h-6 text-xs font-mono whitespace-nowrap bg-amber-300/25 text-amber-200 bg-red-500/30 shrink-0"
+                                        lts = "h-6 flex-1 truncate text-xs font-mono bg-red-500/30"
+                                    lcell = "h-6 flex-1 gap-0 pl-1 overflow-hidden bg-red-500/30"
+                                    rcell = "h-6 flex-1 gap-0 pl-1 overflow-hidden bg-muted/40"
+                                    } else {
+                                        if sx_add {
+                                            bb = "B:" + dro
+                                            nrs = "h-6 w-12 px-1 text-right text-xs font-mono text-emerald-300 shrink-0"
+                                            rps = "h-6 text-xs font-mono whitespace-nowrap bg-emerald-500/30 shrink-0"
+                                            rms = "h-6 text-xs font-mono whitespace-nowrap bg-amber-300/25 text-amber-200 bg-emerald-500/30 shrink-0"
+                                            rts = "h-6 flex-1 truncate text-xs font-mono bg-emerald-500/30"
+                                            rcell = "h-6 flex-1 gap-0 pl-1 overflow-hidden bg-emerald-500/30"
+                                            lcell = "h-6 flex-1 gap-0 pl-1 overflow-hidden bg-muted/40"
+                                        }
+                                    }
+                                }
+                                capped.push({d_lo: dlo, d_ro: dro, lo: lov, ro: rov, sx_ctx: sx_ctx, sx_pair: sx_pair, sx_del: sx_del, sx_add: sx_add, lk: lk0, rk: rk0, lpre: lp0, lmid: lm0, lpost: lo0, rpre: rp0, rmid: rm0, rpost: ro0, btn_a: ba, btn_b: bb, nls: nls, nrs: nrs, lps: lps, lms: lms, lts: lts, rps: rps, rms: rms, rts: rts, lcell: lcell, rcell: rcell})
                                 if sx_pair {
                                     dbg_pair = dbg_pair + 1
                                 }
@@ -1844,6 +1906,23 @@ store EditorStore {
             }
             .console = console_lines()
         }
+        // 全文⇄差异窗切换（2026-10 BC 对齐）：纯态翻转+DiffCompute 重算
+        //（ctx 3↔100000——钳文件界=整文件；hunk 归一=导航退化预期形；
+        // 大文件全文态 envelope 全量物化=显示 cap 600 截断注记承载）。
+        .DiffToggleFull -> {
+            if .diff_open {
+                if !.dir_mode {
+                    .diff_full = !.diff_full
+                    if .diff_full {
+                        console_log("diff: 全文")
+                    } else {
+                        console_log("diff: 差异窗")
+                    }
+                    store.DiffCompute()
+                }
+            }
+            .console = console_lines()
+        }
         // 投影重建：pair 行两行展开（del 先 add 后）+单侧/ctx 行单行；
         // 三段按源侧继承（del 行取 l*、add 行取 r*、ctx 行取 l*——信封
         // ctx 行 lpre=全文本）；行号串缺席侧 ""；cap 600 显示行独立截断
@@ -1871,24 +1950,26 @@ store EditorStore {
                 }
                 if nc < 600 {
                     if p {
-                        out.push({d_lo: dlo, d_ro: "", lo: lov, ro: 0, pre: r.lpre, mid: r.lmid, post: r.lpost, ix_ctx: false, ix_del: true, ix_add: false})
+                        // 均一渲染字段继承源行（btn/ns/ps 系——见 DiffCompute
+                        // 预变换注记）；缺席侧 btn "" + muted 行号列。
+                        out.push({d_lo: dlo, d_ro: "", lo: lov, ro: 0, pre: r.lpre, mid: r.lmid, post: r.lpost, ix_ctx: false, ix_del: true, ix_add: false, cs: r.lcell, btn_a: r.btn_a, btn_b: "", ns: r.nls, ms: "h-6 w-12 px-1 text-right text-xs font-mono text-muted-foreground shrink-0", ps: r.lps, mds: r.lms, pts: r.lts})
                         idel = idel + 1
                         nc = nc + 1
                         if nc < 600 {
-                            out.push({d_lo: "", d_ro: dro, lo: 0, ro: rov, pre: r.rpre, mid: r.rmid, post: r.rpost, ix_ctx: false, ix_del: false, ix_add: true})
+                            out.push({d_lo: "", d_ro: dro, lo: 0, ro: rov, pre: r.rpre, mid: r.rmid, post: r.rpost, ix_ctx: false, ix_del: false, ix_add: true, cs: r.rcell, btn_a: "", btn_b: r.btn_b, ns: "h-6 w-12 px-1 text-right text-xs font-mono text-muted-foreground shrink-0", ms: r.nrs, ps: r.rps, mds: r.rms, pts: r.rts})
                             iadd = iadd + 1
                             nc = nc + 1
                         }
                     } else {
                         if d {
-                            out.push({d_lo: dlo, d_ro: dro, lo: lov, ro: 0, pre: r.lpre, mid: r.lmid, post: r.lpost, ix_ctx: false, ix_del: true, ix_add: false})
+                            out.push({d_lo: dlo, d_ro: dro, lo: lov, ro: 0, pre: r.lpre, mid: r.lmid, post: r.lpost, ix_ctx: false, ix_del: true, ix_add: false, cs: r.lcell, btn_a: r.btn_a, btn_b: "", ns: r.nls, ms: "h-6 w-12 px-1 text-right text-xs font-mono text-muted-foreground shrink-0", ps: r.lps, mds: r.lms, pts: r.lts})
                             idel = idel + 1
                         } else {
                             if a {
-                                out.push({d_lo: dlo, d_ro: dro, lo: 0, ro: rov, pre: r.rpre, mid: r.rmid, post: r.rpost, ix_ctx: false, ix_del: false, ix_add: true})
+                                out.push({d_lo: dlo, d_ro: dro, lo: 0, ro: rov, pre: r.rpre, mid: r.rmid, post: r.rpost, ix_ctx: false, ix_del: false, ix_add: true, cs: r.rcell, btn_a: "", btn_b: r.btn_b, ns: "h-6 w-12 px-1 text-right text-xs font-mono text-muted-foreground shrink-0", ms: r.nrs, ps: r.rps, mds: r.rms, pts: r.rts})
                                 iadd = iadd + 1
                             } else {
-                                out.push({d_lo: dlo, d_ro: dro, lo: lov, ro: rov, pre: r.lpre, mid: r.lmid, post: r.lpost, ix_ctx: true, ix_del: false, ix_add: false})
+                                out.push({d_lo: dlo, d_ro: dro, lo: lov, ro: rov, pre: r.lpre, mid: r.lmid, post: r.lpost, ix_ctx: true, ix_del: false, ix_add: false, cs: r.lcell, btn_a: "", btn_b: "", ns: r.nls, ms: r.nrs, ps: r.lps, mds: r.lms, pts: r.lts})
                                 ictx = ictx + 1
                             }
                         }
@@ -2521,60 +2602,6 @@ store EditorStore {
                             path = .diff_b
                         }
                         store.DiffEditOpen(path, line0)
-                    }
-                }
-            }
-            .console = console_lines()
-        }
-        // 行级动作（hunk 变更行内联钮——裸循环索引载荷+label 嵌行号
-        // 唯一性矩阵锚，FifResultClick/15.17 先例；行归属侧判定：del/
-        // pair 行→A 锚 lo、add 行→B 锚 ro；1 基行号→0 基换算 -1；ctx
-        // 行零钮=T-00② 定案变更行域）。
-        .DiffRowEditA(vi) -> {
-            if vi >= 0 {
-                if .diff_rows_count > vi {
-                    var r = .diff_rows[vi]
-                    var lov int = r.lo ?? 0
-                    if lov > 0 {
-                        store.DiffEditOpen(.diff_a, lov - 1)
-                    }
-                }
-            }
-            .console = console_lines()
-        }
-        .DiffRowEditB(vi) -> {
-            if vi >= 0 {
-                if .diff_rows_count > vi {
-                    var r = .diff_rows[vi]
-                    var rov int = r.ro ?? 0
-                    if rov > 0 {
-                        store.DiffEditOpen(.diff_b, rov - 1)
-                    }
-                }
-            }
-            .console = console_lines()
-        }
-        // 内联态行级动作（irows 投影同构——ix_del 行 lo 锚/ix_add 行
-        // ro 锚；投影记录携带原行号，0 基换算同款）。
-        .DiffIRowEditA(vi) -> {
-            if vi >= 0 {
-                if .diff_irows_count > vi {
-                    var r = .diff_irows[vi]
-                    var lov int = r.lo ?? 0
-                    if lov > 0 {
-                        store.DiffEditOpen(.diff_a, lov - 1)
-                    }
-                }
-            }
-            .console = console_lines()
-        }
-        .DiffIRowEditB(vi) -> {
-            if vi >= 0 {
-                if .diff_irows_count > vi {
-                    var r = .diff_irows[vi]
-                    var rov int = r.ro ?? 0
-                    if rov > 0 {
-                        store.DiffEditOpen(.diff_b, rov - 1)
                     }
                 }
             }
